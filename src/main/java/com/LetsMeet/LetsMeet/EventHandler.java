@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class EventHandler {
 
-    @GetMapping("/")
+    @GetMapping("/Home")
     public String Home(){
         return "Home";
     }
