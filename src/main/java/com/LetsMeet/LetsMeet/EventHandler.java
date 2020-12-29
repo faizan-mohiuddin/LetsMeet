@@ -1,14 +1,15 @@
 package com.LetsMeet.LetsMeet;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-@RestController
+@Controller
 public class EventHandler {
 
-    @GetMapping("/Home")
+    @RequestMapping("/Home")
     public String Home(){
         return "Home";
     }
