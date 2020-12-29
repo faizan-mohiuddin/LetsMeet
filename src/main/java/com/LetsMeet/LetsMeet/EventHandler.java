@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.sql.ResultSet;
@@ -10,7 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EventHandler {
 
     @RequestMapping("/Home")
-    public String Home(){
+    public String Home(Model model){
+        int num = 56;
+        model.addAttribute("num", num);
         return "Home";
     }
 
