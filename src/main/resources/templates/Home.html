@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
 <!-- jQuery library -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -14,9 +14,20 @@
 </head>
 
 <body>
-    <h1>Cael's attempt</h1>
-        The number chosen is <span th:text="${num}"></span>
-    <h2></h2>
+
+    <div th:insert = "header :: navbar"></div>
+
+    <div class = "jumbotron">
+        <div class = "container">
+            <h1>Cael's attempt</h1>
+                The number chosen is <span th:text="${num}"></span>
+            <h2></h2>
+        </div>
+    </div>
+
+    <div class = "container">
+        <div th:insert = "footer :: footer"></div>
+    </div>
 </body>
 
 </html>
