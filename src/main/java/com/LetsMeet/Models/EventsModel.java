@@ -67,8 +67,6 @@ public class EventsModel {
             Statement statement = this.con.createStatement();
             String query = String.format("select * from Event where Event.EventUUID = '%s'", UUID);
 
-            System.out.println(query);
-
             ResultSet rs = statement.executeQuery(query);
             rs.next();
             EventData event = new EventData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));

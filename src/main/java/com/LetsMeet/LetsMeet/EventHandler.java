@@ -12,8 +12,11 @@ public class EventHandler {
     // User methods here
     public void createUser(String fName, String lName, String email, String password){
         // Get a userUUID
+        UUID uuid = UserManager.createUserUUID(fName, lName, email);
 
         // Create a password hash
+
+        // Add to DB
 
     }
     // End of user methods
