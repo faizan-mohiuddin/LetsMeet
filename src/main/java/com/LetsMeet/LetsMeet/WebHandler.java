@@ -3,19 +3,15 @@ package com.LetsMeet.LetsMeet;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.sql.ResultSet;
-import java.util.concurrent.atomic.AtomicLong;
 
-import com.LetsMeet.Models.EventData;
-import com.LetsMeet.Models.UserModel;
+import com.LetsMeet.Models.UserData;
 
 @Controller
 public class WebHandler {
 
     @RequestMapping("/Home")
     public String Home(Model model){
-        UserModel user1 = new UserModel();
+        UserData user1 = new UserData();
         user1.setUsername("faizan");
         user1.setPassword("chicken123");
         model.addAttribute("num", user1.getUsername());
