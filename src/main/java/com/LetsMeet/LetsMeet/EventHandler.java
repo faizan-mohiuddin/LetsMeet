@@ -24,6 +24,11 @@ public class EventHandler {
         return model.allEvents();
     }
 
+    public static EventData getEvent(String UUID){
+        EventsModel model = new EventsModel();
+        return model.getEventByUUID(UUID);
+    }
+
     public static void createEvent(String name, String description, String location){
         // Get an eventUUID
         UUID uuid = EventManager.createEventUUID(name, description, location);

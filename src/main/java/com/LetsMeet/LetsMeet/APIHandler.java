@@ -27,6 +27,11 @@ public class APIHandler {
         return EventHandler.getAllEvents();
     }
 
+    @GetMapping("api/Event/{UUID}")
+    public EventData API_GetEvent(@PathVariable(value="UUID") String UUID){
+        return EventHandler.getEvent(UUID);
+    }
+
     @PostMapping("api/Event")
     public void API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc, @RequestParam(value="Location") String location){
         EventHandler.createEvent(Name, desc, location);

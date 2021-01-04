@@ -1,5 +1,7 @@
 package com.LetsMeet.Models;
 
+import jdk.jfr.Event;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,24 @@ public class EventsModel {
                 events.add(event);
             }
             return events;
+
+        }catch(Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public EventData getEventByUUID(String UUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from Event where Event.EventUUID = '%s'", UUID);
+
+            System.out.println(query);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            EventData event = new EventData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
+            return event;
 
         }catch(Exception e){
             System.out.println(e);
