@@ -7,6 +7,7 @@ import java.util.List;
 import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.UserModel;
 
 @Controller
@@ -19,6 +20,21 @@ public class WebHandler {
         user1.setPassword("chicken123");
         model.addAttribute("num", user1.getUsername());
         return "Home";
+    }
+
+    @GetMapping("/createevent")
+    public String createevent(Model model) {
+        model.addAttribute("event", new EventHandler());
+        return "createevent";
+    }
+
+    @GetMapping("/saveevent")
+    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, Model model){
+        model.addAttribute("eventname", eventname);
+        model.addAttribute("eventdesc", eventdesc);
+        model.addAttribute("eventlocation", eventlocation);
+        EventHandler.createEvent(eventname, eventdesc, eventlocation);
+        return "saveevent";
     }
 
     @PostMapping("/User")
