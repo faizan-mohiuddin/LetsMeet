@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+    <div th:insert = "header :: navbar"></div>
+
+    <div class = "jumbotron">
+        <div class = "container">
+            <h1>Create a User</h1>
+        </div>
+    </div>
+
+    <div class = "container">
+        <form th:action = "@{/saveuser}">
+            <div class="form-group">
+              <label for="userfirstname">First Name: </label>
+              <input type="text" class="form-control" name="userfirstname" th:value = "*{userfirstname}" placeholder="Enter first name...">
+            </div>
+            <div class="form-group">
+              <label for="userlastname">Last Name: </label>
+              <input type="text" class="form-control" name="userlastname" placeholder="Last name...">
+            </div>
+            <div class = "form-group">
+                <label for = "useremail">E-mail: </label>
+                <input type = "text" class = "form-control" name = "useremail" placeholder="E-mail...">
+            </div>
+            <div class = "form-group">
+                <label for = "eventlocation">Password: </label>
+                <input type = "password" class = "form-control" name = "userpassword" placeholder="Password...">
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+          </form>
+    </div>
+    <div th:insert = "footer :: footer"></div>
+</body>
+
+</html>
