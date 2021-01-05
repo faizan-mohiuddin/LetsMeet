@@ -2,21 +2,35 @@ package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.EventsModel;
+import com.LetsMeet.Models.UserModel;
 import jdk.jfr.Event;
+import org.apache.catalina.User;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
 public class EventHandler {
 
     // User methods here
-    public void createUser(String fName, String lName, String email, String password){
+    public static String createUser(String fName, String lName, String email, String password){
         // Get a userUUID
         UUID uuid = UserManager.createUserUUID(fName, lName, email);
 
-        // Create a password hash
+        UserManager manager = new UserManager();
 
-        // Add to DB
+        // Create a salt
+        byte[] salt = manager.generateSalt();
+
+        // Create a password hash
+        byte[] hash = manager.generateHash(password, salt);
+        if(hash == null){
+            return "An error occured creating account";
+        }else{
+            // Add to DB
+            UserModel model = new UserModel();
+            return model.newUser(uuid.toString(), fName, lName, email, hash.toString(), salt.toString());
+        }
 
     }
     // End of user methods

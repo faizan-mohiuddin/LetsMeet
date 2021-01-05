@@ -19,9 +19,6 @@ public class EventsModel {
     }
 
     public String NewEvent(String UUID, String name, String desc, String location ){
-
-        System.out.println(UUID);
-
         try{
             PreparedStatement statement = this.con.prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location) VALUES (?,?,?,?)");
             statement.setString(1, UUID);

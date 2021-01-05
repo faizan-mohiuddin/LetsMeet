@@ -16,8 +16,9 @@ public class APIHandler {
 
     // User routes here
     @PostMapping("/api/User")
-    public void API_AddUser(){
-
+    public void API_AddUser(@RequestParam(value="fName") String fName, @RequestParam(value="lName") String lName,
+                            @RequestParam(value="email") String email, @RequestParam(value="password") String password){
+         EventHandler.createUser(fName, lName, email, password);
     }
     // End of user routes
 
