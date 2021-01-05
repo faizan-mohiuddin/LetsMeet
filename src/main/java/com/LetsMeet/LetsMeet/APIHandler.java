@@ -20,6 +20,12 @@ public class APIHandler {
                             @RequestParam(value="email") String email, @RequestParam(value="password") String password){
          EventHandler.createUser(fName, lName, email, password);
     }
+
+    @PostMapping("/api/login")
+    public void API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
+        EventHandler.login(email, password);
+    }
+
     // End of user routes
 
     // Event routes here

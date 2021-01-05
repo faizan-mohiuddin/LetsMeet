@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.EventsModel;
+import com.LetsMeet.Models.UserData;
 import com.LetsMeet.Models.UserModel;
 import jdk.jfr.Event;
 import org.apache.catalina.User;
@@ -31,12 +32,23 @@ public class EventHandler {
             // Convert hash and salt to hex
             String HexHash = manager.toHex(hash);
             String HexSalt = manager.toHex(salt);
-            
+
             // Add to DB
             UserModel model = new UserModel();
             return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
         }
 
+    }
+
+    public static void login(String email, String password){
+        UserModel model = new UserModel();
+
+        // Get user record corresponding to email
+        UserData user = model.getUserByEmail(email);
+
+        // Check is password is correct
+        boolean match = UserManager.validatePassword(password, user.getPasswordHash(), user.getSalt());
+        System.out.println(match);
     }
     // End of user methods
 

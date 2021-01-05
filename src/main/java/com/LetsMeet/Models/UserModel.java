@@ -39,4 +39,21 @@ public class UserModel {
             return "Error creating account";
         }
     }
+
+    public UserData getUserByEmail(String email){
+        UserData user = new UserData();
+
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from User where User.email = '%s'", email);
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            user.populate(rs.getString(1), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getString(5), rs.getString(6));
+            return user;
+        }catch(Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
 }

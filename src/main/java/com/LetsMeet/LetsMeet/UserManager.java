@@ -52,11 +52,42 @@ public class UserManager {
         BigInteger bi = new BigInteger(1, arr);
         String hex = bi.toString(16);
         int paddingLength = (arr.length * 2) - hex.length();
-        if(paddingLength > 0)
-        {
+        if(paddingLength > 0){
             return String.format("%0"  +paddingLength + "d", 0) + hex;
         }else{
             return hex;
+        }
+    }
+
+    public static byte[] fromHex(String hex){
+        byte[] bytes = new byte[hex.length() / 2];
+        for(int i = 0; i<bytes.length ;i++)
+        {
+            bytes[i] = (byte)Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+        }
+        return bytes;
+    }
+
+    public static boolean validatePassword(String password, String passwordHash, String HexSalt){
+        int iterations = 65536;
+        byte[] hash = fromHex(passwordHash);
+        byte[] salt = fromHex(HexSalt);
+
+        try {
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, hash.length * 8);
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            byte[] testHash = skf.generateSecret(spec).getEncoded();
+
+            int diff = hash.length ^ testHash.length;
+            for(int i = 0; i < hash.length && i < testHash.length; i++)
+            {
+                diff |= hash[i] ^ testHash[i];
+            }
+            return diff == 0;
+
+        }catch(Exception e){
+            System.out.println(e);
+            return false;
         }
     }
 
