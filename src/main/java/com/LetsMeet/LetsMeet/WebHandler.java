@@ -7,11 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import com.LetsMeet.Models.UserData;
 import com.LetsMeet.Models.UserModel;
 
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-
-import com.LetsMeet.LetsMeet.UserManager;
-
 @Controller
 public class WebHandler {
 
@@ -52,17 +47,7 @@ public class WebHandler {
         model.addAttribute("useremail", useremail);
         model.addAttribute("userpassword", userpassword);
 
-        UserManager usrmngr = new UserManager();
-
-        byte[] theSalt = usrmngr.generateSalt();
-        byte[] theHash = usrmngr.generateHash(userpassword, theSalt);
-        UUID theUUID = usrmngr.createUserUUID(userfirstname, userlastname, useremail);
-
-        String saltString = usrmngr.toHex(theSalt);
-        String hashString = usrmngr.toHex(theHash);
-
-        UserModel usr = new UserModel();
-        usr.newUser(theUUID.toString(), userfirstname, userlastname, useremail, hashString, saltString);
+        EventHandler.createUser(userfirstname, userlastname, useremail, userpassword);
 
         return "saveuser";
     }
