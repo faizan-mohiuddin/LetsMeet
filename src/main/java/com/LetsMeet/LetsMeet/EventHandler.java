@@ -24,12 +24,17 @@ public class EventHandler {
 
         // Create a password hash
         byte[] hash = manager.generateHash(password, salt);
+
         if(hash == null){
             return "An error occured creating account";
         }else{
+            // Convert hash and salt to hex
+            String HexHash = manager.toHex(hash);
+            String HexSalt = manager.toHex(salt);
+            
             // Add to DB
             UserModel model = new UserModel();
-            return model.newUser(uuid.toString(), fName, lName, email, hash.toString(), salt.toString());
+            return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
         }
 
     }
