@@ -23,7 +23,8 @@ public class APIHandler {
 
     @PostMapping("/api/login")
     public void API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
-        EventHandler.login(email, password);
+        boolean validation = EventHandler.validate(email, password);
+        // If true API token is returned
     }
 
     // End of user routes

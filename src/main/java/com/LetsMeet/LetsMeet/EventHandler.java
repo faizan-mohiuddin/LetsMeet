@@ -40,7 +40,7 @@ public class EventHandler {
 
     }
 
-    public static void login(String email, String password){
+    public static boolean validate(String email, String password){
         UserModel model = new UserModel();
 
         // Get user record corresponding to email
@@ -49,6 +49,7 @@ public class EventHandler {
         // Check is password is correct
         boolean match = UserManager.validatePassword(password, user.getPasswordHash(), user.getSalt());
         System.out.println(match);
+        return match;
     }
     // End of user methods
 
