@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.EventData;
+import com.LetsMeet.Models.UserData;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.sql.ResultSet;
@@ -23,8 +24,11 @@ public class APIHandler {
 
     @PostMapping("/api/login")
     public void API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
-        boolean validation = EventHandler.validate(email, password);
-        // If true API token is returned
+        UserData user = EventHandler.validate(email, password);
+        if(user != null) {
+            // If true API token is returned
+            EventHandler.getUserToken();
+        }
     }
 
     // End of user routes
