@@ -54,4 +54,20 @@ public class UserData {
         return this.salt;
     }
 
+    public String getUserUUID(){
+        return this.UserUUID;
+    }
+
+    public String getfName(){
+        return this.fName;
+    }
+
+    public String getlName(){
+        return this.lName;
+    }
+
+    public String getEmail(){
+        return this.email;
+    }
+
 }

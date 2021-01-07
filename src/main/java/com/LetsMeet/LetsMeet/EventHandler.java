@@ -4,10 +4,7 @@ import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.EventsModel;
 import com.LetsMeet.Models.UserData;
 import com.LetsMeet.Models.UserModel;
-import jdk.jfr.Event;
-import org.apache.catalina.User;
-
-import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +37,7 @@ public class EventHandler {
 
     }
 
-    public static boolean validate(String email, String password){
+    public static UserData validate(String email, String password){
         UserModel model = new UserModel();
 
         // Get user record corresponding to email
@@ -48,8 +45,38 @@ public class EventHandler {
 
         // Check is password is correct
         boolean match = UserManager.validatePassword(password, user.getPasswordHash(), user.getSalt());
-        System.out.println(match);
-        return match;
+
+        if(match) {
+            return user;
+        }else{
+            return null;
+        }
+    }
+
+    public static String getUserToken(UserData user){
+        // User needs new token issued
+        // Check if user currently has a token issued
+        UserModel model = new UserModel();
+
+        // If they do, remove it and issue a new one
+        if(model.CheckUserToken(user.getUserUUID())){
+            // Remove tokens
+            model.removeAllUserToken(user.getUserUUID());
+        }
+
+        // Create new token
+        String token = UserManager.createAPItoken(user.getUserUUID(), user.getfName(), user.getlName(),
+                user.getEmail(), user.getSalt());
+
+        // Add to DB
+        long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
+        String feedback = model.createToken(user.getUserUUID(), token, tokenExpires);
+
+        if(feedback.equals("Token created successfully")) {
+            return token;
+        }else{
+            return feedback;
+        }
     }
     // End of user methods
 

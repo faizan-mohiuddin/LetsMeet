@@ -3,10 +3,10 @@ package com.LetsMeet.LetsMeet;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.UUID;
+import java.time.Instant;
 
 public class UserManager {
 
@@ -32,7 +32,7 @@ public class UserManager {
         }
     }
 
-    public byte[] generateHash(String password, byte[] salt){
+    public static byte[] generateHash(String password, byte[] salt){
         //PBKDF2 hashing
         //https://howtodoinjava.com/java/java-security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
 
@@ -89,6 +89,21 @@ public class UserManager {
             System.out.println(e);
             return false;
         }
+    }
+    
+    public static String createAPItoken(String UserUUID, String fName, String lName, String email, String salt){
+        // Add time to token data
+        long time = Instant.now().getEpochSecond();
+        String strTime = Long.toString(time);
+
+        String tokenData = UserUUID + fName + lName + email + strTime;
+        String tokenUUID = UUID.nameUUIDFromBytes(tokenData.getBytes()).toString().replace("-", "");
+
+        // Hash the token
+        byte[] tokenByte = UserManager.generateHash(tokenUUID, UserManager.fromHex(salt));
+
+        String token = UserManager.toHex(tokenByte);
+        return token;
     }
 
 }
