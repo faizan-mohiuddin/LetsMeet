@@ -23,11 +23,13 @@ public class APIHandler {
     }
 
     @PostMapping("/api/login")
-    public void API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
+    public String API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
         UserData user = EventHandler.validate(email, password);
         if(user != null) {
             // If true API token is returned
-            EventHandler.getUserToken();
+            return EventHandler.getUserToken(user);
+        }else{
+            return "Error, invalid email or password";
         }
     }
 
