@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class APIHandler {
 
+    // This will return list of commands?
     @GetMapping("/api/Home")
     public String API_Home(){
         return "Api Home";
@@ -22,6 +23,7 @@ public class APIHandler {
          EventHandler.createUser(fName, lName, email, password);
     }
 
+    // User login
     @PostMapping("/api/login")
     public String API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
         UserData user = EventHandler.validate(email, password);
@@ -41,14 +43,29 @@ public class APIHandler {
         return EventHandler.getAllEvents();
     }
 
+    // Get event by specific eventUUID
     @GetMapping("api/Event/{UUID}")
     public EventData API_GetEvent(@PathVariable(value="UUID") String UUID){
         return EventHandler.getEvent(UUID);
     }
 
+    // Create event
     @PostMapping("api/Event")
-    public void API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc, @RequestParam(value="Location") String location){
-        EventHandler.createEvent(Name, desc, location);
+    public String API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc,
+                             @RequestParam(value="Location") String location,
+                             @RequestParam(value="Token", defaultValue="") String token){
+        if(token.equals("")){
+            return "API token required";
+        }else {
+            // Check token is valid
+
+            // Get user
+            UserData user = UserManager.getUserFromToken(token);
+            if(user == null){
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+            return EventHandler.createEvent(Name, desc, location, user);
+        }
     }
 
     // End of event routes

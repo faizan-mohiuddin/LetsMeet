@@ -1,5 +1,9 @@
 package com.LetsMeet.LetsMeet;
 
+import com.LetsMeet.Models.EventsModel;
+import com.LetsMeet.Models.UserData;
+import com.LetsMeet.Models.UserModel;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
@@ -104,6 +108,22 @@ public class UserManager {
 
         String token = UserManager.toHex(tokenByte);
         return token;
+    }
+
+    public static UserData getUserFromToken(String token){
+        // Search DB for userUUID corresponding to token
+        EventsModel model = new EventsModel();
+        String UserUUID = model.UserUUIDFromToken(token);
+
+        // Get user from UUID
+        UserModel userModel = new UserModel();
+        UserData user = userModel.getUserByUUID(UserUUID);
+
+        if(user == null){
+            return null;
+        }else{
+            return user;
+        }
     }
 
 }

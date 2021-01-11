@@ -53,9 +53,30 @@ public class UserModel {
             rs.next();
             user.populate(rs.getString(1), rs.getString(2), rs.getString(3),
                     rs.getString(4), rs.getString(5), rs.getString(6));
+
             return user;
+
         }catch(Exception e){
-            System.out.println("\nUserModel.getUserByEmail");
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public UserData getUserByUUID(String uuid){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from User where User.UserUUID = '%s'", uuid);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            UserData user = new UserData();
+            user.populate(rs.getString(1), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getString(5), rs.getString(6));
+
+            return user;
+
+        }catch(Exception e){
             System.out.println(e);
             return null;
         }
@@ -76,7 +97,6 @@ public class UserModel {
             }
 
         }catch(Exception e){
-            System.out.println("\nUserModel.CheckUserToken");
             System.out.println(e);
             return false;
         }
@@ -98,7 +118,6 @@ public class UserModel {
             }
 
         }catch(Exception e){
-            System.out.println("\nUserModel.createToken");
             System.out.println(e);
             return "Error creating API token";
         }
@@ -112,7 +131,6 @@ public class UserModel {
             statement.executeUpdate(query);
 
         }catch(Exception e){
-            System.out.println("\nUserModel.removeAllUserToken");
             System.out.println(e);
         }
     }

@@ -91,13 +91,13 @@ public class EventHandler {
         return model.getEventByUUID(UUID);
     }
 
-    public static void createEvent(String name, String description, String location){
+    public static String createEvent(String name, String description, String location, UserData organiser){
         // Get an eventUUID
         UUID uuid = EventManager.createEventUUID(name, description, location);
 
         // Add to DB
         EventsModel model = new EventsModel();
-        model.NewEvent(uuid.toString(), name, description, location);
+        return model.NewEvent(uuid.toString(), name, description, location);
     }
     // End of event methods
 }
