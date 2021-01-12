@@ -58,13 +58,20 @@ public class APIHandler {
             return "API token required";
         }else {
             // Check token is valid
+            boolean valid = EventHandler.checkValidAPIToken(token);
 
-            // Get user
-            UserData user = UserManager.getUserFromToken(token);
-            if(user == null){
-                return "Error finding user. Is the token still valid? Is the user account still active?";
+            if(valid){
+                // Get user
+                UserData user = UserManager.getUserFromToken(token);
+                if(user == null){
+                    return "Error finding user. Is the token still valid? Is the user account still active?";
+                }
+
+                return EventHandler.createEvent(Name, desc, location, user.getUserUUID());
+            }else{
+                return "Invalid token. Token may have expired";
             }
-            return EventHandler.createEvent(Name, desc, location, user);
+
         }
     }
 

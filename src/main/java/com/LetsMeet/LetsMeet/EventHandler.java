@@ -1,9 +1,7 @@
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.EventData;
-import com.LetsMeet.Models.EventsModel;
-import com.LetsMeet.Models.UserData;
-import com.LetsMeet.Models.UserModel;
+import com.LetsMeet.Models.*;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -78,6 +76,24 @@ public class EventHandler {
             return feedback;
         }
     }
+
+    public static boolean checkValidAPIToken(String token){
+        // Get record from DB
+        UserModel model = new UserModel();
+        TokenData tokenData = model.getTokenRecord(token);
+
+        if(tokenData == null){
+            return false;
+        }else{
+            // Check token expiry
+            long currentTime = Instant.now().getEpochSecond();
+            if(currentTime <= tokenData.getExpires()){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
     // End of user methods
 
     // Event methods here
@@ -91,13 +107,26 @@ public class EventHandler {
         return model.getEventByUUID(UUID);
     }
 
-    public static String createEvent(String name, String description, String location, UserData organiser){
+    public static String createEvent(String name, String description, String location, String organiserUUID){
         // Get an eventUUID
         UUID uuid = EventManager.createEventUUID(name, description, location);
 
-        // Add to DB
+        // Add Event to DB
         EventsModel model = new EventsModel();
-        return model.NewEvent(uuid.toString(), name, description, location);
+        String result = model.NewEvent(uuid.toString(), name, description, location);
+
+        if(result == null){
+            return "Error creating event";
+        }else {
+            // Add Event and user to 'HasUsers' table
+            UserModel userModel = new UserModel();
+            result = userModel.populateHasUsers(uuid.toString(), organiserUUID,true);
+            if(result == null){
+                return "Error adding organiser to event";
+            }else{
+                return "Event created successfully";
+            }
+        }
     }
     // End of event methods
 }

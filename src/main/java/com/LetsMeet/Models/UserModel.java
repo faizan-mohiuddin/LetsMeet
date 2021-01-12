@@ -134,4 +134,44 @@ public class UserModel {
             System.out.println(e);
         }
     }
+
+    public String populateHasUsers(String eventUUID, String userUUID, boolean IsOwner){
+        try{
+            PreparedStatement statement = this.con.prepareStatement(
+                    "INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?, ?, ?)");
+            statement.setString(1, eventUUID);
+            statement.setString(2, userUUID);
+            statement.setBoolean(3, IsOwner);
+
+            int rows = statement.executeUpdate();
+
+            if(rows > 0){
+                return "Link added successfully";
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch(Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public TokenData getTokenRecord(String token){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from Token where Token.TokenUUID = '%s'", token);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            TokenData data = new TokenData();
+            data.populate(rs.getString(1), rs.getString(2), rs.getInt(3));
+            return data;
+
+        }catch(Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
 }

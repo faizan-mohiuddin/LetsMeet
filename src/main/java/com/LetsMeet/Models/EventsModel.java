@@ -36,7 +36,7 @@ public class EventsModel {
 
         }catch(Exception e){
             System.out.println(e);
-            return "Error creating event";
+            return null;
         }
     }
 

@@ -13,10 +13,6 @@ public class WebHandler {
 
     @RequestMapping("/Home")
     public String Home(Model model){
-        UserData user1 = new UserData();
-        user1.setUsername("faizan");
-        user1.setPassword("chicken123");
-        model.addAttribute("num", user1.getUsername());
         return "Home";
     }
 
@@ -31,7 +27,7 @@ public class WebHandler {
         model.addAttribute("eventname", eventname);
         model.addAttribute("eventdesc", eventdesc);
         model.addAttribute("eventlocation", eventlocation);
-        EventHandler.createEvent(eventname, eventdesc, eventlocation);
+        EventHandler.createEvent(eventname, eventdesc, eventlocation, null);
         return "saveevent";
     }
 
