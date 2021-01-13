@@ -174,4 +174,26 @@ public class UserModel {
             return null;
         }
     }
+
+    public boolean checkEmailExists(String email){
+        // Returns true if the email exists
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("SELECT COUNT(email) AS Emails FROM User WHERE User.email = '%s'", email);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            int count = rs.getInt(1);
+
+            if(count > 0){
+                throw new Exception("");
+            }
+            return false;
+
+        }catch(Exception e){
+            System.out.println(e);
+            return true;
+        }
+    }
 }

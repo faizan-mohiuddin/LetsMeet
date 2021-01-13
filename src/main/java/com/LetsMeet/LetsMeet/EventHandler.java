@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.*;
+import org.apache.catalina.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,27 +11,34 @@ public class EventHandler {
 
     // User methods here
     public static String createUser(String fName, String lName, String email, String password){
-        // Get a userUUID
-        UUID uuid = UserManager.createUserUUID(fName, lName, email);
+        // Verify that email address has not already been used
+        boolean uniqueEmail = UserManager.checkUniqueEmail(email);
 
-        UserManager manager = new UserManager();
+        if(uniqueEmail) {
+            // Get a userUUID
+            UUID uuid = UserManager.createUserUUID(fName, lName, email);
 
-        // Create a salt
-        byte[] salt = manager.generateSalt();
+            UserManager manager = new UserManager();
 
-        // Create a password hash
-        byte[] hash = manager.generateHash(password, salt);
+            // Create a salt
+            byte[] salt = manager.generateSalt();
 
-        if(hash == null){
-            return "An error occured creating account";
+            // Create a password hash
+            byte[] hash = manager.generateHash(password, salt);
+
+            if (hash == null) {
+                return "An error occured creating account";
+            } else {
+                // Convert hash and salt to hex
+                String HexHash = manager.toHex(hash);
+                String HexSalt = manager.toHex(salt);
+
+                // Add to DB
+                UserModel model = new UserModel();
+                return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
+            }
         }else{
-            // Convert hash and salt to hex
-            String HexHash = manager.toHex(hash);
-            String HexSalt = manager.toHex(salt);
-
-            // Add to DB
-            UserModel model = new UserModel();
-            return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
+            return "Email address is already used for another account.";
         }
 
     }

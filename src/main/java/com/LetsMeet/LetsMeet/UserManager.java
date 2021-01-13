@@ -126,4 +126,11 @@ public class UserManager {
         }
     }
 
+    public static boolean checkUniqueEmail(String email){
+        // Returns true if the given email is not already in the DB
+        // Otherwise returns false
+        UserModel model = new UserModel();
+        return !model.checkEmailExists(email);
+    }
+
 }
