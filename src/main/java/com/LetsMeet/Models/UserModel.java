@@ -13,7 +13,7 @@ public class UserModel {
             this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522",
                     "sql2383522", "iN8!qL4*");
         }catch(Exception e){
-            System.out.println("\nUserModel, initilise");
+            System.out.println("\nUser Model: initilise");
             System.out.println(e);
         }
     }
@@ -37,7 +37,7 @@ public class UserModel {
             }
 
         }catch(Exception e){
-            System.out.println("\nUserModel.newUser");
+            System.out.println("\nUser Model: newUser");
             System.out.println(e);
             return "Error creating account";
         }
@@ -57,6 +57,7 @@ public class UserModel {
             return user;
 
         }catch(Exception e){
+            System.out.println("\nUser Model: getUserByEmail");
             System.out.println(e);
             return null;
         }
@@ -77,6 +78,7 @@ public class UserModel {
             return user;
 
         }catch(Exception e){
+            System.out.println("\nUser Model: getUserByUUID");
             System.out.println(e);
             return null;
         }
@@ -97,6 +99,7 @@ public class UserModel {
             }
 
         }catch(Exception e){
+            System.out.println("\nUser Model: CheckUserToken");
             System.out.println(e);
             return false;
         }
@@ -152,6 +155,7 @@ public class UserModel {
             }
 
         }catch(Exception e){
+            System.out.println("\nUser Model: populateHasUsers");
             System.out.println(e);
             return null;
         }
@@ -187,11 +191,12 @@ public class UserModel {
             int count = rs.getInt(1);
 
             if(count > 0){
-                throw new Exception("");
+                return true;
             }
             return false;
 
         }catch(Exception e){
+            System.out.println("Event Model: checkEmailExists");
             System.out.println(e);
             return true;
         }

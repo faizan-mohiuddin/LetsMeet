@@ -136,5 +136,24 @@ public class EventHandler {
             }
         }
     }
+
+    public static String joinEvent(String EventUUID, String UserUUID){
+        // Check event exists
+        EventsModel model = new EventsModel();
+        EventData data = model.getEventByUUID(EventUUID);
+
+        if(data == null){
+            return "Event Doesnt exist";
+        }
+
+        // Add user to event as not an owner
+        UserModel userModel = new UserModel();
+        String result = userModel.populateHasUsers(EventUUID, UserUUID,false);
+        if(result == null){
+            return "Error adding user to event";
+        }else{
+            return "User added to event";
+        }
+    }
     // End of event methods
 }

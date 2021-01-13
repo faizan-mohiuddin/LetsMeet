@@ -75,5 +75,33 @@ public class APIHandler {
         }
     }
 
+    // Join event
+    @PutMapping("api/Event/{EventUUID}")
+    public String API_AddUserToEvent(@RequestParam(value="Token", defaultValue ="") String token,
+                                     @PathVariable(value="EventUUID") String EventUUID) {
+        // Validate API token
+        if (token.equals("")) {
+            return "API token required";
+        } else {
+            // Check token is valid
+            boolean valid = EventHandler.checkValidAPIToken(token);
+
+            if (valid) {
+                // Get user
+                UserData user = UserManager.getUserFromToken(token);
+
+                if (user == null) {
+                    return "Error finding user. Is the token still valid? Is the user account still active?";
+                }
+
+                // Add user to event
+                return EventHandler.joinEvent(EventUUID, user.getUserUUID());
+
+            } else {
+                return "Invalid token. Token may have expired";
+            }
+        }
+    }
+
     // End of event routes
 }

@@ -14,6 +14,7 @@ public class EventsModel {
         try{
             this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522", "sql2383522", "iN8!qL4*");
         }catch(Exception e){
+            System.out.println("\nEvents Model: Initialise");
             System.out.println(e);
         }
     }
@@ -35,6 +36,7 @@ public class EventsModel {
             }
 
         }catch(Exception e){
+            System.out.println("\nEvents Model: NewEvent");
             System.out.println(e);
             return null;
         }
@@ -54,6 +56,7 @@ public class EventsModel {
             return events;
 
         }catch(Exception e){
+            System.out.println("\nEvents Model: allEvents");
             System.out.println(e);
             return null;
         }
@@ -70,6 +73,7 @@ public class EventsModel {
             return event;
 
         }catch(Exception e){
+            System.out.println("\nEvents Model: getEventByUUID");
             System.out.println(e);
             return null;
         }
@@ -84,6 +88,7 @@ public class EventsModel {
             rs.next();
             return rs.getString(1);
         }catch(Exception e){
+            System.out.println("\nEvents Model: UserUUIDFromToken");
             System.out.println(e);
             return null;
         }
