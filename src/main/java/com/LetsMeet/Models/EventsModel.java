@@ -75,4 +75,45 @@ public class EventsModel {
         }
     }
 
+    // Space for condition sets ///////////////////////////////////////////////////////////////////////////////////////
+    public String NewConditionSet(String ConditionSetUUID, String Name, String UserUUID){
+        try{
+            PreparedStatement statement = this.con.prepareStatement("INSERT INTO ConditionSet (ConditionSetUUID, Name, UserUUID) VALUES (?,?,?)");
+            statement.setString(1, ConditionSetUUID);
+            statement.setString(2, Name);
+            statement.setString(3, UserUUID);
+
+            int rows = statement.executeUpdate();
+
+            if(rows > 0){
+                return "ConditionSet created successfully";
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch (Exception e){
+            System.out.println(e);
+            return "Error creating Condition Set";
+        }
+    }
+
+    public String AddConditionSetToEvent(String EventUUID, String ConditionSetUUID){
+        try{
+            PreparedStatement statement = this.con.prepareStatement("INSERT INTO HasConditionSet (ConditionSetUUID, EventUUID) VALUES (?,?)");
+            statement.setString(1, ConditionSetUUID);
+            statement.setString(2, EventUUID);
+
+            int rows = statement.executeUpdate();
+
+            if(rows > 0){
+                return "ConditionSet added to Event successfully";
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+        }catch(Exception e){
+            System.out.println(e);
+            return "Error adding ConditionSet to Event";
+        }
+    }
+    // End of space for condition sets ////////////////////////////////////////////////////////////////////////////////
 }

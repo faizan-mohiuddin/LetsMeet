@@ -47,9 +47,16 @@ public class APIHandler {
     }
 
     @PostMapping("api/Event")
-    public void API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc, @RequestParam(value="Location") String location){
+    public void API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc,
+                             @RequestParam(value="Location") String location){
         EventHandler.createEvent(Name, desc, location);
     }
-
     // End of event routes
+
+    // ConditionSet routes
+    @PutMapping("api/ConditionSet")
+    public String API_NewConditionSet(@RequestParam(value="EventUUID") String EventUUID, @RequestParam("Token") String Token){
+        return "ConditionSet created successfully";
+    }
+    // End of ConditionSet routes
 }
