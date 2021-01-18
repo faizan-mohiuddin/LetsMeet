@@ -1,9 +1,8 @@
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.EventData;
-import com.LetsMeet.Models.EventsModel;
-import com.LetsMeet.Models.UserData;
-import com.LetsMeet.Models.UserModel;
+import com.LetsMeet.Models.*;
+import org.apache.catalina.User;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -12,27 +11,34 @@ public class EventHandler {
 
     // User methods here
     public static String createUser(String fName, String lName, String email, String password){
-        // Get a userUUID
-        UUID uuid = UserManager.createUserUUID(fName, lName, email);
+        // Verify that email address has not already been used
+        boolean uniqueEmail = UserManager.checkUniqueEmail(email);
 
-        UserManager manager = new UserManager();
+        if(uniqueEmail) {
+            // Get a userUUID
+            UUID uuid = UserManager.createUserUUID(fName, lName, email);
 
-        // Create a salt
-        byte[] salt = manager.generateSalt();
+            UserManager manager = new UserManager();
 
-        // Create a password hash
-        byte[] hash = manager.generateHash(password, salt);
+            // Create a salt
+            byte[] salt = manager.generateSalt();
 
-        if(hash == null){
-            return "An error occured creating account";
+            // Create a password hash
+            byte[] hash = manager.generateHash(password, salt);
+
+            if (hash == null) {
+                return "An error occured creating account";
+            } else {
+                // Convert hash and salt to hex
+                String HexHash = manager.toHex(hash);
+                String HexSalt = manager.toHex(salt);
+
+                // Add to DB
+                UserModel model = new UserModel();
+                return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
+            }
         }else{
-            // Convert hash and salt to hex
-            String HexHash = manager.toHex(hash);
-            String HexSalt = manager.toHex(salt);
-
-            // Add to DB
-            UserModel model = new UserModel();
-            return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
+            return "Email address is already used for another account.";
         }
 
     }
@@ -78,6 +84,24 @@ public class EventHandler {
             return feedback;
         }
     }
+
+    public static boolean checkValidAPIToken(String token){
+        // Get record from DB
+        UserModel model = new UserModel();
+        TokenData tokenData = model.getTokenRecord(token);
+
+        if(tokenData == null){
+            return false;
+        }else{
+            // Check token expiry
+            long currentTime = Instant.now().getEpochSecond();
+            if(currentTime <= tokenData.getExpires()){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
     // End of user methods
 
     // Event methods here
@@ -91,13 +115,45 @@ public class EventHandler {
         return model.getEventByUUID(UUID);
     }
 
-    public static void createEvent(String name, String description, String location){
+    public static String createEvent(String name, String description, String location, String organiserUUID){
         // Get an eventUUID
         UUID uuid = EventManager.createEventUUID(name, description, location);
 
-        // Add to DB
+        // Add Event to DB
         EventsModel model = new EventsModel();
-        model.NewEvent(uuid.toString(), name, description, location);
+        String result = model.NewEvent(uuid.toString(), name, description, location);
+
+        if(result == null){
+            return "Error creating event";
+        }else {
+            // Add Event and user to 'HasUsers' table
+            UserModel userModel = new UserModel();
+            result = userModel.populateHasUsers(uuid.toString(), organiserUUID,true);
+            if(result == null){
+                return "Error adding organiser to event";
+            }else{
+                return "Event created successfully";
+            }
+        }
+    }
+
+    public static String joinEvent(String EventUUID, String UserUUID){
+        // Check event exists
+        EventsModel model = new EventsModel();
+        EventData data = model.getEventByUUID(EventUUID);
+
+        if(data == null){
+            return "Event Doesnt exist";
+        }
+
+        // Add user to event as not an owner
+        UserModel userModel = new UserModel();
+        String result = userModel.populateHasUsers(EventUUID, UserUUID,false);
+        if(result == null){
+            return "Error adding user to event";
+        }else{
+            return "User added to event";
+        }
     }
     // End of event methods
 }

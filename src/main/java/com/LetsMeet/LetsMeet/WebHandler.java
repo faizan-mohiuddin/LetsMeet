@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.LetsMeet.Models.UserData;
 import com.LetsMeet.Models.UserModel;
@@ -12,10 +13,6 @@ public class WebHandler {
 
     @RequestMapping("/Home")
     public String Home(Model model){
-        UserData user1 = new UserData();
-        user1.setUsername("faizan");
-        user1.setPassword("chicken123");
-        model.addAttribute("num", user1.getUsername());
         return "Home";
     }
 
@@ -30,7 +27,7 @@ public class WebHandler {
         model.addAttribute("eventname", eventname);
         model.addAttribute("eventdesc", eventdesc);
         model.addAttribute("eventlocation", eventlocation);
-        EventHandler.createEvent(eventname, eventdesc, eventlocation);
+        EventHandler.createEvent(eventname, eventdesc, eventlocation, null);
         return "saveevent";
     }
 
@@ -54,6 +51,36 @@ public class WebHandler {
 
     @PostMapping("/User")
     public void CreateUser(@RequestParam(value = "email") String email){
+
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String attemptlogin(@RequestParam(name = "loginemail") String username, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes) {
+
+        UserModel usr1 = new UserModel();
+
+        UserData emailexists = usr1.getUserByEmail(username);
+
+        try {
+            if (emailexists != null) {
+                redirectAttributes.addFlashAttribute("success", "You have logged in as " + emailexists.getEmail());
+                return "redirect:/Home";
+            } else {
+
+                redirectAttributes.addFlashAttribute("error", "There was a problem logging in!");
+                return "redirect:/login";
+            }
+        } catch (Exception e) {
+
+            redirectAttributes.addFlashAttribute("error", "There was a problem logging in!");
+            return "redirect:/login";
+
+        }
 
     }
 }

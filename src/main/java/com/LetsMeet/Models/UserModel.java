@@ -13,7 +13,7 @@ public class UserModel {
             this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522",
                     "sql2383522", "iN8!qL4*");
         }catch(Exception e){
-            System.out.println("\nUserModel, initilise");
+            System.out.println("\nUser Model: initilise");
             System.out.println(e);
         }
     }
@@ -37,7 +37,7 @@ public class UserModel {
             }
 
         }catch(Exception e){
-            System.out.println("\nUserModel.newUser");
+            System.out.println("\nUser Model: newUser");
             System.out.println(e);
             return "Error creating account";
         }
@@ -53,9 +53,32 @@ public class UserModel {
             rs.next();
             user.populate(rs.getString(1), rs.getString(2), rs.getString(3),
                     rs.getString(4), rs.getString(5), rs.getString(6));
+
             return user;
+
         }catch(Exception e){
-            System.out.println("\nUserModel.getUserByEmail");
+            System.out.println("\nUser Model: getUserByEmail");
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public UserData getUserByUUID(String uuid){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from User where User.UserUUID = '%s'", uuid);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            UserData user = new UserData();
+            user.populate(rs.getString(1), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getString(5), rs.getString(6));
+
+            return user;
+
+        }catch(Exception e){
+            System.out.println("\nUser Model: getUserByUUID");
             System.out.println(e);
             return null;
         }
@@ -76,7 +99,7 @@ public class UserModel {
             }
 
         }catch(Exception e){
-            System.out.println("\nUserModel.CheckUserToken");
+            System.out.println("\nUser Model: CheckUserToken");
             System.out.println(e);
             return false;
         }
@@ -98,7 +121,6 @@ public class UserModel {
             }
 
         }catch(Exception e){
-            System.out.println("\nUserModel.createToken");
             System.out.println(e);
             return "Error creating API token";
         }
@@ -112,8 +134,71 @@ public class UserModel {
             statement.executeUpdate(query);
 
         }catch(Exception e){
-            System.out.println("\nUserModel.removeAllUserToken");
             System.out.println(e);
+        }
+    }
+
+    public String populateHasUsers(String eventUUID, String userUUID, boolean IsOwner){
+        try{
+            PreparedStatement statement = this.con.prepareStatement(
+                    "INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?, ?, ?)");
+            statement.setString(1, eventUUID);
+            statement.setString(2, userUUID);
+            statement.setBoolean(3, IsOwner);
+
+            int rows = statement.executeUpdate();
+
+            if(rows > 0){
+                return "Link added successfully";
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch(Exception e){
+            System.out.println("\nUser Model: populateHasUsers");
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public TokenData getTokenRecord(String token){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from Token where Token.TokenUUID = '%s'", token);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            TokenData data = new TokenData();
+            data.populate(rs.getString(1), rs.getString(2), rs.getInt(3));
+            return data;
+
+        }catch(Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public boolean checkEmailExists(String email){
+        // Returns true if the email exists
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("SELECT COUNT(email) AS Emails FROM User WHERE User.email = '%s'", email);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            int count = rs.getInt(1);
+
+            if(count > 0){
+                return true;
+            }
+            return false;
+
+        }catch(Exception e){
+            System.out.println("Event Model: checkEmailExists");
+            System.out.println(e);
+            return true;
         }
     }
 }
