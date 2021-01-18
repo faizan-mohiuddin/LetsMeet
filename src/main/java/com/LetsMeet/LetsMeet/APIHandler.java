@@ -106,8 +106,25 @@ public class APIHandler {
 
     // ConditionSet routes
     @PutMapping("api/ConditionSet")
-    public String API_NewConditionSet(@RequestParam(value="EventUUID") String EventUUID, @RequestParam("Token") String Token){
-        return "ConditionSet created successfully";
+    public String API_NewConditionSet(@RequestParam(value="EventUUID") String EventUUID, @RequestParam("Token") String token,
+                                      @RequestParam(value="SetName") String setName) {
+        // Verify API token
+        if (token.equals("")) {
+            return "API token required";
+        } else {
+            // Check token is valid
+            boolean valid = EventHandler.checkValidAPIToken(token);
+
+            if (valid) {
+                // Get user
+                UserData user = UserManager.getUserFromToken(token);
+                EventHandler.NewConditionSet(EventUUID, user.getUserUUID(), setName);
+
+                return "ConditionSet created successfully";
+            }else{
+                return "Invalid token. Token may have expired";
+            }
+        }
     }
     // End of ConditionSet routes
 }
