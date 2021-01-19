@@ -24,7 +24,9 @@ public class UserModel {
         }catch(Exception e){
             System.out.println("\nUser Model: closeCon");
             System.out.println(e);
-            this.closeCon();
+            if(this.con != null) {
+                this.closeCon();
+            }
         }
     }
 
