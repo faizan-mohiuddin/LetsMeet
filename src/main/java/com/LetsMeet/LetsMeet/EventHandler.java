@@ -158,16 +158,26 @@ public class EventHandler {
     // End of event methods
 
     // ConditionSet Methods
-    public static void NewConditionSet(String EventUUID, String UserUUID, String SetName){
+    public static String NewConditionSet(String EventUUID, String UserUUID, String SetName){
         // Create ConditionSetUUID
         String ConditionSetUUID = EventManager.createConditionSetUUID(EventUUID, UserUUID, SetName).toString();
 
         // Add conditionSet to DB
         EventsModel model = new EventsModel();
-        model.NewConditionSet(ConditionSetUUID, SetName, UserUUID);
+        String result = model.NewConditionSet(ConditionSetUUID, SetName, UserUUID);
+        if(result == null){
+            return "Error creating condition set";
+        }else{
+            // Add connection between Event and condition set
+            result = model.AddConditionSetToEvent(EventUUID, ConditionSetUUID);
+            if(result == null){
+                return "Error adding condition set to event";
+            }else{
+                return "Condition set successfully created";
+            }
+        }
 
-        // Add connection between Event and condition set
-        model.AddConditionSetToEvent(EventUUID, ConditionSetUUID);
+
 
     }
     // End of ConditionSet Methods

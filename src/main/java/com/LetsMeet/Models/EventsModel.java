@@ -112,7 +112,7 @@ public class EventsModel {
 
         }catch (Exception e){
             System.out.println(e);
-            return "Error creating Condition Set";
+            return null;
         }
     }
 
@@ -131,7 +131,7 @@ public class EventsModel {
             }
         }catch(Exception e){
             System.out.println(e);
-            return "Error adding ConditionSet to Event";
+            return null;
         }
     }
     // End of space for condition sets ////////////////////////////////////////////////////////////////////////////////
