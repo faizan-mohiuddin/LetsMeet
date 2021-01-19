@@ -136,8 +136,6 @@ public class EventsModel {
             query = String.format("DELETE FROM HasUsers where HasUsers.eventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
-            System.out.println("Done 1st delete");
-
             query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 

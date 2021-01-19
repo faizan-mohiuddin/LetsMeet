@@ -30,7 +30,7 @@ public class UserModel {
         }
     }
 
-    public String newUser(String UUID, String fName, String lName, String email, String passwordhash, String salt ){
+    public String newUser(String UUID, String fName, String lName, String email, String passwordhash, String salt){
         try{
             PreparedStatement statement = this.con.prepareStatement(
                     "INSERT INTO User (UserUUID, fName, lName, email, PasswordHash, salt) VALUES (?,?,?,?,?,?)");
