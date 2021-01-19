@@ -18,6 +18,16 @@ public class UserModel {
         }
     }
 
+    public void closeCon(){
+        try {
+            this.con.close();
+        }catch(Exception e){
+            System.out.println("\nUser Model: closeCon");
+            System.out.println(e);
+            this.closeCon();
+        }
+    }
+
     public String newUser(String UUID, String fName, String lName, String email, String passwordhash, String salt ){
         try{
             PreparedStatement statement = this.con.prepareStatement(

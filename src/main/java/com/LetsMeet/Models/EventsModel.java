@@ -19,6 +19,16 @@ public class EventsModel {
         }
     }
 
+    public void closeCon(){
+        try {
+            this.con.close();
+        }catch(Exception e){
+            System.out.println("\nEvents Model: closeCon");
+            System.out.println(e);
+            this.closeCon();
+        }
+    }
+
     public String NewEvent(String UUID, String name, String desc, String location ){
         try{
             PreparedStatement statement = this.con.prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location) VALUES (?,?,?,?)");
@@ -91,6 +101,50 @@ public class EventsModel {
             System.out.println("\nEvents Model: UserUUIDFromToken");
             System.out.println(e);
             return null;
+        }
+    }
+
+    public List<HasUsersRecord> getHasUsers(String eventUUID, String UserUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s' and HasUsers.UserUUID = '%s' ", eventUUID, UserUUID);
+
+            ResultSet rs = statement.executeQuery(query);
+            List<HasUsersRecord> records = new ArrayList<>();
+
+            while(rs.next()){
+                HasUsersRecord record = new HasUsersRecord();
+                record.populate(rs.getString(1), rs.getString(2), rs.getBoolean(3));
+                records.add(record);
+            }
+            return records;
+        }catch(Exception e){
+            System.out.println("\nEvents Model: getHasUsers");
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public String deleteEvent(String eventUUID){
+        try{
+            Statement statement = this.con.createStatement();
+
+            String query;
+
+            query = String.format("DELETE FROM HasUsers where HasUsers.eventUUID = '%s'", eventUUID);
+            statement.executeUpdate(query);
+
+            System.out.println("Done 1st delete");
+
+            query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
+            statement.executeUpdate(query);
+
+            return "Event deleted successfully";
+
+        }catch(Exception e){
+            System.out.println("\nEvents Model: deleteEvent");
+            System.out.println(e);
+            return "Error deleting event";
         }
     }
 

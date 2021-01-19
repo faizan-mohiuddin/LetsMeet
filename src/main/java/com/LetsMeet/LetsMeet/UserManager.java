@@ -1,14 +1,17 @@
 package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.EventsModel;
+import com.LetsMeet.Models.HasUsersRecord;
 import com.LetsMeet.Models.UserData;
 import com.LetsMeet.Models.UserModel;
+import jdk.jfr.Event;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.List;
 import java.util.UUID;
 import java.time.Instant;
 
@@ -114,10 +117,12 @@ public class UserManager {
         // Search DB for userUUID corresponding to token
         EventsModel model = new EventsModel();
         String UserUUID = model.UserUUIDFromToken(token);
+        model.closeCon();
 
         // Get user from UUID
         UserModel userModel = new UserModel();
         UserData user = userModel.getUserByUUID(UserUUID);
+        userModel.closeCon();
 
         if(user == null){
             return null;
@@ -130,7 +135,23 @@ public class UserManager {
         // Returns true if the given email is not already in the DB
         // Otherwise returns false
         UserModel model = new UserModel();
-        return !model.checkEmailExists(email);
+        boolean r = !model.checkEmailExists(email);
+        model.closeCon();
+        return r;
+    }
+
+    public static boolean checkIfOwner(String EventUUID, String UserUUID){
+        // Returns true if the user is the owner of the event
+        EventsModel model = new EventsModel();
+        List<HasUsersRecord> records = model.getHasUsers(EventUUID, UserUUID);
+        model.closeCon();
+
+        for(HasUsersRecord r : records){
+            if(r.IsOwner){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

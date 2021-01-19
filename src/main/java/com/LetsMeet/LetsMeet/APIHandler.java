@@ -102,6 +102,32 @@ public class APIHandler {
             }
         }
     }
+
+    @DeleteMapping("api/Event/{EventUUID}")
+    public String API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
+
+        if (token.equals("")){
+            return "API token required";
+        } else {
+            // Check token is valid
+            boolean valid = EventHandler.checkValidAPIToken(token);
+
+            if (valid) {
+                // Get user
+                UserData user = UserManager.getUserFromToken(token);
+
+                if (user == null) {
+                    return "Error finding user. Is the token still valid? Is the user account still active?";
+                }
+
+                // Add user to event
+                return EventHandler.deleteEvent(EventUUID, user.getUserUUID());
+
+            } else {
+                return "Invalid token. Token may have expired";
+            }
+        }
+    }
     // End of event routes
 
     // ConditionSet routes

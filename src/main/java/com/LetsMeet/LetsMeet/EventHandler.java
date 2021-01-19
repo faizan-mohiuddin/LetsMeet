@@ -35,7 +35,9 @@ public class EventHandler {
 
                 // Add to DB
                 UserModel model = new UserModel();
-                return model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
+                String r = model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
+                model.closeCon();
+                return r;
             }
         }else{
             return "Email address is already used for another account.";
@@ -48,6 +50,7 @@ public class EventHandler {
 
         // Get user record corresponding to email
         UserData user = model.getUserByEmail(email);
+        model.closeCon();
 
         // Check is password is correct
         boolean match = UserManager.validatePassword(password, user.getPasswordHash(), user.getSalt());
@@ -77,6 +80,7 @@ public class EventHandler {
         // Add to DB
         long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
         String feedback = model.createToken(user.getUserUUID(), token, tokenExpires);
+        model.closeCon();
 
         if(feedback.equals("Token created successfully")) {
             return token;
@@ -89,6 +93,7 @@ public class EventHandler {
         // Get record from DB
         UserModel model = new UserModel();
         TokenData tokenData = model.getTokenRecord(token);
+        model.closeCon();
 
         if(tokenData == null){
             return false;
@@ -107,12 +112,16 @@ public class EventHandler {
     // Event methods here
     public static List<EventData> getAllEvents(){
         EventsModel model = new EventsModel();
-        return model.allEvents();
+        List<EventData> r = model.allEvents();
+        model.closeCon();
+        return r;
     }
 
     public static EventData getEvent(String UUID){
         EventsModel model = new EventsModel();
-        return model.getEventByUUID(UUID);
+        EventData r = model.getEventByUUID(UUID);
+        model.closeCon();
+        return r;
     }
 
     public static String createEvent(String name, String description, String location, String organiserUUID){
@@ -122,6 +131,7 @@ public class EventHandler {
         // Add Event to DB
         EventsModel model = new EventsModel();
         String result = model.NewEvent(uuid.toString(), name, description, location);
+        model.closeCon();
 
         if(result == null){
             return "Error creating event";
@@ -129,6 +139,7 @@ public class EventHandler {
             // Add Event and user to 'HasUsers' table
             UserModel userModel = new UserModel();
             result = userModel.populateHasUsers(uuid.toString(), organiserUUID,true);
+            userModel.closeCon();
             if(result == null){
                 return "Error adding organiser to event";
             }else{
@@ -155,6 +166,23 @@ public class EventHandler {
             return "User added to event";
         }
     }
+
+    public static String deleteEvent(String EventUUID, String UserUUID){
+        // Check that user is owner of event
+        boolean owner = UserManager.checkIfOwner(EventUUID, UserUUID);
+
+        if(owner){
+            // Delete record from 'event' table and from 'hasusers' table
+            EventsModel model = new EventsModel();
+            String r = model.deleteEvent(EventUUID);
+            model.closeCon();
+            return r;
+        }else{
+            return "You dont have permission to delete this event";
+        }
+
+
+    }
     // End of event methods
 
     // ConditionSet Methods
@@ -166,10 +194,12 @@ public class EventHandler {
         EventsModel model = new EventsModel();
         String result = model.NewConditionSet(ConditionSetUUID, SetName, UserUUID);
         if(result == null){
+            model.closeCon();
             return "Error creating condition set";
         }else{
             // Add connection between Event and condition set
             result = model.AddConditionSetToEvent(EventUUID, ConditionSetUUID);
+            model.closeCon();
             if(result == null){
                 return "Error adding condition set to event";
             }else{
