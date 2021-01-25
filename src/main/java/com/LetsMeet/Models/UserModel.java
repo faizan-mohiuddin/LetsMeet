@@ -96,6 +96,38 @@ public class UserModel {
         }
     }
 
+    public UserData getUserByToken(String token){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            return this.getUserByUUID(rs.getString(1));
+
+        }catch(Exception e){
+            System.out.println("\nUser Model: getUserByToken");
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public String getUserUUIDByToken(String token){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            return rs.getString(1);
+
+        }catch(Exception e){
+            System.out.println("\nUser Model: getUserByToken");
+            System.out.println(e);
+            return null;
+        }
+    }
+
     public boolean CheckUserToken(String UUID){
         try{
             Statement statement = this.con.createStatement();

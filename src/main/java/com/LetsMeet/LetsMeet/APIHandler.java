@@ -3,6 +3,8 @@ package com.LetsMeet.LetsMeet;
 import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.UserData;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicLong;
@@ -41,6 +43,31 @@ public class APIHandler {
     @GetMapping("api/Events")
     public List<EventData> API_GetAllEvents(){
         return EventHandler.getAllEvents();
+    }
+
+    @GetMapping("api/MyEvents")
+    public List<EventData> API_GetMyEvents(@RequestParam(value="Token") String token){
+        if(token.equals("")){
+            EventData error = new EventData("Token cannot be empty", "Token cannot be empty", "Token cannot be empty", "Token cannot be empty");
+            List<EventData> ErrorReturn = new ArrayList<>();
+            ErrorReturn.add(error);
+            return ErrorReturn;
+        }else {
+            // Check token is valid
+            boolean valid = EventHandler.checkValidAPIToken(token);
+
+            if(valid){
+                // Get user UUID
+                String UserUUID = EventHandler.getUserUUIDfromToken(token);
+                return EventHandler.getMyEvents(UserUUID);
+            }
+
+            EventData error = new EventData("Invalid token. Token may have expired", "Invalid token. Token may have expired",
+                    "Invalid token. Token may have expired", "Invalid token. Token may have expired");
+            List<EventData> ErrorReturn = new ArrayList<>();
+            ErrorReturn.add(error);
+            return ErrorReturn;
+        }
     }
 
     // Get event by specific eventUUID
