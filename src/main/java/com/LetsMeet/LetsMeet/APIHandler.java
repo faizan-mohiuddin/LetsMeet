@@ -46,7 +46,7 @@ public class APIHandler {
     }
 
     @GetMapping("api/MyEvents")
-    public List<EventData> API_GetMyEvents(@RequestParam(value="Token") String token){
+    public List<EventData> API_GetMyEvents(@RequestParam(value="Token") String token) {
         if(token.equals("")){
             EventData error = new EventData("Token cannot be empty", "Token cannot be empty", "Token cannot be empty", "Token cannot be empty");
             List<EventData> ErrorReturn = new ArrayList<>();
@@ -130,6 +130,7 @@ public class APIHandler {
         }
     }
 
+    // Delete event
     @DeleteMapping("api/Event/{EventUUID}")
     public String API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
 
