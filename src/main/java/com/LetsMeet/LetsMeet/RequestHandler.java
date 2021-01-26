@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-public class EventHandler {
+public class RequestHandler {
 
     // User methods here
     public static String createUser(String fName, String lName, String email, String password){

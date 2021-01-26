@@ -20,16 +20,16 @@ public class APIHandler {
     @PostMapping("/api/User")
     public String API_AddUser(@RequestParam(value="fName") String fName, @RequestParam(value="lName") String lName,
                             @RequestParam(value="email") String email, @RequestParam(value="password") String password){
-         return EventHandler.createUser(fName, lName, email, password);
+         return RequestHandler.createUser(fName, lName, email, password);
     }
 
     // User login
     @PostMapping("/api/login")
     public String API_Login(@RequestParam(value="email") String email, @RequestParam(value="password") String password){
-        UserData user = EventHandler.validate(email, password);
+        UserData user = RequestHandler.validate(email, password);
         if(user != null) {
             // If true API token is returned
-            return EventHandler.getUserToken(user);
+            return RequestHandler.getUserToken(user);
         }else{
             return "Error, invalid email or password";
         }
@@ -40,13 +40,13 @@ public class APIHandler {
     // Event routes here
     @GetMapping("api/Events")
     public List<EventData> API_GetAllEvents(){
-        return EventHandler.getAllEvents();
+        return RequestHandler.getAllEvents();
     }
 
     // Get event by specific eventUUID
     @GetMapping("api/Event/{UUID}")
     public EventData API_GetEvent(@PathVariable(value="UUID") String UUID){
-        return EventHandler.getEvent(UUID);
+        return RequestHandler.getEvent(UUID);
     }
 
     // Create event
@@ -58,7 +58,7 @@ public class APIHandler {
             return "API token required";
         }else {
             // Check token is valid
-            boolean valid = EventHandler.checkValidAPIToken(token);
+            boolean valid = RequestHandler.checkValidAPIToken(token);
 
             if(valid){
                 // Get user
@@ -67,7 +67,7 @@ public class APIHandler {
                     return "Error finding user. Is the token still valid? Is the user account still active?";
                 }
 
-                return EventHandler.createEvent(Name, desc, location, user.getUserUUID());
+                return RequestHandler.createEvent(Name, desc, location, user.getUserUUID());
             }else{
                 return "Invalid token. Token may have expired";
             }
@@ -84,7 +84,7 @@ public class APIHandler {
             return "API token required";
         } else {
             // Check token is valid
-            boolean valid = EventHandler.checkValidAPIToken(token);
+            boolean valid = RequestHandler.checkValidAPIToken(token);
 
             if (valid) {
                 // Get user
@@ -95,7 +95,7 @@ public class APIHandler {
                 }
 
                 // Add user to event
-                return EventHandler.joinEvent(EventUUID, user.getUserUUID());
+                return RequestHandler.joinEvent(EventUUID, user.getUserUUID());
 
             } else {
                 return "Invalid token. Token may have expired";
@@ -110,7 +110,7 @@ public class APIHandler {
             return "API token required";
         } else {
             // Check token is valid
-            boolean valid = EventHandler.checkValidAPIToken(token);
+            boolean valid = RequestHandler.checkValidAPIToken(token);
 
             if (valid) {
                 // Get user
@@ -121,7 +121,7 @@ public class APIHandler {
                 }
 
                 // Add user to event
-                return EventHandler.deleteEvent(EventUUID, user.getUserUUID());
+                return RequestHandler.deleteEvent(EventUUID, user.getUserUUID());
 
             } else {
                 return "Invalid token. Token may have expired";
@@ -139,12 +139,12 @@ public class APIHandler {
             return "API token required";
         } else {
             // Check token is valid
-            boolean valid = EventHandler.checkValidAPIToken(token);
+            boolean valid = RequestHandler.checkValidAPIToken(token);
 
             if (valid) {
                 // Get user
                 UserData user = UserManager.getUserFromToken(token);
-                EventHandler.NewConditionSet(EventUUID, user.getUserUUID(), setName);
+                RequestHandler.NewConditionSet(EventUUID, user.getUserUUID(), setName);
 
                 return "ConditionSet created successfully";
             }else{

@@ -18,7 +18,7 @@ public class WebHandler {
 
     @GetMapping("/createevent")
     public String createevent(Model model) {
-        model.addAttribute("event", new EventHandler());
+        model.addAttribute("event", new RequestHandler());
         return "createevent";
     }
 
@@ -27,7 +27,7 @@ public class WebHandler {
         model.addAttribute("eventname", eventname);
         model.addAttribute("eventdesc", eventdesc);
         model.addAttribute("eventlocation", eventlocation);
-        EventHandler.createEvent(eventname, eventdesc, eventlocation, null);
+        RequestHandler.createEvent(eventname, eventdesc, eventlocation, null);
         return "saveevent";
     }
 
@@ -44,7 +44,7 @@ public class WebHandler {
         model.addAttribute("useremail", useremail);
         model.addAttribute("userpassword", userpassword);
 
-        EventHandler.createUser(userfirstname, userlastname, useremail, userpassword);
+        RequestHandler.createUser(userfirstname, userlastname, useremail, userpassword);
 
         return "saveuser";
     }
