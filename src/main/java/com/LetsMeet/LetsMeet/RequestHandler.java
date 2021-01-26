@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.*;
+import jdk.jfr.Event;
 import org.apache.catalina.User;
 
 import java.time.Instant;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class EventHandler {
+public class RequestHandler {
 
     // User methods here
     public static String createUser(String fName, String lName, String email, String password){
@@ -90,30 +91,31 @@ public class EventHandler {
         }
     }
 
-    public static boolean checkValidAPIToken(String token){
-        // Get record from DB
-        UserModel model = new UserModel();
-        TokenData tokenData = model.getTokenRecord(token);
-        model.closeCon();
-
-        if(tokenData == null){
-            return false;
-        }else{
-            // Check token expiry
-            long currentTime = Instant.now().getEpochSecond();
-            if(currentTime <= tokenData.getExpires()){
-                return true;
-            }else{
-                return false;
-            }
-        }
-    }
-
     public static String getUserUUIDfromToken(String token){
         UserModel model = new UserModel();
         String userUUID = model.getUserUUIDByToken(token);
         model.closeCon();
         return userUUID;
+    }
+
+    public static String deleteUser(String UserUUID){
+        // Delete events where user is owner
+        List<EventData> events = RequestHandler.getMyEvents(UserUUID);
+        String r;
+
+        for(EventData event : events){
+            r = RequestHandler.deleteEvent(event.getUUID().toString(), UserUUID);
+            if(r.equals("Error deleting event")){
+                // Stop
+                return "Error Deleting user";
+            }
+        }
+
+        // Remove user from user table
+        UserModel model = new UserModel();
+        r = model.deleteUser(UserUUID);
+        model.closeCon();
+        return r;
     }
     // End of user methods
 

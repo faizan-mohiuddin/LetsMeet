@@ -55,6 +55,19 @@ public class UserModel {
         }
     }
 
+    public String deleteUser(String UUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", UUID);
+            statement.executeUpdate(query);
+            return "User Deleted";
+        }catch(Exception e){
+            System.out.println("\nUser Model: deleteUser");
+            System.out.println(e);
+            return "Error deleting user";
+        }
+    }
+
     public UserData getUserByEmail(String email){
         UserData user = new UserData();
 
