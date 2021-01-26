@@ -4,6 +4,7 @@ import com.LetsMeet.Models.*;
 import org.apache.catalina.User;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -107,6 +108,13 @@ public class RequestHandler {
             }
         }
     }
+
+    public static String getUserUUIDfromToken(String token){
+        UserModel model = new UserModel();
+        String userUUID = model.getUserUUIDByToken(token);
+        model.closeCon();
+        return userUUID;
+    }
     // End of user methods
 
     // Event methods here
@@ -115,6 +123,13 @@ public class RequestHandler {
         List<EventData> r = model.allEvents();
         model.closeCon();
         return r;
+    }
+
+    public static List<EventData> getMyEvents(String UserUUID){
+        EventsModel model = new EventsModel();
+        List<EventData> events = model.getEventsByUserUUID(UserUUID);
+        model.closeCon();
+        return events;
     }
 
     public static EventData getEvent(String UUID){

@@ -1,9 +1,13 @@
 import requests
+import json
 
 
 class LetsMeetAPITesting:
-    def __init__(self):
+    def __init__(self, email=None, password=None):
         self.address = "http://localhost:8080/api/"
+        self.email = email
+        self.password = password
+        self.token = None
 
     def get_all_users(self):
         pass
@@ -11,13 +15,14 @@ class LetsMeetAPITesting:
     def get_all_event(self):
         pass
 
-    def insert_user(self):
-        payload = {}
-        r = requests.post(self.address + "", params=payload)
+    def getMyEvents(self):
+        payload = {"Token": self.token}
+        r = requests.get(self.address + "MyEvents", params=payload)
         print(r.text)
+        return json.loads(r.text)
 
-    def insert_event(self, name, desc, location):
-        payload = {'Name': name, 'Desc': desc, 'Location': location}
+    def createEvent(self, name, desc, location):
+        payload = {"Name": name, "Desc": desc, "Location": location, "Token": self.token}
         r = requests.post(self.address + "Event", params=payload)
         print(r.text)
 
