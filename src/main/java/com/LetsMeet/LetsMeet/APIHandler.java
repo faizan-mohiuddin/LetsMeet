@@ -2,6 +2,8 @@ package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.UserData;
+import jdk.jfr.Event;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,6 +39,24 @@ public class APIHandler {
         }
     }
 
+    // Delete user account
+    @DeleteMapping("/api/User")
+    public String API_DeleteUser(@RequestParam(value="Token") String token){
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            String UserUUID = RequestHandler.getUserUUIDfromToken(token);
+
+            // Delete user
+            return RequestHandler.deleteUser(UserUUID);
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
+        }
+    }
+
     // End of user routes
 
     // Event routes here
@@ -47,23 +67,16 @@ public class APIHandler {
 
     @GetMapping("api/MyEvents")
     public List<EventData> API_GetMyEvents(@RequestParam(value="Token") String token) {
-        if(token.equals("")){
-            EventData error = new EventData("Token cannot be empty", "Token cannot be empty", "Token cannot be empty", "Token cannot be empty");
-            List<EventData> ErrorReturn = new ArrayList<>();
-            ErrorReturn.add(error);
-            return ErrorReturn;
-        }else {
-            // Check token is valid
-            boolean valid = EventHandler.checkValidAPIToken(token);
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-            if(valid){
+        if(result){
                 // Get user UUID
-                String UserUUID = EventHandler.getUserUUIDfromToken(token);
-                return EventHandler.getMyEvents(UserUUID);
-            }
-
-            EventData error = new EventData("Invalid token. Token may have expired", "Invalid token. Token may have expired",
-                    "Invalid token. Token may have expired", "Invalid token. Token may have expired");
+                String UserUUID = RequestHandler.getUserUUIDfromToken(token);
+                return RequestHandler.getMyEvents(UserUUID);
+        }else{
+            String errorText = (String) response[1];
+            EventData error = new EventData(errorText, errorText, errorText, errorText);
             List<EventData> ErrorReturn = new ArrayList<>();
             ErrorReturn.add(error);
             return ErrorReturn;
@@ -81,52 +94,43 @@ public class APIHandler {
     public String API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc,
                              @RequestParam(value="Location") String location,
                              @RequestParam(value="Token", defaultValue="") String token){
-        if(token.equals("")){
-            return "API token required";
-        }else {
-            // Check token is valid
-            boolean valid = RequestHandler.checkValidAPIToken(token);
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-            if(valid){
-                // Get user
-                UserData user = UserManager.getUserFromToken(token);
-                if(user == null){
-                    return "Error finding user. Is the token still valid? Is the user account still active?";
-                }
-
-                return RequestHandler.createEvent(Name, desc, location, user.getUserUUID());
-            }else{
-                return "Invalid token. Token may have expired";
+        if(result){
+            // Get user
+            UserData user = UserManager.getUserFromToken(token);
+            if(user == null){
+                return "Error finding user. Is the token still valid? Is the user account still active?";
             }
-
+            return RequestHandler.createEvent(Name, desc, location, user.getUserUUID());
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
         }
+
     }
 
     // Join event
     @PutMapping("api/Event/{EventUUID}")
     public String API_AddUserToEvent(@RequestParam(value="Token", defaultValue ="") String token,
                                      @PathVariable(value="EventUUID") String EventUUID) {
-        // Validate API token
-        if (token.equals("")) {
-            return "API token required";
-        } else {
-            // Check token is valid
-            boolean valid = RequestHandler.checkValidAPIToken(token);
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-            if (valid) {
-                // Get user
-                UserData user = UserManager.getUserFromToken(token);
-
-                if (user == null) {
-                    return "Error finding user. Is the token still valid? Is the user account still active?";
-                }
-
-                // Add user to event
-                return RequestHandler.joinEvent(EventUUID, user.getUserUUID());
-
-            } else {
-                return "Invalid token. Token may have expired";
+        if(result){
+            // Get user
+            UserData user = UserManager.getUserFromToken(token);
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
             }
+
+            // Add user to event
+            return RequestHandler.joinEvent(EventUUID, user.getUserUUID());
+
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
         }
     }
 
@@ -134,13 +138,10 @@ public class APIHandler {
     @DeleteMapping("api/Event/{EventUUID}")
     public String API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
 
-        if (token.equals("")){
-            return "API token required";
-        } else {
-            // Check token is valid
-            boolean valid = RequestHandler.checkValidAPIToken(token);
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-            if (valid) {
+        if(result){
                 // Get user
                 UserData user = UserManager.getUserFromToken(token);
 
@@ -151,9 +152,9 @@ public class APIHandler {
                 // Add user to event
                 return RequestHandler.deleteEvent(EventUUID, user.getUserUUID());
 
-            } else {
-                return "Invalid token. Token may have expired";
-            }
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
         }
     }
     // End of event routes
@@ -162,23 +163,27 @@ public class APIHandler {
     @PutMapping("api/ConditionSet")
     public String API_NewConditionSet(@RequestParam(value="EventUUID") String EventUUID, @RequestParam("Token") String token,
                                       @RequestParam(value="SetName") String setName) {
-        // Verify API token
-        if (token.equals("")) {
-            return "API token required";
-        } else {
-            // Check token is valid
-            boolean valid = RequestHandler.checkValidAPIToken(token);
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-            if (valid) {
+        if(result){
                 // Get user
                 UserData user = UserManager.getUserFromToken(token);
                 RequestHandler.NewConditionSet(EventUUID, user.getUserUUID(), setName);
 
                 return "ConditionSet created successfully";
-            }else{
-                return "Invalid token. Token may have expired";
-            }
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
         }
     }
     // End of ConditionSet routes
+
+    // Error handling
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public String handleMissingParams(MissingServletRequestParameterException ex){
+        String name = ex.getParameterName();
+        return String.format(name + " Parameter is missing");
+    }
+    // End of Error handling
 }

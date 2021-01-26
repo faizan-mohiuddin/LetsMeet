@@ -1,9 +1,6 @@
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.EventsModel;
-import com.LetsMeet.Models.HasUsersRecord;
-import com.LetsMeet.Models.UserData;
-import com.LetsMeet.Models.UserModel;
+import com.LetsMeet.Models.*;
 import jdk.jfr.Event;
 
 import javax.crypto.SecretKeyFactory;
@@ -152,6 +149,40 @@ public class UserManager {
             }
         }
         return false;
+    }
+
+    public static Object[] verifyAPItoken(String token){
+        // Returns [boolean, String]
+        Object[] arr = new Object[2];
+
+        // Check that token is not null
+        if(token.equals("")){
+            arr[0] = false;
+            arr[1] = "API token required";
+        }else{
+            // rest of checks
+            // Get record from DB
+            UserModel model = new UserModel();
+            TokenData tokenData = model.getTokenRecord(token);
+            model.closeCon();
+
+            if(tokenData == null){
+                arr[0] = false;
+                arr[1] = "Token not recognised. Please login to receive a new token";
+            }else{
+                // Check token expiry
+                long currentTime = Instant.now().getEpochSecond();
+                if(currentTime <= tokenData.getExpires()){
+                    arr[0] = true;
+                    arr[1] = "";
+                }else{
+                    arr[0] = false;
+                    arr[1] = "Token has expired. Please login to receive a new token";
+                }
+            }
+        }
+
+        return arr;
     }
 
 }

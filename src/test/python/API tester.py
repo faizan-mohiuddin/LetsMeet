@@ -51,6 +51,11 @@ class LetsMeetAPITesting:
         r = requests.put(self.address + "Event/" + str(uuid), params=payload)
         print(r.text)
 
+    def deleteAccount(self):
+        payload = {"Token": self.token}
+        r = requests.delete(self.address + "User", params=payload)
+        print(r.text)
+
 
 ########################################################################################################################
 NoUser = LetsMeetAPITesting()
@@ -59,6 +64,7 @@ UserOne = LetsMeetAPITesting("caelmilne2001@gmail.com", "testing")
 UserTwo = LetsMeetAPITesting("caelmilne@gmail.com", "testing 2")
 
 # Test 1 #########################################################################
+# print("\nTest 1")
 # Testing creating, joining, and deleting events
 # UserOne.login()
 # UserOne.createEvent("Caels API test", "API Testing", "The Broch")
@@ -71,6 +77,18 @@ UserTwo = LetsMeetAPITesting("caelmilne@gmail.com", "testing 2")
 ##################################################################################
 # Test 2 #########################################################################
 # Testing creating and deleting users
+print("\nTest 2")
 UserThree = LetsMeetAPITesting()
-UserThree.createAccount("Random", "Test", "random@testing.com", "Testing")
+# UserThree.createAccount("Random", "Test", "random@testing.com", "Testing")
+
+UserThree.setEmailandPassword("random@testing.com", "Testing")
+UserThree.login()
+UserThree.deleteAccount()
+##################################################################################
+# Test 3 #########################################################################
+# Testing token verification
+# print("\nTest 3")
+# UserOne.login()
+# UserOne.token += "Wrong"
+# UserOne.deleteAccount()
 ##################################################################################
