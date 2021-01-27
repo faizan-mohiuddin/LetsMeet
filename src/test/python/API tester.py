@@ -77,18 +77,28 @@ UserTwo = LetsMeetAPITesting("caelmilne@gmail.com", "testing 2")
 ##################################################################################
 # Test 2 #########################################################################
 # Testing creating and deleting users
-print("\nTest 2")
-UserThree = LetsMeetAPITesting()
+# print("\nTest 2")
+# UserThree = LetsMeetAPITesting()
 # UserThree.createAccount("Random", "Test", "random@testing.com", "Testing")
-
-UserThree.setEmailandPassword("random@testing.com", "Testing")
-UserThree.login()
-UserThree.deleteAccount()
+#
+# UserThree.setEmailandPassword("random@testing.com", "Testing")
+# UserThree.login()
+# UserThree.deleteAccount()
 ##################################################################################
 # Test 3 #########################################################################
 # Testing token verification
 # print("\nTest 3")
-# UserOne.login()
-# UserOne.token += "Wrong"
-# UserOne.deleteAccount()
+# UserThree = LetsMeetAPITesting()
+# # UserThree.createAccount("Random", "Test", "random@testing.com", "Testing")
+#
+# UserThree.setEmailandPassword("random@testing.com", "Testing")
+# UserThree.login()
+# # UserThree.token += "Wrong"
+# UserThree.deleteAccount()
 ##################################################################################
+# Test 4 ########################################################################
+# Testing gathering users events
+# UserOne.login()
+# UserOne.joinEvent("99e3f78d-7246-3010-a808-4ee4543cc928")
+# UserOne.getMyEvents()
+#################################################################################
