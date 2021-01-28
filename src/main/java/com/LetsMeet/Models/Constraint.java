@@ -12,14 +12,14 @@ import java.util.UUID;
 
 //-----------------------------------------------------------------
 
-public class Constraint {
+public class Constraint<T> {
 
     UUID uuid;
     String name;
 
     //TODO replace with pair/tuple like type
-    Variable<?> first;
-    Variable<?> second;
+    Variable<T> first;
+    Variable<T> second;
 
     
     //TODO replace string with enum
@@ -28,7 +28,7 @@ public class Constraint {
     Double priority;
 
 
-    public Constraint(String uuid, String name, Variable<?> scopeFirst, Variable<?> scopeSecond, Character relation){
+    public Constraint(String uuid, String name, Variable<T> scopeFirst, Variable<T> scopeSecond, Character relation){
         this.uuid = UUID.fromString(uuid);
         this.name = name;
         this.first = scopeFirst;

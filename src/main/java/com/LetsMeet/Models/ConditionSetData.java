@@ -21,7 +21,7 @@ public class ConditionSetData {
     LinkedHashMap<UUID,Object> constraints;
 
     
-    public ConditionSetData(String uuid, String name,Variable<?>[] variables, Constraint[] constraints){
+    public ConditionSetData(String uuid, String name,Variable<?>[] variables, Constraint<?>[] constraints){
         this.uuid = UUID.fromString(uuid);
         this.name = name;
         this.variables = new LinkedHashMap<UUID,Variable<?>>();
@@ -33,7 +33,7 @@ public class ConditionSetData {
         }
 
         // Add contents of constraint array
-        for (Constraint e : constraints){
+        for (Constraint<?> e : constraints){
             this.constraints.put(e.uuid,e);
         }
     }
@@ -62,7 +62,7 @@ public class ConditionSetData {
     }   
 
     //TODO overwrite prevention
-    public void addConstraint(Constraint constraint){
+    public void addConstraint(Constraint<?> constraint){
         this.constraints.put(constraint.uuid, constraint);
     }
 }
