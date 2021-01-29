@@ -117,6 +117,10 @@ public class RequestHandler {
         model.closeCon();
         return r;
     }
+
+    public static UserData getUserFromToken(String token){
+        return UserManager.getUserFromToken(token);
+    }
     // End of user methods
 
     // Event methods here

@@ -231,7 +231,11 @@ public class UserModel {
             return data;
 
         }catch(Exception e){
-            System.out.println(e);
+            if(!e.toString().equals("java.sql.SQLException: Illegal operation on empty result set.")) {
+                System.out.println("\nUser Model : getTokenRecord");
+                System.out.println(e);
+                return null;
+            }
             return null;
         }
     }

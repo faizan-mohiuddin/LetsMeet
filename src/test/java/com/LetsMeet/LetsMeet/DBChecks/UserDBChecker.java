@@ -37,6 +37,24 @@ public class UserDBChecker {
             System.out.println("UserDBChecker : removeUserByEmail");
             System.out.println(e);
         }
+    }
 
+    public boolean checkForToken(String token, String UserUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("SELECT Token.UserUUID, Token.TokenUUID FROM Token " +
+                    "WHERE Token.TokenUUID = '%s'", token);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            if(rs.getString("UserUUID").equals(UserUUID) && rs.getString("TokenUUID").equals(token)) {
+                return true;
+            }
+            return false;
+        }catch(Exception e){
+            System.out.println("UserDBChecker : removeUserByEmail");
+            System.out.println(e);
+            return false;
+        }
     }
 }

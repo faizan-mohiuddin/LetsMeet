@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet;
 import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.UserData;
 import jdk.jfr.Event;
+import org.apache.catalina.User;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class APIHandler {
     // This will return list of commands?
     @GetMapping("/api/Home")
     public String API_Home(){
-        return "Api Home";
+        return "Welcome to the lets meet API! \nFor more information on using the API service visit ";
     }
 
     // User routes here
@@ -57,6 +58,22 @@ public class APIHandler {
         }
     }
 
+    // Get a users data
+    @GetMapping("/api/User")
+    public UserData API_GetUser(@RequestParam(value="Token") String token){
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            UserData user = RequestHandler.getUserFromToken(token);
+            return user;
+        }else{
+            String errorText = (String) response[1];
+            UserData errorData = new UserData();
+            errorData.populate(errorText, errorText, errorText, errorText, errorText, errorText);
+            return errorData;
+        }
+    }
     // End of user routes
 
     // Event routes here
