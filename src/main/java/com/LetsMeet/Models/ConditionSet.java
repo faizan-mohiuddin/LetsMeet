@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------
-// ConditionSetData.java
+// ConditionSet.java
 // Let's Meet 2021
 //
 // Let's Meet specific model class for condition set system
@@ -13,15 +13,15 @@ import java.util.LinkedHashMap;
 
 //-----------------------------------------------------------------
 
-public class ConditionSetData {
+public class ConditionSet {
 
     UUID uuid;
     String name;
     LinkedHashMap<UUID,Variable<?>> variables;
     LinkedHashMap<UUID,Object> constraints;
 
-    
-    public ConditionSetData(String uuid, String name,Variable<?>[] variables, Constraint<?>[] constraints){
+    // Primary constructor
+    public ConditionSet(String uuid, String name,Variable<?>[] variables, Constraint<?>[] constraints){
         this.uuid = UUID.fromString(uuid);
         this.name = name;
         this.variables = new LinkedHashMap<UUID,Variable<?>>();
@@ -36,6 +36,11 @@ public class ConditionSetData {
         for (Constraint<?> e : constraints){
             this.constraints.put(e.uuid,e);
         }
+    }
+
+    // Constructor with only UUID
+    public ConditionSet(String uuid){
+        this(uuid,uuid,new Variable<?>[0], new Constraint<?>[0]);
     }
 
     // Getters

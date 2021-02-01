@@ -19,6 +19,7 @@ public class EventsModel {
         }
     }
 
+    //TODO This could be implemented in finalize() to be called explicitly when garbage collection is run
     public void closeCon(){
         try {
             this.con.close();
@@ -210,5 +211,34 @@ public class EventsModel {
             return null;
         }
     }
+
+    // Load a condition set from storage.
+    // TODO implement methods for fetching variables and conditions before replacing dummy data
+    public ConditionSet getConditionSetByUUID(String ConditionSetUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from ConditionSet where ConditionSet.ConditionSetUUID = '%s'", ConditionSetUUID);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            // Generate dummy data
+            String uuid = "00000000-0000-0000-0000-000000000000";
+            Integer[] nums = {1,2,3,4};
+            Variable<Integer> var1 = new Variable<Integer>(uuid, "var1", nums);
+            Variable<Integer> var2 = new Variable<Integer>(uuid, "var2", nums);
+            Constraint<Integer> con1 = new Constraint<Integer>(uuid, "con1", var1, var2, '=');
+            Variable<?>[] varArray = {var1,var2};
+            Constraint<?>[] conArray = {con1};
+
+            return new ConditionSet(rs.getString(1),rs.getString(2),varArray,conArray);
+
+        }catch(Exception e){
+            System.out.println("\nEvents Model: getEventByUUID");
+            System.out.println(e);
+            return null;
+        }
+    }
+
     // End of space for condition sets ////////////////////////////////////////////////////////////////////////////////
 }

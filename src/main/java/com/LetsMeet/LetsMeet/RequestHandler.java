@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet;
 import com.LetsMeet.Models.*;
 import jdk.jfr.Event;
 import org.apache.catalina.User;
+import org.apache.catalina.valves.rewrite.RewriteCond.Condition;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -228,8 +229,18 @@ public class RequestHandler {
             }
         }
 
+    }
 
+    public static String AddVariableToConditionSet(String ConditionSetUUID, Variable<?> variable){
+        ConditionSetManager manager = new ConditionSetManager(ConditionSetUUID);
+        manager.addVariable(variable);
+        return "not implimented";
+    }
 
+    public static String AddConstraintToConditionSet(String ConditionSetUUID, Constraint<?> constraint){
+        ConditionSetManager manager = new ConditionSetManager(ConditionSetUUID);
+        manager.addConstraint(constraint);
+        return "not implimented";
     }
     // End of ConditionSet Methods
 }
