@@ -9,6 +9,7 @@ package com.LetsMeet.LetsMeet;
 //-----------------------------------------------------------------
 
 import com.LetsMeet.Models.*;
+import java.util.UUID;
 
 //-----------------------------------------------------------------
 
@@ -40,13 +41,12 @@ public class ConditionSetManager {
 
     //-----------------------------------------------------------------
 
-    // Creates a new ConditionSet and returns a ConditoinSetManager for it
+    // Creates a new ConditionSet and returns a ConditionSetManager for it
     public static ConditionSetManager generate(){
 
-        //TODO Need a general utility class to generate secure, random UUIDs
-        String ConditionSetUUID = "00000000-0000-0000-0000-000000000000";
-        ConditionSetManager manager = new ConditionSetManager(new ConditionSet(ConditionSetUUID));
+        String ConditionSetUUID = UUID.randomUUID().toString();
 
+        ConditionSetManager manager = new ConditionSetManager(new ConditionSet(ConditionSetUUID));
         manager.save();
 
         return manager;
