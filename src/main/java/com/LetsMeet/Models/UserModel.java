@@ -307,15 +307,15 @@ public class UserModel {
         return null;
     }
 
-    public List<UserData> allUsers(){
+    public List<AdminUserData> allUsers(){
         try{
             Statement statement = this.con.createStatement();
             ResultSet rs = statement.executeQuery("select * from User");
 
-            List<UserData> users = new ArrayList<>();
+            List<AdminUserData> users = new ArrayList<>();
 
             while(rs.next()){
-                UserData user = new UserData();
+                AdminUserData user = new AdminUserData();
                 user.populate(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
                 users.add(user);
             }

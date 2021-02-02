@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet;
 
+import com.LetsMeet.Models.AdminEventData;
 import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.UserData;
 import jdk.jfr.Event;
@@ -78,7 +79,7 @@ public class APIHandler {
 
     // Event routes here
     @GetMapping("api/Events")
-    public List<EventData> API_GetAllEvents(){
+    public List<AdminEventData> API_GetAllEvents(){
         return RequestHandler.getAllEvents();
     }
 

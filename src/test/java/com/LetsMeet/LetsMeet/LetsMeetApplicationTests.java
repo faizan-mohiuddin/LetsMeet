@@ -724,7 +724,7 @@ class  LetsMeetApplicationTests {
 
 	@Test
 	@Order(21)
-	public void participantDeletesAccount(){
+	public void participantDeletesAccount() {
 		// Test participant deleting account
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
@@ -789,24 +789,18 @@ class  LetsMeetApplicationTests {
 
 	// Test event owner joining event
 
+	@Test
+	@Order(22)
+	public void clearTestData(){
+		cleanup();
+	}
+
 	@AfterAll
 	public static void cleanup(){
 		// Remove test records from DB
-		// Remove users
-		UserDBChecker userModel = new UserDBChecker();
-		EventDBChecker eventModel = new EventDBChecker();
-
-		for(TestingUsers user : testUsers){
-			userModel.removeUserByEmail(user.email);
-		}
-
-		// Remove events
-		for(TestingEvents event : testEvents){
-			eventModel.removeEventByUUID(event.UUID);
-		}
-
-		eventModel.closeCon();
-		userModel.closeCon();
+		UserDBChecker model = new UserDBChecker();
+		model.clearTestUsers();
+		model.closeCon();
 	}
 
 	// Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////

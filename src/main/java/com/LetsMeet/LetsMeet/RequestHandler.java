@@ -123,19 +123,19 @@ public class RequestHandler {
         return UserManager.getUserFromToken(token);
     }
 
-    public static List<UserData> getAllUsers(){
+    public static List<AdminUserData> getAllUsers(){
 
         UserModel model = new UserModel();
-        List<UserData> r = model.allUsers();
+        List<AdminUserData> r = model.allUsers();
         model.closeCon();
         return r;
     }
     // End of user methods
 
     // Event methods here
-    public static List<EventData> getAllEvents(){
+    public static List<AdminEventData> getAllEvents(){
         EventsModel model = new EventsModel();
-        List<EventData> r = model.allEvents();
+        List<AdminEventData> r = model.allEvents();
         model.closeCon();
         return r;
     }
