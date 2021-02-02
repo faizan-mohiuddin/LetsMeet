@@ -5,6 +5,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
+import com.LetsMeet.Models.EventData;
 import com.LetsMeet.Models.UserData;
 import com.LetsMeet.Models.UserModel;
 
@@ -82,5 +85,22 @@ public class WebHandler {
 
         }
 
+    }
+
+    @GetMapping("/adminviewallevents")
+    public String adminviewallevents(Model model) {
+
+        model.addAttribute("events", RequestHandler.getAllEvents());
+
+        return "adminviewallevents";
+    }
+
+    @GetMapping("/adminviewallusers")
+    public String adminviewallusers(Model model) {
+
+        model.addAttribute("users", RequestHandler.getAllUsers());
+
+        return"adminviewallusers";
+        
     }
 }

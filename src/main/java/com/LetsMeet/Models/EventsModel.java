@@ -55,15 +55,15 @@ public class EventsModel {
         }
     }
 
-    public List<EventData> allEvents(){
+    public List<AdminEventData> allEvents(){
         try{
             Statement statement = this.con.createStatement();
             ResultSet rs = statement.executeQuery("select * from Event");
 
-            List<EventData> events = new ArrayList<>();
+            List<AdminEventData> events = new ArrayList<>();
 
             while(rs.next()){
-                EventData event = new EventData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                AdminEventData event = new AdminEventData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
                 events.add(event);
             }
             return events;
@@ -86,8 +86,10 @@ public class EventsModel {
             return event;
 
         }catch(Exception e){
-            System.out.println("\nEvents Model: getEventByUUID");
-            System.out.println(e);
+            if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                System.out.println("\nEvents Model: getEventByUUID");
+                System.out.println(e);
+            }
             return null;
         }
     }
@@ -161,7 +163,7 @@ public class EventsModel {
             query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
-            return "Event deleted successfully";
+            return "Event successfully deleted.";
 
         }catch(Exception e){
             System.out.println("\nEvents Model: deleteEvent");

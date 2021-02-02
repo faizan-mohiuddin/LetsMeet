@@ -56,7 +56,7 @@ public class RequestHandler {
         model.closeCon();
 
         // Check is password is correct
-        boolean match = UserManager.validatePassword(password, user.getPasswordHash(), user.getSalt());
+        boolean match = UserManager.validatePassword(password, user);
 
         if(match) {
             return user;
@@ -71,18 +71,18 @@ public class RequestHandler {
         UserModel model = new UserModel();
 
         // If they do, remove it and issue a new one
-        if(model.CheckUserToken(user.getUserUUID())){
+        if(model.CheckUserToken(user.whatsUUID())){
             // Remove tokens
-            model.removeAllUserToken(user.getUserUUID());
+            model.removeAllUserToken(user.whatsUUID());
         }
 
         // Create new token
-        String token = UserManager.createAPItoken(user.getUserUUID(), user.getfName(), user.getlName(),
-                user.getEmail(), user.getSalt());
+        String token = UserManager.createAPItoken(user.whatsUUID(), user.getfName(), user.getlName(),
+                user.getEmail(), user.whatsSalt());
 
         // Add to DB
         long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
-        String feedback = model.createToken(user.getUserUUID(), token, tokenExpires);
+        String feedback = model.createToken(user.whatsUUID(), token, tokenExpires);
         model.closeCon();
 
         if(feedback.equals("Token created successfully")) {
@@ -105,7 +105,7 @@ public class RequestHandler {
         String r;
 
         for(EventData event : events){
-            r = RequestHandler.deleteEvent(event.getUUID().toString(), UserUUID);
+            r = RequestHandler.deleteEvent(event.whatsUUID().toString(), UserUUID);
             if(r.equals("Error deleting event")){
                 // Stop
                 return "Error Deleting user";
@@ -122,12 +122,20 @@ public class RequestHandler {
     public static UserData getUserFromToken(String token){
         return UserManager.getUserFromToken(token);
     }
+
+    public static List<AdminUserData> getAllUsers(){
+
+        UserModel model = new UserModel();
+        List<AdminUserData> r = model.allUsers();
+        model.closeCon();
+        return r;
+    }
     // End of user methods
 
     // Event methods here
-    public static List<EventData> getAllEvents(){
+    public static List<AdminEventData> getAllEvents(){
         EventsModel model = new EventsModel();
-        List<EventData> r = model.allEvents();
+        List<AdminEventData> r = model.allEvents();
         model.closeCon();
         return r;
     }
@@ -202,7 +210,6 @@ public class RequestHandler {
         }else{
             return "You dont have permission to delete this event";
         }
-
 
     }
 

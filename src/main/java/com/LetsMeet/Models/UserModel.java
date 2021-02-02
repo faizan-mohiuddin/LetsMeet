@@ -81,7 +81,7 @@ public class UserModel {
                 Statement statement = this.con.createStatement();
                 String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", UUID);
                 statement.executeUpdate(query);
-                return "User Deleted";
+                return "User successfully deleted.";
             } catch (Exception e) {
                 System.out.println("\nUser Model: deleteUser");
                 System.out.println(e);
@@ -106,8 +106,10 @@ public class UserModel {
                 return user;
 
             } catch (Exception e) {
-                System.out.println("\nUser Model: getUserByEmail");
-                System.out.println(e);
+                if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                    System.out.println("\nUser Model: getUserByEmail");
+                    System.out.println(e);
+                }
                 return null;
             }
         }
@@ -265,14 +267,14 @@ public class UserModel {
     public String removeHasUsers(String EventUUID, String UserUUID){
         try{
             Statement statement = this.con.createStatement();
-            String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UsersUUID = '%s'",
+            String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
                     EventUUID, UserUUID);
             int rows = statement.executeUpdate(query);
 
             if(rows <= 0){
                 return "Error leaving event";
             }
-            return "Successfully left event";
+            return "Successfully left event.";
         }catch(Exception e){
             System.out.println("\nUser Model : removeHasUsers");
             System.out.println(e);
@@ -303,6 +305,27 @@ public class UserModel {
             }
         }
         return null;
+    }
+
+    public List<AdminUserData> allUsers(){
+        try{
+            Statement statement = this.con.createStatement();
+            ResultSet rs = statement.executeQuery("select * from User");
+
+            List<AdminUserData> users = new ArrayList<>();
+
+            while(rs.next()){
+                AdminUserData user = new AdminUserData();
+                user.populate(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
+                users.add(user);
+            }
+            return users;
+
+        }catch(Exception e){
+            System.out.println("\nUser Model: allUsers");
+            System.out.println(e);
+            return null;
+        }
     }
 
     public boolean checkEmailExists(String email){

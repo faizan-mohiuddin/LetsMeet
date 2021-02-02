@@ -19,8 +19,8 @@
 
     <div class = "jumbotron">
         <div class = "container">
-            <h1>Cael's attempt</h1>
-                The number chosen is <span th:text="${num}"></span>
+            <h1>Welcome to LetsMeet</h1>
+                <i>A brand new scheduling application created by Team Delta.</i>
             <h2></h2>
         </div>
     </div>
@@ -38,6 +38,24 @@
                 <a class = "btn btn-success" href = "/login" role = "button">Login</a>
             </div>
         </div>
+        
+        <h1>&nbsp;</h1>
+
+        <div class = "card border-warning mb-3" style="max-width: 18rem;">
+            <div class="card-header">admin stuff</div>
+            <div class = "card-body">
+                <div class = "row">
+                    <div class = "col-sm">
+                        <a class = "btn btn-primary" href = "/adminviewallevents" role = "button">View Events</a>
+                    </div>
+                    <div class = "col-sm">
+                        <a class = "btn btn-primary" href = "/adminviewallusers" role = "button">View Users</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
     <div th:insert = "footer :: footer"></div>
 

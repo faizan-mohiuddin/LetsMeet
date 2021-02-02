@@ -1,6 +1,6 @@
 package com.LetsMeet.Models;
 
-public class UserData {
+public class AdminUserData {
 
     String UserUUID;
     String fName;
@@ -18,7 +18,7 @@ public class UserData {
         this.passwordHash = passwordHash;
     }
 
-    public String whatsUUID(){
+    public String getUserUUID(){
         return this.UserUUID;
     }
 
@@ -34,12 +34,11 @@ public class UserData {
         return this.email;
     }
 
-    public String whatsSalt(){
+    public String getSalt(){
         return this.salt;
     }
 
-    public String whatsPasswordHash(){
+    public String getPasswordHash(){
         return this.passwordHash;
     }
-
 }

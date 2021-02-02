@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.UUID;
 
 @JsonPropertyOrder({ "name", "description", "location"})
-public class EventData {
+public class AdminEventData {
 
     UUID uuid;
     String name;
     String desc;
     String location;
 
-    public EventData(String uuid, String name, String desc, String location){
+    public AdminEventData(String uuid, String name, String desc, String location){
         this.uuid = UUID.fromString(uuid);
         this.name = name;
         this.desc = desc;
@@ -20,7 +20,7 @@ public class EventData {
     }
 
     // NECESSARY METHODS FOR RETURNING DATA TO API - DO NOT TOUCH
-    public UUID whatsUUID(){
+    public UUID getUUID(){
         return this.uuid;
     }
 
@@ -36,5 +36,4 @@ public class EventData {
         return this.location;
     }
     // END OF NECESSARY METHODS
-
 }
