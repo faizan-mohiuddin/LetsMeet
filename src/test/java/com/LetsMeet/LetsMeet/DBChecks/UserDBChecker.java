@@ -75,10 +75,12 @@ public class UserDBChecker {
     public void clearTestUsers(){
         try{
             Statement statement = this.con.createStatement();
-            String query = String.format("DELETE FROM User WHERE User.email like '%InternalTesting.com' ");
+            String query = String.format("DELETE FROM User WHERE User.email like '%%InternalTesting.com'");
             statement.executeUpdate(query);
         }catch(Exception e){
-
+            System.out.println("\nUserDBChecker : clearTestUsers");
+            System.out.println(e);
+            e.printStackTrace(System.out);
         }
     }
 }
