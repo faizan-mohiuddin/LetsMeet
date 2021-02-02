@@ -77,6 +77,11 @@
 			<version>4.5.13</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 	</dependencies>
 
@@ -88,5 +93,16 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<resources>
+		<resource>
+			<filtering>true</filtering>
+			<directory>src/main/resources</directory>
+			<includes>
+				<include>application.properties</include>
+			</includes>
+		</resource>
+	</resources>
+
 
 </project>
