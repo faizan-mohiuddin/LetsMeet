@@ -288,6 +288,27 @@ public class UserModel {
         return null;
     }
 
+    public List<UserData> allUsers(){
+        try{
+            Statement statement = this.con.createStatement();
+            ResultSet rs = statement.executeQuery("select * from User");
+
+            List<UserData> users = new ArrayList<>();
+
+            while(rs.next()){
+                UserData user = new UserData();
+                user.populate(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
+                users.add(user);
+            }
+            return users;
+
+        }catch(Exception e){
+            System.out.println("\nUser Model: allUsers");
+            System.out.println(e);
+            return null;
+        }
+    }
+
     public boolean checkEmailExists(String email){
         if(this.checkCon()) {
             // Returns true if the email exists

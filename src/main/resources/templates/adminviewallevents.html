@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+    <div th:insert = "header :: navbar"></div>
+
+    <div class = "jumbotron">
+        <div class = "container">
+            <h1>View all Events</h1>
+        </div>
+    </div>
+
+    <div class = "container">
+        <table class = "table">
+            <thead>
+                <tr>
+                    <th scope = "col">Event UUID</th>
+                    <th scope = "col">Name</th>
+                    <th scope = "col">Description</th>
+                    <th scope = "col">Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each = "event : ${events}">
+                    <td th:text = "${event.UUID}"></td>
+                    <td th:text = "${event.name}"></td>
+                    <td th:text = "${event.description}"></td>
+                    <td th:text = "${event.location}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:insert = "footer :: footer"></div>
+
+</body>
+
+</html>

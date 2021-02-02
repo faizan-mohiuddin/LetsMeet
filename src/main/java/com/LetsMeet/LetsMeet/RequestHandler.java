@@ -122,6 +122,14 @@ public class RequestHandler {
     public static UserData getUserFromToken(String token){
         return UserManager.getUserFromToken(token);
     }
+
+    public static List<UserData> getAllUsers(){
+
+        UserModel model = new UserModel();
+        List<UserData> r = model.allUsers();
+        model.closeCon();
+        return r;
+    }
     // End of user methods
 
     // Event methods here
