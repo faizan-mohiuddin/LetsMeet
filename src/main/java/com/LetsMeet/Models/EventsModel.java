@@ -127,6 +127,27 @@ public class EventsModel {
         }
     }
 
+    public List<HasUsersRecord> getHasUsers(String eventUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s'", eventUUID);
+
+            ResultSet rs = statement.executeQuery(query);
+            List<HasUsersRecord> records = new ArrayList<>();
+
+            while(rs.next()){
+                HasUsersRecord record = new HasUsersRecord();
+                record.populate(rs.getString(1), rs.getString(2), rs.getBoolean(3));
+                records.add(record);
+            }
+            return records;
+        }catch(Exception e){
+            System.out.println("\nEvents Model: getHasUsers");
+            System.out.println(e);
+            return null;
+        }
+    }
+
     public String deleteEvent(String eventUUID){
         try{
             Statement statement = this.con.createStatement();

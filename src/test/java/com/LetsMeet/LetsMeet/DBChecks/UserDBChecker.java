@@ -11,7 +11,7 @@ public class UserDBChecker {
             this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522",
                     "sql2383522", "iN8!qL4*");
         }catch(Exception e){
-            System.out.println("\nUser Model: initilise");
+            System.out.println("\nUser Checker: initilise");
             System.out.println(e);
         }
     }
@@ -55,6 +55,20 @@ public class UserDBChecker {
             System.out.println("UserDBChecker : removeUserByEmail");
             System.out.println(e);
             return false;
+        }
+    }
+
+    public String UserUUIDFromEmail(String email){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("SELECT User.UserUUID FROM User WHERE User.email = '%s'", email);
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            return rs.getString("UserUUID");
+        }catch(Exception e){
+            System.out.println("UserDBChecker : UserUUIDFromEmail");
+            System.out.println(e);
+            return null;
         }
     }
 }
