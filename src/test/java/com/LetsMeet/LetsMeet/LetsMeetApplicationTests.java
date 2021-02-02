@@ -729,11 +729,65 @@ class  LetsMeetApplicationTests {
 		testEvents.clear();
 	}
 
-//	@Test
-//	@Order()
-//	public void participantDeletesAccount(){
-//		// Test participant deleting account
-//	}
+	@Test
+	@Order(21)
+	public void participantDeletesAccount(){
+		// Test participant deleting account
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		user.login();
+
+		this.generateUser();
+		TestingUsers user2 = testUsers.get(1);
+		user2.login();
+
+		this.generateEvent(user.token);
+		TestingEvents event = testEvents.get(0);
+
+		this.controller.API_AddUserToEvent(user2.token, event.UUID);
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String result = mapper.writeValueAsString(this.controller.API_DeleteUser(user2.token));
+			String expectedResult = String.format("User successfully deleted.");
+			assertEquals(expectedResult, result);
+		}catch(Exception e){
+			System.out.println("API Tests : participantDeletesAccount");
+			System.out.println(e);
+		}
+
+		// Check DB
+		EventsModel eventsModel = new EventsModel();
+		UserModel userModel = new UserModel();
+
+		// Check User
+		UserData response = userModel.getUserByUUID(user2.UUID);
+
+		// Check HasUsers
+		List<HasUsersRecord> records = eventsModel.getHasUsers(event.UUID, user2.UUID);
+
+		// Check event
+		EventData DBreturn = eventsModel.getEventByUUID(event.UUID);
+
+		userModel.closeCon();
+		eventsModel.closeCon();
+
+		assertEquals(null, response);
+		assertEquals(null, records);
+		assertEquals(event.UUID, DBreturn.getUUID());
+
+		// Remove unnecessary data
+		UserDBChecker Checkmodel = new UserDBChecker();
+		Checkmodel.removeUserByEmail(user.email);
+		Checkmodel.removeUserByEmail(user2.email);
+		Checkmodel.closeCon();
+		testUsers.clear();
+
+		EventDBChecker eventModel = new EventDBChecker();
+		eventModel.removeEventByUUID(event.UUID);
+		eventModel.closeCon();
+		testEvents.clear();
+	}
 
 //	@Test
 //	@Order(11)
