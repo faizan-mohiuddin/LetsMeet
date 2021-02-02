@@ -86,8 +86,10 @@ public class EventsModel {
             return event;
 
         }catch(Exception e){
-            System.out.println("\nEvents Model: getEventByUUID");
-            System.out.println(e);
+            if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                System.out.println("\nEvents Model: getEventByUUID");
+                System.out.println(e);
+            }
             return null;
         }
     }
@@ -161,7 +163,7 @@ public class EventsModel {
             query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
-            return "Event deleted successfully";
+            return "Event successfully deleted.";
 
         }catch(Exception e){
             System.out.println("\nEvents Model: deleteEvent");

@@ -72,7 +72,14 @@ public class UserManager {
         return bytes;
     }
 
-    public static boolean validatePassword(String password, String passwordHash, String HexSalt){
+    public static boolean validatePassword(String password, UserData user){
+        if(user == null){
+            return false;
+        }
+
+        String passwordHash = user.whatsPasswordHash();
+        String HexSalt = user.whatsSalt();
+
         int iterations = 65536;
         byte[] hash = fromHex(passwordHash);
         byte[] salt = fromHex(HexSalt);

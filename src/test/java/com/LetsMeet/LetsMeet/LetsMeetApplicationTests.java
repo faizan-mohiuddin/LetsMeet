@@ -142,13 +142,11 @@ class  LetsMeetApplicationTests {
 		TestingUsers user = testUsers.get(0);
 
 		String result = this.controller.API_Login(user.email + "Wrong", user.password);
-		System.out.println(result);
-		assertEquals("Incorrect Details", result);
+		assertEquals("Error, invalid email or password", result);
 
 		// Test login with incorrect password
 		result = this.controller.API_Login(user.email, user.password + "Wrong");
-		System.out.println(result);
-		assertEquals("Incorrect Details", result);
+		assertEquals("Error, invalid email or password", result);
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
@@ -197,7 +195,6 @@ class  LetsMeetApplicationTests {
 		System.out.println(result);
 		assertEquals(false, true);
 	}
-
 
 	@Test
 	@Order(10)
@@ -290,7 +287,7 @@ class  LetsMeetApplicationTests {
 	@Test
 	@Order(12)
 	public void getUsersEvents_OwnsOneEvent(){
-		// Test geting all the events a user should have
+		// Test getting all the events a user should have
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
 		user.login();
@@ -301,7 +298,7 @@ class  LetsMeetApplicationTests {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
-			String expectedResult = String.format("{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}", event.name,
+			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]", event.name,
 					event.desc, event.location);
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -336,9 +333,8 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user2.token);
 		TestingEvents event = testEvents.get(0);
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_AddUserToEvent(user.token, event.UUID));
+			String result = this.controller.API_AddUserToEvent(user.token, event.UUID);
 			String expectedResult = String.format("User added to event");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -401,6 +397,7 @@ class  LetsMeetApplicationTests {
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
 		}
+
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
@@ -449,6 +446,7 @@ class  LetsMeetApplicationTests {
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
 		}
+
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
@@ -536,10 +534,8 @@ class  LetsMeetApplicationTests {
 		TestingEvents event = testEvents.get(0);
 
 		// Test response
-		ObjectMapper mapper = new ObjectMapper();
-
 		try{
-			String result = mapper.writeValueAsString(this.controller.API_DeleteEvent(user.token, event.UUID));
+			String result = this.controller.API_DeleteEvent(user.token, event.UUID);
 			String expectedResult = String.format("Event successfully deleted.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -556,7 +552,7 @@ class  LetsMeetApplicationTests {
 		// Check hasUsers table
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
 		model.closeCon();
-		assertEquals(2, records.size());
+		assertEquals(0, records.size());
 
 		// Remove unnecessary data
 		UserDBChecker Checkmodel = new UserDBChecker();
@@ -589,9 +585,8 @@ class  LetsMeetApplicationTests {
 		this.controller.API_AddUserToEvent(user2.token, event.UUID);
 
 		// Delete event
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_DeleteEvent(user.token, event.UUID));
+			String result = this.controller.API_DeleteEvent(user.token, event.UUID);
 			String expectedResult = String.format("Event successfully deleted.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -607,7 +602,7 @@ class  LetsMeetApplicationTests {
 
 		// Check hasUsers table
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		assertEquals(null, records);
+		assertEquals(0, records.size());
 		model.closeCon();
 
 		UserDBChecker Checkmodel = new UserDBChecker();
@@ -639,10 +634,9 @@ class  LetsMeetApplicationTests {
 
 		this.controller.API_AddUserToEvent(user2.token, event.UUID);
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_DeleteUser(user.token));
-			String expectedResult = String.format("Event successfully deleted.");
+			String result = this.controller.API_DeleteUser(user.token);
+			String expectedResult = String.format("User successfully deleted.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
 			System.out.println("API Tests : EventOwnerDeletingAccount");
@@ -659,7 +653,7 @@ class  LetsMeetApplicationTests {
 
 		// Check hasUsers
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		assertEquals(null, records);
+		assertEquals(0, records.size());
 
 		// Check user
 		userModel.closeCon();
@@ -695,10 +689,9 @@ class  LetsMeetApplicationTests {
 
 		this.controller.API_AddUserToEvent(user2.token, event.UUID);
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_LeaveEvent(user.token, event.UUID));
-			String expectedResult = String.format("Event successfully left.");
+			String result = this.controller.API_LeaveEvent(user.token, event.UUID);
+			String expectedResult = String.format("Successfully left event.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
 			System.out.println("API Tests : EventOwnerDeletingAccount");
@@ -709,7 +702,7 @@ class  LetsMeetApplicationTests {
 		EventsModel model = new EventsModel();
 		// Check event
 		EventData eventDB = model.getEventByUUID(event.UUID);
-		assertEquals(event.UUID, eventDB.getUUID());
+		assertEquals(event.UUID, eventDB.whatsUUID().toString());
 
 		// Check HasUser
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
@@ -746,9 +739,8 @@ class  LetsMeetApplicationTests {
 
 		this.controller.API_AddUserToEvent(user2.token, event.UUID);
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_DeleteUser(user2.token));
+			String result = this.controller.API_DeleteUser(user2.token);
 			String expectedResult = String.format("User successfully deleted.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -773,8 +765,8 @@ class  LetsMeetApplicationTests {
 		eventsModel.closeCon();
 
 		assertEquals(null, response);
-		assertEquals(null, records);
-		assertEquals(event.UUID, DBreturn.getUUID());
+		assertEquals(0, records.size());
+		assertEquals(event.UUID, DBreturn.whatsUUID().toString());
 
 		// Remove unnecessary data
 		UserDBChecker Checkmodel = new UserDBChecker();
