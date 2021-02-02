@@ -151,6 +151,28 @@ public class APIHandler {
         }
     }
 
+    @PutMapping("api/Event/{EventUUID}/Leave")
+    public String API_LeaveEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
+        // Validate token
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            UserData user = UserManager.getUserFromToken(token);
+
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+
+            // Leave event
+            return RequestHandler.leaveEvent(EventUUID, user.getUserUUID());
+
+        }else{
+            return "Token not valid.";
+        }
+    }
+
     // Delete event
     @DeleteMapping("api/Event/{EventUUID}")
     public String API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){

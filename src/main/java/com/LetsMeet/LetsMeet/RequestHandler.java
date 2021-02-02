@@ -205,6 +205,13 @@ public class RequestHandler {
 
 
     }
+
+    public static String leaveEvent(String EventUUID, String UserUUID){
+        UserModel model = new UserModel();
+        String response = model.removeHasUsers(EventUUID, UserUUID);
+        model.closeCon();
+        return response;
+    }
     // End of event methods
 
     // ConditionSet Methods
