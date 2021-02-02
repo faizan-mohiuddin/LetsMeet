@@ -10,8 +10,7 @@ public class UserModel {
 
     public UserModel(){
         try{
-            this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522",
-                    "sql2383522", "iN8!qL4*");
+            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet", "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
         }catch(Exception e){
             System.out.println("\nUser Model: initilise");
             System.out.println(e);
