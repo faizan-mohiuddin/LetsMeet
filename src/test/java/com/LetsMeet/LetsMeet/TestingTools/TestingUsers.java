@@ -15,7 +15,7 @@ public class TestingUsers {
     public String token;
     public ArrayList<String> events = new ArrayList<>();
 
-    private APIHandler controller;
+    private APIHandler controller = new APIHandler();
 
     public TestingUsers(String fName, String lName, String email, String password){
         this.fName = fName;
