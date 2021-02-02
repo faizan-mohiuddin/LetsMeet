@@ -1,7 +1,10 @@
 package com.LetsMeet.Models;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.UUID;
 
+@JsonPropertyOrder({ "name", "description", "location"})
 public class EventData {
 
     UUID uuid;
@@ -17,7 +20,7 @@ public class EventData {
     }
 
     // NECESSARY METHODS FOR RETURNING DATA TO API - DO NOT TOUCH
-    public UUID getUUID(){
+    public UUID whatsUUID(){
         return this.uuid;
     }
 

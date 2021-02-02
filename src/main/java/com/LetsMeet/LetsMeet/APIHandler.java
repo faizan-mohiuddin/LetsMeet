@@ -120,7 +120,7 @@ public class APIHandler {
             if(user == null){
                 return "Error finding user. Is the token still valid? Is the user account still active?";
             }
-            return RequestHandler.createEvent(Name, desc, location, user.getUserUUID());
+            return RequestHandler.createEvent(Name, desc, location, user.whatsUUID());
         }else{
             String errorText = (String) response[1];
             return errorText;
@@ -143,11 +143,33 @@ public class APIHandler {
             }
 
             // Add user to event
-            return RequestHandler.joinEvent(EventUUID, user.getUserUUID());
+            return RequestHandler.joinEvent(EventUUID, user.whatsUUID());
 
         }else{
             String errorText = (String) response[1];
             return errorText;
+        }
+    }
+
+    @PutMapping("api/Event/{EventUUID}/Leave")
+    public String API_LeaveEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
+        // Validate token
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            UserData user = UserManager.getUserFromToken(token);
+
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+
+            // Leave event
+            return RequestHandler.leaveEvent(EventUUID, user.whatsUUID());
+
+        }else{
+            return "Token not valid.";
         }
     }
 
@@ -167,7 +189,7 @@ public class APIHandler {
                 }
 
                 // Add user to event
-                return RequestHandler.deleteEvent(EventUUID, user.getUserUUID());
+                return RequestHandler.deleteEvent(EventUUID, user.whatsUUID());
 
         }else{
             String errorText = (String) response[1];
@@ -186,7 +208,7 @@ public class APIHandler {
         if(result){
                 // Get user
                 UserData user = UserManager.getUserFromToken(token);
-                RequestHandler.NewConditionSet(EventUUID, user.getUserUUID(), setName);
+                RequestHandler.NewConditionSet(EventUUID, user.whatsUUID(), setName);
 
                 return "ConditionSet created successfully";
         }else{

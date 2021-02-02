@@ -10,8 +10,7 @@ public class UserModel {
 
     public UserModel(){
         try{
-            this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522",
-                    "sql2383522", "iN8!qL4*");
+            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet", "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
         }catch(Exception e){
             System.out.println("\nUser Model: initilise");
             System.out.println(e);
@@ -82,7 +81,7 @@ public class UserModel {
                 Statement statement = this.con.createStatement();
                 String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", UUID);
                 statement.executeUpdate(query);
-                return "User Deleted";
+                return "User successfully deleted.";
             } catch (Exception e) {
                 System.out.println("\nUser Model: deleteUser");
                 System.out.println(e);
@@ -107,8 +106,10 @@ public class UserModel {
                 return user;
 
             } catch (Exception e) {
-                System.out.println("\nUser Model: getUserByEmail");
-                System.out.println(e);
+                if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                    System.out.println("\nUser Model: getUserByEmail");
+                    System.out.println(e);
+                }
                 return null;
             }
         }
@@ -261,6 +262,24 @@ public class UserModel {
             }
         }
         return "Error connecting";
+    }
+
+    public String removeHasUsers(String EventUUID, String UserUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
+                    EventUUID, UserUUID);
+            int rows = statement.executeUpdate(query);
+
+            if(rows <= 0){
+                return "Error leaving event";
+            }
+            return "Successfully left event.";
+        }catch(Exception e){
+            System.out.println("\nUser Model : removeHasUsers");
+            System.out.println(e);
+            return "Error leaving event";
+        }
     }
 
     public TokenData getTokenRecord(String token){
