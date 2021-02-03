@@ -12,7 +12,8 @@ public class EventsModel {
 
     public EventsModel(){
         try{
-            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet", "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
+            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet",
+                    "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
         }catch(Exception e){
             System.out.println("\nEvents Model: Initialise");
             System.out.println(e);

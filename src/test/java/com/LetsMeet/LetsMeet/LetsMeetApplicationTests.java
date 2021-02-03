@@ -18,6 +18,7 @@ import com.LetsMeet.LetsMeet.APIHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.json.*;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -185,7 +186,7 @@ class  LetsMeetApplicationTests {
 
 		String result = this.controller.API_DeleteUser(user.token);
 		testUsers.remove(0);
-		assertEquals("User Deleted", result);
+		assertEquals("User successfully deleted.", result);
 	}
 
 	@Test
@@ -193,7 +194,8 @@ class  LetsMeetApplicationTests {
 	public void Home(){
 		String result = this.controller.API_Home();
 		System.out.println(result);
-		assertEquals(false, true);
+		assertEquals("Welcome to the lets meet API! \nFor more information on using the API service visit the API help page"
+				, result);
 	}
 
 	@Test
@@ -386,13 +388,29 @@ class  LetsMeetApplicationTests {
 		TestingEvents event2 = testEvents.get(1);
 		this.controller.API_AddUserToEvent(user.token, event2.UUID);
 
+		ArrayList<TestingEvents> events = new ArrayList<>();
+		events.add(event1);
+		events.add(event2);
+
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
-			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]",
-					event1.name, event1.desc, event1.location, event2.name, event2.desc, event2.location);
+			System.out.println(result);
 
-			assertEquals(expectedResult, result);
+			JSONArray array = new JSONArray(result);
+			for(int i=0; i < array.length(); i++) {
+				JSONObject responseEvent = array.getJSONObject(i);
+				// Match response event to event
+				for(TestingEvents event : events){
+					if(event.UUID.equals(responseEvent.getString("name"))){
+						// Match
+						assertEquals(event.desc, responseEvent.getString("description"));
+						assertEquals(event.location, responseEvent.getString("location"));
+						break;
+					}
+				}
+			}
+
 		}catch(Exception e){
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
@@ -434,14 +452,30 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event3 = testEvents.get(2);
 
+		ArrayList<TestingEvents> events = new ArrayList<>();
+		events.add(event1);
+		events.add(event2);
+		events.add(event3);
+
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
-			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}" +
-							"{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]",
-					event1.name, event1.desc, event1.location, event2.name, event2.desc, event2.location, event3.name, event3.desc, event3.location);
+			System.out.println(result);
 
-			assertEquals(expectedResult, result);
+			JSONArray array = new JSONArray(result);
+			for(int i=0; i < array.length(); i++) {
+				JSONObject responseEvent = array.getJSONObject(i);
+				// Match response event to event
+				for(TestingEvents event : events){
+					if(event.UUID.equals(responseEvent.getString("name"))){
+						// Match
+						assertEquals(event.desc, responseEvent.getString("description"));
+						assertEquals(event.location, responseEvent.getString("location"));
+						break;
+					}
+				}
+			}
+
 		}catch(Exception e){
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
@@ -492,15 +526,31 @@ class  LetsMeetApplicationTests {
 		TestingEvents event4 = testEvents.get(2);
 		this.controller.API_AddUserToEvent(user.token, event4.UUID);
 
+		ArrayList<TestingEvents> events = new ArrayList<>();
+		events.add(event1);
+		events.add(event2);
+		events.add(event3);
+		events.add(event4);
+
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
-			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}," +
-							"{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]",
-					event1.name, event1.desc, event1.location, event2.name, event2.desc, event2.location, event3.name, event3.desc, event3.location,
-					event4.name, event4.desc, event4.location);
+			System.out.println(result);
 
-			assertEquals(expectedResult, result);
+			JSONArray array = new JSONArray(result);
+			for(int i=0; i < array.length(); i++) {
+				JSONObject responseEvent = array.getJSONObject(i);
+				// Match response event to event
+				for(TestingEvents event : events){
+					if(event.UUID.equals(responseEvent.getString("name"))){
+						// Match
+						assertEquals(event.desc, responseEvent.getString("description"));
+						assertEquals(event.location, responseEvent.getString("location"));
+						break;
+					}
+				}
+			}
+
 		}catch(Exception e){
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
@@ -789,11 +839,6 @@ class  LetsMeetApplicationTests {
 
 	// Test event owner joining event
 
-	@Test
-	@Order(22)
-	public void clearTestData(){
-		cleanup();
-	}
 
 	@AfterAll
 	public static void cleanup(){
