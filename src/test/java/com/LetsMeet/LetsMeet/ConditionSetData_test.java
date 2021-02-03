@@ -2,9 +2,9 @@
 
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.ConditionSet;
-import com.LetsMeet.Models.Constraint;
-import com.LetsMeet.Models.Variable;
+import com.LetsMeet.Models.Data.ConditionSet;
+import com.LetsMeet.Models.Data.Constraint;
+import com.LetsMeet.Models.Data.Variable;
 
 public class ConditionSetData_test {
 

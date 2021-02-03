@@ -4,7 +4,7 @@
 //
 // Let's Meet specific model class for variable as part of condition set system
 
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Data;
 
 //-----------------------------------------------------------------
 

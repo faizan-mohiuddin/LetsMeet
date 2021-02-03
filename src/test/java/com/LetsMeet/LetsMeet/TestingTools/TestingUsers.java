@@ -1,6 +1,6 @@
 package com.LetsMeet.LetsMeet.TestingTools;
 
-import com.LetsMeet.LetsMeet.APIHandler;
+import com.LetsMeet.LetsMeet.Interface.APIHandler;
 
 import java.util.ArrayList;
 

@@ -4,7 +4,7 @@
 //
 // Let's Meet specific model class for condition set system
 
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Data;
 
 //-----------------------------------------------------------------
 
@@ -17,7 +17,7 @@ public class ConditionSet {
 
     UUID uuid;
     String name;
-    LinkedHashMap<UUID,Variable<?>> variables;
+    LinkedHashMap<UUID, Variable<?>> variables;
     LinkedHashMap<UUID,Object> constraints;
 
     // Primary constructor

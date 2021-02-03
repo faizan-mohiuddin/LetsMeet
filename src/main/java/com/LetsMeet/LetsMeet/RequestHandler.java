@@ -1,12 +1,11 @@
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.*;
-import jdk.jfr.Event;
-import org.apache.catalina.User;
-import org.apache.catalina.valves.rewrite.RewriteCond.Condition;
+import com.LetsMeet.LetsMeet.UserManager.UserManager;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

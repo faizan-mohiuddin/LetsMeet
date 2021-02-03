@@ -1,6 +1,6 @@
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Connectors;
 
-import jdk.jfr.Event;
+import com.LetsMeet.Models.Data.*;
 
 import java.sql.*;
 import java.util.ArrayList;

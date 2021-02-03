@@ -1,17 +1,15 @@
-package com.LetsMeet.LetsMeet;
+package com.LetsMeet.LetsMeet.Interface;
 
-import com.LetsMeet.Models.AdminEventData;
-import com.LetsMeet.Models.EventData;
-import com.LetsMeet.Models.UserData;
-import jdk.jfr.Event;
-import org.apache.catalina.User;
+import com.LetsMeet.LetsMeet.RequestHandler;
+import com.LetsMeet.LetsMeet.UserManager.UserManager;
+import com.LetsMeet.Models.Data.AdminEventData;
+import com.LetsMeet.Models.Data.EventData;
+import com.LetsMeet.Models.Data.UserData;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.ResultSet;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 public class APIHandler {

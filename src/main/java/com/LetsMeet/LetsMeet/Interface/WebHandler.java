@@ -1,15 +1,13 @@
-package com.LetsMeet.LetsMeet;
+package com.LetsMeet.LetsMeet.Interface;
 
+import com.LetsMeet.LetsMeet.RequestHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
-import com.LetsMeet.Models.EventData;
-import com.LetsMeet.Models.UserData;
-import com.LetsMeet.Models.UserModel;
+import com.LetsMeet.Models.Data.UserData;
+import com.LetsMeet.Models.Connectors.UserModel;
 
 @Controller
 public class WebHandler {

@@ -2,11 +2,16 @@ package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
+import com.LetsMeet.LetsMeet.Interface.APIHandler;
 import com.LetsMeet.LetsMeet.TestingTools.*;
-import com.LetsMeet.Models.*;
 
+import com.LetsMeet.LetsMeet.UserManager.UserManager;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.EventData;
+import com.LetsMeet.Models.Data.HasUsersRecord;
+import com.LetsMeet.Models.Data.UserData;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.h2.engine.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +19,6 @@ import static org.assertj.core.api.Assertions.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import static org.junit.Assert.*;
-import com.LetsMeet.LetsMeet.APIHandler;
 
 import java.util.ArrayList;
 import java.util.List;

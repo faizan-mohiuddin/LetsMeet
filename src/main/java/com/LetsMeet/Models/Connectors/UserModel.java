@@ -1,4 +1,8 @@
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Connectors;
+
+import com.LetsMeet.Models.Data.AdminUserData;
+import com.LetsMeet.Models.Data.TokenData;
+import com.LetsMeet.Models.Data.UserData;
 
 import java.sql.*;
 import java.util.ArrayList;
