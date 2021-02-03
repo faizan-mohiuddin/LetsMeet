@@ -18,7 +18,7 @@ public class UserControllerWeb {
     @Autowired
     UserService userServiceInterface;
 
-    @RequestMapping(value = "/api/v1/user/users")
+    @RequestMapping(value = "/api/v1/user/all")
     public ResponseEntity<Object> getUsers(){
         System.out.println("hey!");
         return new ResponseEntity<>(userServiceInterface.getUsers(),HttpStatus.OK);
