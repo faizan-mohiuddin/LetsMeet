@@ -8,41 +8,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserModel {
+public class UserModel extends DBConnector{
 
     Connection con;
 
     public UserModel(){
-        try{
-            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet",
-                    "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
-        }catch(Exception e){
-            System.out.println("\nUser Model: initilise");
-            System.out.println(e);
-            this.conRety();
-        }
-    }
-
-    private void conRety(){
-        try{
-            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet",
-                    "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
-        }catch(Exception e){
-            System.out.println("\nUser Model: conRetry");
-            System.out.println(e);
-        }
-    }
-
-    public void closeCon(){
-        try {
-            this.con.close();
-        }catch(Exception e){
-            System.out.println("\nUser Model: closeCon");
-            System.out.println(e);
-            if(this.con != null) {
-                this.closeCon();
-            }
-        }
+        super();
+        this.con = super.con;
     }
 
     private boolean checkCon(){

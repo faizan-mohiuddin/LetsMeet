@@ -6,32 +6,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventsModel {
+public class EventsModel extends DBConnector {
 
     Connection con;
 
     public EventsModel(){
-        try{
-            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet",
-                    "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
-        }catch(Exception e){
-            System.out.println("\nEvents Model: Initialise");
-            System.out.println(e);
-        }
+        super();
+        this.con = super.con;
     }
 
-    //TODO This could be implemented in finalize() to be called explicitly when garbage collection is run
-    public void closeCon(){
-        try {
-            this.con.close();
-        }catch(Exception e){
-            System.out.println("\nEvents Model: closeCon");
-            System.out.println(e);
-            if(this.con != null) {
-                this.closeCon();
-            }
-        }
-    }
 
     public String NewEvent(String UUID, String name, String desc, String location ){
         try{

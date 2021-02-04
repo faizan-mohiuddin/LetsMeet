@@ -17,10 +17,10 @@ import org.springframework.stereotype.*;
 @Component
 public class LetsMeetConfiguration {
     
-    private String databaseHost;
-    private String databaseName;
-    private String databaseUser;
-    private String databasePassword;
+    private static String databaseHost;
+    private static String databaseName;
+    private static String databaseUser;
+    private static String databasePassword;
 
     //-----------------------------------------------------------------
 
