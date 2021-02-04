@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
@@ -43,8 +44,12 @@ public class UserDao implements DAO<User> {
 
 
     @Override
-    public Optional<User> get(String uuid) {
+    public Optional<User> get(UUID uuid) {
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Optional<User> get(String email){
         return null;
     }
 
@@ -97,10 +102,11 @@ public class UserDao implements DAO<User> {
     }
 
     @Override
-    public void delete(String uuid) {
+    public void delete(UUID uuid) {
         // TODO Auto-generated method stub
 
     }
+
     
     
 }
