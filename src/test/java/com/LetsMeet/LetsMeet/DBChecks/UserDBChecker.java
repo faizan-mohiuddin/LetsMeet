@@ -1,31 +1,16 @@
 package com.LetsMeet.LetsMeet.DBChecks;
 
+import com.LetsMeet.Models.Connectors.DBConnector;
+
 import java.sql.*;
 
-public class UserDBChecker {
+public class UserDBChecker extends DBConnector {
 
     Connection con;
 
     public UserDBChecker(){
-        try{
-            this.con = DriverManager.getConnection("jdbc:mysql://rpi2.net.hamishweir.uk:7457/letsmeet",
-                    "lmadmin_oPJQFwg4", "WSbBBz39E4kYLNkk");
-        }catch(Exception e){
-            System.out.println("\nUser Checker: initilise");
-            System.out.println(e);
-        }
-    }
-
-    public void closeCon(){
-        try {
-            this.con.close();
-        }catch(Exception e){
-            System.out.println("\nUser Model: closeCon");
-            System.out.println(e);
-            if(this.con != null) {
-                this.closeCon();
-            }
-        }
+        super();
+        this.con = super.con;
     }
 
     public void removeUserByEmail(String email){

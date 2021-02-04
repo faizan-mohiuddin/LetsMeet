@@ -129,6 +129,16 @@ public class RequestHandler {
         model.closeCon();
         return r;
     }
+
+    public static String updateUser(AdminUserData user, String fName, String lName, String email){
+        UserModel model = new UserModel();
+        model.closeCon();
+        return "Success";
+    }
+
+    public static AdminUserData getUserFromTokenWithAdmin(String token){
+        return UserManager.getUserFromTokenWithAdmin(token);
+    }
     // End of user methods
 
     // Event methods here

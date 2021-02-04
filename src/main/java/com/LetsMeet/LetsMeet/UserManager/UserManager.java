@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.UserManager;
 
 import com.LetsMeet.Models.Connectors.EventsModel;
 import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.AdminUserData;
 import com.LetsMeet.Models.Data.HasUsersRecord;
 import com.LetsMeet.Models.Data.TokenData;
 import com.LetsMeet.Models.Data.UserData;
@@ -136,6 +137,14 @@ public class UserManager {
         }else{
             return user;
         }
+    }
+
+    public static AdminUserData getUserFromTokenWithAdmin(String token){
+        // Get user from token
+        UserModel userModel = new UserModel();
+        AdminUserData user = userModel.getAdminUserBytoken(token);
+        userModel.closeCon();
+        return user;
     }
 
     public static boolean checkUniqueEmail(String email){

@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Interface;
 import com.LetsMeet.LetsMeet.RequestHandler;
 import com.LetsMeet.LetsMeet.UserManager.UserManager;
 import com.LetsMeet.Models.Data.AdminEventData;
+import com.LetsMeet.Models.Data.AdminUserData;
 import com.LetsMeet.Models.Data.EventData;
 import com.LetsMeet.Models.Data.UserData;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -71,6 +72,24 @@ public class APIHandler {
             UserData errorData = new UserData();
             errorData.populate(errorText, errorText, errorText, errorText, errorText, errorText);
             return errorData;
+        }
+    }
+
+    // Update User
+    @PatchMapping("/api/User")
+    public String API_UpdateUser(@RequestParam(value="Token") String token,
+                                 @RequestParam(value="fName", defaultValue="") String fName,
+                                 @RequestParam(value="lName", defaultValue="") String lName,
+                                 @RequestParam(value="email", defaultValue="") String email){
+        Object[] response = UserManager.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            AdminUserData user = RequestHandler.getUserFromTokenWithAdmin(token);
+            return RequestHandler.updateUser(user, fName, lName, email);
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
         }
     }
     // End of user routes

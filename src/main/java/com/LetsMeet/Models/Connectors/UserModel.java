@@ -117,6 +117,29 @@ public class UserModel extends DBConnector{
         return null;
     }
 
+    public AdminUserData getAdminUserByUUID(String UUID){
+        if(this.checkCon()) {
+            try {
+                Statement statement = this.con.createStatement();
+                String query = String.format("select * from User where User.UserUUID = '%s'", UUID);
+
+                ResultSet rs = statement.executeQuery(query);
+                rs.next();
+
+                AdminUserData user = new AdminUserData();
+                user.populate(rs.getString(1), rs.getString(2), rs.getString(3),
+                        rs.getString(4), rs.getString(5), rs.getString(6));
+                return user;
+
+            } catch (Exception e) {
+                System.out.println("\nUser Model: getUserByUUID");
+                System.out.println(e);
+                return null;
+            }
+        }
+        return null;
+    }
+
     public UserData getUserByToken(String token){
         if(this.checkCon()) {
             try {
@@ -129,6 +152,25 @@ public class UserModel extends DBConnector{
 
             } catch (Exception e) {
                 System.out.println("\nUser Model: getUserByToken");
+                System.out.println(e);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public AdminUserData getAdminUserBytoken(String token){
+        if(this.checkCon()) {
+            try {
+                Statement statement = this.con.createStatement();
+                String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
+
+                ResultSet rs = statement.executeQuery(query);
+                rs.next();
+                return this.getAdminUserByUUID(rs.getString(1));
+
+            } catch (Exception e) {
+                System.out.println("\nUser Model: getAdminUserBytoken");
                 System.out.println(e);
                 return null;
             }

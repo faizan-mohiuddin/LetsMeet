@@ -835,6 +835,34 @@ class  LetsMeetApplicationTests {
 		testEvents.clear();
 	}
 
+	@Test
+	@Order(22)
+	public void updateUsers() {
+		// Update user accounts
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		user.login();
+
+		// Generate new details
+		this.generateUser();
+		TestingUsers user2 = testUsers.get(0);
+
+		// Change fName
+		String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
+
+		// Change lName
+		// Change email
+		// Change all 3
+	}
+
+	@Test
+	@Order(23)
+	public void updatePassword(){
+		// Update user password
+	}
+
+	// Update events
+
 //	@Test
 //	@Order(11)
 //	public void NonOwnerDeletingEvent(){
@@ -843,6 +871,7 @@ class  LetsMeetApplicationTests {
 
 	// Test event owner joining event
 
+	// Check that UUID's cannot be updated
 
 	@AfterAll
 	public static void cleanup(){

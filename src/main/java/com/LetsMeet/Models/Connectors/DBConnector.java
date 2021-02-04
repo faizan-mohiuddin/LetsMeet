@@ -7,7 +7,7 @@ import java.sql.DriverManager;
 
 public class DBConnector {
     private LetsMeetConfiguration config = new LetsMeetConfiguration();
-    Connection con;
+    public Connection con;
 
     public DBConnector(){
         try {
