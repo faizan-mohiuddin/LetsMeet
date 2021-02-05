@@ -5,7 +5,7 @@ import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
 import com.LetsMeet.LetsMeet.TestingTools.*;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
-import com.LetsMeet.LetsMeet.User.Model.User_Internal;
+import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.Models.*;
@@ -89,7 +89,7 @@ class  LetsMeetApplicationTests {
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
 
-		User_Internal userData = userModel.getUserByEmail(user.email);
+		UserSanitised userData = userModel.get(user.email);
 
 		assertEquals(user.fName, userData.getfName());
 		assertEquals(user.lName, userData.getlName());
@@ -767,7 +767,7 @@ class  LetsMeetApplicationTests {
 		UserModel userModel = new UserModel();
 
 		// Check User
-		User_Internal response = userService.getUserByUUID(user2.UUID);
+		UserSanitised response = userService.getUserByUUID(user2.UUID);
 
 		// Check HasUsers
 		List<HasUsersRecord> records = eventsModel.getHasUsers(event.UUID, user2.UUID);

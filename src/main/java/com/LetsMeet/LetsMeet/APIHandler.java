@@ -1,6 +1,6 @@
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.LetsMeet.User.Model.User_Internal;
+import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.Models.AdminEventData;
@@ -69,7 +69,7 @@ public class APIHandler {
 
         if(result){
             // Get user
-            User_Internal user = userValidation.getUserFromToken(token);
+            UserSanitised user = userValidation.getUserFromToken(token);
             if(user == null){
                 return "Error finding user. Is the token still valid? Is the user account still active?";
             }
@@ -90,7 +90,7 @@ public class APIHandler {
 
         if(result){
             // Get user
-            User_Internal user = userValidation.getUserFromToken(token);
+            UserSanitised user = userValidation.getUserFromToken(token);
             if (user == null) {
                 return "Error finding user. Is the token still valid? Is the user account still active?";
             }
@@ -112,7 +112,7 @@ public class APIHandler {
 
         if(result){
             // Get user
-            User_Internal user = userValidation.getUserFromToken(token);
+            UserSanitised user = userValidation.getUserFromToken(token);
 
             if (user == null) {
                 return "Error finding user. Is the token still valid? Is the user account still active?";
@@ -135,7 +135,7 @@ public class APIHandler {
 
         if(result){
                 // Get user
-                User_Internal user = userValidation.getUserFromToken(token);
+                UserSanitised user = userValidation.getUserFromToken(token);
 
                 if (user == null) {
                     return "Error finding user. Is the token still valid? Is the user account still active?";
@@ -160,7 +160,7 @@ public class APIHandler {
 
         if(result){
                 // Get user
-                User_Internal user = userValidation.getUserFromToken(token);
+                UserSanitised user = userValidation.getUserFromToken(token);
                 RequestHandler.NewConditionSet(EventUUID, user.getStringUUID(), setName);
 
                 return "ConditionSet created successfully";

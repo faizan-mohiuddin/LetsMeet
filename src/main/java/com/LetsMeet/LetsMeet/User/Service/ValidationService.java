@@ -1,9 +1,8 @@
 package com.LetsMeet.LetsMeet.User.Service;
 
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
-import com.LetsMeet.LetsMeet.User.Model.User_Internal;
+import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.Models.TokenData;
-import com.LetsMeet.Models.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import static com.LetsMeet.LetsMeet.User.Service.UserService.fromHex;
 public class ValidationService {
 
     @Autowired
-    UserDao dao = new UserDao();
+    UserDao dao;
 
     public Object[] verifyAPItoken(String token){
         // Returns [boolean, String]
@@ -51,7 +50,7 @@ public class ValidationService {
         return arr;
     }
 
-    public User_Internal getUserFromToken(String token){
+    public User getUserFromToken(String token){
         String uuid = this.getUserUUIDfromToken(token);
         return dao.getUserByUUID(uuid);
     }
@@ -60,9 +59,9 @@ public class ValidationService {
         return dao.getUserUUIDByToken(token);
     }
 
-    public User_Internal validate(String email, String password){
+    public User validate(String email, String password){
         // Get user corresponding to email
-        User_Internal user = dao.getUserByEmail(email);
+        User user = dao.get(email);
 
         // Check if password is correct
         boolean match = validatePassword(password, user);
@@ -74,7 +73,7 @@ public class ValidationService {
         }
     }
 
-    private boolean validatePassword(String password, User_Internal user){
+    private boolean validatePassword(String password, User user){
         if(user == null){
             return false;
         }

@@ -1,8 +1,8 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
 import com.LetsMeet.LetsMeet.RequestHandler;
-import com.LetsMeet.LetsMeet.User.Model.User;
-import com.LetsMeet.LetsMeet.User.Model.User_Internal;
+import com.LetsMeet.LetsMeet.UserSanitised.Model.User_depr;
+import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
@@ -83,7 +83,7 @@ public class UserControllerWeb {
     @PostMapping("/login")
     public String attemptlogin(@RequestParam(name = "loginemail") String email, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes) {
 
-        User_Internal user = userValidation.validate(email, password);
+        UserSanitised user = userValidation.validate(email, password);
         if(user != null) {
             redirectAttributes.addFlashAttribute("success", "You have logged in as " + user.getfName() + " " + user.getlName());
             return "redirect:/Home";

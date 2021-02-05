@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.User.Service;
 import com.LetsMeet.LetsMeet.User.DAO.*;
-import com.LetsMeet.LetsMeet.User.Model.*;
+import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
+import com.LetsMeet.LetsMeet.User.Model.User;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -9,9 +10,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
-import com.LetsMeet.LetsMeet.UserManager;
-import com.LetsMeet.Models.UserData;
-import com.LetsMeet.Models.UserModel;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +42,7 @@ public class UserService implements UserServiceInterface {
         }
 
 	    // Create User object for internal use
-        User_Internal newUser = new User_Internal(UserUUID, fName, lName, email, toHex(hash), toHex(salt));
+        User newUser = new User(UserUUID, fName, lName, email, toHex(hash), toHex(salt));
         password = null; // For security
 
         // Do validation and security business
@@ -57,13 +56,13 @@ public class UserService implements UserServiceInterface {
 	}
 
     @Override
-    public void updateUser(String uuid, User_Internal user) {
+    public void updateUser(String uuid, User user) {
         dao.update(user);
 
     }
 
     @Override
-    public String deleteUser(User_Internal user) {
+    public String deleteUser(User user) {
         return dao.delete(user);
     }
 
@@ -71,6 +70,11 @@ public class UserService implements UserServiceInterface {
     public Collection<User> getUsers() {
         System.out.println("hey from userservice.java!");
         return dao.getAll();
+    }
+
+    @Override
+    public UserSanitised getSantitised(User user) {  
+        return new UserSanitised(user.getfName(), user.getlName(), user.getEmail());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,10 +135,11 @@ public class UserService implements UserServiceInterface {
     public boolean checkUniqueEmail(String email){
         // Returns true if the given email is not already in the DB
         // Otherwise returns false
+        //TODO logic should not reside with in dao, get dao to returnr user by email.
         return !dao.checkEmailExists(email);
     }
 
-    public String getUserToken(User_Internal user){
+    public String getUserToken(User user){
         // User needs new token issued
         // Check if user currently has a token issued
         // If they do, remove it and issue a new one
@@ -173,7 +178,9 @@ public class UserService implements UserServiceInterface {
         return token;
     }
 
-    public User_Internal getUserByUUID(String uuid){
+    public User getUserByUUID(String uuid){
 	    return dao.getUserByUUID(uuid);
     }
+
+
 }
