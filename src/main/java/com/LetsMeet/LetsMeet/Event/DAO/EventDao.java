@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.Event.DAO;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class EventDao implements DAO<Event> {
 
     @Override
-    public Optional<Event> get(String uuid) {
+    public Optional<Event> get(UUID uuid) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -35,9 +36,15 @@ public class EventDao implements DAO<Event> {
     }
 
     @Override
-    public String delete(Event t) {
+    public void delete(Event t) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void delete(UUID uuid) {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
 }

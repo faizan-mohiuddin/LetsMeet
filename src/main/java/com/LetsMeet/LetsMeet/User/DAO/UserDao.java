@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Model.User_Internal;
@@ -38,6 +39,7 @@ public class UserDao extends DBConnector implements DAO<User_Internal> {
         return null;
     }
 
+    @Override
     public Collection<User> getAll() {
         // TODO Auto-generated method stub
         this.open();
@@ -75,7 +77,7 @@ public class UserDao extends DBConnector implements DAO<User_Internal> {
             statement.setString(5, t.getPasswordHash());
             statement.setString(6, t.getSalt());
             int rows = statement.executeUpdate();
-            
+
             this.close();
 
             if (rows > 0) {
@@ -317,5 +319,5 @@ public class UserDao extends DBConnector implements DAO<User_Internal> {
         }
         return null;
     }
-    
+
 }
