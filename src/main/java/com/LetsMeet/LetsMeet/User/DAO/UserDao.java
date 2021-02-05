@@ -7,78 +7,88 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 
 import com.LetsMeet.Models.TokenData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 @Component
-public class UserDao extends DBConnector implements DAO<User> {
+public class UserDao implements DAO<User> {
 
     @Autowired
     LetsMeetConfiguration config;
-    
-    //Connection con;
 
-    public UserDao(){
-        super();
-        //this.con = super.con;
+    Connection con;
+
+
+    public void open() {
+        try {
+            System.out.println("Connecting to " + config.getDatabaseName() + "@" + config.getDatabaseHost());
+            this.con = DriverManager.getConnection(this.config.getDatabaseHost() + "/" + this.config.getDatabaseName(),
+                    this.config.getDatabaseUser(), this.config.getDatabasePassword());
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
+
+    void close(){
+        try {
+            this.con.close();
+        }catch(Exception e){
+            System.out.println("\nDBConnector: closeCon");
+            System.out.println(e);
+            }
+        }
+
 
     @Override
     public Optional<User> get(UUID uuid) {
-        if(this.checkCon()) {
-            try (Statement statement = this.con.createStatement();) {
-                String query = String.format("select * from User where User.UserrUUID = '%s'", uuid);
-                ResultSet rs = statement.executeQuery(query);
+        this.open();
+        try (Statement statement = this.con.createStatement();) {
+            String query = String.format("select * from User where User.UserrUUID = '%s'", uuid);
+            ResultSet rs = statement.executeQuery(query);
 
-                rs.next();
-                Optional<User> user = Optional.of( new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-                rs.getString(4), rs.getString(5), rs.getString(6)));
-                this.close();
-                return user;
+            rs.next();
+            Optional<User> user = Optional.of( new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
+            rs.getString(4), rs.getString(5), rs.getString(6)));
+            this.close();
+            return user;
 
-            } catch (Exception e) {
-                if(!e.getMessage().equals("Illegal operation on empty result set.")) {
-                    System.out.println("\nUser DAO: getUserByEmail");
-                    System.out.println(e);
+        } catch (Exception e) {
+            if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                System.out.println("\nUser DAO: getUserByEmail");
+                System.out.println(e);
 
-                    return Optional.empty();
-                }         
-            }
+                return Optional.empty();
+            }         
         }
         return Optional.empty();
     }
 
     public User get(String email){
         this.open();
-        if(this.checkCon()) {
-            try (Statement statement = this.con.createStatement();) {
-                String query = String.format("select * from User where User.email = '%s'", email);
-                ResultSet rs = statement.executeQuery(query);
+        try (Statement statement = this.con.createStatement();) {
+            String query = String.format("select * from User where User.email = '%s'", email);
+            ResultSet rs = statement.executeQuery(query);
 
-                rs.next();
-                User user = new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-                        rs.getString(4), rs.getString(5), rs.getString(6));
+            rs.next();
+            User user = new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getString(5), rs.getString(6));
 
-                this.close();
-                return user;
+            this.close();
+            return user;
 
-            } catch (Exception e) {
-                if(!e.getMessage().equals("Illegal operation on empty result set.")) {
-                    System.out.println("\nUser DAO: getUserByEmail");
-                    System.out.println(e);
-                }
-                return null;
+        } catch (Exception e) {
+            if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                System.out.println("\nUser DAO: getUserByEmail");
+                System.out.println(e);
             }
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -88,7 +98,7 @@ public class UserDao extends DBConnector implements DAO<User> {
             
             ResultSet rs = statement.executeQuery("select * from User");
 
-            this.close();
+            
 
             List<User> users = new ArrayList<>();
 
@@ -96,6 +106,7 @@ public class UserDao extends DBConnector implements DAO<User> {
                 users.add(new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6)));
                 
             }
+            this.close();
             return users;
 
         }catch(Exception e){
@@ -142,19 +153,17 @@ public class UserDao extends DBConnector implements DAO<User> {
     @Override
     public String delete(User t) {
         this.open();
-        if(this.checkCon()) {
-            try(Statement statement = this.con.createStatement();) {
-                String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", t.getStringUUID());
-                statement.executeUpdate(query);
-                this.close();
-                return "User successfully deleted.";
-            } catch (Exception e) {
-                System.out.println("\nUser DAO: deleteUser");
-                System.out.println(e);
-                return "Error deleting user";
-            }
+        try(Statement statement = this.con.createStatement();) {
+            String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", t.getStringUUID());
+            statement.executeUpdate(query);
+            this.close();
+            return "User successfully deleted.";
+        } catch (Exception e) {
+            System.out.println("\nUser DAO: deleteUser");
+            System.out.println(e);
+            return "Error deleting user";
         }
-        return "Error connecting";
+
     }
 
     @Override
@@ -167,37 +176,34 @@ public class UserDao extends DBConnector implements DAO<User> {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     public boolean checkEmailExists(String email){
         this.open();
-        if(this.checkCon()) {
-            // Returns true if the email exists
-            try (Statement statement = this.con.createStatement();){
-                String query = String.format("SELECT COUNT(email) AS Emails FROM User WHERE User.email = '%s'", email);
 
-                ResultSet rs = statement.executeQuery(query);
+        // Returns true if the email exists
+        try (Statement statement = this.con.createStatement();){
+            String query = String.format("SELECT COUNT(email) AS Emails FROM User WHERE User.email = '%s'", email);
 
-                rs.next();
+            ResultSet rs = statement.executeQuery(query);
 
-                int count = rs.getInt(1);
-                this.close();
+            rs.next();
 
-                if (count > 0) {
-                    return true;
-                }
-                return false;
+            int count = rs.getInt(1);
+            this.close();
 
-            } catch (Exception e) {
-                System.out.println("User DAO: checkEmailExists");
-                System.out.println(e);
+            if (count > 0) {
                 return true;
             }
-        }
-        return false;
+            return false;
+
+        } catch (Exception e) {
+            System.out.println("User DAO: checkEmailExists");
+            System.out.println(e);
+            return true;
+            }
     }
 
 
 
     public boolean CheckUserToken(String UUID){
         this.open();
-        if(this.checkCon()) {
             try (Statement statement = this.con.createStatement();) {
                 String query = String.format("SELECT COUNT(TokenUUID) AS Tokens FROM Token WHERE Token.UserUUID = '%s'", UUID);
                 ResultSet rs = statement.executeQuery(query);
@@ -218,8 +224,6 @@ public class UserDao extends DBConnector implements DAO<User> {
                 System.out.println(e);
                 return false;
             }
-        }
-        return false;
     }
 
     public void removeAllUserToken(String UUID){
@@ -237,34 +241,30 @@ public class UserDao extends DBConnector implements DAO<User> {
 
     public String createToken(String UUID, String Token, long expires){
         this.open();
-        if(this.checkCon()) {
-            try (PreparedStatement statement = this.con.prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
+        try (PreparedStatement statement = this.con.prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
 
-                statement.setString(1, UUID);
-                statement.setString(2, Token);
-                statement.setLong(3, expires);
-                int rows = statement.executeUpdate();
+            statement.setString(1, UUID);
+            statement.setString(2, Token);
+            statement.setLong(3, expires);
+            int rows = statement.executeUpdate();
 
-                this.close();
+            this.close();
 
-                if (rows > 0) {
-                    return "Token created successfully";
-                } else {
-                    throw new Exception("Error creating token");
-                }
-
-            } catch (Exception e) {
-                System.out.println("\nUser DAO: createToken");
-                System.out.println(e);
-                return "Error creating API token";
+            if (rows > 0) {
+                return "Token created successfully";
+            } else {
+                throw new Exception("Error creating token");
             }
+
+        } catch (Exception e) {
+            System.out.println("\nUser DAO: createToken");
+            System.out.println(e);
+            return "Error creating API token";
         }
-        return "Error connecting";
     }
 
     public TokenData getTokenRecord(String token){
         this.open();
-        if(this.checkCon()) {
             try (Statement statement = this.con.createStatement();){
                 String query = String.format("select * from Token where Token.TokenUUID = '%s'", token);
                 ResultSet rs = statement.executeQuery(query);
@@ -283,34 +283,28 @@ public class UserDao extends DBConnector implements DAO<User> {
                 System.out.println(e);
                 return null;
             }
-        }
-        return null;
     }
 
     public String getUserUUIDByToken(String token){
         this.open();
-        if(this.checkCon()) {
-            try (Statement statement = this.con.createStatement();) {
-                String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
+        try (Statement statement = this.con.createStatement();) {
+            String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
 
-                ResultSet rs = statement.executeQuery(query);
-                rs.next();
-                String r = rs.getString(1);
-                this.close();
-                return r;
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            String r = rs.getString(1);
+            this.close();
+            return r;
 
-            } catch (Exception e) {
-                System.out.println("\nUser DAO: getUserByToken");
-                System.out.println(e);
-                return null;
-            }
+        } catch (Exception e) {
+            System.out.println("\nUser DAO: getUserByToken");
+            System.out.println(e);
+            return null;
         }
-        return "Error connecting";
     }
 
     public User getUserByUUID(String uuid){
         this.open();
-        if(this.checkCon()) {
             try (Statement statement = this.con.createStatement();) {
                 String query = String.format("select * from User where User.UserUUID = '%s'", uuid);
 
@@ -328,8 +322,6 @@ public class UserDao extends DBConnector implements DAO<User> {
                 System.out.println(e);
                 return null;
             }
-        }
-        return null;
     }
 
 

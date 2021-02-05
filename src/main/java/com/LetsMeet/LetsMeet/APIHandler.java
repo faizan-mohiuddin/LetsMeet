@@ -1,4 +1,6 @@
-package com.LetsMeet.LetsMeet;
+// Legacy code - disabled
+
+/*package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
@@ -179,3 +181,4 @@ public class APIHandler {
     }
     // End of Error handling
 }
+*/

@@ -17,7 +17,14 @@ public class UserControllerAPI {
     @PostMapping("/api/User")
     public String API_AddUser(@RequestParam(value="fName") String fName, @RequestParam(value="lName") String lName,
                               @RequestParam(value="email") String email, @RequestParam(value="password") String password){
+        System.out.println("Hiiiiiiiii");
         return userServiceInterface.createUser(fName, lName, email, password);
+    }
+
+    @RequestMapping("/api/test")
+    public String API_Test(){
+        userServiceInterface.getUsers();
+        return ("hello");
     }
 
     // User login

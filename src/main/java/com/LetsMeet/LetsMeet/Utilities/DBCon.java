@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class DBConnector {
+public class DBCon {
+    
 
     @Autowired
     LetsMeetConfiguration config;
@@ -31,7 +32,6 @@ public class DBConnector {
         }
     }
 
-    
     private void Connect() throws Exception{
         System.out.println("\nConnecting to DB: " + this.config.getDatabaseName() + "@"+ this.config.getDatabaseHost());
         System.out.println(this.config.getDatabaseHost());
