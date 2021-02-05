@@ -1,13 +1,9 @@
-/*package com.LetsMeet.LetsMeet.User.Controller;
+package com.LetsMeet.LetsMeet.User.Controller;
 
-import com.LetsMeet.LetsMeet.RequestHandler;
-import com.LetsMeet.LetsMeet.UserSanitised.Model.User_depr;
-import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
+import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
-
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
-import com.LetsMeet.Models.UserData;
-import com.LetsMeet.Models.UserModel;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 @Controller
 public class UserControllerWeb {
@@ -37,24 +26,10 @@ public class UserControllerWeb {
         return "Home";
     }
 
-    @GetMapping("/createevent")
-    public String createevent(Model model) {
-        model.addAttribute("event", new RequestHandler());
-        return "createevent";
-    }
-
-    @GetMapping("/saveevent")
-    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, Model model) {
-        model.addAttribute("eventname", eventname);
-        model.addAttribute("eventdesc", eventdesc);
-        model.addAttribute("eventlocation", eventlocation);
-        RequestHandler.createEvent(eventname, eventdesc, eventlocation, null);
-        return "saveevent";
-    }
 
     @GetMapping("/createuser")
     public String createuser(Model model) {
-        model.addAttribute("user", new UserModel());
+        model.addAttribute("user", new UserService());
         return "createuser";
     }
 
@@ -72,7 +47,7 @@ public class UserControllerWeb {
 
     @PostMapping("/User")
     public void CreateUser(@RequestParam(value = "email") String email) {
-
+        // Why is this method empty? How does this still work? #include PureMagic? Probably
     }
 
     @GetMapping("/login")
@@ -83,7 +58,7 @@ public class UserControllerWeb {
     @PostMapping("/login")
     public String attemptlogin(@RequestParam(name = "loginemail") String email, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes) {
 
-        UserSanitised user = userValidation.validate(email, password);
+        User user = userValidation.validate(email, password);
         if(user != null) {
             redirectAttributes.addFlashAttribute("success", "You have logged in as " + user.getfName() + " " + user.getlName());
             return "redirect:/Home";
@@ -93,22 +68,4 @@ public class UserControllerWeb {
         }
 
     }
-
-    @GetMapping("/adminviewallevents")
-    public String adminviewallevents(Model model) {
-
-        model.addAttribute("events", RequestHandler.getAllEvents());
-
-        return "adminviewallevents";
-    }
-
-    @GetMapping("/adminviewallusers")
-    public String adminviewallusers(Model model) {
-
-        model.addAttribute("users", RequestHandler.getAllUsers());
-
-        return "adminviewallusers";
-
-    }
 }
-*/

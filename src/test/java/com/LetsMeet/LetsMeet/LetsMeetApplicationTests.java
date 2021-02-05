@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import static org.junit.Assert.*;
-import com.LetsMeet.LetsMeet.APIHandler;
+//import com.LetsMeet.LetsMeet.APIHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,8 @@ class  LetsMeetApplicationTests {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private APIHandler controller;
+	//@Autowired
+	//private APIHandler controller;
 
 	@Autowired
 	UserDao userModel;

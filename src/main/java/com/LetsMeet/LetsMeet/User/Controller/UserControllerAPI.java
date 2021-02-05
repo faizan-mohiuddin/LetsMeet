@@ -21,10 +21,11 @@ public class UserControllerAPI {
         return userServiceInterface.createUser(fName, lName, email, password);
     }
 
-    @RequestMapping("/api/test")
+    @RequestMapping("/api/ping")
     public String API_Test(){
         userServiceInterface.getUsers();
-        return ("hello");
+        userServiceInterface.createUser("Ping", "Pong", "ding@dong", "youvegotatinywong");
+        return ("Pong!");
     }
 
     // User login
