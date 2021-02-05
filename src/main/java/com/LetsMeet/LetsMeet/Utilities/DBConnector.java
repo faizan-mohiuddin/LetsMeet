@@ -1,61 +1,43 @@
 package com.LetsMeet.LetsMeet.Utilities;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
+@Service
 public class DBConnector {
 
     @Autowired
     LetsMeetConfiguration config;
 
-    public Connection con;
+    Connection con;
 
-    public void open(){
-        try {
-            this.Connect();
-        }catch(Exception e){
-            System.out.println("\nDBConnector: open");
-            System.out.println(e);
-            this.conRetry();
-        }
+    public Connection getCon(){
+        return con;
     }
 
-    private void conRetry(){
+    public void open() {
         try {
-            this.Connect();
-        }catch(Exception e){
-            System.out.println("\nDBConnector: conRetry");
-            System.out.println(e);
+            System.out.println("Connecting to " + config.getDatabaseName() + "@" + config.getDatabaseHost());
+            
+            this.con = DriverManager.getConnection(this.config.getDatabaseHost() + "/" + this.config.getDatabaseName(),
+                    this.config.getDatabaseUser(), this.config.getDatabasePassword());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    }
-
-    
-    private void Connect() throws Exception{
-        System.out.println("\nConnecting to DB: " + this.config.getDatabaseName() + "@"+ this.config.getDatabaseHost());
-        System.out.println(this.config.getDatabaseHost());
-
-        this.con = DriverManager.getConnection(this.config.getDatabaseHost() + "/" + this.config.getDatabaseName(),
-                this.config.getDatabaseUser(), this.config.getDatabasePassword());
     }
 
     public void close(){
         try {
             this.con.close();
         }catch(Exception e){
-            System.out.println("\nDBConnector: closeCon");
-            System.out.println(e);
-            if(this.con != null) {
-                this.close();
-            }
+            e.printStackTrace();
         }
-    }
-
-    public boolean checkCon(){
-        if(con == null){
-            return false;
-        }
-        return true;
     }
 }
+
+
+

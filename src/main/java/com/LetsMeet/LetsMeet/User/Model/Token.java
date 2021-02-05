@@ -6,9 +6,9 @@ public class Token {
 
     UUID uuid;
     UUID user;
-    int expires;
+    long expires;
 
-    public Token(UUID uuid, UUID user, int expires){
+    public Token(UUID uuid, UUID user, long expires){
         this.uuid = uuid;
         this.user = user;
         this.expires = expires;
@@ -22,7 +22,7 @@ public class Token {
         return this.user;
     }
 
-    public int getExpires(){
+    public long getExpires(){
         return this.expires;
     }
 }

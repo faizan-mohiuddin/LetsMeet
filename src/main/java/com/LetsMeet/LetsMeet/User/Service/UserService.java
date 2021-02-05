@@ -23,12 +23,15 @@ import javax.crypto.spec.PBEKeySpec;
 @Service
 public class UserService implements UserServiceInterface {
 
+    // Interface with User persistant storage
     @Autowired
     UserDao dao;
     
-    //@Autowired
-    //TokenDAO tokenDao;
+    // Interface with Token persitant storage
+    @Autowired
+    TokenDAO tokenDao;
 
+    // Create user
 	@Override
 	public String createUser(String fName, String lName, String email, String password) {
 	    // Check that email has not already been used
@@ -83,13 +86,16 @@ public class UserService implements UserServiceInterface {
         return new UserSanitised(user.getfName(), user.getlName(), user.getEmail());
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  
+    // Returns a UUID generated from user specific seed data
     public static UUID createUserUUID(String fName, String lName, String email){
         String uuidData = fName + lName + email;
         UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
         return uuid;
     }
 
+    // Returns a random salt string
     public static byte[] generateSalt(){
         try {
             SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
@@ -102,6 +108,7 @@ public class UserService implements UserServiceInterface {
         }
     }
 
+    // Takes plain text password string and returns hashed version 
     public static byte[] generateHash(String password, byte[] salt){
         //PBKDF2 hashing
         //https://howtodoinjava.com/java/java-security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
@@ -118,6 +125,7 @@ public class UserService implements UserServiceInterface {
         }
     }
 
+    //TODO comment
     public static String toHex(byte[] arr){
         BigInteger bi = new BigInteger(1, arr);
         String hex = bi.toString(16);
@@ -129,6 +137,7 @@ public class UserService implements UserServiceInterface {
         }
     }
 
+    //TODO comment
     public static byte[] fromHex(String hex){
         byte[] bytes = new byte[hex.length() / 2];
         for(int i = 0; i<bytes.length ;i++)
@@ -138,34 +147,44 @@ public class UserService implements UserServiceInterface {
         return bytes;
     }
 
+    // Returns true if provided email does not belong to any user
     public boolean checkUniqueEmail(String email){
-        // Returns true if the given email is not already in the DB
-        // Otherwise returns false
-        //TODO logic should not reside with in dao, get dao to returnr user by email.
-        return !dao.checkEmailExists(email);
+        if (dao.get(email).isPresent()){
+            return false;
+        }
+        else{return true;}
     }
 
+    //TODO these methods should belong to the Token service
     public String getUserToken(User user){
         // User needs new token issued
         // Check if user currently has a token issued
         // If they do, remove it and issue a new one
+
+        /*
         if(dao.CheckUserToken(user.getStringUUID())){
             // Remove tokens
             dao.removeAllUserToken(user.getStringUUID());
         }
+        */
+
+        Collection<Token> tokens = tokenDao.getAll(user).get();
+        for (Token t : tokens){
+            tokenDao.delete(t);
+        }
 
         // Create new token
-        String token = this.createAPItoken(user.getStringUUID(), user.getfName(), user.getlName(),
+        String token = createAPItoken(user.getUUID().toString(), user.getfName(), user.getlName(),
                 user.getEmail(), user.getSalt());
 
         // Add to DB
         long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
-        String feedback = dao.createToken(user.getStringUUID(), token, tokenExpires);
+        //String feedback = dao.createToken(user.getUUID().toString(), token, tokenExpires);
 
-        if(feedback.equals("Token created successfully")) {
+        if(tokenDao.save(new Token(UUID.fromString(token), user.getUUID(), tokenExpires)) == 1) {
             return token;
         }else{
-            return feedback;
+            return "Failed to create token";
         }
     }
 

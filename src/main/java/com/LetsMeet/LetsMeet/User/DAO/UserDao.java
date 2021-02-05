@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
+import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 
 import com.LetsMeet.Models.TokenData;
@@ -20,6 +21,9 @@ public class UserDao implements DAO<User> {
 
     @Autowired
     LetsMeetConfiguration config;
+
+    @Autowired
+    DBConnector database;
 
     Connection con;
 
@@ -69,7 +73,7 @@ public class UserDao implements DAO<User> {
         return Optional.empty();
     }
 
-    public User get(String email){
+    public Optional<User> get(String email){
         this.open();
         try (Statement statement = this.con.createStatement();) {
             String query = String.format("select * from User where User.email = '%s'", email);
@@ -80,14 +84,14 @@ public class UserDao implements DAO<User> {
                     rs.getString(4), rs.getString(5), rs.getString(6));
 
             this.close();
-            return user;
+            return Optional.ofNullable(user);
 
         } catch (Exception e) {
             if(!e.getMessage().equals("Illegal operation on empty result set.")) {
                 System.out.println("\nUser DAO: getUserByEmail");
                 System.out.println(e);
             }
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -121,7 +125,7 @@ public class UserDao implements DAO<User> {
         this.open();
 
         try(PreparedStatement statement = this.con.prepareStatement("INSERT INTO User (UserUUID, fName, lName, email, PasswordHash, salt) VALUES (?,?,?,?,?,?)")) {
-            statement.setString(1, t.getStringUUID());
+            statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getfName());
             statement.setString(3, t.getlName());
             statement.setString(4, t.getEmail());
@@ -154,7 +158,7 @@ public class UserDao implements DAO<User> {
     public String delete(User t) {
         this.open();
         try(Statement statement = this.con.createStatement();) {
-            String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", t.getStringUUID());
+            String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", t.getUUID().toString());
             statement.executeUpdate(query);
             this.close();
             return "User successfully deleted.";

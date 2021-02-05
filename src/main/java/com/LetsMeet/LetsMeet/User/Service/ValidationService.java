@@ -61,7 +61,7 @@ public class ValidationService {
 
     public User validate(String email, String password){
         // Get user corresponding to email
-        User user = dao.get(email);
+        User user = dao.get(email).get();
 
         // Check if password is correct
         boolean match = validatePassword(password, user);

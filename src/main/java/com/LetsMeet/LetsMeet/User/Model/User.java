@@ -2,7 +2,6 @@ package com.LetsMeet.LetsMeet.User.Model;
 
 import java.util.UUID;
 
-// ONLY FOR INTERNAL USE. PASSWORD MAY BE STORED IN PLAIN TEXT WHEN CREATING NEW USER
 public class User {
 
     UUID UUID;
@@ -21,17 +20,6 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    // Let's not have mutliple constructors forr different uuid types.
-    /*
-    public User(String UUID, String fName, String lName, String email, String passwordHash, String salt){
-        this.UUID = java.util.UUID.fromString(UUID);
-        this.fName = fName;
-        this.lName = lName;
-        this.email = email;
-        this.salt = salt;
-        this.passwordHash = passwordHash;
-    }
-    */
 
     public UserSanitised convertToUser(){
         return new UserSanitised(this.fName, this.lName, this.email);
@@ -57,7 +45,7 @@ public class User {
         return this.email;
     }
 
-    public String getStringUUID(){
-        return this.UUID.toString();
+    public UUID getUUID(){
+        return this.UUID;
     }
 }
