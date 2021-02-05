@@ -1,32 +1,16 @@
 package com.LetsMeet.LetsMeet.DBChecks;
 
 import com.LetsMeet.LetsMeet.TestingTools.TestingEvents;
+import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 
 import java.sql.*;
 
-public class EventDBChecker {
+public class EventDBChecker extends DBConnector {
     Connection con;
 
     public EventDBChecker(){
-        try{
-            this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522",
-                    "sql2383522", "iN8!qL4*");
-        }catch(Exception e){
-            System.out.println("\nEvent Checker: initilise");
-            System.out.println(e);
-        }
-    }
-
-    public void closeCon(){
-        try {
-            this.con.close();
-        }catch(Exception e){
-            System.out.println("\nUser Model: closeCon");
-            System.out.println(e);
-            if(this.con != null) {
-                this.closeCon();
-            }
-        }
+        super();
+        this.con = super.con;
     }
 
     public String eventUUIDFromNameAndDesc(String name, String desc){

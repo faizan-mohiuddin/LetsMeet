@@ -3,6 +3,11 @@ package com.LetsMeet.LetsMeet;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
 import com.LetsMeet.LetsMeet.TestingTools.*;
+import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
+import com.LetsMeet.LetsMeet.User.DAO.UserDao;
+import com.LetsMeet.LetsMeet.User.Model.User_Internal;
+import com.LetsMeet.LetsMeet.User.Service.UserService;
+import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.Models.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +29,19 @@ import java.util.List;
 class  LetsMeetApplicationTests {
 
 	@Autowired
+	private UserControllerAPI userController;
+
+	@Autowired
+	private ValidationService userValidation;
+
+	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private APIHandler controller;
+
+	@Autowired
+	UserDao userModel;
 
 	private static ArrayList<TestingUsers> testUsers = new ArrayList<>();
 	private static ArrayList<TestingEvents> testEvents = new ArrayList<>();
@@ -33,7 +50,7 @@ class  LetsMeetApplicationTests {
 	@Test
 	@Order(1)
 	void LoadAPIHandler() throws Exception{
-		assertThat(controller).isNotNull();
+		assertThat(userController).isNotNull();
 	}
 
 	@Test
@@ -46,24 +63,23 @@ class  LetsMeetApplicationTests {
 		String password = RandomStringUtils.randomAlphabetic(12);
 
 		// Run method
-		String result = this.controller.API_AddUser(fName, lName, email, password);
+		String result = this.userController.API_AddUser(fName, lName, email, password);
 
 		TestingUsers user = new TestingUsers(fName, lName, email, password);
 		testUsers.add(user);
 
 		// Check correct message has been returned
-		assertEquals("User Account Created Successfully", result);
+ 		assertEquals("User Account Created Successfully", result);
 
 		// Double check by searching DB
-		UserModel userModel = new UserModel();
 		boolean present = userModel.checkEmailExists(email);
-		userModel.closeCon();
+
 		assertEquals(true, present);
 
 		// Remove created user
 		UserDBChecker model = new UserDBChecker();
 		model.removeUserByEmail(email);
-		model.closeCon();
+		model.close();
 		testUsers.clear();
 	}
 
@@ -73,9 +89,7 @@ class  LetsMeetApplicationTests {
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
 
-		UserModel model = new UserModel();
-		UserData userData = model.getUserByEmail(user.email);
-		model.closeCon();
+		User_Internal userData = userModel.getUserByEmail(user.email);
 
 		assertEquals(user.fName, userData.getfName());
 		assertEquals(user.lName, userData.getlName());
@@ -84,7 +98,7 @@ class  LetsMeetApplicationTests {
 		// remove user
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 	}
 
@@ -94,18 +108,18 @@ class  LetsMeetApplicationTests {
 		// Test that a user can login
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		String token = this.controller.API_Login(user.email, user.password);
+		String token = this.userController.API_Login(user.email, user.password);
 
 		// Check that the token is in the DB
 		UserDBChecker model = new UserDBChecker();
 		boolean result = model.checkForToken(token, user.UUID);
-		model.closeCon();
+		model.close();
 
 		assertEquals(true, result);
 		user.token = token;
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 	}
 
@@ -120,7 +134,7 @@ class  LetsMeetApplicationTests {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_GetUser(user.token));
+			String result = mapper.writeValueAsString(this.userController.API_GetUser(user.token));
 			String expectedResult = String.format("{\"fName\":\"%s\",\"lName\":\"%s\",\"email\":\"%s\"}", user.fName,
 					user.lName, user.email);
 			assertEquals(expectedResult, result);
@@ -130,7 +144,7 @@ class  LetsMeetApplicationTests {
 		}
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 	}
 
@@ -141,16 +155,16 @@ class  LetsMeetApplicationTests {
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
 
-		String result = this.controller.API_Login(user.email + "Wrong", user.password);
+		String result = this.userController.API_Login(user.email + "Wrong", user.password);
 		assertEquals("Error, invalid email or password", result);
 
 		// Test login with incorrect password
-		result = this.controller.API_Login(user.email, user.password + "Wrong");
+		result = this.userController.API_Login(user.email, user.password + "Wrong");
 		assertEquals("Error, invalid email or password", result);
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 	}
 
@@ -161,18 +175,18 @@ class  LetsMeetApplicationTests {
 		TestingUsers user = testUsers.get(0);
 
 		// Test incorrect token
-		Object[] response = UserManager.verifyAPItoken(user.token + "Wrong");
+		Object[] response = userValidation.verifyAPItoken(user.token + "Wrong");
 		boolean result = (boolean) response[0];
 		assertEquals(false, result);
 
 		// Test correct token
-		response = UserManager.verifyAPItoken(user.token);
+		response = userValidation.verifyAPItoken(user.token);
 		result = (boolean) response[0];
 		assertEquals(true, result);
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 	}
 
@@ -183,7 +197,7 @@ class  LetsMeetApplicationTests {
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
 
-		String result = this.controller.API_DeleteUser(user.token);
+		String result = this.userController.API_DeleteUser(user.token);
 		testUsers.remove(0);
 		assertEquals("User Deleted", result);
 	}
@@ -205,7 +219,7 @@ class  LetsMeetApplicationTests {
 
 		UserDBChecker userModel = new UserDBChecker();
 		user.UUID = userModel.UserUUIDFromEmail(user.email);
-		userModel.closeCon();
+		userModel.close();
 
 		// Generate event details
 		String Ename = RandomStringUtils.randomAlphabetic(8);
@@ -229,7 +243,7 @@ class  LetsMeetApplicationTests {
 
 		// Check events record
 		TestingEvents check = model.checkEvent(event.UUID);
-		model.closeCon();
+		model.close();
 		assertEquals(event.UUID, check.UUID);
 		assertEquals(event.name, check.name);
 		assertEquals(event.desc, check.desc);
@@ -238,7 +252,7 @@ class  LetsMeetApplicationTests {
 		// Check hasUser record
 		EventsModel eventsModel = new EventsModel();
 		List<HasUsersRecord> hasUsers = eventsModel.getHasUsers(event.UUID);
-		eventsModel.closeCon();
+		eventsModel.close();
 
 		HasUsersRecord record = hasUsers.get(0);
 		assertEquals(event.UUID, record.EventUUID);
@@ -247,7 +261,7 @@ class  LetsMeetApplicationTests {
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 	}
 
@@ -275,12 +289,12 @@ class  LetsMeetApplicationTests {
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -308,12 +322,12 @@ class  LetsMeetApplicationTests {
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -345,7 +359,7 @@ class  LetsMeetApplicationTests {
 		// Check DB
 		EventsModel model = new EventsModel();
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		model.closeCon();
+		model.close();
 		assertEquals(2, records.size());
 
 		if(records.get(0).IsOwner){
@@ -358,12 +372,12 @@ class  LetsMeetApplicationTests {
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -401,13 +415,13 @@ class  LetsMeetApplicationTests {
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event1.UUID);
 		eventModel.removeEventByUUID(event2.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -450,14 +464,14 @@ class  LetsMeetApplicationTests {
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event1.UUID);
 		eventModel.removeEventByUUID(event2.UUID);
 		eventModel.removeEventByUUID(event3.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -509,7 +523,7 @@ class  LetsMeetApplicationTests {
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
@@ -517,7 +531,7 @@ class  LetsMeetApplicationTests {
 		eventModel.removeEventByUUID(event2.UUID);
 		eventModel.removeEventByUUID(event3.UUID);
 		eventModel.removeEventByUUID(event4.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -551,18 +565,18 @@ class  LetsMeetApplicationTests {
 
 		// Check hasUsers table
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		model.closeCon();
+		model.close();
 		assertEquals(0, records.size());
 
 		// Remove unnecessary data
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -603,17 +617,17 @@ class  LetsMeetApplicationTests {
 		// Check hasUsers table
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
 		assertEquals(0, records.size());
-		model.closeCon();
+		model.close();
 
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -635,7 +649,7 @@ class  LetsMeetApplicationTests {
 		this.controller.API_AddUserToEvent(user2.token, event.UUID);
 
 		try {
-			String result = this.controller.API_DeleteUser(user.token);
+			String result = this.userController.API_DeleteUser(user.token);
 			String expectedResult = String.format("User successfully deleted.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -656,19 +670,19 @@ class  LetsMeetApplicationTests {
 		assertEquals(0, records.size());
 
 		// Check user
-		userModel.closeCon();
-		model.closeCon();
+		userModel.close();
+		model.close();
 
 		// Remove unnecessary data
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -707,18 +721,18 @@ class  LetsMeetApplicationTests {
 		// Check HasUser
 		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
 		assertEquals(1, records.size());
-		model.closeCon();
+		model.close();
 
 		// Remove unnecessary data
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -740,7 +754,7 @@ class  LetsMeetApplicationTests {
 		this.controller.API_AddUserToEvent(user2.token, event.UUID);
 
 		try {
-			String result = this.controller.API_DeleteUser(user2.token);
+			String result = this.userController.API_DeleteUser(user2.token);
 			String expectedResult = String.format("User successfully deleted.");
 			assertEquals(expectedResult, result);
 		}catch(Exception e){
@@ -753,7 +767,7 @@ class  LetsMeetApplicationTests {
 		UserModel userModel = new UserModel();
 
 		// Check User
-		UserData response = userModel.getUserByUUID(user2.UUID);
+		User_Internal response = userService.getUserByUUID(user2.UUID);
 
 		// Check HasUsers
 		List<HasUsersRecord> records = eventsModel.getHasUsers(event.UUID, user2.UUID);
@@ -761,8 +775,8 @@ class  LetsMeetApplicationTests {
 		// Check event
 		EventData DBreturn = eventsModel.getEventByUUID(event.UUID);
 
-		userModel.closeCon();
-		eventsModel.closeCon();
+		userModel.close();
+		eventsModel.close();
 
 		assertEquals(null, response);
 		assertEquals(0, records.size());
@@ -772,12 +786,12 @@ class  LetsMeetApplicationTests {
 		UserDBChecker Checkmodel = new UserDBChecker();
 		Checkmodel.removeUserByEmail(user.email);
 		Checkmodel.removeUserByEmail(user2.email);
-		Checkmodel.closeCon();
+		Checkmodel.close();
 		testUsers.clear();
 
 		EventDBChecker eventModel = new EventDBChecker();
 		eventModel.removeEventByUUID(event.UUID);
-		eventModel.closeCon();
+		eventModel.close();
 		testEvents.clear();
 	}
 
@@ -800,7 +814,7 @@ class  LetsMeetApplicationTests {
 		// Remove test records from DB
 		UserDBChecker model = new UserDBChecker();
 		model.clearTestUsers();
-		model.closeCon();
+		model.close();
 	}
 
 	// Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
@@ -813,15 +827,15 @@ class  LetsMeetApplicationTests {
 		String password = RandomStringUtils.randomAlphabetic(12);
 
 		// Run method
-		this.controller.API_AddUser(fName, lName, email, password);
+		this.userController.API_AddUser(fName, lName, email, password);
 
 		TestingUsers user = new TestingUsers(fName, lName, email, password);
 
 		UserDBChecker model = new UserDBChecker();
 		user.UUID = model.UserUUIDFromEmail(email);
-		model.closeCon();
+		model.close();
 
-		user.token = this.controller.API_Login(user.email, user.password);
+		user.token = this.userController.API_Login(user.email, user.password);
 		testUsers.add(user);
 	}
 
@@ -836,7 +850,7 @@ class  LetsMeetApplicationTests {
 
 		EventDBChecker model = new EventDBChecker();
 		event.UUID = model.eventUUIDFromNameAndDesc(Ename, Edesc);
-		model.closeCon();
+		model.close();
 		testEvents.add(event);
 	}
 }

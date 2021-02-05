@@ -1,6 +1,8 @@
 package com.LetsMeet.LetsMeet.TestingTools;
 
 import com.LetsMeet.LetsMeet.APIHandler;
+import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
@@ -17,6 +19,9 @@ public class TestingUsers {
 
     private APIHandler controller = new APIHandler();
 
+    @Autowired
+    private UserControllerAPI userController;
+
     public TestingUsers(String fName, String lName, String email, String password){
         this.fName = fName;
         this.lName = lName;
@@ -25,6 +30,6 @@ public class TestingUsers {
     }
 
     public void login(){
-        this.token = this.controller.API_Login(this.email, this.password);
+        this.token = this.userController.API_Login(this.email, this.password);
     }
 }

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EventController {
 
-    @Autowired
+    //@Autowired
     EventService eventServiceInterface;
 
     @RequestMapping(value = "/api/v1/event/all")

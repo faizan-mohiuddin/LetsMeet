@@ -20,14 +20,14 @@ public class EventsModel {
     }
 
     //TODO This could be implemented in finalize() to be called explicitly when garbage collection is run
-    public void closeCon(){
+    public void close(){
         try {
             this.con.close();
         }catch(Exception e){
             System.out.println("\nEvents Model: closeCon");
             System.out.println(e);
             if(this.con != null) {
-                this.closeCon();
+                this.close();
             }
         }
     }

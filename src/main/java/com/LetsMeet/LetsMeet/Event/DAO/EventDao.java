@@ -17,7 +17,6 @@ public class EventDao implements DAO<Event> {
         return null;
     }
 
-    @Override
     public Collection<Event> getAll() {
         // TODO Auto-generated method stub
         return null;
@@ -36,15 +35,9 @@ public class EventDao implements DAO<Event> {
     }
 
     @Override
-    public void delete(Event t) {
+    public String delete(Event t) {
         // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void delete(String uuid) {
-        // TODO Auto-generated method stub
-
+        return null;
     }
     
 }

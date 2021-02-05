@@ -35,7 +35,7 @@ public class ConditionSetManager {
     public ConditionSetManager(String uuid){
         EventsModel model = new EventsModel();
         this.conditionSet = model.getConditionSetByUUID(uuid);     //TODO handle failure
-        model.closeCon();
+        model.close();
     }
 
 
@@ -58,7 +58,7 @@ public class ConditionSetManager {
         EventsModel model = new EventsModel();
         System.out.println("TODO -- Save ConditionSet to model");
         //TODO model.SetConditionSet(args);
-        model.closeCon();
+        model.close();
     }
 
     // Add variables to ConditionSet
