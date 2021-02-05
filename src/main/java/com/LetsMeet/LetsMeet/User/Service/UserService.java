@@ -1,12 +1,14 @@
 package com.LetsMeet.LetsMeet.User.Service;
 import com.LetsMeet.LetsMeet.User.DAO.*;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
+import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -22,6 +24,9 @@ public class UserService implements UserServiceInterface {
 
     @Autowired
     UserDao dao;
+    
+    @Autowired
+    TokenDAO tokenDao;
 
 	@Override
 	public String createUser(String fName, String lName, String email, String password) {
