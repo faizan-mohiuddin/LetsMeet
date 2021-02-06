@@ -63,13 +63,11 @@ public class WebHandler {
     @PostMapping("/login")
     public String attemptlogin(@RequestParam(name = "loginemail") String username, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes) {
 
-        UserModel usr1 = new UserModel();
-
-        UserData emailexists = usr1.getUserByEmail(username);
+        UserData login = RequestHandler.validate(username, password);
 
         try {
-            if (emailexists != null) {
-                redirectAttributes.addFlashAttribute("success", "You have logged in as " + emailexists.getEmail());
+            if (login != null) {
+                redirectAttributes.addFlashAttribute("success", "You have logged in as " + login.getEmail());
                 return "redirect:/Home";
             } else {
 
