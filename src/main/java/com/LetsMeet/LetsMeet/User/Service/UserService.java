@@ -1,4 +1,13 @@
+//-----------------------------------------------------------------
+// UserService.java
+// Let's Meet 2021
+//
+// Responsible for perfoming high level BL on User objects
+
 package com.LetsMeet.LetsMeet.User.Service;
+
+//-----------------------------------------------------------------
+
 import com.LetsMeet.LetsMeet.User.DAO.*;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
@@ -20,8 +29,13 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+//-----------------------------------------------------------------
+
 @Service
 public class UserService implements UserServiceInterface {
+
+    // Components
+    //-----------------------------------------------------------------
 
     // Interface with User persistant storage
     @Autowired
@@ -31,13 +45,15 @@ public class UserService implements UserServiceInterface {
     @Autowired
     TokenDAO tokenDao;
 
+
+    // CRUD
+    //-----------------------------------------------------------------
+
     // Create user
 	@Override
 	public String createUser(String fName, String lName, String email, String password) {
 	    // Check that email has not already been used
-        boolean uniqueEmail = checkUniqueEmail(email);
-
-        if(!uniqueEmail){
+        if(!checkUniqueEmail(email)){
             return "Email address is already used for another account.";
         }
 
@@ -77,7 +93,6 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public Collection<User> getUsers() {
-        System.out.println("hey from userservice.java!");
         return dao.getAll();
     }
 
@@ -86,7 +101,7 @@ public class UserService implements UserServiceInterface {
         return new UserSanitised(user.getfName(), user.getlName(), user.getEmail());
     }
 
-
+    //-----------------------------------------------------------------
   
     // Returns a UUID generated from user specific seed data
     public static UUID createUserUUID(String fName, String lName, String email){
