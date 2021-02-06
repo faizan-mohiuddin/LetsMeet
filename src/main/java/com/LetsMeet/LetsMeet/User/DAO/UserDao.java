@@ -115,7 +115,7 @@ public class UserDao implements DAO<User> {
     // Create
     //-----------------------------------------------------------------
     @Override
-    public int save(User t)  {
+    public Boolean save(User t)  {
         database.open();
 
         try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO User (UserUUID, fName, lName, email, PasswordHash, salt) VALUES (?,?,?,?,?,?)")) {
@@ -130,7 +130,7 @@ public class UserDao implements DAO<User> {
             database.close();
 
             if (rows > 0) {
-                return 1;
+                return true;
             } else {
                 throw new Exception("Nothing added to DB");
             }
@@ -138,7 +138,7 @@ public class UserDao implements DAO<User> {
         } catch (Exception e) {
             System.out.println("\nUser DAO: newUser");
             System.out.println(e);
-            return 0;
+            return false;
         }
     }
 
@@ -146,31 +146,33 @@ public class UserDao implements DAO<User> {
     //-----------------------------------------------------------------
 
     @Override
-    public void update(User t) {
+    public Boolean update(User t) {
         // TODO Auto-generated method stub
+        return false;
     }
 
     // Delete
     //-----------------------------------------------------------------
 
     @Override
-    public String delete(User t) {
+    public Boolean delete(User t) {
         database.open();
         try(Statement statement = database.getCon().createStatement();) {
             String query = String.format("DELETE FROM User WHERE User.UserUUID = '%s'", t.getUUID().toString());
             statement.executeUpdate(query);
             database.close();
-            return "User successfully deleted.";
+            return true;
         } catch (Exception e) {
             System.out.println("\nUser DAO: deleteUser");
             System.out.println(e);
-            return "Error deleting user";
+            return false;
         }
     }
 
     @Override
-    public void delete(UUID uuid) {
+    public Boolean delete(UUID uuid) {
         // TODO Auto-generated method stub
+        return false;
 
     }
 

@@ -71,11 +71,10 @@ public class UserService implements UserServiceInterface {
         password = null; // For security
 
         // Do validation and security business
-        int r = dao.save(newUser);
-
-        if(r > 0){
+        if(Boolean.TRUE.equals(dao.save(newUser))){
             return "User successfully created";
-        }else{
+        }
+        else{
             return "Error creating user";
         }
 	}
@@ -88,7 +87,7 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public String deleteUser(User user) {
-        return dao.delete(user);
+        return dao.delete(user).toString();
     }
 
     @Override
@@ -195,8 +194,8 @@ public class UserService implements UserServiceInterface {
         // Add to DB
         long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
         //String feedback = dao.createToken(user.getUUID().toString(), token, tokenExpires);
-
-        if(tokenDao.save(new Token(UUID.fromString(token), user.getUUID(), tokenExpires)) == 1) {
+        
+        if(Boolean.TRUE.equals(tokenDao.save(new Token(UUID.fromString(token), user.getUUID(), tokenExpires)))) {
             return token;
         }else{
             return "Failed to create token";

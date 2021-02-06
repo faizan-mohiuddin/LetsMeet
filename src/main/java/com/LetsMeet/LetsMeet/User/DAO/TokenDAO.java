@@ -97,7 +97,7 @@ public class TokenDAO implements DAO<Token> {
     //-----------------------------------------------------------------
 
     @Override
-    public int save(Token t) {
+    public Boolean save(Token t) {
         database.open();
         try (PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
 
@@ -109,22 +109,23 @@ public class TokenDAO implements DAO<Token> {
             database.close();
 
             if (rows > 0) {
-                return 1;
+                return true;
             } else {
                 throw new Exception("Error creating token");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return false;
         }
     }
 
     // Update
     //-----------------------------------------------------------------
     @Override
-    public void update(Token t) {
+    public Boolean update(Token t) {
         // TODO Auto-generated method stub
+        return false;
 
     }
 
@@ -133,24 +134,24 @@ public class TokenDAO implements DAO<Token> {
 
     // Delete from a Token Object
     @Override
-    public String delete(Token t) {
+    public Boolean delete(Token t) {
         
         try(Statement statement = database.getCon().createStatement();) {
             database.open();
             String query = String.format("DELETE FROM User WHERE Token.TokenUUID = '%s'", t.getUUID().toString());
             statement.executeUpdate(query);
             database.close();
-            return "Token successfully deleted.";
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return "Error deleting user";
+            return false;
         }
     }
 
     // Delete any with matching UUID
     @Override
-    public void delete(UUID uuid) {
-        this.delete(this.get(uuid).get());
+    public Boolean delete(UUID uuid) {
+        return this.delete(this.get(uuid).get());
     }
     
 }

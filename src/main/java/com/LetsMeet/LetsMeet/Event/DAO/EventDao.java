@@ -18,33 +18,38 @@ public class EventDao implements DAO<Event> {
         return null;
     }
 
+    @Override
     public Collection<Event> getAll() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public int save(Event t) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void update(Event t) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void delete(Event t) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void delete(UUID uuid) {
+    public Boolean save(Event t) {
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public Boolean update(Event t) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Boolean delete(Event t) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Boolean delete(UUID uuid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+
+
 
 }
