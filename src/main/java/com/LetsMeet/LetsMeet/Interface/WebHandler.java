@@ -4,10 +4,12 @@ import com.LetsMeet.LetsMeet.RequestHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.LetsMeet.Models.Data.UserData;
 import com.LetsMeet.Models.Connectors.UserModel;
+import org.thymeleaf.model.IAttribute;
 
 @Controller
 @SessionAttributes({"userfirstname"}) //add parameters wanted for session
@@ -64,6 +66,12 @@ public class WebHandler {
     @GetMapping("/login")
     public String login() {
         return "login";
+    }
+
+    @GetMapping("/logout")
+    public String logout( ) {
+        System.out.println("logout");
+        return "Home";
     }
 
     @PostMapping("/login")
