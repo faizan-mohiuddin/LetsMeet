@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EventController {
 
-    //@Autowired
+    @Autowired
     EventService eventServiceInterface;
 
     @RequestMapping(value = "/api/v1/event/all")
@@ -50,13 +50,13 @@ public class EventController {
 
     @PostMapping (value = "/api/v1/event/user")
     public ResponseEntity<Object> addUser(@PathVariable("eventuuid") String eventUuid, @PathVariable("useruuid") String userUuid){
-        eventServiceInterface.addUser(eventUuid, userUuid);
+        eventServiceInterface.setPermissions(eventUuid, userUuid, true);
         return new ResponseEntity<>("User added succesfully", HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/api/v1/event/user")
     public ResponseEntity<Object> removeUser(@PathVariable("eventuuid") String eventUuid, @PathVariable("useruuid") String userUuid){
-        eventServiceInterface.removeUser(eventUuid, userUuid);
+        eventServiceInterface.setPermissions(eventUuid, userUuid, false);
         return new ResponseEntity<>("User removed succesfully", HttpStatus.OK);
     }
 

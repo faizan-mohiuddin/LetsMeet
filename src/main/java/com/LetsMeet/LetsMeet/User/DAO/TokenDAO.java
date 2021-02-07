@@ -63,8 +63,8 @@ public class TokenDAO implements DAO<Token> {
     }
 
     @Override
-    public Collection<Token> getAll() {
-        return null;
+    public Optional<Collection<Token>> getAll() {
+        return Optional.empty();
     }
 
     // Returns all Token objects belonging to a user

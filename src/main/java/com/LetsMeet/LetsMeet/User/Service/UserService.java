@@ -10,7 +10,6 @@ package com.LetsMeet.LetsMeet.User.Service;
 
 import com.LetsMeet.LetsMeet.User.DAO.*;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
-import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
@@ -18,7 +17,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -92,7 +90,7 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public Collection<User> getUsers() {
-        return dao.getAll();
+        return dao.getAll().get();
     }
 
     @Override

@@ -88,7 +88,7 @@ public class UserDao implements DAO<User> {
     }
 
     @Override
-    public Collection<User> getAll() {
+    public Optional<Collection<User>> getAll() {
         database.open();
         try(Statement statement = database.getCon().createStatement();){
             
@@ -103,12 +103,12 @@ public class UserDao implements DAO<User> {
                 
             }
             database.close();
-            return users;
+            return Optional.of(users);
 
         }catch(Exception e){
             System.out.println("\nUser DAO: allUsers");
             System.out.println(e);
-            return null;
+            return Optional.empty();
         }
     }
 

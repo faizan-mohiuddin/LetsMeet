@@ -1,14 +1,28 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
 import java.util.Collection;
+import java.util.UUID;
 
+import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
+import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 public class EventService implements EventServiceInterface {
+
+    @Autowired
+    EventDao eventDao;
+
+    @Autowired
+    EventPermissionDao permissionDao;
 
     @Override
     public void createEvent(Event event) {
-        // TODO Auto-generated method stub
+        eventDao.save(event);
 
     }
 
@@ -37,15 +51,20 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    public void addUser(String eventUuid, String userUuid) {
+    public void setPermissions(String eventUuid, String userUuid, Boolean owner) {
+        permissionDao.save(new EventPermission(UUID.fromString(eventUuid), UUID.fromString(userUuid), owner));
+    }
+
+    @Override
+    public void addResponse(String eventUuid, String userUuid, String conditonSetUUID) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void removeUser(String eventUuid, String userUuid) {
+    public void removeResponse(String eventUuid, String userUuid) {
         // TODO Auto-generated method stub
 
     }
-    
+ 
 }
