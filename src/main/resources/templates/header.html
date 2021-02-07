@@ -13,6 +13,7 @@
               <div class="navbar-nav">
                 <a class="nav-item nav-link" href = "Home">Home </a>
                 <a class="nav-item nav-link" href="/createuser">Register</a>
+                <a th:if="${session.userfirstname != null}" class="nav-item nav-link" href="#">Log out</a>
               </div>
             </div>
             <div class="text-right">
