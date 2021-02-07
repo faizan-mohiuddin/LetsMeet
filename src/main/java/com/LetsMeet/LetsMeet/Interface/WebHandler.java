@@ -10,6 +10,7 @@ import com.LetsMeet.Models.Data.UserData;
 import com.LetsMeet.Models.Connectors.UserModel;
 
 @Controller
+@SessionAttributes({"userfirstname"}) //add parameters wanted for session
 public class WebHandler {
 
     @RequestMapping("/Home")

@@ -15,6 +15,10 @@
                 <a class="nav-item nav-link" href="/createuser">Register</a>
               </div>
             </div>
+            <div class="text-right">
+                <th th:unless="${session == null}"> Welcome </th>
+                <th th:text="${session.userfirstname}" th:unless="${session == null}"> . </th>
+            </div>
           </nav>
 
     </div>
