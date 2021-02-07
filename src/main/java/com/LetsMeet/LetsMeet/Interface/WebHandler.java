@@ -13,6 +13,11 @@ import com.LetsMeet.Models.Connectors.UserModel;
 @SessionAttributes({"userfirstname"}) //add parameters wanted for session
 public class WebHandler {
 
+    @RequestMapping(value = "/")
+    public String redirect() {
+        return "redirect:Home";
+    }
+
     @RequestMapping("/Home")
     public String Home(Model model){
         return "Home";
