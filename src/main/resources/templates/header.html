@@ -17,7 +17,7 @@
               </div>
             </div>
             <div class="text-right">
-                <th th:unless="${session == null}"> Welcome </th>
+                <th th:if="${session.userfirstname != null}"> Welcome </th>
                 <th th:text="${session.userfirstname}" th:unless="${session == null}"> . </th>
             </div>
           </nav>

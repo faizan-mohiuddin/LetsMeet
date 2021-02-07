@@ -94,7 +94,7 @@
 		</plugins>
 	</build>
 
-	<resources>
+	<!--<resources>
 		<resource>
 			<filtering>true</filtering>
 			<directory>src/main/resources</directory>
@@ -102,7 +102,7 @@
 				<include>application.properties</include>
 			</includes>
 		</resource>
-	</resources>
+	</resources>-->
 
 
 </project>
