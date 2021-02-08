@@ -4,6 +4,7 @@ import com.LetsMeet.LetsMeet.RequestHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -11,8 +12,10 @@ import com.LetsMeet.Models.Data.UserData;
 import com.LetsMeet.Models.Connectors.UserModel;
 import org.thymeleaf.model.IAttribute;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
-@SessionAttributes({"userfirstname"}) //add parameters wanted for session
+@SessionAttributes("userlogin") //add parameters wanted for session
 public class WebHandler {
 
     @RequestMapping(value = "/")
@@ -21,7 +24,12 @@ public class WebHandler {
     }
 
     @RequestMapping("/Home")
-    public String Home(Model model){
+    public String Home(Model model, HttpSession session){
+
+        UserData user = (UserData) session.getAttribute("userlogin");
+
+        model.addAttribute("user", user);
+
         return "Home";
     }
 
@@ -64,23 +72,41 @@ public class WebHandler {
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";
+    public String login(HttpSession session, RedirectAttributes redirectAttributes) {
+
+        UserData user = (UserData) session.getAttribute("userlogin");
+
+        if (user != null) {
+
+            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            return "login";
+
+        }
     }
 
     @GetMapping("/logout")
-    public String logout( ) {
-        System.out.println("logout");
-        return "Home";
+    public String logout(SessionStatus session, RedirectAttributes redirectAttributes) {
+
+        redirectAttributes.addFlashAttribute("loggedout", "You have successfully logged out.");
+        session.setComplete();
+
+        return "redirect:/Home";
+
     }
 
     @PostMapping("/login")
-    public String attemptlogin(@RequestParam(name = "loginemail") String username, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes) {
+    public String attemptlogin(@RequestParam(name = "loginemail") String username, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes, Model model) {
 
         UserData login = RequestHandler.validate(username, password);
 
         try {
             if (login != null) {
+                model.addAttribute("userlogin", login);
                 redirectAttributes.addFlashAttribute("success", "You have logged in as " + login.getEmail());
                 return "redirect:/Home";
             } else {
@@ -110,7 +136,28 @@ public class WebHandler {
 
         model.addAttribute("users", RequestHandler.getAllUsers());
 
-        return"adminviewallusers";
+        return "adminviewallusers";
         
     }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+
+        UserData user = (UserData) session.getAttribute("userlogin");
+
+        if (user == null) {
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("myEvents", RequestHandler.getMyEvents(user.whatsUUID()));
+
+            return "dashboard";
+
+        }
+    }
+
 }

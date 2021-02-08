@@ -13,12 +13,13 @@
               <div class="navbar-nav">
                 <a class="nav-item nav-link" href = "Home">Home </a>
                 <a class="nav-item nav-link" href="/createuser">Register</a>
-                <a th:if="${session.userfirstname != null}" class="nav-item nav-link" href="logout">Log out</a>
+                <a th:if = "${user}" class = "btn btn-primary" href = "/dashboard" role = "button">Dashboard</a>
+                <a th:if = "${user}" class = "btn btn-danger" href = "/logout" role = "button">Logout</a>
               </div>
             </div>
             <div class="text-right">
-                <th th:if="${session.userfirstname != null}"> Welcome </th>
-                <th th:text="${session.userfirstname}" th:unless="${session == null}"> . </th>
+                <th th:if="${user}"> Welcome </th>
+                <th th:text="${user.fName}" th:unless="${user == null}"> . </th>
             </div>
           </nav>
 
