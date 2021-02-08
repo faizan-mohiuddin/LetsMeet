@@ -13,7 +13,7 @@ public class DBConnector {
     @Autowired
     LetsMeetConfiguration config;
 
-    Connection con;
+    public Connection con;
 
     public Connection getCon(){
         return con;

@@ -1,7 +1,7 @@
 package com.LetsMeet.LetsMeet.TestingTools;
 
-import com.LetsMeet.LetsMeet.APIHandler;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -16,8 +16,6 @@ public class TestingUsers {
     public String salt;
     public String token;
     public ArrayList<String> events = new ArrayList<>();
-
-    private APIHandler controller = new APIHandler();
 
     @Autowired
     private UserControllerAPI userController;

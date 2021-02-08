@@ -73,24 +73,6 @@ public class UserModel {
         return "Error connecting";
     }
 
-    public String removeHasUsers(String EventUUID, String UserUUID){
-        try{
-            Statement statement = this.con.createStatement();
-            String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
-                    EventUUID, UserUUID);
-            int rows = statement.executeUpdate(query);
-
-            if(rows <= 0){
-                return "Error leaving event";
-            }
-            return "Successfully left event.";
-        }catch(Exception e){
-            System.out.println("\nUser Model : removeHasUsers");
-            System.out.println(e);
-            return "Error leaving event";
-        }
-    }
-
     public List<AdminUserData> allUsers(){
         try{
             Statement statement = this.con.createStatement();

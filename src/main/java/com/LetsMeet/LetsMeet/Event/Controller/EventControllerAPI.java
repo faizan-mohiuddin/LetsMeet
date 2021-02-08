@@ -2,24 +2,26 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
+import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
+import com.LetsMeet.Models.AdminEventData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class EventControllerAPI {
 
     @Autowired
-    EventService eventServiceInterface;
+    EventService eventService;
 
     @Autowired
     ValidationService userValidation;
@@ -30,60 +32,123 @@ public class EventControllerAPI {
     // Request Mappings
     //-----------------------------------------------------------------
 
-    @RequestMapping(value = "/api/v1/event/all")
-    public ResponseEntity<Object> getEvents(){
-        return new ResponseEntity<>(eventServiceInterface.getEvents(),HttpStatus.OK);
+    @GetMapping("api/Events")
+    public Collection<Event> API_GetAllEvents(){
+        return eventService.getEvents();
     }
 
-    @RequestMapping(value = "/api/v1/event/user")
-    public ResponseEntity<Object> getUserEvents(@PathVariable("token") String token){
+    @GetMapping("api/MyEvents")
+    public Collection<Event> API_GetMyEvents(@RequestParam(value="Token") String token) {
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
 
         if(result){
-            return new ResponseEntity<>(userService.getSantitised(userValidation.getUserFromToken(token)),HttpStatus.OK);
-
+            // Get user UUID
+            String UserUUID = userValidation.getUserUUIDfromToken(token);
+            return eventService.getUserEvents(UserUUID);
         }else{
-            return new ResponseEntity<>((String) response[1], HttpStatus.BAD_REQUEST);
+            String errorText = (String) response[1];
+            Event error = new Event(errorText, errorText, errorText, errorText);
+            List<Event> ErrorReturn = new ArrayList<>();
+            ErrorReturn.add(error);
+            return ErrorReturn;
         }
     }
 
-    // Post Mappings
-    //-----------------------------------------------------------------
-
-    @PostMapping(value = "/api/v1/event/{uuid}")
-    public ResponseEntity<Object> updateEvent(@PathVariable("uuid") String uuid, @RequestBody Event event){
-        eventServiceInterface.updateEvent(uuid, event);
-        return new ResponseEntity<>("Event updated succesfully",HttpStatus.OK);
+    // Get event by specific eventUUID
+    @GetMapping("api/Event/{UUID}")
+    public Event API_GetEvent(@PathVariable(value="UUID") String UUID){
+        return eventService.getEvent(UUID);
     }
 
-    @PostMapping(value = "/api/v1/event")
-    public ResponseEntity<Object> createEvent(@RequestBody Event event){
-        eventServiceInterface.createEvent(event);
+    // Create event
+    @PostMapping("api/Event")
+    public String API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc,
+                               @RequestParam(value="Location") String location,
+                               @RequestParam(value="Token", defaultValue="") String token){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-        return new ResponseEntity<>("User created succesfully", HttpStatus.OK);
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+            if(user == null){
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+            return eventService.createEvent(Name, desc, location, user.getStringUUID());
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
+        }
+
     }
 
-    @PostMapping (value = "/api/v1/event/user")
-    public ResponseEntity<Object> addUser(@PathVariable("eventuuid") String eventUuid, @PathVariable("useruuid") String userUuid){
-        eventServiceInterface.setPermissions(eventUuid, userUuid, true);
-        return new ResponseEntity<>("User added succesfully", HttpStatus.OK);
+    // Join event
+    @PutMapping("api/Event/{EventUUID}")
+    public String API_AddUserToEvent(@RequestParam(value="Token", defaultValue ="") String token,
+                                     @PathVariable(value="EventUUID") String EventUUID) {
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+
+            // Add user to event
+            return eventService.joinEvent(EventUUID, user.getStringUUID());
+
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
+        }
     }
 
+    @PutMapping("api/Event/{EventUUID}/Leave")
+    public String API_LeaveEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
+        // Validate token
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
 
-     // Delete Mappings
-    //-----------------------------------------------------------------
-    @DeleteMapping(value = "/api/v1/event/user")
-    public ResponseEntity<Object> removeUser(@PathVariable("eventuuid") String eventUuid, @PathVariable("useruuid") String userUuid){
-        eventServiceInterface.setPermissions(eventUuid, userUuid, false);
-        return new ResponseEntity<>("User removed succesfully", HttpStatus.OK);
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+
+            // Leave event
+            return eventService.leaveEvent(EventUUID, user.getStringUUID());
+
+        }else{
+            return "Token not valid.";
+        }
     }
 
-    @DeleteMapping(value = "/api/v1/event/{uuid}")
-    public ResponseEntity<Object> deleteEvent(@PathVariable("uuid") String uuid){
-        eventServiceInterface.deleteEvent(uuid);
-        return new ResponseEntity<>("User deleted succesfully",HttpStatus.OK);
+    // Delete event
+    @DeleteMapping("api/Event/{EventUUID}")
+    public String API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
+
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+
+            // Add user to event
+            return eventService.deleteEvent(EventUUID);
+
+        }else{
+            String errorText = (String) response[1];
+            return errorText;
+        }
     }
-
-
 }

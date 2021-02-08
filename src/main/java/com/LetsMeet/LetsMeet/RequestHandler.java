@@ -30,13 +30,6 @@ public class RequestHandler {
         return r;
     }
 
-    public static List<EventData> getMyEvents(String UserUUID){
-        EventsModel model = new EventsModel();
-        List<EventData> events = model.getEventsByUserUUID(UserUUID);
-        model.close();
-        return events;
-    }
-
     public static EventData getEvent(String UUID){
         EventsModel model = new EventsModel();
         EventData r = model.getEventByUUID(UUID);
@@ -65,25 +58,6 @@ public class RequestHandler {
             }else{
                 return "Event created successfully";
             }
-        }
-    }
-
-    public static String joinEvent(String EventUUID, String UserUUID){
-        // Check event exists
-        EventsModel model = new EventsModel();
-        EventData data = model.getEventByUUID(EventUUID);
-
-        if(data == null){
-            return "Event Doesnt exist";
-        }
-
-        // Add user to event as not an owner
-        UserModel userModel = new UserModel();
-        String result = userModel.populateHasUsers(EventUUID, UserUUID,false);
-        if(result == null){
-            return "Error adding user to event";
-        }else{
-            return "User added to event";
         }
     }
 

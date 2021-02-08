@@ -172,28 +172,6 @@ public class EventsModel {
         }
     }
 
-    public List<EventData> getEventsByUserUUID(String UUID){
-        try{
-            Statement statement = this.con.createStatement();
-            String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location" +
-                    " from Event, HasUsers " +
-                    "where HasUsers.UserUUID = '%s' and Event.EventUUID = HasUsers.EventUUID", UUID);
-
-            ResultSet rs = statement.executeQuery(query);
-            List<EventData> events = new ArrayList<>();
-            while(rs.next()){
-                EventData event = new EventData(rs.getString(1), rs.getString(2),
-                        rs.getString(3), rs.getString(4));
-                events.add(event);
-            }
-            return events;
-        }catch(Exception e){
-            System.out.println("\nEvents Model: getEventsByUserUUID");
-            System.out.println(e);
-            return null;
-        }
-    }
-
     // Space for condition sets ///////////////////////////////////////////////////////////////////////////////////////
     public String NewConditionSet(String ConditionSetUUID, String Name, String UserUUID){
         try{

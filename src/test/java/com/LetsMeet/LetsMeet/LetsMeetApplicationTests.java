@@ -2,16 +2,17 @@ package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
+import com.LetsMeet.LetsMeet.Event.Controller.EventControllerAPI;
 import com.LetsMeet.LetsMeet.TestingTools.*;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
+import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.Models.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.h2.engine.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -30,6 +32,9 @@ class  LetsMeetApplicationTests {
 
 	@Autowired
 	private UserControllerAPI userController;
+
+	@Autowired
+	private EventControllerAPI eventController;
 
 	@Autowired
 	private ValidationService userValidation;
@@ -89,11 +94,13 @@ class  LetsMeetApplicationTests {
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
 
-		UserSanitised userData = userModel.get(user.email);
+		Optional<User> userData = userModel.get(user.email);
 
-		assertEquals(user.fName, userData.getfName());
-		assertEquals(user.lName, userData.getlName());
-		assertEquals(user.email, userData.getEmail());
+		assertEquals(true, userData.isPresent());
+
+		assertEquals(user.fName, userData.get().getfName());
+		assertEquals(user.lName, userData.get().getlName());
+		assertEquals(user.email, userData.get().getEmail());
 
 		// remove user
 		UserDBChecker Checkmodel = new UserDBChecker();
@@ -229,7 +236,7 @@ class  LetsMeetApplicationTests {
 		user.login();
 
 		// Run method
-		String result = this.controller.API_AddEvent(Ename, Edesc, Elocation, user.token);
+		String result = this.eventController.API_AddEvent(Ename, Edesc, Elocation, user.token);
 		TestingEvents event = new TestingEvents(Ename, Edesc, Elocation);
 
 		EventDBChecker model = new EventDBChecker();
@@ -278,7 +285,7 @@ class  LetsMeetApplicationTests {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try{
-			String result = mapper.writeValueAsString(this.controller.API_GetEvent(event.UUID));
+			String result = mapper.writeValueAsString(this.eventController.API_GetEvent(event.UUID));
 			String expectedResult = String.format("{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}", event.name,
 					event.desc, event.location);
 			assertEquals(expectedResult, result);
@@ -311,7 +318,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
 			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]", event.name,
 					event.desc, event.location);
 			assertEquals(expectedResult, result);

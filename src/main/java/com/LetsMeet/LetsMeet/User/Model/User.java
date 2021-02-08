@@ -48,4 +48,13 @@ public class User {
     public UUID getUUID(){
         return this.UUID;
     }
+
+    public String getStringUUID(){
+        return this.UUID.toString();
+    }
+
+    public void hideSensitiveDetails(){
+        this.passwordHash = null;
+        this.salt = null;
+    }
 }

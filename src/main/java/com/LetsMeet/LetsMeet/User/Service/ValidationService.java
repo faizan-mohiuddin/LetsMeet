@@ -52,7 +52,8 @@ public class ValidationService {
 
     public User getUserFromToken(String token){
         String uuid = this.getUserUUIDfromToken(token);
-        return dao.getUserByUUID(uuid);
+        User user = dao.getUserByUUID(uuid);
+        return user;
     }
 
     public String getUserUUIDfromToken(String token){

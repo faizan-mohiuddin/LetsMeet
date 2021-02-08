@@ -5,9 +5,9 @@ import java.util.Collection;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 
 public interface EventServiceInterface {
-    public abstract void createEvent(Event event);
+    public abstract String createEvent(String name, String desc, String location, String UserUUID);
     public abstract void updateEvent(String uuid, Event event);
-    public abstract void deleteEvent(String uuid);
+    public abstract String deleteEvent(String uuid);
     public abstract Collection<Event> getEvents();
 
     public abstract Collection<Event> getUserEvents(String uuid);
