@@ -19,7 +19,7 @@
             </div>
             <div class="text-right">
                 <th th:if="${user}"> Welcome </th>
-                <th th:text="${user.fName}" th:unless="${user == null}"> . </th>
+                <th th:if="${user}" th:text="${user.fName}"> . </th>
             </div>
           </nav>
 

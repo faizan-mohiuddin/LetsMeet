@@ -50,7 +50,7 @@ public class WebHandler {
 
     @GetMapping("/createuser")
     public String createuser(Model model) {
-        model.addAttribute("user", new UserModel());
+        model.addAttribute("createuser", new UserModel());
         return "createuser";
     }
 
@@ -124,20 +124,42 @@ public class WebHandler {
     }
 
     @GetMapping("/adminviewallevents")
-    public String adminviewallevents(Model model) {
+    public String adminviewallevents(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
-        model.addAttribute("events", RequestHandler.getAllEvents());
+        UserData user = (UserData) session.getAttribute("userlogin");
 
-        return "adminviewallevents";
+        if (user == null || !user.whatsUUID().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) { // this user UUID is the admin account's UUID
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("events", RequestHandler.getAllEvents());
+
+            return "adminviewallevents";
+
+        }
     }
 
     @GetMapping("/adminviewallusers")
-    public String adminviewallusers(Model model) {
+    public String adminviewallusers(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
-        model.addAttribute("users", RequestHandler.getAllUsers());
+        UserData user = (UserData) session.getAttribute("userlogin");
 
-        return "adminviewallusers";
-        
+        if (user == null || !user.whatsUUID().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) { // this user UUID is the admin account's UUID
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("users", RequestHandler.getAllUsers());
+
+            return "adminviewallusers";
+        }
     }
 
     @GetMapping("/dashboard")
