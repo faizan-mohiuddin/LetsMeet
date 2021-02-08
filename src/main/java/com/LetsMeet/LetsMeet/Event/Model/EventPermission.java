@@ -21,6 +21,12 @@ public class EventPermission {
         this.isOwner = isOwner;
     }
 
+    public EventPermission(String event, String user, Boolean isOwner){
+        this.event = UUID.fromString(event);
+        this.user = UUID.fromString(user);
+        this.isOwner = isOwner;
+    }
+
     public UUID getEvent(){
         return this.event;
     }

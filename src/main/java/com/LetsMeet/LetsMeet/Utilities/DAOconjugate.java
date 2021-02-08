@@ -10,5 +10,5 @@ public interface DAOconjugate<T> {
     Boolean save(T t);
     Boolean update(T t);
     Boolean delete(T t);
-    Boolean delete(UUID uuid1, UUID uuid2);
+    Boolean delete(String uuid1, String uuid2);
 }

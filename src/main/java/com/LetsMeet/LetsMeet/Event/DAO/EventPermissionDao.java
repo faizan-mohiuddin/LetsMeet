@@ -100,9 +100,28 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
     }
 
     @Override
-    public Boolean delete(UUID event, UUID user) {
-        // TODO Auto-generated method stub
-        return false;
+    public Boolean delete(String EventUUID, String UserUUID) {
+        database.open();
+
+        try{
+            Statement statement = database.con.createStatement();
+            String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
+                    EventUUID, UserUUID);
+            int rows = statement.executeUpdate(query);
+
+            if(rows <= 0){
+                database.close();
+                return false;
+            }
+            database.close();
+            return true;
+
+        }catch(Exception e){
+            database.close();
+            System.out.println("\nEvent Permission Dao : delete (String, String)");
+            System.out.println(e);
+            return false;
+        }
     }
     
 }
