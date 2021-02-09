@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 
@@ -35,6 +36,9 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
     @Autowired
     DBConnector database;
+
+    @Autowired
+    EventPermissionDao hasUsers;
 
     // Get
     //-----------------------------------------------------------------
@@ -72,7 +76,9 @@ public class EventDao implements DAO<Event> {
 
         }catch(Exception e){
             database.close();
-            e.printStackTrace();
+            System.out.println("\nEvent Dao: get (String)");
+            //e.printStackTrace();
+            System.out.println(e);
             return Optional.empty();
         }
     }
@@ -181,23 +187,31 @@ public class EventDao implements DAO<Event> {
 
     public Optional<Collection<Event>> getUserEvents(String uuid){
         database.open();
-        try(Statement statement = database.con.createStatement()){
-            String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location" +
-                    " from Event, HasUsers " +
-                    "where HasUsers.UserUUID = '%s' and Event.EventUUID = HasUsers.EventUUID", uuid);
+        try{
+            List<EventPermission> records = hasUsers.getByUser(uuid).get();
 
-            ResultSet rs = statement.executeQuery(query);
+            database.open();
+            Statement statement = database.con.createStatement();
+
             List<Event> events = new ArrayList<>();
-            while(rs.next()){
+
+            for(EventPermission record: records){
+                String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location" +
+                        " from Event where Event.EventUUID = '%s'", record.getEvent().toString());
+
+                ResultSet rs = statement.executeQuery(query);
+                rs.next();
                 Event event = new Event(rs.getString(1), rs.getString(2),
                         rs.getString(3), rs.getString(4));
                 events.add(event);
             }
 
+            Optional<Collection<Event>> response = Optional.ofNullable(events);
             database.close();
-            return Optional.ofNullable(events);
+             return response;
 
         }catch(Exception e){
+            System.out.println("\nEvent Dao : get user events");
             e.printStackTrace();
             database.close();
             return Optional.empty();

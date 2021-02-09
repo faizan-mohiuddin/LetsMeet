@@ -42,13 +42,16 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
-            database.close();
 
-            return Optional.ofNullable(new EventPermission(UUID.fromString(rs.getString(1)), UUID.fromString(rs.getString(2)), rs.getBoolean(3)));
+            Optional<EventPermission> response = Optional.ofNullable(new EventPermission(UUID.fromString(rs.getString(1)), UUID.fromString(rs.getString(2)), rs.getBoolean(3)));
+            database.close();
+            return response;
 
         }
         catch(Exception e){
-            e.printStackTrace();
+            System.out.println("\nEvent Permission Dao: get(UUID, UUID");
+            //e.printStackTrace();
+            System.out.println(e);
             database.close();
             return Optional.empty();
         }
@@ -58,6 +61,29 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
         database.open();
         try(Statement statement = database.getCon().createStatement()){
             String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s'", event);
+
+            ResultSet rs = statement.executeQuery(query);
+            List<EventPermission> records = new ArrayList<>();
+            while(rs.next()){
+                EventPermission record = new EventPermission(rs.getString(1), rs.getString(2), rs.getBoolean(3));
+                records.add(record);
+            }
+            database.close();
+
+            return Optional.ofNullable(records);
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            database.close();
+            return Optional.empty();
+        }
+    }
+
+    public Optional<List<EventPermission>> getByUser(String userUUID) {
+        database.open();
+        try(Statement statement = database.getCon().createStatement()){
+            String query = String.format("select * from HasUsers where HasUsers.UserUUID = '%s'", userUUID);
 
             ResultSet rs = statement.executeQuery(query);
             List<EventPermission> records = new ArrayList<>();
@@ -92,7 +118,7 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
         try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
-            statement.setBoolean(3, t.getIsOwner().booleanValue());
+            statement.setBoolean(3, t.getIsOwner());
             int rows = statement.executeUpdate();
 
             if(rows > 0){

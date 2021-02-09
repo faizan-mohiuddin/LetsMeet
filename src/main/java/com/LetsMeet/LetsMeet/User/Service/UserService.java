@@ -8,6 +8,8 @@ package com.LetsMeet.LetsMeet.User.Service;
 
 //-----------------------------------------------------------------
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.DAO.*;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Model.Token;
@@ -43,6 +45,9 @@ public class UserService implements UserServiceInterface {
     @Autowired
     TokenDAO tokenDao;
 
+    @Autowired
+    EventService eventService;
+
 
     // CRUD
     //-----------------------------------------------------------------
@@ -70,10 +75,10 @@ public class UserService implements UserServiceInterface {
 
         // Do validation and security business
         if(Boolean.TRUE.equals(dao.save(newUser))){
-            return "User successfully created";
+            return "User Account Created Successfully";
         }
         else{
-            return "Error creating user";
+            return "An error occurred creating account";
         }
 	}
 
@@ -85,8 +90,16 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public String deleteUser(User user) {
+        Collection<Event> events = eventService.getUserEvents(user.getStringUUID());
+
+        for(Event e : events){
+            if(eventService.checkOwner(e.getUUID(), user.getUUID())) {
+                eventService.deleteEvent(e.getUUID().toString());
+            }
+        }
+
 	    if(dao.delete(user)){
-	        return "User Deleted";
+	        return "User successfully deleted.";
         }else{
 	        return "Error deleting event";
         }

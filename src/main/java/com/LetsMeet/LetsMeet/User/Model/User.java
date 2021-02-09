@@ -20,6 +20,10 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    public User(String uuid){
+        this.UUID = UUID.fromString(uuid);
+    }
+
 
     public UserSanitised convertToUser(){
         return new UserSanitised(this.fName, this.lName, this.email);

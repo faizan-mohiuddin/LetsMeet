@@ -113,10 +113,19 @@ public class EventService implements EventServiceInterface {
 
     public String leaveEvent(String EventUUID, String UserUUID){
         if(permissionDao.delete(EventUUID, UserUUID)){
-            return "Successfuly left event";
+            return "Successfully left event.";
         }else{
             return "Error leaving event";
         }
+    }
+
+    public boolean checkOwner(UUID eventUUID, UUID userUUID){
+        Optional<EventPermission> response = permissionDao.get(eventUUID, userUUID);
+
+        if(response.isPresent()){
+            return response.get().getIsOwner();
+        }
+        return false;
     }
 
     // private methods

@@ -3,7 +3,9 @@ package com.LetsMeet.LetsMeet;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
 import com.LetsMeet.LetsMeet.Event.Controller.EventControllerAPI;
+import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.TestingTools.*;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
@@ -24,9 +26,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import static org.junit.Assert.*;
 //import com.LetsMeet.LetsMeet.APIHandler;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -52,6 +56,9 @@ class  LetsMeetApplicationTests {
 
 	@Autowired
 	UserDao userModel;
+
+	@Autowired
+	EventDao eventModel;
 
 	@Autowired
 	EventPermissionDao EventPermissionModel;
@@ -544,13 +551,10 @@ class  LetsMeetApplicationTests {
 		assertEquals(0, records.size());
 
 		// Remove unnecessary data
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		 
+		UserDB.removeUserByEmail(user.email);
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
+		EventDB.removeEventByUUID(event.UUID);
 		 
 		testEvents.clear();
 	}
@@ -594,15 +598,11 @@ class  LetsMeetApplicationTests {
 		assertEquals(0, records.size());
 		 ;
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
-		 
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
-		 
+		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
 
@@ -632,30 +632,23 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		// Check DB
-		EventsModel model = new EventsModel();
-		UserModel userModel = new UserModel();
-
 		// Check events
-		EventData response = model.getEventByUUID(event.UUID);
-		assertEquals(null, response);
+		Optional<Event> response = eventModel.get(event.UUID);
+		assertEquals(false, response.isPresent());
 
 		// Check hasUsers
-		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		assertEquals(0, records.size());
+		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+		assertEquals(0, records.get().size());
 
 		// Check user
 
 		// Remove unnecessary data
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
-		 
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
+
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
-		 
+		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
 
@@ -697,15 +690,11 @@ class  LetsMeetApplicationTests {
 		 ;
 
 		// Remove unnecessary data
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
-		 
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
-		 
+		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
 
@@ -735,33 +724,26 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		// Check DB
-		EventsModel eventsModel = new EventsModel();
-		UserModel userModel = new UserModel();
-
 		// Check User
 		User response = userService.getUserByUUID(user2.UUID);
 
 		// Check HasUsers
-		List<HasUsersRecord> records = eventsModel.getHasUsers(event.UUID, user2.UUID);
+		Optional<EventPermission> records = EventPermissionModel.get(UUID.fromString(event.UUID), UUID.fromString(user2.UUID));
 
 		// Check event
-		EventData DBreturn = eventsModel.getEventByUUID(event.UUID);
+		Optional<Event> DBreturn = eventModel.get(event.UUID);
+		Event eve = DBreturn.get();
 
 		assertEquals(null, response);
-		assertEquals(0, records.size());
-		assertEquals(event.UUID, DBreturn.whatsUUID().toString());
+		assertEquals(false, records.isPresent());
+		assertEquals(event.UUID, DBreturn.get().getUUID().toString());
 
 		// Remove unnecessary data
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
-		 
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
-		 
+		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
 
@@ -777,7 +759,7 @@ class  LetsMeetApplicationTests {
 	@Order(22)
 	public void cleanup(){
 		// Remove test records from DB
-		UserDB.clearTestUsers();
+		UserDB.clearTestData();
 	}
 
 	// Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
@@ -807,8 +789,8 @@ class  LetsMeetApplicationTests {
 		String Elocation = RandomStringUtils.randomAlphabetic(8);
 
 		this.eventController.API_AddEvent(Ename, Edesc, Elocation, token);
-		TestingEvents event = new TestingEvents(Ename, Edesc, Elocation);
 
+		TestingEvents event = new TestingEvents(Ename, Edesc, Elocation);
 		event.UUID = EventDB.eventUUIDFromNameAndDesc(Ename, Edesc);
 		testEvents.add(event);
 	}
