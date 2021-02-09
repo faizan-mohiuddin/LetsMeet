@@ -136,7 +136,7 @@ class  LetsMeetApplicationTests {
 		// Test that user data is being returned in the correct format
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -203,13 +203,13 @@ class  LetsMeetApplicationTests {
 		assertEquals("User Deleted", result);
 	}
 
-//	@Test
-//	@Order(9)
-//	public void Home(){
-//		String result = this.controller.API_Home();
-//		System.out.println(result);
-//		assertEquals(false, true);
-//	}
+	@Test
+	@Order(9)
+	public void Home(){
+		//String result = this.controller.API_Home();
+		//System.out.println(result);
+		assertEquals(false, true);
+	}
 
 	@Test
 	@Order(10)
@@ -225,7 +225,7 @@ class  LetsMeetApplicationTests {
 		String Edesc = RandomStringUtils.randomAlphabetic(8);
 		String Elocation = RandomStringUtils.randomAlphabetic(8);
 
-		user.login();
+		this.login(user);
 
 		// Run method
 		String result = this.eventController.API_AddEvent(Ename, Edesc, Elocation, user.token);
@@ -237,11 +237,10 @@ class  LetsMeetApplicationTests {
 		user.events.add(event.UUID);
 
 		// Check response
-		assertEquals("Event created successfully", result);
+		assertEquals("Event successfully created.", result);
 
 		// Check events record
 		TestingEvents check = EventDB.checkEvent(event.UUID);
-		 ;
 		assertEquals(event.UUID, check.UUID);
 		assertEquals(event.name, check.name);
 		assertEquals(event.desc, check.desc);
@@ -255,9 +254,7 @@ class  LetsMeetApplicationTests {
 		assertEquals(user.UUID, record.getUser().toString());
 		assertEquals(true, record.getIsOwner());
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		 
+		UserDB.removeUserByEmail(user.email);
 		testUsers.clear();
 	}
 
@@ -299,7 +296,7 @@ class  LetsMeetApplicationTests {
 		// Test getting all the events a user should have
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
@@ -381,14 +378,14 @@ class  LetsMeetApplicationTests {
 		// Test getting all the events a user should have
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateEvent(user.token);
 		TestingEvents event1 = testEvents.get(0);
 
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		this.generateEvent(user2.token);
 		TestingEvents event2 = testEvents.get(1);
@@ -426,14 +423,14 @@ class  LetsMeetApplicationTests {
 		// Test getting all the events a user should have
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateEvent(user.token);
 		TestingEvents event1 = testEvents.get(0);
 
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		this.generateEvent(user2.token);
 		TestingEvents event2 = testEvents.get(1);
@@ -475,7 +472,7 @@ class  LetsMeetApplicationTests {
 		// Test getting all the events a user should have
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		// Create event
 		this.generateEvent(user.token);
@@ -484,7 +481,7 @@ class  LetsMeetApplicationTests {
 		// Other user
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		// Join event
 		this.generateEvent(user2.token);
@@ -535,7 +532,7 @@ class  LetsMeetApplicationTests {
 		// Test deleting event
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		// Create event
 		this.generateEvent(user.token);
@@ -580,11 +577,11 @@ class  LetsMeetApplicationTests {
 		// Test owner deleting event with a participant already joined
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
@@ -631,11 +628,11 @@ class  LetsMeetApplicationTests {
 		// Test owner deleting their account
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
@@ -684,11 +681,11 @@ class  LetsMeetApplicationTests {
 		// Test participant leaving an event
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
@@ -734,11 +731,11 @@ class  LetsMeetApplicationTests {
 		// Test participant deleting account
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(1);
-		user2.login();
+		this.login(user2);
 
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
@@ -794,15 +791,9 @@ class  LetsMeetApplicationTests {
 
 	@Test
 	@Order(22)
-	public void clearTestData(){
-		cleanup();
-	}
-
-	@AfterAll
-	public static void cleanup(){
+	public void cleanup(){
 		// Remove test records from DB
-		UserDBChecker model = new UserDBChecker();
-		model.clearTestUsers();
+		UserDB.clearTestUsers();
 	}
 
 	// Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
@@ -834,9 +825,12 @@ class  LetsMeetApplicationTests {
 		this.eventController.API_AddEvent(Ename, Edesc, Elocation, token);
 		TestingEvents event = new TestingEvents(Ename, Edesc, Elocation);
 
-		EventDBChecker model = new EventDBChecker();
-		event.UUID = model.eventUUIDFromNameAndDesc(Ename, Edesc);
-		 ;
+		event.UUID = EventDB.eventUUIDFromNameAndDesc(Ename, Edesc);
 		testEvents.add(event);
+	}
+
+	private void login(TestingUsers user){
+		String token = this.userController.API_Login(user.email, user.password);
+		user.token = token;
 	}
 }

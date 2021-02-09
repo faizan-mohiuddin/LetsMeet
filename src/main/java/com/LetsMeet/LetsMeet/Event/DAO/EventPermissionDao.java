@@ -91,14 +91,20 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
         database.open();
         try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?,?,?)")){
             statement.setString(1, t.getEvent().toString());
-            statement.setString(1, t.getUser().toString());
+            statement.setString(2, t.getUser().toString());
             statement.setBoolean(3, t.getIsOwner().booleanValue());
+            int rows = statement.executeUpdate();
+
+            if(rows > 0){
+                return true;
+            }else{
+                return false;
+            }
         }
         catch(Exception e){
             e.printStackTrace();
             return false;
         }
-        return true;
     }
 
 

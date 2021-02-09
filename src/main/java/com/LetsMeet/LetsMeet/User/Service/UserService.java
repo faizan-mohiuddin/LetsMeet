@@ -85,7 +85,11 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public String deleteUser(User user) {
-        return dao.delete(user).toString();
+	    if(dao.delete(user)){
+	        return "User Deleted";
+        }else{
+	        return "Error deleting event";
+        }
     }
 
     @Override
@@ -217,6 +221,4 @@ public class UserService implements UserServiceInterface {
     public User getUserByUUID(String uuid){
 	    return dao.getUserByUUID(uuid);
     }
-
-
 }

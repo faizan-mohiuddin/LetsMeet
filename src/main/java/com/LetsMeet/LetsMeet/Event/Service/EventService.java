@@ -29,9 +29,16 @@ public class EventService implements EventServiceInterface {
         UUID eventUUID = generateEventUUID(name, desc, location);
         Event event = new Event(eventUUID.toString(), name, desc, location);
         if(eventDao.save(event)){
-            return "Event successfully created";
+            // Add record to hasUsers
+            EventPermission record = new EventPermission(eventUUID.toString(), UserUUID, true);
+
+            if(permissionDao.save(record)) {
+                return "Event successfully created.";
+            }else{
+                return "Error creating event.";
+            }
         }else{
-            return "Error creating event";
+            return "Error creating event.";
         }
     }
 

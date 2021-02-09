@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.time.Instant;
+import java.util.Optional;
 
 import static com.LetsMeet.LetsMeet.User.Service.UserService.fromHex;
 
@@ -62,13 +63,18 @@ public class ValidationService {
 
     public User validate(String email, String password){
         // Get user corresponding to email
-        User user = dao.get(email).get();
+        Optional<User> user = dao.get(email);
+        boolean valid = user.isPresent();
+
+        if(!valid){
+            return null;
+        }
 
         // Check if password is correct
-        boolean match = validatePassword(password, user);
+        boolean match = validatePassword(password, user.get());
 
         if(match) {
-            return user;
+            return user.get();
         }else{
             return null;
         }

@@ -24,11 +24,12 @@ public class EventDBChecker{
             String query = String.format("SELECT Event.EventUUID FROM Event WHERE Event.Name = '%s' AND Event.Description = '%s'", name, desc);
             ResultSet rs = statement.executeQuery(query);
             rs.next();
+            String response = rs.getString(1);
             database.close();
-            return rs.getString(1);
+            return response;
         }catch(Exception e){
             database.close();
-            System.out.println("EventDBChecker: eventUUIDFromNameAndDesc");
+            System.out.println("\nEventDBChecker: eventUUIDFromNameAndDesc");
             System.out.println(e);
             return null;
         }
@@ -47,7 +48,7 @@ public class EventDBChecker{
             return event;
         }catch(Exception e){
             database.close();
-            System.out.println("EventDBChecker: checkEvent");
+            System.out.println("\nEventDBChecker: checkEvent");
             System.out.println(e);
             return null;
         }

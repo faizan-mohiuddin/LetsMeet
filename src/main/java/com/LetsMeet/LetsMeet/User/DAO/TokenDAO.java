@@ -137,10 +137,10 @@ public class TokenDAO implements DAO<Token> {
     // Delete from a Token Object
     @Override
     public Boolean delete(Token t) {
-        
+        database.open();
+
         try(Statement statement = database.getCon().createStatement();) {
-            database.open();
-            String query = String.format("DELETE FROM User WHERE Token.TokenUUID = '%s'", t.getToken());
+            String query = String.format("DELETE FROM Token WHERE Token.TokenUUID = '%s'", t.getToken());
             statement.executeUpdate(query);
             database.close();
             return true;
