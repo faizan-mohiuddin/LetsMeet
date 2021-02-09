@@ -2,7 +2,7 @@
 // EventDAO.java
 // Let's Meet 2021
 //
-// Responsible for perfoming CRUD operations on Event objects/records
+// Responsible for performing CRUD operations on Event objects/records
 
 package com.LetsMeet.LetsMeet.Event.DAO;
 
@@ -76,8 +76,7 @@ public class EventDao implements DAO<Event> {
         }catch(Exception e){
             database.close();
             System.out.println("\nEvent Dao: get (String)");
-            //e.printStackTrace();
-            System.out.println(e);
+            e.printStackTrace();
             return Optional.empty();
         }
     }
@@ -184,13 +183,13 @@ public class EventDao implements DAO<Event> {
     // Other methods
     //-----------------------------------------------------------------
 
+    //TODO EventResponse should be be loaded by BL to find which events a user is registered to.
     public Optional<Collection<Event>> getUserEvents(String uuid){
         database.open();
-        try{
+        try(Statement statement = database.con.createStatement()){
             List<EventPermission> records = hasUsers.getByUser(uuid).get();
 
             database.open();
-            Statement statement = database.con.createStatement();
 
             List<Event> events = new ArrayList<>();
 

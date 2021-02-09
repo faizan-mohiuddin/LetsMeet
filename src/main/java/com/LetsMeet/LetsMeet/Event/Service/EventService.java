@@ -10,7 +10,6 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 
-import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

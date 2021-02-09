@@ -19,8 +19,8 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
+import com.LetsMeet.Models.Data.TokenData; //TODO This needs to be refactored can't use this import from external package
 
-import com.LetsMeet.Models.Data.TokenData; //This needs to be refactored can't use this import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -180,95 +180,8 @@ public class UserDao implements DAO<User> {
     //Note that DAO is for CRUD ops only, any business logic is handled by the service layer. 
     //Note that Tokens now have their own DAO
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public boolean checkEmailExists(String email){
-        database.open();
 
-        // Returns true if the email exists
-        try (Statement statement = database.getCon().createStatement();){
-            String query = String.format("SELECT COUNT(email) AS Emails FROM User WHERE User.email = '%s'", email);
-
-            ResultSet rs = statement.executeQuery(query);
-
-            rs.next();
-
-            int count = rs.getInt(1);
-            database.close();
-
-            if (count > 0) {
-                return true;
-            }
-            return false;
-
-        } catch (Exception e) {
-            System.out.println("User DAO: checkEmailExists");
-            System.out.println(e);
-            return true;
-            }
-    }
-
-
-
-    public boolean CheckUserToken(String UUID){
-        database.open();
-            try (Statement statement = database.getCon().createStatement();) {
-                String query = String.format("SELECT COUNT(TokenUUID) AS Tokens FROM Token WHERE Token.UserUUID = '%s'", UUID);
-                ResultSet rs = statement.executeQuery(query);
-
-                rs.next();
-                int count = rs.getInt(1);
-
-                if (count > 0) {
-                    database.close();
-                    return true;
-                } else {
-                    database.close();
-                    return false;
-                }
-
-            } catch (Exception e) {
-                System.out.println("\nUser DAO: CheckUserToken");
-                System.out.println(e);
-                return false;
-            }
-    }
-
-    public void removeAllUserToken(String UUID){
-        // Remove all tokens corresponding to a user
-        try(Statement statement = database.getCon().createStatement();){
-            database.open();
-            String query = String.format("DELETE FROM Token WHERE Token.UserUUID = '%s'", UUID);
-            statement.executeUpdate(query);
-            database.close();
-        }catch(Exception e){
-            System.out.println("\nUser DAO: removeALLUserTokens");
-            System.out.println(e);
-        }
-    }
-
-    public String createToken(String UUID, String Token, long expires){
-        database.open();
-        try (PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
-
-            statement.setString(1, UUID);
-            statement.setString(2, Token);
-            statement.setLong(3, expires);
-            int rows = statement.executeUpdate();
-
-            database.close();
-
-            if (rows > 0) {
-                return "Token created successfully";
-            } else {
-                throw new Exception("Error creating token");
-            }
-
-        } catch (Exception e) {
-            System.out.println("\nUser DAO: createToken");
-            System.out.println(e);
-            return "Error creating API token";
-        }
-    }
-
+// In use
     public TokenData getTokenRecord(String token){
         database.open();
             try (Statement statement = database.getCon().createStatement();){
@@ -290,7 +203,7 @@ public class UserDao implements DAO<User> {
                 return null;
             }
     }
-
+// In use
     public String getUserUUIDByToken(String token){
         database.open();
         try (Statement statement = database.getCon().createStatement();) {
@@ -308,27 +221,4 @@ public class UserDao implements DAO<User> {
             return null;
         }
     }
-
-    public User getUserByUUID(String uuid){
-        database.open();
-            try (Statement statement = database.getCon().createStatement();) {
-                String query = String.format("select * from User where User.UserUUID = '%s'", uuid);
-
-                ResultSet rs = statement.executeQuery(query);
-                rs.next();
-
-                User user = new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-                        rs.getString(4), rs.getString(5), rs.getString(6));
-
-                database.close();
-                return user;
-
-            } catch (Exception e) {
-                System.out.println("\nUser DAO: getUserByUUID");
-                System.out.println(e);
-                return null;
-            }
-    }
-
-
 }

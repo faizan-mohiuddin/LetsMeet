@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.User.Service;
 
+import com.LetsMeet.LetsMeet.User.DAO.TokenDAO;
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.Models.Data.TokenData;
@@ -11,6 +12,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.LetsMeet.LetsMeet.User.Service.UserService.fromHex;
 
@@ -19,6 +21,9 @@ public class ValidationService {
 
     @Autowired
     UserDao dao;
+
+    @Autowired
+    TokenDAO tokenDao;
 
     public Object[] verifyAPItoken(String token){
         // Returns [boolean, String]
@@ -54,8 +59,8 @@ public class ValidationService {
 
     public User getUserFromToken(String token){
         String uuid = this.getUserUUIDfromToken(token);
-        User user = dao.getUserByUUID(uuid);
-        return user;
+
+        return dao.get(UUID.fromString(uuid)).get();
     }
 
     public String getUserUUIDfromToken(String token){

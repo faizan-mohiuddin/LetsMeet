@@ -232,6 +232,6 @@ public class UserService implements UserServiceInterface {
     }
 
     public User getUserByUUID(String uuid){
-	    return dao.getUserByUUID(uuid);
+	    return dao.get(UUID.fromString(uuid)).get();
     }
 }
