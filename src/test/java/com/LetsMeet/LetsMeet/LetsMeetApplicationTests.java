@@ -14,15 +14,11 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
-import com.LetsMeet.Models.*;
-
-import com.LetsMeet.LetsMeet.UserManager.UserManager;
 import com.LetsMeet.Models.Connectors.EventsModel;
-import com.LetsMeet.Models.Connectors.UserModel;
 import com.LetsMeet.Models.Data.EventData;
 import com.LetsMeet.Models.Data.HasUsersRecord;
-import com.LetsMeet.Models.Data.UserData;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +26,6 @@ import static org.assertj.core.api.Assertions.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import static org.junit.Assert.*;
-//import com.LetsMeet.LetsMeet.APIHandler;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -98,9 +93,9 @@ class  LetsMeetApplicationTests {
  		assertEquals("User Account Created Successfully", result);
 
 		// Double check by searching DB
-		boolean present = userModel.checkEmailExists(email);
+		Optional<User> present = userModel.get(email);
 
-		assertEquals(true, present);
+		assertEquals(false, present.isPresent());
 
 		// Remove created user
 		UserDB.removeUserByEmail(email);
@@ -357,15 +352,13 @@ class  LetsMeetApplicationTests {
 		}
 
 		// Check DB
-		EventsModel model = new EventsModel();
-		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		 ;
-		assertEquals(2, records.size());
+		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+		assertEquals(2, records.get().size());
 
-		if(records.get(0).IsOwner){
-			assertEquals(user.UUID, records.get(1).UserUUID);
+		if(records.get().get(0).getIsOwner()){
+			assertEquals(user.UUID, records.get().get(1).getUser());
 		}else{
-			assertEquals(user.UUID, records.get(0).UserUUID);
+			assertEquals(user.UUID, records.get().get(0).getUser());
 		}
 
 		// Remove unnecessary data
@@ -403,7 +396,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
 			System.out.println(result);
 
 			JSONArray array = new JSONArray(result);
@@ -465,7 +458,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
 			System.out.println(result);
 
 			JSONArray array = new JSONArray(result);
@@ -538,7 +531,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
 			System.out.println(result);
 
 			JSONArray array = new JSONArray(result);
@@ -596,15 +589,13 @@ class  LetsMeetApplicationTests {
 		}
 
 		// Check DB
-		EventsModel model = new EventsModel();
 		// Check events table
-		EventData response = model.getEventByUUID(event.UUID);
-		assertEquals(null, response);
+		Optional<Event> response = eventModel.get(event.UUID);
+		assertEquals(false, response.isPresent());
 
 		// Check hasUsers table
-		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		 ;
-		assertEquals(0, records.size());
+		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+		assertEquals(0, records.get().size());
 
 		// Remove unnecessary data
 		UserDB.removeUserByEmail(user.email);
@@ -644,15 +635,13 @@ class  LetsMeetApplicationTests {
 		}
 
 		// Check DB
-		EventsModel model = new EventsModel();
 		// Check events table
-		EventData response = model.getEventByUUID(event.UUID);
-		assertEquals(null, response);
+		Optional<Event> response = eventModel.get(event.UUID);
+		assertEquals(false, response.isPresent());
 
 		// Check hasUsers table
-		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		assertEquals(0, records.size());
-		 ;
+		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+		assertEquals(0, records.get().size());
 
 		UserDB.removeUserByEmail(user.email);
 		UserDB.removeUserByEmail(user2.email);
@@ -735,15 +724,13 @@ class  LetsMeetApplicationTests {
 		}
 
 		// Check DB
-		EventsModel model = new EventsModel();
 		// Check event
-		EventData eventDB = model.getEventByUUID(event.UUID);
-		assertEquals(event.UUID, eventDB.whatsUUID().toString());
+		Optional<Event> eventDB = eventModel.get(event.UUID);
+		assertEquals(event.UUID, eventDB.get().getUUID().toString());
 
 		// Check HasUser
-		List<HasUsersRecord> records = model.getHasUsers(event.UUID);
-		assertEquals(1, records.size());
-		 ;
+		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+		assertEquals(1, records.get().size());
 
 		// Remove unnecessary data
 		UserDB.removeUserByEmail(user.email);
@@ -809,14 +796,14 @@ class  LetsMeetApplicationTests {
 		// Update user accounts
 		this.generateUser();
 		TestingUsers user = testUsers.get(0);
-		user.login();
+		this.login(user);
 
 		// Generate new details
 		this.generateUser();
 		TestingUsers user2 = testUsers.get(0);
 
 		// Change fName
-		String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
+		//String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
 
 		// Change lName
 		// Change email
@@ -840,7 +827,7 @@ class  LetsMeetApplicationTests {
 	// Test event owner joining event
 
 	@Test
-	@Order(22)
+	@Order(24)
 	public void cleanup(){
 		// Remove test records from DB
 		UserDB.clearTestData();

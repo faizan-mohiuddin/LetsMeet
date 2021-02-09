@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -232,6 +233,10 @@ public class UserService implements UserServiceInterface {
     }
 
     public User getUserByUUID(String uuid){
-	    return dao.get(UUID.fromString(uuid)).get();
+        Optional<User> response = dao.get(UUID.fromString(uuid));
+	    if(response.isPresent()){
+	        return response.get();
+        }
+	    return null;
     }
 }

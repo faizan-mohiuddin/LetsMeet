@@ -45,7 +45,7 @@ public class UserDao implements DAO<User> {
     public Optional<User> get(UUID uuid) {
         database.open();
         try (Statement statement = database.getCon().createStatement();) {
-            String query = String.format("select * from User where User.UserrUUID = '%s'", uuid);
+            String query = String.format("select * from User where User.UserUUID = '%s'", uuid);
             ResultSet rs = statement.executeQuery(query);
 
             rs.next();
@@ -56,7 +56,7 @@ public class UserDao implements DAO<User> {
 
         } catch (Exception e) {
             if(!e.getMessage().equals("Illegal operation on empty result set.")) {
-                System.out.println("\nUser DAO: getUserByEmail");
+                System.out.println("\nUser DAO: get (UUID)");
                 System.out.println(e);
 
                 return Optional.empty();
@@ -80,7 +80,7 @@ public class UserDao implements DAO<User> {
 
         } catch (Exception e) {
             if(!e.getMessage().equals("Illegal operation on empty result set.")) {
-                System.out.println("\nUser DAO: getUserByEmail");
+                System.out.println("\nUser DAO: get (String)");
                 System.out.println(e);
             }
             return Optional.empty();

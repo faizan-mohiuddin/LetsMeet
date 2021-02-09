@@ -55,6 +55,7 @@ public class EventDao implements DAO<Event> {
 
         }catch(Exception e){
             database.close();
+            System.out.println("Event Dao: get (UUID)");
             e.printStackTrace();
             return Optional.empty();
         }  
@@ -76,7 +77,8 @@ public class EventDao implements DAO<Event> {
         }catch(Exception e){
             database.close();
             System.out.println("\nEvent Dao: get (String)");
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println(e);
             return Optional.empty();
         }
     }
@@ -95,6 +97,7 @@ public class EventDao implements DAO<Event> {
             return Optional.ofNullable(events);
 
         }catch(Exception e){
+            System.out.println("\nEvent Dao: getALL");
             database.close();
             e.printStackTrace();
             return Optional.empty();
@@ -126,6 +129,7 @@ public class EventDao implements DAO<Event> {
             }
 
         }catch(Exception e){
+            System.out.println("Event Dao : save");
             database.close();
             e.printStackTrace();
             return false;
@@ -169,6 +173,7 @@ public class EventDao implements DAO<Event> {
             return true;
 
         }catch(Exception e){
+            System.out.println("Event Dao: delete (UUID)");
             database.close();
             System.out.println("\nEvent Dao: delete (UUID)");
             e.printStackTrace();
