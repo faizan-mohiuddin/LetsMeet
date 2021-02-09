@@ -34,4 +34,7 @@ public class Event {
         return this.location;
     }
 
+    public EventSanitised convertToSanitised(){
+        return new EventSanitised(this.name, this.desc, this.location);
+    }
 }

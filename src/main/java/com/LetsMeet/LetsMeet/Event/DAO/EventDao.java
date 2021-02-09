@@ -64,8 +64,11 @@ public class EventDao implements DAO<Event> {
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
+
+            Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2),
+                    rs.getString(3), rs.getString(4)));
             database.close();
-            return Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
+            return response;
 
         }catch(Exception e){
             database.close();

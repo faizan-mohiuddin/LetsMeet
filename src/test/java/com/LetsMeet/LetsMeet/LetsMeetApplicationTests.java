@@ -280,13 +280,10 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		 
+		UserDB.removeUserByEmail(user.email);
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
+		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
 
@@ -312,13 +309,10 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		 
+		UserDB.removeUserByEmail(user.email);
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
+		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
 
@@ -360,14 +354,11 @@ class  LetsMeetApplicationTests {
 		}
 
 		// Remove unnecessary data
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		 
 		testUsers.clear();
-
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event.UUID);
+		EventDB.removeEventByUUID(event.UUID);
 		 
 		testEvents.clear();
 	}
@@ -403,19 +394,16 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		 
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event1.UUID);
-		eventModel.removeEventByUUID(event2.UUID);
+		EventDB.removeEventByUUID(event1.UUID);
+		EventDB.removeEventByUUID(event2.UUID);
 		 
 		testEvents.clear();
 	}
-
 
 	@Test
 	@Order(15)
@@ -452,16 +440,14 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		 
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event1.UUID);
-		eventModel.removeEventByUUID(event2.UUID);
-		eventModel.removeEventByUUID(event3.UUID);
+		EventDB.removeEventByUUID(event1.UUID);
+		EventDB.removeEventByUUID(event2.UUID);
+		EventDB.removeEventByUUID(event3.UUID);
 		 
 		testEvents.clear();
 	}
@@ -511,17 +497,15 @@ class  LetsMeetApplicationTests {
 			System.out.println(e);
 		}
 
-		UserDBChecker Checkmodel = new UserDBChecker();
-		Checkmodel.removeUserByEmail(user.email);
-		Checkmodel.removeUserByEmail(user2.email);
+		UserDB.removeUserByEmail(user.email);
+		UserDB.removeUserByEmail(user2.email);
 		 
 		testUsers.clear();
 
-		EventDBChecker eventModel = new EventDBChecker();
-		eventModel.removeEventByUUID(event1.UUID);
-		eventModel.removeEventByUUID(event2.UUID);
-		eventModel.removeEventByUUID(event3.UUID);
-		eventModel.removeEventByUUID(event4.UUID);
+		EventDB.removeEventByUUID(event1.UUID);
+		EventDB.removeEventByUUID(event2.UUID);
+		EventDB.removeEventByUUID(event3.UUID);
+		EventDB.removeEventByUUID(event4.UUID);
 		 
 		testEvents.clear();
 	}

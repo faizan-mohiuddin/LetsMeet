@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
@@ -38,18 +39,24 @@ public class EventControllerAPI {
     }
 
     @GetMapping("api/MyEvents")
-    public Collection<Event> API_GetMyEvents(@RequestParam(value="Token") String token) {
+    public Collection<EventSanitised> API_GetMyEvents(@RequestParam(value="Token") String token) {
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
 
         if(result){
             // Get user UUID
             String UserUUID = userValidation.getUserUUIDfromToken(token);
-            return eventService.getUserEvents(UserUUID);
+            Collection<Event> events = eventService.getUserEvents(UserUUID);
+            Collection<EventSanitised> sanitisedEvents = new ArrayList<>();
+
+            for(Event e : events){
+                sanitisedEvents.add(e.convertToSanitised());
+            }
+            return sanitisedEvents;
         }else{
             String errorText = (String) response[1];
-            Event error = new Event(errorText, errorText, errorText, errorText);
-            List<Event> ErrorReturn = new ArrayList<>();
+            EventSanitised error = new EventSanitised(errorText, errorText, errorText);
+            List<EventSanitised> ErrorReturn = new ArrayList<>();
             ErrorReturn.add(error);
             return ErrorReturn;
         }
@@ -57,8 +64,8 @@ public class EventControllerAPI {
 
     // Get event by specific eventUUID
     @GetMapping("api/Event/{UUID}")
-    public Event API_GetEvent(@PathVariable(value="UUID") String UUID){
-        return eventService.getEvent(UUID);
+    public EventSanitised API_GetEvent(@PathVariable(value="UUID") String UUID){
+        return eventService.getEvent(UUID).convertToSanitised();
     }
 
     // Create event
