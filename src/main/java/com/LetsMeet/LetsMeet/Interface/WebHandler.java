@@ -34,17 +34,37 @@ public class WebHandler {
     }
 
     @GetMapping("/createevent")
-    public String createevent(Model model) {
-        model.addAttribute("event", new RequestHandler());
-        return "createevent";
+    public String createevent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+
+        UserData user = (UserData) session.getAttribute("userlogin");
+
+        if (user == null) {
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("event", new RequestHandler());
+
+            return "createevent";
+
+        }
+
     }
 
     @GetMapping("/saveevent")
-    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, Model model){
+    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model){
+
         model.addAttribute("eventname", eventname);
         model.addAttribute("eventdesc", eventdesc);
         model.addAttribute("eventlocation", eventlocation);
-        RequestHandler.createEvent(eventname, eventdesc, eventlocation, null);
+
+        UserData user = (UserData) session.getAttribute("userlogin");
+
+        RequestHandler.createEvent(eventname, eventdesc, eventlocation, user.whatsUUID());
+
         return "saveevent";
     }
 
@@ -175,8 +195,16 @@ public class WebHandler {
 
         } else {
 
-            model.addAttribute("myEvents", RequestHandler.getMyEvents(user.whatsUUID()));
+            if (RequestHandler.getMyEvents(user.whatsUUID()).isEmpty()) {
 
+                Boolean noEvents = true;
+                model.addAttribute("noEvents", noEvents);
+
+            } else {
+
+                model.addAttribute("myEvents", RequestHandler.getMyEvents(user.whatsUUID()));
+
+            }
             return "dashboard";
 
         }
