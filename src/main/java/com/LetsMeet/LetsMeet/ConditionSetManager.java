@@ -8,7 +8,11 @@ package com.LetsMeet.LetsMeet;
 
 //-----------------------------------------------------------------
 
-import com.LetsMeet.Models.*;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Data.ConditionSet;
+import com.LetsMeet.Models.Data.Constraint;
+import com.LetsMeet.Models.Data.Variable;
+
 import java.util.UUID;
 
 //-----------------------------------------------------------------

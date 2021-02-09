@@ -16,6 +16,12 @@ import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.Models.*;
 
+import com.LetsMeet.LetsMeet.UserManager.UserManager;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.EventData;
+import com.LetsMeet.Models.Data.HasUsersRecord;
+import com.LetsMeet.Models.Data.UserData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,7 +213,7 @@ class  LetsMeetApplicationTests {
 
 		String result = this.userController.API_DeleteUser(user.token);
 		testUsers.remove(0);
-		assertEquals("User Deleted", result);
+		assertEquals("User successfully deleted.", result);
 	}
 
 	@Test
@@ -215,7 +221,9 @@ class  LetsMeetApplicationTests {
 	public void Home(){
 		//String result = this.controller.API_Home();
 		//System.out.println(result);
-		assertEquals(false, true);
+		// assertEquals("Welcome to the lets meet API! \nFor more information on using the API service visit the API help page"
+		// 		, result);
+		assertEquals(true, false);
 	}
 
 	@Test
@@ -363,10 +371,10 @@ class  LetsMeetApplicationTests {
 		// Remove unnecessary data
 		UserDB.removeUserByEmail(user.email);
 		UserDB.removeUserByEmail(user2.email);
-		 
+
 		testUsers.clear();
 		EventDB.removeEventByUUID(event.UUID);
-		 
+
 		testEvents.clear();
 	}
 
@@ -389,13 +397,29 @@ class  LetsMeetApplicationTests {
 		TestingEvents event2 = testEvents.get(1);
 		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
 
+		ArrayList<TestingEvents> events = new ArrayList<>();
+		events.add(event1);
+		events.add(event2);
+
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
-			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]",
-					event1.name, event1.desc, event1.location, event2.name, event2.desc, event2.location);
+			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			System.out.println(result);
 
-			assertEquals(expectedResult, result);
+			JSONArray array = new JSONArray(result);
+			for(int i=0; i < array.length(); i++) {
+				JSONObject responseEvent = array.getJSONObject(i);
+				// Match response event to event
+				for(TestingEvents event : events){
+					if(event.UUID.equals(responseEvent.getString("name"))){
+						// Match
+						assertEquals(event.desc, responseEvent.getString("description"));
+						assertEquals(event.location, responseEvent.getString("location"));
+						break;
+					}
+				}
+			}
+
 		}catch(Exception e){
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
@@ -403,12 +427,12 @@ class  LetsMeetApplicationTests {
 
 		UserDB.removeUserByEmail(user.email);
 		UserDB.removeUserByEmail(user2.email);
-		 
+
 		testUsers.clear();
 
 		EventDB.removeEventByUUID(event1.UUID);
 		EventDB.removeEventByUUID(event2.UUID);
-		 
+
 		testEvents.clear();
 	}
 
@@ -434,14 +458,30 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event3 = testEvents.get(2);
 
+		ArrayList<TestingEvents> events = new ArrayList<>();
+		events.add(event1);
+		events.add(event2);
+		events.add(event3);
+
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
-			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}" +
-							"{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]",
-					event1.name, event1.desc, event1.location, event2.name, event2.desc, event2.location, event3.name, event3.desc, event3.location);
+			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			System.out.println(result);
 
-			assertEquals(expectedResult, result);
+			JSONArray array = new JSONArray(result);
+			for(int i=0; i < array.length(); i++) {
+				JSONObject responseEvent = array.getJSONObject(i);
+				// Match response event to event
+				for(TestingEvents event : events){
+					if(event.UUID.equals(responseEvent.getString("name"))){
+						// Match
+						assertEquals(event.desc, responseEvent.getString("description"));
+						assertEquals(event.location, responseEvent.getString("location"));
+						break;
+					}
+				}
+			}
+
 		}catch(Exception e){
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
@@ -449,13 +489,13 @@ class  LetsMeetApplicationTests {
 
 		UserDB.removeUserByEmail(user.email);
 		UserDB.removeUserByEmail(user2.email);
-		 
+
 		testUsers.clear();
 
 		EventDB.removeEventByUUID(event1.UUID);
 		EventDB.removeEventByUUID(event2.UUID);
 		EventDB.removeEventByUUID(event3.UUID);
-		 
+
 		testEvents.clear();
 	}
 
@@ -490,15 +530,31 @@ class  LetsMeetApplicationTests {
 		TestingEvents event4 = testEvents.get(2);
 		this.eventController.API_AddUserToEvent(user.token, event4.UUID);
 
+		ArrayList<TestingEvents> events = new ArrayList<>();
+		events.add(event1);
+		events.add(event2);
+		events.add(event3);
+		events.add(event4);
+
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
-			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}," +
-							"{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"},{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]",
-					event1.name, event1.desc, event1.location, event2.name, event2.desc, event2.location, event3.name, event3.desc, event3.location,
-					event4.name, event4.desc, event4.location);
+			String result = mapper.writeValueAsString(this.controller.API_GetMyEvents(user.token));
+			System.out.println(result);
 
-			assertEquals(expectedResult, result);
+			JSONArray array = new JSONArray(result);
+			for(int i=0; i < array.length(); i++) {
+				JSONObject responseEvent = array.getJSONObject(i);
+				// Match response event to event
+				for(TestingEvents event : events){
+					if(event.UUID.equals(responseEvent.getString("name"))){
+						// Match
+						assertEquals(event.desc, responseEvent.getString("description"));
+						assertEquals(event.location, responseEvent.getString("location"));
+						break;
+					}
+				}
+			}
+
 		}catch(Exception e){
 			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
 			System.out.println(e);
@@ -506,14 +562,14 @@ class  LetsMeetApplicationTests {
 
 		UserDB.removeUserByEmail(user.email);
 		UserDB.removeUserByEmail(user2.email);
-		 
+
 		testUsers.clear();
 
 		EventDB.removeEventByUUID(event1.UUID);
 		EventDB.removeEventByUUID(event2.UUID);
 		EventDB.removeEventByUUID(event3.UUID);
 		EventDB.removeEventByUUID(event4.UUID);
-		 
+
 		testEvents.clear();
 	}
 
@@ -555,7 +611,7 @@ class  LetsMeetApplicationTests {
 		testUsers.clear();
 
 		EventDB.removeEventByUUID(event.UUID);
-		 
+
 		testEvents.clear();
 	}
 
@@ -746,6 +802,34 @@ class  LetsMeetApplicationTests {
 		EventDB.removeEventByUUID(event.UUID);
 		testEvents.clear();
 	}
+
+	@Test
+	@Order(22)
+	public void updateUsers() {
+		// Update user accounts
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		user.login();
+
+		// Generate new details
+		this.generateUser();
+		TestingUsers user2 = testUsers.get(0);
+
+		// Change fName
+		String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
+
+		// Change lName
+		// Change email
+		// Change all 3
+	}
+
+	@Test
+	@Order(23)
+	public void updatePassword(){
+		// Update user password
+	}
+
+	// Update events
 
 //	@Test
 //	@Order(11)

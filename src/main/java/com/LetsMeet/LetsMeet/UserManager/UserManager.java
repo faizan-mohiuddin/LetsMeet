@@ -1,7 +1,11 @@
-package com.LetsMeet.LetsMeet;
+package com.LetsMeet.LetsMeet.UserManager;
 
-import com.LetsMeet.Models.*;
-import jdk.jfr.Event;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.AdminUserData;
+import com.LetsMeet.Models.Data.HasUsersRecord;
+import com.LetsMeet.Models.Data.TokenData;
+import com.LetsMeet.Models.Data.UserData;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;

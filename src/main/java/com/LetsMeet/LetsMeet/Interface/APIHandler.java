@@ -28,7 +28,7 @@ public class APIHandler {
     // This will return list of commands?
     @GetMapping("/api/Home")
     public String API_Home(){
-        return "Welcome to the lets meet API! \nFor more information on using the API service visit ";
+        return "Welcome to the lets meet API! \nFor more information on using the API service visit the API help page";
     }
 
     // ConditionSet routes

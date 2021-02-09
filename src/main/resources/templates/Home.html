@@ -27,6 +27,9 @@
 
     <div class = "container">
         <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
+        <div class = "alert alert-warning" th:text = "${loggedout}" th:if = "${loggedout}"></div>
+        <div class = "alert alert-warning" th:text = "${alreadyLoggedIn}" th:if = "${alreadyLoggedIn}"></div>
+        <div class = "alert alert-danger" th:text = "${accessDenied}" th:if = "${accessDenied}"></div>
         <div class = "row">
             <div class = "col-sm">
                 <a class="btn btn-primary" href="/createevent" role="button">Create an Event</a>
@@ -35,7 +38,7 @@
                 <a class = "btn btn-primary" href = "/createuser" role = "button">Create a User</a>
             </div>
             <div class = "col-sm">
-                <a class = "btn btn-success" href = "/login" role = "button">Login</a>
+                <a th:unless = "${user}" class = "btn btn-success" href = "/login" role = "button">Login</a>
             </div>
         </div>
         

@@ -13,9 +13,15 @@
               <div class="navbar-nav">
                 <a class="nav-item nav-link" href = "Home">Home </a>
                 <a class="nav-item nav-link" href="/createuser">Register</a>
+                <a th:if = "${user}" class = "btn btn-primary" href = "/dashboard" role = "button">Dashboard</a>
+                <a th:if = "${user}" class = "btn btn-danger" href = "/logout" role = "button">Logout</a>
               </div>
             </div>
-          </nav> 
+            <div class="text-right">
+                <th th:if="${user}"> Welcome </th>
+                <th th:if="${user}" th:text="${user.fName}"> . </th>
+            </div>
+          </nav>
 
     </div>
 </body>

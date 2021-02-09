@@ -1,13 +1,12 @@
 /*
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.*;
-import jdk.jfr.Event;
-import org.apache.catalina.User;
-import org.apache.catalina.valves.rewrite.RewriteCond.Condition;
+import com.LetsMeet.LetsMeet.UserManager.UserManager;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +18,16 @@ public class RequestHandler {
         List<AdminUserData> r = model.allUsers();
         model.close();
         return r;
+    }
+
+    public static String updateUser(AdminUserData user, String fName, String lName, String email){
+        UserModel model = new UserModel();
+        model.closeCon();
+        return "Success";
+    }
+
+    public static AdminUserData getUserFromTokenWithAdmin(String token){
+        return UserManager.getUserFromTokenWithAdmin(token);
     }
     // End of user methods
 

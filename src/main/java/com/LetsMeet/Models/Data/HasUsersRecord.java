@@ -1,4 +1,4 @@
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Data;
 
 public class HasUsersRecord {
     public String EventUUID;
