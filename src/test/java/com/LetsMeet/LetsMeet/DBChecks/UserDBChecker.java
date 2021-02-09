@@ -1,41 +1,52 @@
 package com.LetsMeet.LetsMeet.DBChecks;
 
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.sql.*;
 
-public class UserDBChecker extends DBConnector{
+@Component
+public class UserDBChecker {
 
-    Connection con;
+    @Autowired
+    LetsMeetConfiguration config;
 
-    public UserDBChecker(){
-        super();
-        this.con = super.con;
-    }
+    @Autowired
+    DBConnector database;
 
     public void removeUserByEmail(String email){
+        database.open();
         try{
-            Statement statement = this.con.createStatement();
+            Statement statement = database.con.createStatement();
             String query = String.format("DELETE FROM User WHERE User.email = '%s'", email);
             statement.executeUpdate(query);
+            database.close();
         }catch(Exception e){
+            database.close();
             System.out.println("UserDBChecker : removeUserByEmail");
             System.out.println(e);
         }
     }
 
     public boolean checkForToken(String token, String UserUUID){
+        database.open();
         try{
-            Statement statement = this.con.createStatement();
+            Statement statement = database.con.createStatement();
             String query = String.format("SELECT Token.UserUUID, Token.TokenUUID FROM Token " +
                     "WHERE Token.TokenUUID = '%s'", token);
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
             if(rs.getString("UserUUID").equals(UserUUID) && rs.getString("TokenUUID").equals(token)) {
+                database.close();
                 return true;
             }
+            database.close();
             return false;
         }catch(Exception e){
+            database.close();
             System.out.println("UserDBChecker : removeUserByEmail");
             System.out.println(e);
             return false;
@@ -43,13 +54,18 @@ public class UserDBChecker extends DBConnector{
     }
 
     public String UserUUIDFromEmail(String email){
+        database.open();
         try{
-            Statement statement = this.con.createStatement();
+            Statement statement = database.con.createStatement();
             String query = String.format("SELECT User.UserUUID FROM User WHERE User.email = '%s'", email);
             ResultSet rs = statement.executeQuery(query);
             rs.next();
-            return rs.getString("UserUUID");
+
+            String response = rs.getString("UserUUID");
+            database.close();
+            return response;
         }catch(Exception e){
+            database.close();
             System.out.println("UserDBChecker : UserUUIDFromEmail");
             System.out.println(e);
             return null;
@@ -57,11 +73,14 @@ public class UserDBChecker extends DBConnector{
     }
 
     public void clearTestUsers(){
+        database.open();
         try{
-            Statement statement = this.con.createStatement();
+            Statement statement = database.con.createStatement();
             String query = String.format("DELETE FROM User WHERE User.email like '%%InternalTesting.com'");
             statement.executeUpdate(query);
+            database.close();
         }catch(Exception e){
+            database.close();
             System.out.println("\nUserDBChecker : clearTestUsers");
             System.out.println(e);
             e.printStackTrace(System.out);

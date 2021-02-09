@@ -4,18 +4,18 @@ import java.util.UUID;
 
 public class Token {
 
-    UUID uuid;
+    String token;
     UUID user;
     long expires;
 
-    public Token(UUID uuid, UUID user, long expires){
-        this.uuid = uuid;
+    public Token(String token, UUID user, long expires){
+        this.token = token;
         this.user = user;
         this.expires = expires;
     }
 
-    public UUID getUUID(){
-        return this.uuid;
+    public String getToken(){
+        return this.token;
     }
 
     public UUID getUserUUID(){

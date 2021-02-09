@@ -40,13 +40,13 @@ public class TokenDAO implements DAO<Token> {
     public Optional<Token> get(UUID uuid) {
         database.open();
         try (Statement statement = database.getCon().createStatement();) {
-            String query = String.format("SELECT COUNT(TokenUUID) AS Tokens FROM Token WHERE Token.TokenUUID = '%s'", uuid);
+            String query = String.format("SELECT * FROM Token WHERE Token.TokenUUID = '%s'", uuid);
             ResultSet rs = statement.executeQuery(query);
 
             rs.next();
             int count = rs.getInt(1);
             Optional<Token> token = Optional.ofNullable(
-                new Token(UUID.fromString(rs.getString(2)), UUID.fromString(rs.getString(1)), rs.getInt(3)));
+                new Token(rs.getString(2), UUID.fromString(rs.getString(1)), rs.getInt(3)));
 
             if (count > 0) {
                 database.close();
@@ -72,19 +72,21 @@ public class TokenDAO implements DAO<Token> {
         database.open();
         try (Statement statement = database.getCon().createStatement();) {
             // Create query
-            String query = String.format("SELECT COUNT(TokenUUID) AS Tokens FROM Token WHERE Token.UserUUID = '%s'", user.getUUID().toString());
+            String query = String.format("SELECT * FROM Token WHERE Token.UserUUID = '%s'", user.getUUID().toString());
 
             // Run query
             ResultSet rs = statement.executeQuery(query);
 
             // Store results
             ArrayList<Token> tokens = new ArrayList<>();
+
             while(rs.next()){
-                tokens.add(new Token(UUID.fromString(rs.getString(2)), UUID.fromString(rs.getString(1)), rs.getInt(3)));
+                tokens.add(new Token(rs.getString(2), UUID.fromString(rs.getString(1)), rs.getInt(3)));
             }
 
+            Optional<Collection<Token>> response = Optional.ofNullable(tokens);
             database.close();
-            return Optional.ofNullable(tokens);
+            return response;
         } 
         catch (Exception e) {
             e.printStackTrace();
@@ -102,7 +104,7 @@ public class TokenDAO implements DAO<Token> {
         try (PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
 
             statement.setString(1, t.getUserUUID().toString());
-            statement.setString(2, t.getUUID().toString());
+            statement.setString(2, t.getToken());
             statement.setLong(3, t.getExpires());
             int rows = statement.executeUpdate();
 
@@ -138,7 +140,7 @@ public class TokenDAO implements DAO<Token> {
         
         try(Statement statement = database.getCon().createStatement();) {
             database.open();
-            String query = String.format("DELETE FROM User WHERE Token.TokenUUID = '%s'", t.getUUID().toString());
+            String query = String.format("DELETE FROM User WHERE Token.TokenUUID = '%s'", t.getToken());
             statement.executeUpdate(query);
             database.close();
             return true;

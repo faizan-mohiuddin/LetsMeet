@@ -192,8 +192,7 @@ public class UserService implements UserServiceInterface {
         // Add to DB
         long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
         //String feedback = dao.createToken(user.getUUID().toString(), token, tokenExpires);
-        
-        if(Boolean.TRUE.equals(tokenDao.save(new Token(UUID.fromString(token), user.getUUID(), tokenExpires)))) {
+        if(Boolean.TRUE.equals(tokenDao.save(new Token(token, user.getUUID(), tokenExpires)))) {
             return token;
         }else{
             return "Failed to create token";

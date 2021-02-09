@@ -12,14 +12,14 @@ import java.sql.Statement;
 
 //-----------------------------------------------------------------
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 
+import com.LetsMeet.Models.HasUsersRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +45,29 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
             database.close();
 
             return Optional.ofNullable(new EventPermission(UUID.fromString(rs.getString(1)), UUID.fromString(rs.getString(2)), rs.getBoolean(3)));
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            database.close();
+            return Optional.empty();
+        }
+    }
+
+    public Optional<List<EventPermission>> get(String event) {
+        database.open();
+        try(Statement statement = database.getCon().createStatement()){
+            String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s'", event);
+
+            ResultSet rs = statement.executeQuery(query);
+            List<EventPermission> records = new ArrayList<>();
+            while(rs.next()){
+                EventPermission record = new EventPermission(rs.getString(1), rs.getString(2), rs.getBoolean(3));
+                records.add(record);
+            }
+            database.close();
+
+            return Optional.ofNullable(records);
 
         }
         catch(Exception e){
