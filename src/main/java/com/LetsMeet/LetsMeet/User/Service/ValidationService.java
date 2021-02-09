@@ -36,7 +36,7 @@ public class ValidationService {
         }else{
             // rest of checks
             // Get record from DB
-            TokenData tokenData = dao.getTokenRecord(token);
+            TokenData tokenData = tokenDao.getTokenRecord(token);
 
             if(tokenData == null){
                 arr[0] = false;
@@ -64,7 +64,7 @@ public class ValidationService {
     }
 
     public String getUserUUIDfromToken(String token){
-        return dao.getUserUUIDByToken(token);
+        return tokenDao.getUserUUIDByToken(token);
     }
 
     public User validate(String email, String password){

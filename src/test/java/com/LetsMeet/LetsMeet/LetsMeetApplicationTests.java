@@ -95,7 +95,7 @@ class  LetsMeetApplicationTests {
 		// Double check by searching DB
 		Optional<User> present = userModel.get(email);
 
-		assertEquals(false, present.isPresent());
+		assertEquals(true, present.isPresent());
 
 		// Remove created user
 		UserDB.removeUserByEmail(email);
@@ -356,9 +356,9 @@ class  LetsMeetApplicationTests {
 		assertEquals(2, records.get().size());
 
 		if(records.get().get(0).getIsOwner()){
-			assertEquals(user.UUID, records.get().get(1).getUser());
+			assertEquals(user.UUID, records.get().get(1).getUser().toString());
 		}else{
-			assertEquals(user.UUID, records.get().get(0).getUser());
+			assertEquals(user.UUID, records.get().get(0).getUser().toString());
 		}
 
 		// Remove unnecessary data

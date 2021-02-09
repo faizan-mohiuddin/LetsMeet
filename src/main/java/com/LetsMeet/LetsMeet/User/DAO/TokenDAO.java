@@ -20,6 +20,7 @@ import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
+import com.LetsMeet.Models.Data.TokenData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -154,6 +155,48 @@ public class TokenDAO implements DAO<Token> {
     @Override
     public Boolean delete(UUID uuid) {
         return this.delete(this.get(uuid).get());
+    }
+
+    // Other methods
+    // In use
+    public TokenData getTokenRecord(String token){
+        database.open();
+        try (Statement statement = database.getCon().createStatement();){
+            String query = String.format("select * from Token where Token.TokenUUID = '%s'", token);
+            ResultSet rs = statement.executeQuery(query);
+            if(rs.next()){
+                TokenData data = new TokenData();
+                data.populate(rs.getString(1), rs.getString(2), rs.getInt(3));
+                database.close();
+                return data;
+            }else{
+                // Incorrect token
+                return null;
+            }
+
+        } catch (Exception e) {
+            System.out.println("\nUser DAO: getTokenRecord");
+            System.out.println(e);
+            return null;
+        }
+    }
+    // In use
+    public String getUserUUIDByToken(String token){
+        database.open();
+        try (Statement statement = database.getCon().createStatement();) {
+            String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            String r = rs.getString(1);
+            database.close();
+            return r;
+
+        } catch (Exception e) {
+            System.out.println("\nUser DAO: getUserByToken");
+            System.out.println(e);
+            return null;
+        }
     }
     
 }
