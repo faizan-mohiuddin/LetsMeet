@@ -14,12 +14,10 @@ import java.sql.Statement;
 
 import java.util.*;
 
-import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 
-import com.LetsMeet.Models.HasUsersRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -158,8 +156,7 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
     public Boolean delete(String EventUUID, String UserUUID) {
         database.open();
 
-        try{
-            Statement statement = database.con.createStatement();
+        try(Statement statement = database.con.createStatement()){
             String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
                     EventUUID, UserUUID);
             int rows = statement.executeUpdate(query);

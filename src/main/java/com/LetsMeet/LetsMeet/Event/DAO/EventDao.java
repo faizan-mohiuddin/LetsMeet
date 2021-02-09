@@ -23,7 +23,6 @@ import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 
-import com.LetsMeet.Models.EventData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

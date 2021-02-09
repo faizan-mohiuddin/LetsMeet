@@ -20,7 +20,7 @@ import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 
-import com.LetsMeet.Models.TokenData;
+import com.LetsMeet.Models.Data.TokenData; //This needs to be refactored can't use this import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

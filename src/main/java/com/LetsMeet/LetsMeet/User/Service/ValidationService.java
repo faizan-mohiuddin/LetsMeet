@@ -2,7 +2,8 @@ package com.LetsMeet.LetsMeet.User.Service;
 
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
 import com.LetsMeet.LetsMeet.User.Model.User;
-import com.LetsMeet.Models.TokenData;
+import com.LetsMeet.Models.Data.TokenData;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

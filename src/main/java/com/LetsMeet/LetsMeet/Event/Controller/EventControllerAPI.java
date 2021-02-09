@@ -7,7 +7,6 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
-import com.LetsMeet.Models.AdminEventData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
