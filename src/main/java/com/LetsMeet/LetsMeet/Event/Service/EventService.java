@@ -59,8 +59,7 @@ public class EventService implements EventServiceInterface {
 
     @Override
     public Collection<Event> getEvents() {
-        // TODO Auto-generated method stub
-        return null;
+        return eventDao.getAll().get();
     }
 
     @Override
