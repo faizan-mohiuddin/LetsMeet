@@ -1,32 +1,29 @@
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Connectors;
 
-import jdk.jfr.Event;
+import com.LetsMeet.Models.Data.*;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventsModel {
+public class EventsModel extends DBConnector {
 
     Connection con;
 
     public EventsModel(){
-        try{
-            this.con = DriverManager.getConnection("jdbc:mysql://sql2.freemysqlhosting.net:3306/sql2383522", "sql2383522", "iN8!qL4*");
-        }catch(Exception e){
-            System.out.println("\nEvents Model: Initialise");
-            System.out.println(e);
-        }
+        super();
+        this.con = super.con;
     }
 
-    public void closeCon(){
+    //TODO This could be implemented in finalize() to be called explicitly when garbage collection is run
+    public void close(){
         try {
             this.con.close();
         }catch(Exception e){
             System.out.println("\nEvents Model: closeCon");
             System.out.println(e);
             if(this.con != null) {
-                this.closeCon();
+                this.close();
             }
         }
     }
@@ -54,15 +51,15 @@ public class EventsModel {
         }
     }
 
-    public List<EventData> allEvents(){
+    public List<AdminEventData> allEvents(){
         try{
             Statement statement = this.con.createStatement();
             ResultSet rs = statement.executeQuery("select * from Event");
 
-            List<EventData> events = new ArrayList<>();
+            List<AdminEventData> events = new ArrayList<>();
 
             while(rs.next()){
-                EventData event = new EventData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                AdminEventData event = new AdminEventData(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
                 events.add(event);
             }
             return events;
@@ -85,8 +82,10 @@ public class EventsModel {
             return event;
 
         }catch(Exception e){
-            System.out.println("\nEvents Model: getEventByUUID");
-            System.out.println(e);
+            if(!e.getMessage().equals("Illegal operation on empty result set.")) {
+                System.out.println("\nEvents Model: getEventByUUID");
+                System.out.println(e);
+            }
             return null;
         }
     }
@@ -127,6 +126,27 @@ public class EventsModel {
         }
     }
 
+    public List<HasUsersRecord> getHasUsers(String eventUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s'", eventUUID);
+
+            ResultSet rs = statement.executeQuery(query);
+            List<HasUsersRecord> records = new ArrayList<>();
+
+            while(rs.next()){
+                HasUsersRecord record = new HasUsersRecord();
+                record.populate(rs.getString(1), rs.getString(2), rs.getBoolean(3));
+                records.add(record);
+            }
+            return records;
+        }catch(Exception e){
+            System.out.println("\nEvents Model: getHasUsers");
+            System.out.println(e);
+            return null;
+        }
+    }
+
     public String deleteEvent(String eventUUID){
         try{
             Statement statement = this.con.createStatement();
@@ -139,34 +159,12 @@ public class EventsModel {
             query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
-            return "Event deleted successfully";
+            return "Event successfully deleted.";
 
         }catch(Exception e){
             System.out.println("\nEvents Model: deleteEvent");
             System.out.println(e);
             return "Error deleting event";
-        }
-    }
-
-    public List<EventData> getEventsByUserUUID(String UUID){
-        try{
-            Statement statement = this.con.createStatement();
-            String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location" +
-                    " from Event, HasUsers " +
-                    "where HasUsers.UserUUID = '%s' and Event.EventUUID = HasUsers.EventUUID", UUID);
-
-            ResultSet rs = statement.executeQuery(query);
-            List<EventData> events = new ArrayList<>();
-            while(rs.next()){
-                EventData event = new EventData(rs.getString(1), rs.getString(2),
-                        rs.getString(3), rs.getString(4));
-                events.add(event);
-            }
-            return events;
-        }catch(Exception e){
-            System.out.println("\nEvents Model: getEventsByUserUUID");
-            System.out.println(e);
-            return null;
         }
     }
 
@@ -210,5 +208,34 @@ public class EventsModel {
             return null;
         }
     }
+
+    // Load a condition set from storage.
+    // TODO implement methods for fetching variables and conditions before replacing dummy data
+    public ConditionSet getConditionSetByUUID(String ConditionSetUUID){
+        try{
+            Statement statement = this.con.createStatement();
+            String query = String.format("select * from ConditionSet where ConditionSet.ConditionSetUUID = '%s'", ConditionSetUUID);
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            // Generate dummy data
+            String uuid = "00000000-0000-0000-0000-000000000000";
+            Integer[] nums = {1,2,3,4};
+            Variable<Integer> var1 = new Variable<Integer>(uuid, "var1", nums);
+            Variable<Integer> var2 = new Variable<Integer>(uuid, "var2", nums);
+            Constraint<Integer> con1 = new Constraint<Integer>(uuid, "con1", var1, var2, '=');
+            Variable<?>[] varArray = {var1,var2};
+            Constraint<?>[] conArray = {con1};
+
+            return new ConditionSet(rs.getString(1),rs.getString(2),varArray,conArray);
+
+        }catch(Exception e){
+            System.out.println("\nEvents Model: getEventByUUID");
+            System.out.println(e);
+            return null;
+        }
+    }
+
     // End of space for condition sets ////////////////////////////////////////////////////////////////////////////////
 }

@@ -1,143 +1,48 @@
+/*
 package com.LetsMeet.LetsMeet;
 
-import com.LetsMeet.Models.*;
-import jdk.jfr.Event;
-import org.apache.catalina.User;
+import com.LetsMeet.LetsMeet.UserManager.UserManager;
+import com.LetsMeet.Models.Connectors.EventsModel;
+import com.LetsMeet.Models.Connectors.UserModel;
+import com.LetsMeet.Models.Data.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class RequestHandler {
 
-    // User methods here
-    public static String createUser(String fName, String lName, String email, String password){
-        // Verify that email address has not already been used
-        boolean uniqueEmail = UserManager.checkUniqueEmail(email);
+    public static List<AdminUserData> getAllUsers(){
 
-        if(uniqueEmail) {
-            // Get a userUUID
-            UUID uuid = UserManager.createUserUUID(fName, lName, email);
-
-            UserManager manager = new UserManager();
-
-            // Create a salt
-            byte[] salt = manager.generateSalt();
-
-            // Create a password hash
-            byte[] hash = manager.generateHash(password, salt);
-
-            if (hash == null) {
-                return "An error occured creating account";
-            } else {
-                // Convert hash and salt to hex
-                String HexHash = manager.toHex(hash);
-                String HexSalt = manager.toHex(salt);
-
-                // Add to DB
-                UserModel model = new UserModel();
-                String r = model.newUser(uuid.toString(), fName, lName, email, HexHash, HexSalt);
-                model.closeCon();
-                return r;
-            }
-        }else{
-            return "Email address is already used for another account.";
-        }
-
-    }
-
-    public static UserData validate(String email, String password){
         UserModel model = new UserModel();
-
-        // Get user record corresponding to email
-        UserData user = model.getUserByEmail(email);
-        model.closeCon();
-
-        // Check is password is correct
-        boolean match = UserManager.validatePassword(password, user.getPasswordHash(), user.getSalt());
-
-        if(match) {
-            return user;
-        }else{
-            return null;
-        }
-    }
-
-    public static String getUserToken(UserData user){
-        // User needs new token issued
-        // Check if user currently has a token issued
-        UserModel model = new UserModel();
-
-        // If they do, remove it and issue a new one
-        if(model.CheckUserToken(user.getUserUUID())){
-            // Remove tokens
-            model.removeAllUserToken(user.getUserUUID());
-        }
-
-        // Create new token
-        String token = UserManager.createAPItoken(user.getUserUUID(), user.getfName(), user.getlName(),
-                user.getEmail(), user.getSalt());
-
-        // Add to DB
-        long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
-        String feedback = model.createToken(user.getUserUUID(), token, tokenExpires);
-        model.closeCon();
-
-        if(feedback.equals("Token created successfully")) {
-            return token;
-        }else{
-            return feedback;
-        }
-    }
-
-    public static String getUserUUIDfromToken(String token){
-        UserModel model = new UserModel();
-        String userUUID = model.getUserUUIDByToken(token);
-        model.closeCon();
-        return userUUID;
-    }
-
-    public static String deleteUser(String UserUUID){
-        // Delete events where user is owner
-        List<EventData> events = RequestHandler.getMyEvents(UserUUID);
-        String r;
-
-        for(EventData event : events){
-            r = RequestHandler.deleteEvent(event.getUUID().toString(), UserUUID);
-            if(r.equals("Error deleting event")){
-                // Stop
-                return "Error Deleting user";
-            }
-        }
-
-        // Remove user from user table
-        UserModel model = new UserModel();
-        r = model.deleteUser(UserUUID);
-        model.closeCon();
+        List<AdminUserData> r = model.allUsers();
+        model.close();
         return r;
+    }
+
+    public static String updateUser(AdminUserData user, String fName, String lName, String email){
+        UserModel model = new UserModel();
+        model.closeCon();
+        return "Success";
+    }
+
+    public static AdminUserData getUserFromTokenWithAdmin(String token){
+        return UserManager.getUserFromTokenWithAdmin(token);
     }
     // End of user methods
 
     // Event methods here
-    public static List<EventData> getAllEvents(){
+    public static List<AdminEventData> getAllEvents(){
         EventsModel model = new EventsModel();
-        List<EventData> r = model.allEvents();
-        model.closeCon();
+        List<AdminEventData> r = model.allEvents();
+        model.close();
         return r;
-    }
-
-    public static List<EventData> getMyEvents(String UserUUID){
-        EventsModel model = new EventsModel();
-        List<EventData> events = model.getEventsByUserUUID(UserUUID);
-        model.closeCon();
-        return events;
     }
 
     public static EventData getEvent(String UUID){
         EventsModel model = new EventsModel();
         EventData r = model.getEventByUUID(UUID);
-        model.closeCon();
+        model.close();
         return r;
     }
 
@@ -148,7 +53,7 @@ public class RequestHandler {
         // Add Event to DB
         EventsModel model = new EventsModel();
         String result = model.NewEvent(uuid.toString(), name, description, location);
-        model.closeCon();
+        model.close();
 
         if(result == null){
             return "Error creating event";
@@ -156,31 +61,12 @@ public class RequestHandler {
             // Add Event and user to 'HasUsers' table
             UserModel userModel = new UserModel();
             result = userModel.populateHasUsers(uuid.toString(), organiserUUID,true);
-            userModel.closeCon();
+            userModel.close();
             if(result == null){
                 return "Error adding organiser to event";
             }else{
                 return "Event created successfully";
             }
-        }
-    }
-
-    public static String joinEvent(String EventUUID, String UserUUID){
-        // Check event exists
-        EventsModel model = new EventsModel();
-        EventData data = model.getEventByUUID(EventUUID);
-
-        if(data == null){
-            return "Event Doesnt exist";
-        }
-
-        // Add user to event as not an owner
-        UserModel userModel = new UserModel();
-        String result = userModel.populateHasUsers(EventUUID, UserUUID,false);
-        if(result == null){
-            return "Error adding user to event";
-        }else{
-            return "User added to event";
         }
     }
 
@@ -192,13 +78,19 @@ public class RequestHandler {
             // Delete record from 'event' table and from 'hasusers' table
             EventsModel model = new EventsModel();
             String r = model.deleteEvent(EventUUID);
-            model.closeCon();
+            model.close();
             return r;
         }else{
             return "You dont have permission to delete this event";
         }
 
+    }
 
+    public static String leaveEvent(String EventUUID, String UserUUID){
+        UserModel model = new UserModel();
+        String response = model.removeHasUsers(EventUUID, UserUUID);
+        model.close();
+        return response;
     }
     // End of event methods
 
@@ -211,12 +103,12 @@ public class RequestHandler {
         EventsModel model = new EventsModel();
         String result = model.NewConditionSet(ConditionSetUUID, SetName, UserUUID);
         if(result == null){
-            model.closeCon();
+            model.close();
             return "Error creating condition set";
         }else{
             // Add connection between Event and condition set
             result = model.AddConditionSetToEvent(EventUUID, ConditionSetUUID);
-            model.closeCon();
+            model.close();
             if(result == null){
                 return "Error adding condition set to event";
             }else{
@@ -224,8 +116,19 @@ public class RequestHandler {
             }
         }
 
+    }
 
+    public static String AddVariableToConditionSet(String ConditionSetUUID, Variable<?> variable){
+        ConditionSetManager manager = new ConditionSetManager(ConditionSetUUID);
+        manager.addVariable(variable);
+        return "not implimented";
+    }
 
+    public static String AddConstraintToConditionSet(String ConditionSetUUID, Constraint<?> constraint){
+        ConditionSetManager manager = new ConditionSetManager(ConditionSetUUID);
+        manager.addConstraint(constraint);
+        return "not implimented";
     }
     // End of ConditionSet Methods
 }
+*/

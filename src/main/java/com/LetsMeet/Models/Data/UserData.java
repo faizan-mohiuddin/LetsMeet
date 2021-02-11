@@ -1,4 +1,4 @@
-package com.LetsMeet.Models;
+package com.LetsMeet.Models.Data;
 
 public class UserData {
 
@@ -6,28 +6,19 @@ public class UserData {
     String fName;
     String lName;
     String email;
-    String passwordHash;
     String salt;
-
+    String passwordHash;
 
     public void populate(String UUID, String fName, String lName, String email, String passwordHash, String salt){
         this.UserUUID = UUID;
         this.fName = fName;
         this.lName = lName;
         this.email = email;
-        this.passwordHash = passwordHash;
         this.salt = salt;
+        this.passwordHash = passwordHash;
     }
 
-    public String getPasswordHash(){
-        return this.passwordHash;
-    }
-
-    public String getSalt(){
-        return this.salt;
-    }
-
-    public String getUserUUID(){
+    public String whatsUUID(){
         return this.UserUUID;
     }
 
@@ -41,6 +32,14 @@ public class UserData {
 
     public String getEmail(){
         return this.email;
+    }
+
+    public String whatsSalt(){
+        return this.salt;
+    }
+
+    public String whatsPasswordHash(){
+        return this.passwordHash;
     }
 
 }

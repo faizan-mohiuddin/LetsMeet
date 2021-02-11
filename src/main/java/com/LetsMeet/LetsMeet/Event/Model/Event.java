@@ -1,22 +1,23 @@
-package com.LetsMeet.Models;
+package com.LetsMeet.LetsMeet.Event.Model;
 
 import java.util.UUID;
 
-public class EventData {
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder({ "name", "description", "location" })
+public class Event {
     UUID uuid;
     String name;
     String desc;
     String location;
 
-    public EventData(String uuid, String name, String desc, String location){
+    public Event(String uuid, String name, String desc, String location){
         this.uuid = UUID.fromString(uuid);
         this.name = name;
         this.desc = desc;
         this.location = location;
     }
 
-    // NECESSARY METHODS FOR RETURNING DATA TO API - DO NOT TOUCH
     public UUID getUUID(){
         return this.uuid;
     }
@@ -32,6 +33,8 @@ public class EventData {
     public String getLocation(){
         return this.location;
     }
-    // END OF NECESSARY METHODS
 
+    public EventSanitised convertToSanitised(){
+        return new EventSanitised(this.name, this.desc, this.location);
+    }
 }
