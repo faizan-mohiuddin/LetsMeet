@@ -10,6 +10,7 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 
+import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +49,17 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    public String deleteEvent(String uuid) {
-        // TODO Auto-generated method stub
+    public String deleteEvent(String uuid, User user) {
+        // Check if user has permission to delete event
+        Optional<EventPermission> record = permissionDao.get(UUID.fromString(uuid), user.getUUID());
+        if(record.isPresent()){
+            if(!record.get().getIsOwner()){
+                return "You do not have permission to delete this event";
+            }
+        }else{
+            return "You do not have permission to delete this event";
+        }
+
         if(eventDao.delete(UUID.fromString(uuid))){
             return "Event successfully deleted.";
         }else{

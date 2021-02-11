@@ -95,7 +95,7 @@ public class UserService implements UserServiceInterface {
 
         for(Event e : events){
             if(eventService.checkOwner(e.getUUID(), user.getUUID())) {
-                eventService.deleteEvent(e.getUUID().toString());
+                eventService.deleteEvent(e.getUUID().toString(), user);
             }
         }
 

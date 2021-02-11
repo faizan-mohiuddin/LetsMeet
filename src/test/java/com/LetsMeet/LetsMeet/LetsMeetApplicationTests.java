@@ -818,13 +818,6 @@ class  LetsMeetApplicationTests {
 
 	// Update events
 
-//	@Test
-//	@Order(11)
-//	public void NonOwnerDeletingEvent(){
-//		// Test deleting an event while not being the owner
-//	}
-
-	// Test event owner joining event
 
 	@Test
 	@Order(24)

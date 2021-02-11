@@ -150,7 +150,7 @@ public class EventControllerAPI {
             }
 
             // Add user to event
-            return eventService.deleteEvent(EventUUID);
+            return eventService.deleteEvent(EventUUID, user);
 
         }else{
             String errorText = (String) response[1];
