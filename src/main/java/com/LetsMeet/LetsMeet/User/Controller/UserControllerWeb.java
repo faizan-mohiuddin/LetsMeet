@@ -49,21 +49,37 @@ public class UserControllerWeb {
 
 
     @GetMapping("/createuser")
-    public String createuser(Model model) {
-        model.addAttribute("user", new UserService());
+    public String createuser(Model model, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        model.addAttribute("user", user);
+
         return "createuser";
+
     }
 
     @GetMapping("/saveuser")
-    public String saveuser(@RequestParam(name = "userfirstname") String userfirstname, @RequestParam(name = "userlastname") String userlastname, @RequestParam(name = "useremail") String useremail, @RequestParam(name = "userpassword") String userpassword, Model model) {
-        model.addAttribute("userfirstname", userfirstname);
-        model.addAttribute("userlastname", userlastname);
-        model.addAttribute("useremail", useremail);
-        model.addAttribute("userpassword", userpassword);
+    public String saveuser(@RequestParam(name = "userfirstname") String userfirstname, @RequestParam(name = "userlastname") String userlastname, @RequestParam(name = "useremail") String useremail, @RequestParam(name = "userpassword") String userpassword, Model model, RedirectAttributes redirectAttributes) {
 
-        userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
+        if (useremail.isEmpty() || userpassword.isEmpty()) {
 
-        return "saveuser";
+            redirectAttributes.addFlashAttribute("registerFailed", "There was a problem registering this account.");
+
+            return "redirect:/createuser";
+
+        } else {
+
+            model.addAttribute("userfirstname", userfirstname);
+            model.addAttribute("userlastname", userlastname);
+            model.addAttribute("useremail", useremail);
+            model.addAttribute("userpassword", userpassword);
+
+            userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
+
+            return "saveuser";
+
+        }
     }
 
     @PostMapping("/User")

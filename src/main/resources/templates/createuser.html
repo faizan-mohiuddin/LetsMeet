@@ -25,6 +25,7 @@
     </div>
 
     <div class = "container">
+        <div class = "alert alert-danger" th:text = "${registerFailed}" th:if = "${registerFailed}"></div>
         <form th:action = "@{/saveuser}">
             <div class="form-group">
               <label for="userfirstname">First Name: </label>
