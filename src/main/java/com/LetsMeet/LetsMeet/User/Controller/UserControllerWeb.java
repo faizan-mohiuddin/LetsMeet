@@ -49,35 +49,55 @@ public class UserControllerWeb {
 
 
     @GetMapping("/createuser")
-    public String createuser(Model model, HttpSession session) {
+    public String createuser(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
 
-        model.addAttribute("user", user);
+        if (user == null) {
 
-        return "createuser";
+            model.addAttribute("user", user);
+
+            return "createuser";
+
+        } else {
+
+            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+
+            return "redirect:/Home";
+
+        }
 
     }
 
     @GetMapping("/saveuser")
-    public String saveuser(@RequestParam(name = "userfirstname") String userfirstname, @RequestParam(name = "userlastname") String userlastname, @RequestParam(name = "useremail") String useremail, @RequestParam(name = "userpassword") String userpassword, Model model, RedirectAttributes redirectAttributes) {
+    public String saveuser(@RequestParam(name = "userfirstname") String userfirstname, @RequestParam(name = "userlastname") String userlastname, @RequestParam(name = "useremail") String useremail, @RequestParam(name = "userpassword") String userpassword, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
-        if (!userServiceInterface.isValidRegister(userfirstname, userlastname, useremail, userpassword)) {
+        User user = (User) session.getAttribute("userlogin");
 
-            redirectAttributes.addFlashAttribute("registerFailed", "There was a problem registering this account.");
+        if (user == null) {
+            if (!userServiceInterface.isValidRegister(userfirstname, userlastname, useremail, userpassword)) {
 
-            return "redirect:/createuser";
+                redirectAttributes.addFlashAttribute("registerFailed", "There was a problem registering this account.");
 
+                return "redirect:/createuser";
+
+            } else {
+
+                model.addAttribute("userfirstname", userfirstname);
+                model.addAttribute("userlastname", userlastname);
+                model.addAttribute("useremail", useremail);
+                model.addAttribute("userpassword", userpassword);
+
+                userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
+
+                return "saveuser";
+
+            }
         } else {
 
-            model.addAttribute("userfirstname", userfirstname);
-            model.addAttribute("userlastname", userlastname);
-            model.addAttribute("useremail", useremail);
-            model.addAttribute("userpassword", userpassword);
+            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
 
-            userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
-
-            return "saveuser";
+            return "redirect:/Home";
 
         }
     }
@@ -152,6 +172,8 @@ public class UserControllerWeb {
 
         } else {
 
+            model.addAttribute("user", user);
+
             model.addAttribute("users", userServiceInterface.getUsers());
 
             return "adminviewallusers";
@@ -170,6 +192,8 @@ public class UserControllerWeb {
             return "redirect:/Home";
 
         } else {
+
+            model.addAttribute("user", user);
 
             if (eventServiceInterface.getUserEvents(user.getUUID().toString()).isEmpty()) {
 
