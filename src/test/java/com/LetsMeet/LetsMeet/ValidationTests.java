@@ -5,6 +5,7 @@ import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
 import com.LetsMeet.LetsMeet.Event.Controller.EventControllerAPI;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.TestingTools.TestingEvents;
 import com.LetsMeet.LetsMeet.TestingTools.TestingUsers;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -97,21 +100,115 @@ public class ValidationTests {
             System.out.println(e);
         }
 
+        this.clearData();
     }
 
     @Test
     @Order(2)
     public void EventOwnerJoiningEvent(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateEvent(user.token);
+        TestingEvents event = testEvents.get(0);
+
+        String result = this.eventController.API_AddUserToEvent(user.token, event.UUID);
+        String expectedResult = "You are already a participant of this event.";
+        assertEquals(expectedResult, result);
+
+        // Check DB
+        Optional<List<EventPermission>> response = EventPermissionModel.get(event.UUID);
+        assertEquals(true, response.isPresent());
+        assertEquals(1, response.get().size());
+
+        this.clearData();
     }
 
     @Test
     @Order(3)
     public void EventParticipantJoiningEvent(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
 
+        this.generateEvent(user.token);
+        TestingEvents event = testEvents.get(0);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+        this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+        String result = this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+        String expectedResult = "You are already a participant of this event.";
+        assertEquals(expectedResult, result);
+
+        // Check DB
+        Optional<List<EventPermission>> response = EventPermissionModel.get(event.UUID);
+        assertEquals(true, response.isPresent());
+        assertEquals(2, response.get().size());
+
+        this.clearData();
     }
 
     @Test
     @Order(4)
+    public void UserLeavingEventTheyAreNotPartOf(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateEvent(user.token);
+        TestingEvents event = testEvents.get(0);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+        String result = this.eventController.API_LeaveEvent(user2.token, event.UUID);
+        String expectedResult = "You have not joined this event";
+        assertEquals(expectedResult, result);
+
+        // Check DB
+        Optional<List<EventPermission>> response = EventPermissionModel.get(event.UUID);
+        assertEquals(true, response.isPresent());
+        assertEquals(1, response.get().size());
+
+        this.clearData();
+    }
+
+    @Test
+    @Order(5)
+    public void NonOwnerDeleteEvent(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateEvent(user.token);
+        TestingEvents event = testEvents.get(0);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+        String expectedResult = "You are not the owner of this event.";
+
+        // Test before joining event
+        String result = eventController.API_DeleteEvent(user2.token, event.UUID);
+        assertEquals(expectedResult, result);
+
+        eventController.API_AddUserToEvent(user2.token, event.UUID);
+
+        // Test after joining event
+        result = eventController.API_DeleteEvent(user2.token, event.UUID);
+        assertEquals(expectedResult, result);
+
+        this.clearData();
+    }
+
+    @Test
+    @Order(6)
     public void cleanup(){
         // Remove test records from DB
         UserDB.clearTestData();
@@ -153,5 +250,17 @@ public class ValidationTests {
     private void login(TestingUsers user){
         String token = this.userController.API_Login(user.email, user.password);
         user.token = token;
+    }
+
+    private void clearData(){
+        for(TestingUsers user : testUsers){
+            UserDB.removeUserByEmail(user.email);
+        }
+        testUsers.clear();
+
+        for(TestingEvents event : testEvents){
+            EventDB.removeEventByUUID(event.UUID);
+        }
+        testEvents.clear();
     }
 }

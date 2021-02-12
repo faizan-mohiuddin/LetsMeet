@@ -109,17 +109,30 @@ public class EventService implements EventServiceInterface {
             return "Event Doesnt exist";
         }
 
-        // Add user to event not as an owner
-        boolean result = permissionDao.save(new EventPermission(EventUUID, UserUUID,false));
+        // Check that user is not already in event
+        Optional<EventPermission> checker = permissionDao.get(UUID.fromString(EventUUID), UUID.fromString(UserUUID));
 
-        if(!result){
-            return "Error adding user to event";
+        if(!checker.isPresent()) {
+            // Add user to event not as an owner
+            boolean result = permissionDao.save(new EventPermission(EventUUID, UserUUID, false));
+
+            if (!result) {
+                return "Error adding user to event";
+            } else {
+                return "User added to event";
+            }
         }else{
-            return "User added to event";
+            return "You are already a participant of this event.";
         }
     }
 
     public String leaveEvent(String EventUUID, String UserUUID){
+        // Check that user is in event
+        Optional<EventPermission> checker = permissionDao.get(UUID.fromString(EventUUID), UUID.fromString(UserUUID));
+        if(!checker.isPresent()){
+            return "You have not joined this event";
+        }
+
         if(permissionDao.delete(EventUUID, UserUUID)){
             return "Successfully left event.";
         }else{

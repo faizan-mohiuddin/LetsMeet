@@ -93,6 +93,7 @@ public class EventControllerAPI {
     @PutMapping("api/Event/{EventUUID}")
     public String API_AddUserToEvent(@RequestParam(value="Token", defaultValue ="") String token,
                                      @PathVariable(value="EventUUID") String EventUUID) {
+
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
 
