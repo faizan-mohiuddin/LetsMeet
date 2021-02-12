@@ -24,7 +24,16 @@ The `User` package implements the user management system. It has the following k
 
  - `Event` An event. Contained all event specific metadata.
  - `Permission` Links a user to an event with a set of permissions. Currently this simply tracks whether they are the owner or not.
- - `Response` Links a User to an Event through a response. This contains a `ConditionSet` - however these are currently not implemented
+ - `Response` Links a User to an Event through a response. This contains a `ConditionSet` and a set of 'PollResponse' objects - however these are currently not implemented
+
+**ConditionSet**
+ - `ConditionSet` Has a set of `Variable`s and `Constraint`s. 
+ - `Variable` Defines the range of values around the named domain.
+ - `Constraints` Defines a relationship between two `variable`s of the same domain data type.
+
+ **Poll**
+ 
+ 
 
  Note that the `Event` itself is completely decoupled from any `User`. This is intentional and should remain that way.
 
