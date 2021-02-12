@@ -239,4 +239,31 @@ public class UserService implements UserServiceInterface {
         }
 	    return null;
     }
+
+    // Function checks if the credentials that are input when creating an account are valid (long password, etc)
+    public Boolean isValidRegister(String firstName, String lastName, String email, String password) {
+
+	    // All fields are required
+	    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+
+	        return false;
+
+        }
+
+	    // Email should contain an @ and .
+	    if (!email.contains("@") && !email.contains(".")) {
+
+	        return false;
+
+        }
+
+	    if (password.length() <= 5 ) {
+
+	        return false;
+
+        }
+
+	    return true;
+
+    }
 }

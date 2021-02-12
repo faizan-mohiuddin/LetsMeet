@@ -62,7 +62,7 @@ public class UserControllerWeb {
     @GetMapping("/saveuser")
     public String saveuser(@RequestParam(name = "userfirstname") String userfirstname, @RequestParam(name = "userlastname") String userlastname, @RequestParam(name = "useremail") String useremail, @RequestParam(name = "userpassword") String userpassword, Model model, RedirectAttributes redirectAttributes) {
 
-        if (useremail.isEmpty() || userpassword.isEmpty()) {
+        if (!userServiceInterface.isValidRegister(userfirstname, userlastname, useremail, userpassword)) {
 
             redirectAttributes.addFlashAttribute("registerFailed", "There was a problem registering this account.");
 
@@ -106,11 +106,20 @@ public class UserControllerWeb {
     }
 
     @GetMapping("/logout")
-    public String logout(SessionStatus session, RedirectAttributes redirectAttributes) {
+    public String logout(SessionStatus session, RedirectAttributes redirectAttributes, HttpSession usersession) {
 
-        redirectAttributes.addFlashAttribute("loggedout", "You have successfully logged out.");
-        session.setComplete();
+        User user = (User) usersession.getAttribute("userlogin");
 
+        if (user == null) {
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You are not logged in.");
+
+        } else {
+
+            redirectAttributes.addFlashAttribute("loggedout", "You have successfully logged out.");
+            session.setComplete();
+
+        }
         return "redirect:/Home";
 
     }

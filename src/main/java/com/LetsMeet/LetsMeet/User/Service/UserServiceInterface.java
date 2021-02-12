@@ -18,4 +18,5 @@ public interface UserServiceInterface {
 
     // Managment
     //TODO add other method definitions here
+    public abstract Boolean isValidRegister(String fName, String lName, String email, String password);
 }   

@@ -30,18 +30,22 @@
             <div class="form-group">
               <label for="userfirstname">First Name: </label>
               <input type="text" class="form-control" name="userfirstname" th:value = "*{userfirstname}" placeholder="Enter first name...">
+                <small class="form-text text-muted">Required</small>
             </div>
             <div class="form-group">
               <label for="userlastname">Last Name: </label>
               <input type="text" class="form-control" name="userlastname" placeholder="Last name...">
+                <small class="form-text text-muted">Required</small>
             </div>
             <div class = "form-group">
                 <label for = "useremail">E-mail: </label>
                 <input type = "text" class = "form-control" name = "useremail" placeholder="E-mail...">
+                <small class="form-text text-muted">Required - must contain an "<i>@</i>" or "<i>.</i>"</small>
             </div>
             <div class = "form-group">
-                <label for = "eventlocation">Password: </label>
+                <label for = "userpassword">Password: </label>
                 <input type = "password" class = "form-control" name = "userpassword" placeholder="Password...">
+                <small class="form-text text-muted">Required - must be 6 characters or longer.</small>
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
           </form>
