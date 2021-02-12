@@ -35,6 +35,8 @@ public class EventControllerWeb {
 
         } else {
 
+            model.addAttribute("user", user);
+
             return "createevent";
 
         }
@@ -42,17 +44,29 @@ public class EventControllerWeb {
     }
 
     @GetMapping("/saveevent")
-    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model){
-
-        model.addAttribute("eventname", eventname);
-        model.addAttribute("eventdesc", eventdesc);
-        model.addAttribute("eventlocation", eventlocation);
+    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model, RedirectAttributes redirectAttributes){
 
         User user = (User) session.getAttribute("userlogin");
 
-        EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+        if (user == null){
 
-        return "saveevent";
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("user", user);
+            model.addAttribute("eventname", eventname);
+            model.addAttribute("eventdesc", eventdesc);
+            model.addAttribute("eventlocation", eventlocation);
+
+
+            EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+
+            return "saveevent";
+
+        }
 
     }
 
@@ -69,7 +83,9 @@ public class EventControllerWeb {
 
         } else {
 
-            model.addAttribute("events", EventServiceInterface.getEvents());
+            model.addAttribute("user", user);
+
+            model.addAttribute("allevents", EventServiceInterface.getEvents());
 
             return "adminviewallevents";
 

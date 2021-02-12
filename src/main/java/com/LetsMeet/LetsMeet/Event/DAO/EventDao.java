@@ -87,7 +87,7 @@ public class EventDao implements DAO<Event> {
     public Optional<Collection<Event>> getAll() {
         database.open();
         try(Statement statement = database.getCon().createStatement()){
-            ResultSet rs = statement.executeQuery("select * from User");
+            ResultSet rs = statement.executeQuery("select * from Event");
             List<Event> events = new ArrayList<>();
 
             while (rs.next()){
