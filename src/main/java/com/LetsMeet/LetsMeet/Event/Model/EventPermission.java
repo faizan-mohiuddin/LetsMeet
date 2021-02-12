@@ -2,8 +2,8 @@
 // EventPermission.java
 // Let's Meet 2021
 //
-// Represents the permisions of a User on an Event
-// Note that while this is simply a boolean isOwner propery, this could be replaced with a more sophisitacted "Permissions" class if required
+// Represents the permissions of a User on an Event
+// Note that while this is simply a boolean isOwner property, this could be replaced with a more sophisticated "Permissions" class if required
 
 package com.LetsMeet.LetsMeet.Event.Model;
 
