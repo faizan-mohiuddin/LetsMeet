@@ -24,11 +24,12 @@ public class Event {
     // The events own specific set of conditions and constraints (not those belonging to a user)
     ConditionSet conditions;
 
-    public Event(String uuid, String name, String desc, String location){
+    public Event(String uuid, String name, String desc, String location, ConditionSet conditions){
         this.uuid = UUID.fromString(uuid);
         this.name = name;
         this.desc = desc;
         this.location = location;
+        this.conditions = conditions;
     }
 
     public UUID getUUID(){
@@ -45,6 +46,10 @@ public class Event {
 
     public String getLocation(){
         return this.location;
+    }
+
+    public ConditionSet getConditions(){
+        return this.conditions;
     }
 
     public EventSanitised convertToSanitised(){

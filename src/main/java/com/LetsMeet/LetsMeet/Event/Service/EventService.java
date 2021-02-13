@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 
@@ -27,7 +28,10 @@ public class EventService implements EventServiceInterface {
     public String createEvent(String name, String desc, String location, String UserUUID) {
         // Generate EventUUID
         UUID eventUUID = generateEventUUID(name, desc, location);
-        Event event = new Event(eventUUID.toString(), name, desc, location);
+
+        // Create an Event POJO
+        Event event = new Event(eventUUID.toString(), name, desc, location, new ConditionSet(UUID.randomUUID().toString()));
+
         if(eventDao.save(event)){
             // Add record to hasUsers
             EventPermission record = new EventPermission(eventUUID.toString(), UserUUID, true);
