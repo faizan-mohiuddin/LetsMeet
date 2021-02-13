@@ -2,7 +2,9 @@ package com.LetsMeet.LetsMeet;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
+import com.LetsMeet.LetsMeet.Event.Model.Constraint;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.Variable;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,6 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Date;
 import java.util.UUID;
 
 @SpringBootTest
@@ -31,7 +34,7 @@ public class EventTests {
         RandomStringUtils.randomAlphabetic(8),
         RandomStringUtils.randomAlphabetic(8),
         RandomStringUtils.randomAlphabetic(8),
-        new ConditionSet(UUID.randomUUID().toString()));
+        getConditionSet());
 
     @Test
     @Order(1)
@@ -41,20 +44,48 @@ public class EventTests {
 
     @Test
     @Order(2)
-    public void getEvent(){
-    assertTrue(eventDao.get(testEvent.getUUID()).isPresent());
+    public void updateEvent(){
+    assertTrue(eventDao.update(testEvent));
     }
 
     @Test
     @Order(3)
+    public void updateEventFromService(){
+        Variable var1 =  new Variable<Integer>(UUID.randomUUID().toString(),"myOtherVariable",new Integer[] {1,2,3});
+        Variable var2 = new Variable<Integer>(UUID.randomUUID().toString(),"myOtherVariable",new Integer[] {1,2,3});
+    assertTrue(event.addVariable(testEvent.getUUID(), var1));
+    assertTrue(event.addVariable(testEvent.getUUID(), var2));
+    event.addConstraint(testEvent.getUUID(), new Constraint<Integer>(UUID.randomUUID().toString(), "myConstraint", var1, var2, '='));
+    }
+
+    @Test
+    @Order(4)
+    public void getEvent(){
+    assertTrue(eventDao.get(testEvent.getUUID()).isPresent());
+    }
+
+    
+
+    @Test
+    @Order(5)
     public void getAllEvents(){
     assertTrue(eventDao.getAll().isPresent());
     }
 
     @Test
-    @Order(4)
+    @Order(6)
     public void deleteEvent(){
     assertTrue(eventDao.delete(testEvent.getUUID()));
     }
     
+    //Helpers
+    ConditionSet getConditionSet(){
+        ConditionSet set = new ConditionSet(UUID.randomUUID().toString());
+        Integer[] nums = {1,2,3,4};
+        Date[] dates = {new Date(2020, 01, 12, 12, 00),new Date(2021, 04, 12)};
+        set.addVariable(new Variable<Integer>(UUID.randomUUID().toString(),"myVariable",nums));
+        set.addVariable(new Variable<Date>(UUID.randomUUID().toString(),"myDates",dates));
+        return set;
+    }
+
 }

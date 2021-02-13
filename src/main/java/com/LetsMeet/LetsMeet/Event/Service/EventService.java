@@ -8,9 +8,10 @@ import java.util.UUID;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
+import com.LetsMeet.LetsMeet.Event.Model.Constraint;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
-
+import com.LetsMeet.LetsMeet.Event.Model.Variable;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -149,6 +150,28 @@ public class EventService implements EventServiceInterface {
 
         if(response.isPresent()){
             return response.get().getIsOwner();
+        }
+        return false;
+    }
+
+    // Adds an Event member Variable to the event
+    public boolean addVariable(UUID eventUUID, Variable<?> variable){
+        if (eventDao.get(eventUUID).isPresent()){
+            Event event = eventDao.get(eventUUID).get();
+            event.getConditions().addVariable(variable);
+            if (eventDao.update(event).booleanValue()){return true;}
+            return false;
+        }
+        return false;    
+    }
+
+    // Adds an Event member Constraint to the event
+    public boolean addConstraint(UUID eventUUID, Constraint<?> constraint){
+        if (eventDao.get(eventUUID).isPresent()){
+            Event event = eventDao.get(eventUUID).get();
+            event.getConditions().addConstraint(constraint);
+            if (eventDao.update(event).booleanValue()){return true;}
+            return false;
         }
         return false;
     }

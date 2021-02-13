@@ -131,8 +131,30 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Boolean update(Event t) {
-        // TODO Auto-generated method stub
-        return false;
+        database.open();
+        // Save the event
+        try(PreparedStatement statement = database.getCon().prepareStatement("UPDATE Event SET Name = ?, Description = ?, Location = ?, ConditionSet = ?, Poll = ? WHERE EventUUID = ?")){
+
+            statement.setString(1, t.getName());
+            statement.setString(2, t.getDescription());
+            statement.setString(3, t.getLocation());
+            statement.setString(4, new Gson().toJson(t.getConditions()));
+            statement.setString(5, "{}");
+            statement.setString(6, t.getUUID().toString());
+
+            if(statement.executeUpdate() > 0){
+                database.close();
+                return true;
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch(Exception e){
+            System.out.println("Event Dao : save");
+            database.close();
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // Delete
