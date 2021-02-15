@@ -14,15 +14,6 @@ public class UserControllerAPI {
     @Autowired
     ValidationService userValidation;
 
-    // Request Mappings
-    //-----------------------------------------------------------------
-    @RequestMapping("/api/ping")
-    public String API_Test(){
-        //userServiceInterface.getUsers();
-        //userServiceInterface.createUser("Ping", "Pong", "ding@dong", "youvegotatinywong");
-        return ("Pong!");
-    }
-
     // Post Mappings
     //-----------------------------------------------------------------
     @PostMapping("/api/User")

@@ -808,15 +808,19 @@ class  LetsMeetApplicationTests {
 		// Change lName
 		// Change email
 		// Change all 3
+		assertEquals(true, false);
 	}
 
 	@Test
 	@Order(23)
 	public void updatePassword(){
 		// Update user password
+		assertEquals(true, false);
 	}
 
 	// Update events
+
+	// Test business and venues
 
 
 	@Test

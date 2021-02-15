@@ -207,6 +207,11 @@ public class ValidationTests {
         this.clearData();
     }
 
+
+    // Check only event owner can update event
+    // Check only condition set owner can update condition set
+
+
     @Test
     @Order(6)
     public void cleanup(){

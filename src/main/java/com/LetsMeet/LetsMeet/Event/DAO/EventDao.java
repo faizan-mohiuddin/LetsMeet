@@ -99,7 +99,6 @@ public class EventDao implements DAO<Event> {
     public Boolean save(Event t) {
         database.open();
 
-
         // Save the event
         try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, ConditionSet, Poll) VALUES (?,?,?,?,?,?)")){
 
