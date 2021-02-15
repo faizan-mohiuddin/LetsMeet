@@ -27,7 +27,7 @@ public class BusinessService {
         DAO.save(business);
 
         // Add connection between business and user
-        BusinessOwner owner = new BusinessOwner();
+        BusinessOwner owner = new BusinessOwner(uuid, user.getUUID());
         ownerDAO.save(owner);
 
         return null;

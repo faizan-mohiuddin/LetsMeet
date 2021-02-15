@@ -30,7 +30,7 @@ public class BusinessControllerAPI {
     }
 
     @PostMapping("api/Business")
-    public String API_Business(@RequestParam(value="Token") String token, @RequestParam(value="Name") String name){
+    public String API_CreateBusiness(@RequestParam(value="Token") String token, @RequestParam(value="Name") String name){
         // Validate user token
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
