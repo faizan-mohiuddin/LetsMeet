@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.swing.event.HyperlinkEvent;
+import java.util.UUID;
 
 @Controller
 @SessionAttributes("userlogin")
@@ -302,7 +303,11 @@ public class UserControllerWeb {
 
             }else{
 
-                Boolean tryUpdateUser = userServiceInterface.updateUser2(useruuid, firstName, lastName, email, password);
+                byte[] newSalt = UserService.generateSalt();
+
+                User userToUpdate = new User(UUID.fromString(useruuid), firstName, lastName, email, UserService.toHex(UserService.generateHash(password, newSalt)), UserService.toHex(newSalt));
+
+                Boolean tryUpdateUser = userServiceInterface.updateUser(userToUpdate);
 
                 if (tryUpdateUser) {
 

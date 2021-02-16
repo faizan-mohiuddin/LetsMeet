@@ -84,8 +84,17 @@ public class UserService implements UserServiceInterface {
 	}
 
     @Override
-    public void updateUser(String uuid, User user) {
-        dao.update(user);
+    public Boolean updateUser(User user) {
+
+	    if (checkUniqueEmail(user.getEmail())) {
+
+            return dao.update(user);
+
+        } else {
+
+	        return false;
+
+        }
 
     }
 
@@ -267,20 +276,4 @@ public class UserService implements UserServiceInterface {
 
     }
 
-    public Boolean updateUser2(String useruuid, String fName, String lName, String email, String password) {
-
-	    // Checks if email doesnt belong to another user already
-	    if (checkUniqueEmail(email)) {
-
-            byte[] newSalt = generateSalt();
-            byte[] newHash = generateHash(password, newSalt);
-
-            return dao.updateUser(useruuid, fName, lName, email, toHex(newSalt), toHex(newHash));
-
-        } else {
-
-	        return false;
-
-        }
-    }
 }

@@ -9,7 +9,7 @@ public interface UserServiceInterface {
 
     // Creation/Deletion
     public abstract String createUser(String fName, String lName, String email, String password);
-    public abstract void updateUser(String uuid, User user);
+    public abstract Boolean updateUser(User user);
     public abstract String deleteUser(User user);
     public abstract Collection<User> getUsers();
 
@@ -19,5 +19,4 @@ public interface UserServiceInterface {
     // Managment
     //TODO add other method definitions here
     public abstract Boolean isValidRegister(String fName, String lName, String email, String password);
-    public abstract Boolean updateUser2(String useruuid, String fName, String lName, String email, String password);
 }   
