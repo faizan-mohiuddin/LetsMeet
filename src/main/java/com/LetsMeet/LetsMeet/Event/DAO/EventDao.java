@@ -18,12 +18,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
-import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,7 +55,7 @@ public class EventDao implements DAO<Event> {
             ResultSet rs = statement.executeQuery(query);
             rs.next();
 
-            Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),  new Gson().fromJson(rs.getString(5), ConditionSet.class)));
+            Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5))));
             database.close();
             return response;
 
@@ -78,7 +76,7 @@ public class EventDao implements DAO<Event> {
             List<Event> events = new ArrayList<>();
 
             while (rs.next()){
-                events.add(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),  new Gson().fromJson(rs.getString(5), ConditionSet.class)));
+                events.add(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5))));
             }
             database.close();
             return Optional.ofNullable(events);
@@ -106,7 +104,7 @@ public class EventDao implements DAO<Event> {
             statement.setString(2, t.getName());
             statement.setString(3, t.getDescription());
             statement.setString(4, t.getLocation());
-            statement.setString(5, new Gson().toJson(t.getConditions()));
+            statement.setString(5, t.getConditions().toString());
             statement.setString(6, "{}");
 
             if(statement.executeUpdate() > 0){
@@ -137,7 +135,7 @@ public class EventDao implements DAO<Event> {
             statement.setString(1, t.getName());
             statement.setString(2, t.getDescription());
             statement.setString(3, t.getLocation());
-            statement.setString(4, new Gson().toJson(t.getConditions()));
+            statement.setString(4, t.getConditions().toString());
             statement.setString(5, "{}");
             statement.setString(6, t.getUUID().toString());
 
@@ -211,7 +209,7 @@ public class EventDao implements DAO<Event> {
 
                 ResultSet rs = statement.executeQuery(query);
                 rs.next();
-                Event event = new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),  new Gson().fromJson(rs.getString(5), ConditionSet.class));
+                Event event = new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5)));
                 events.add(event);
             }
 

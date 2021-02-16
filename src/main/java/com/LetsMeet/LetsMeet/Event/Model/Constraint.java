@@ -6,13 +6,15 @@
 
 package com.LetsMeet.LetsMeet.Event.Model;
 
+import java.io.Serializable;
+
 //-----------------------------------------------------------------
 
 import java.util.UUID;
 
 //-----------------------------------------------------------------
 
-public class Constraint<T> {
+public class Constraint<T extends Serializable> implements Serializable {
 
     UUID uuid;
     String name;

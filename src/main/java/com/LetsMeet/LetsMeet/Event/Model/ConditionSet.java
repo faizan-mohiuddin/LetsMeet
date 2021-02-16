@@ -9,38 +9,43 @@ package com.LetsMeet.LetsMeet.Event.Model;
 //-----------------------------------------------------------------
 
 import java.util.UUID;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 //-----------------------------------------------------------------
 
-public class ConditionSet {
+public class ConditionSet implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
     UUID uuid;
     String name;
-    LinkedHashMap<UUID, Variable<?>> variables;
-    LinkedHashMap<UUID,Object> constraints;
+    LinkedHashMap<String, Variable<?>> variables;
+    LinkedHashMap<String,Constraint<?>> constraints;
 
     // Primary constructor
-    public ConditionSet(String uuid, String name,Variable<?>[] variables, Constraint<?>[] constraints){
-        this.uuid = UUID.fromString(uuid);
+    public ConditionSet(UUID uuid, String name,Variable<?>[] variables, Constraint<?>[] constraints){
+        this.uuid = uuid;
         this.name = name;
-        this.variables = new LinkedHashMap<UUID,Variable<?>>();
-        this.constraints = new LinkedHashMap<UUID,Object>();
+        this.variables = new LinkedHashMap<>();
+        this.constraints = new LinkedHashMap<>();
 
         // Add contents of variable array
         for (Variable<?> e : variables){
-            this.variables.put(e.uuid,e);
+            this.variables.put(e.key,e);
         }
 
         // Add contents of constraint array
         for (Constraint<?> e : constraints){
-            this.constraints.put(e.uuid,e);
+            this.constraints.put(e.name,e);
         }
     }
 
     // Constructor with only UUID
-    public ConditionSet(String uuid){
-        this(uuid,uuid,new Variable<?>[0], new Constraint<?>[0]);
+    public ConditionSet(UUID uuid){
+        this(uuid,uuid.toString(),new Variable<?>[0], new Constraint<?>[0]);
     }
 
     // Getters
@@ -54,20 +59,25 @@ public class ConditionSet {
         return this.name;
     }
 
-    public Object getVariable(UUID key){
+    public Variable getVariable(String key){
         return this.variables.get(key);
     }
 
     // Setters
     //-----------------------------------------------------------------
 
+    public void setName(String name){
+        this.name = name;
+    }
+
     //TODO overwrite prevention
     public void addVariable(Variable<?> variable){
-            this.variables.put(variable.uuid, variable);
+            this.variables.put(variable.key, variable);
     }   
 
     //TODO overwrite prevention
     public void addConstraint(Constraint<?> constraint){
-        this.constraints.put(constraint.uuid, constraint);
+        this.constraints.put(constraint.uuid.toString(), constraint);
     }
+
 }
