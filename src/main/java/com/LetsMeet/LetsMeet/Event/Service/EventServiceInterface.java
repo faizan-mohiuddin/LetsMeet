@@ -17,8 +17,6 @@ public interface EventServiceInterface {
 
     public abstract Collection<Event> getUserEvents(String uuid);
     public abstract void setPermissions(String eventUuid, String userUuid, Boolean owner);
-    public abstract void addResponse(String eventUuid, String userUuid, String conditonSetUUID);
-    public abstract void removeResponse(String eventUuid, String userUuid);
 
     // Management of ConditionSets
 

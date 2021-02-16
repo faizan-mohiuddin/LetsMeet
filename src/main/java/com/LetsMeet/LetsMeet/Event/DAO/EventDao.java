@@ -197,7 +197,7 @@ public class EventDao implements DAO<Event> {
     public Optional<Collection<Event>> getUserEvents(String uuid){
         database.open();
         try(Statement statement = database.con.createStatement()){
-            List<EventPermission> records = hasUsers.getByUser(uuid).get();
+            List<EventPermission> records = hasUsers.get(uuid).get();
 
             database.open();
 

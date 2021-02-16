@@ -55,10 +55,10 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
         }
     }
 
-    public Optional<List<EventPermission>> get(String event) {
+    public Optional<List<EventPermission>> get(String uuid) {
         database.open();
         try(Statement statement = database.getCon().createStatement()){
-            String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s'", event);
+            String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s' OR HasUsers.UserUUID = '%s'", uuid, uuid);
 
             ResultSet rs = statement.executeQuery(query);
             List<EventPermission> records = new ArrayList<>();
@@ -77,8 +77,8 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
             return Optional.empty();
         }
     }
-
-    public Optional<List<EventPermission>> getByUser(String userUUID) {
+    /*
+    public Optional<List<EventPermission>> get(String userUUID) {
         database.open();
         try(Statement statement = database.getCon().createStatement()){
             String query = String.format("select * from HasUsers where HasUsers.UserUUID = '%s'", userUUID);
@@ -100,6 +100,7 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
             return Optional.empty();
         }
     }
+    */
 
     @Override
     public Optional<Collection<EventPermission>> getAll() {
