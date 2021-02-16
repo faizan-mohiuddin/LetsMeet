@@ -266,4 +266,21 @@ public class UserService implements UserServiceInterface {
 	    return true;
 
     }
+
+    public Boolean updateUser2(String useruuid, String fName, String lName, String email, String password) {
+
+	    // Checks if email doesnt belong to another user already
+	    if (checkUniqueEmail(email)) {
+
+            byte[] newSalt = generateSalt();
+            byte[] newHash = generateHash(password, newSalt);
+
+            return dao.updateUser(useruuid, fName, lName, email, toHex(newSalt), toHex(newHash));
+
+        } else {
+
+	        return false;
+
+        }
+    }
 }

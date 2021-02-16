@@ -17,6 +17,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import javax.swing.event.HyperlinkEvent;
 
 @Controller
 @SessionAttributes("userlogin")
@@ -209,4 +210,116 @@ public class UserControllerWeb {
 
         }
     }
+
+    @GetMapping("/deleteuser/{useruuid}")
+    public String deleteUser(@PathVariable("useruuid") String useruuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        // User must be logged in and user must be admin in order to delete accounts.
+        // TODO Re-do this function so that a user can delete their own account once a 'settings' page is created.
+
+        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            User userToDelete = userServiceInterface.getUserByUUID(useruuid);
+
+            if (userToDelete == null) {
+
+                redirectAttributes.addFlashAttribute("danger", "There was an error finding the user.");
+
+                return "redirect:/adminviewallusers";
+
+            } else {
+
+                String tryDeleteUser = userServiceInterface.deleteUser(userToDelete);
+
+                if (tryDeleteUser.equals("User successfully deleted.")) {
+
+                    redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
+
+                } else {
+
+                    redirectAttributes.addFlashAttribute("danger", "There was an error deleting the user.");
+
+                }
+
+            }
+
+            return "redirect:/adminviewallusers";
+
+        }
+    }
+
+    @GetMapping("/edituser/{useruuid}")
+    public String editUser(@PathVariable("useruuid") String useruuid, RedirectAttributes redirectAttributes, HttpSession session, Model model) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        // User must be logged in and user must be admin in order to edit accounts.
+        // TODO Re-do this function so that a user can edit their own account once a 'settings' page is created.
+        // NB: editing only allows the user to edit their FName, LName and E-Mail. Will try password editing soon.
+
+        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+
+            redirectAttributes.addFlashAttribute("accessDenied" ,"You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("user", user);
+            model.addAttribute("editingUser", userServiceInterface.getUserByUUID(useruuid));
+
+            return "edituser";
+
+        }
+    }
+
+    @PostMapping("/updateuser/{useruuid}")
+    public String updateUser(@PathVariable("useruuid") String useruuid, @RequestParam(name = "userfirstname") String firstName, @RequestParam(name = "userlastname") String lastName, @RequestParam(name = "useremail") String email, @RequestParam(name = "userpassword") String password, HttpSession session, RedirectAttributes redirectAttributes) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+
+            redirectAttributes.addFlashAttribute("accessDenied" ,"You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            if (!userServiceInterface.isValidRegister(firstName, lastName, email, password)) {
+
+                redirectAttributes.addFlashAttribute("registerFailed", "There was a problem editing this account. Please check the credentials to see if they are valid.");
+
+                return "redirect:/edituser/" + useruuid;
+
+            }else{
+
+                Boolean tryUpdateUser = userServiceInterface.updateUser2(useruuid, firstName, lastName, email, password);
+
+                if (tryUpdateUser) {
+
+                    redirectAttributes.addFlashAttribute("success", "User successfully updated.");
+
+                } else {
+
+                    redirectAttributes.addFlashAttribute("danger", "Something went wrong when editing the user!");
+
+                }
+
+                return "redirect:/adminviewallusers";
+
+            }
+
+        }
+
+    }
+
 }

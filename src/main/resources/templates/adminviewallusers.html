@@ -25,6 +25,8 @@
     </div>
 
     <div class = "container">
+        <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
+        <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
         <table class = "table table">
             <thead>
                 <tr>
@@ -44,6 +46,8 @@
                     <td th:text = "${user.email}"></td>
                     <td th:text = "${user.passwordHash}"></td>
                     <td th:text = "${user.salt}"></td>
+                    <td><a class = "btn btn-danger" th:href = "@{/deleteuser/{useruuid}(useruuid = ${user.UUID})}">Delete</a></td>
+                    <td><a class = "btn btn-warning" th:href = "@{/edituser/{useruuid}(useruuid = ${user.UUID})}">Edit</a></td>
                 </tr>
             </tbody>
         </table>

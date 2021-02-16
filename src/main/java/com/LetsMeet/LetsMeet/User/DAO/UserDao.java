@@ -175,4 +175,25 @@ public class UserDao implements DAO<User> {
         return false;
 
     }
+
+    public Boolean updateUser(String useruuid, String newFName, String newLName, String newEMail, String newSalt, String newHash) {
+
+        database.open();
+        try(Statement statement = database.getCon().createStatement();){
+
+            String query = String.format("UPDATE User SET fName = '%s', lName = '%s', email = '%s', PasswordHash = '%s', salt = '%s' WHERE UserUUID = '%s'", newFName, newLName, newEMail, newHash, newSalt, useruuid);
+            statement.executeUpdate(query);
+
+            database.close();
+
+            return true;
+
+        } catch(Exception e) {
+
+            System.out.println("\nUser DAO: updateuser");
+            System.out.println(e);
+            database.close();
+            return false;
+        }
+    }
 }
