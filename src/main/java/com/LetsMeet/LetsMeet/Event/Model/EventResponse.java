@@ -20,10 +20,10 @@ public class EventResponse {
     private UUID user;
 
     //Member data
-    ConditionSet conditionSet;
+    UUID conditionSet;
 	ArrayList<PollResponse> poll;
 
-    public EventResponse(UUID event, UUID user, ConditionSet conditionSet){
+    public EventResponse(UUID event, UUID user, UUID conditionSet){
         this.event = event;
         this.user = user;
         this.conditionSet = conditionSet;
@@ -45,11 +45,11 @@ public class EventResponse {
 		this.user = user;
 	}
 
-	public ConditionSet getConditionSet() {
+	public UUID getConditionSet() {
 		return conditionSet;
 	}
 
-	public void setConditionSet(ConditionSet conditionSet) {
+	public void setConditionSet(UUID conditionSet) {
 		this.conditionSet = conditionSet;
 	}
 
