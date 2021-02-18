@@ -22,7 +22,7 @@ public interface EventServiceInterface {
 
     // Time
     public abstract void setTimeRange(UUID event, List<DateTimeRange> ranges);
-    public abstract List<Period> getTimeRange(UUID event);
+    public abstract List<DateTimeRange> getTimeRange(UUID event);
 
     // Services
     public abstract void setServices(UUID event, List<String> services);

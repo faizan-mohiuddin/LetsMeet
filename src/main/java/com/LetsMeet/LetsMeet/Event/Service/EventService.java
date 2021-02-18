@@ -187,9 +187,8 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    public List<Period> getTimeRange(UUID event) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<DateTimeRange> getTimeRange(UUID eventUUID) {
+        return conditionSetService.getTimeRange(eventDao.get(eventUUID).get().getConditions()).get();
     }
 
     @Override
