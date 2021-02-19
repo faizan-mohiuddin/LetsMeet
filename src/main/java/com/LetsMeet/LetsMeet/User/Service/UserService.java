@@ -319,6 +319,37 @@ public class UserService implements UserServiceInterface {
 
     }
 
+    public Boolean passwordMeetsRequirements(String password){
+	    // Must be longer than 5 characters
+        if(password.length() < 6){
+            return false;
+        }
+        return true;
+    }
 
+    public String updateUserPassword(User user, String currentPassword, String newPassword, String passwordConfirmation){
+	    // Check current password is correct
+        User loginCheck = validationService.validate(user.getEmail(), currentPassword);
+        if(loginCheck != null){
+            // Check new password and password confirmation match
+            if(newPassword.equals(passwordConfirmation)){
+                // Check new password meets requirements
+                if(this.passwordMeetsRequirements(newPassword)) {
+                    // Get new password hash
+                    byte[] salt = fromHex(user.getSalt());
+                    byte[] hash = generateHash(newPassword, salt);
+
+                    // Update DB
+                    if(dao.updatePassword(user, this.toHex(hash))){
+                        return "Password successfully updated";
+                    }
+                    return "Error updating password";
+                }
+                return "New password is invalid";
+            }
+            return "New password and password confirmation do not match";
+        }
+        return "Current Password is not correct";
+    }
 
 }

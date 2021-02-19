@@ -147,7 +147,6 @@ public class UserDao implements DAO<User> {
 
     @Override
     public Boolean update(User t) {
-
         database.open();
         try(Statement statement = database.getCon().createStatement();){
 
@@ -165,7 +164,6 @@ public class UserDao implements DAO<User> {
             database.close();
             return false;
         }
-
     }
 
     // Delete
@@ -191,6 +189,28 @@ public class UserDao implements DAO<User> {
         // TODO Auto-generated method stub
         return false;
 
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public Boolean updatePassword(User user, String passwordHash){
+        database.open();
+        try(Statement statement = database.getCon().createStatement();){
+
+            String query = String.format("UPDATE User SET PasswordHash = '%s' WHERE UserUUID = '%s'", passwordHash,
+                    user.getUUID().toString());
+            statement.executeUpdate(query);
+
+            database.close();
+
+            return true;
+
+        } catch(Exception e) {
+
+            System.out.println("\nUser DAO: updatePassword");
+            System.out.println(e);
+            database.close();
+            return false;
+        }
     }
 
 }

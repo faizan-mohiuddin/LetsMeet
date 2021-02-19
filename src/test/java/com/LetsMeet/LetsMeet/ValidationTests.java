@@ -192,7 +192,7 @@ public class ValidationTests {
         TestingUsers user2 = testUsers.get(1);
         this.login(user2);
 
-        String expectedResult = "You are not the owner of this event.";
+        String expectedResult = "You do not have permission to delete this event";
 
         // Test before joining event
         String result = eventController.API_DeleteEvent(user2.token, event.UUID);
@@ -209,6 +209,7 @@ public class ValidationTests {
 
 
     // Check only event owner can update event
+    // Check who can delete business
     // Check only condition set owner can update condition set
 
 

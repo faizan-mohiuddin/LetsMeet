@@ -890,8 +890,54 @@ class  LetsMeetApplicationTests {
 	@Test
 	@Order(23)
 	public void updatePassword(){
-		// Update user password
-		assertEquals(true, false);
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		// Test with valid password
+		String testPassword = RandomStringUtils.randomAlphabetic(8);
+		String response = userController.API_UpdateUserPassword(user.token, user.password, testPassword, testPassword);
+		assertEquals("Password successfully updated", response);
+		String token = this.userController.API_Login(user.email, testPassword);
+		assertNotEquals("Error, invalid email or password", token);
+		assertEquals(128, token.length());
+		user.password = testPassword;
+
+		// Test with password which is too short
+
+		this.login(user);
+		String newPassword = RandomStringUtils.randomAlphabetic(5);
+		response = userController.API_UpdateUserPassword(user.token, testPassword, newPassword, newPassword);
+		assertEquals("New password is invalid", response);
+		token = this.userController.API_Login(user.email, newPassword);
+		assertEquals("Error, invalid email or password", token);
+
+		// Test with password confirmation not matching
+		newPassword = RandomStringUtils.randomAlphabetic(8);
+		String wrongPassword = "Wrong" + testPassword;
+		response = userController.API_UpdateUserPassword(user.token, testPassword, newPassword, wrongPassword);
+		assertEquals("New password and password confirmation do not match", response);
+		token = this.userController.API_Login(user.email, wrongPassword);
+		assertEquals("Error, invalid email or password", token);
+
+		// Test with incorrect current password
+		response = userController.API_UpdateUserPassword(user.token, testPassword, testPassword, testPassword);
+		assertEquals("Password successfully updated", response);
+		token = this.userController.API_Login(user.email, testPassword);
+		assertNotEquals("Error, invalid email or password", token);
+		assertEquals(128, token.length());
+		user.password = testPassword;
+
+		this.login(user);
+		newPassword = RandomStringUtils.randomAlphabetic(8);
+		wrongPassword = "Wrong" + testPassword;
+		response = userController.API_UpdateUserPassword(user.token, wrongPassword, newPassword, newPassword);
+		assertEquals("Current Password is not correct", response);
+		token = this.userController.API_Login(user.email, newPassword);
+		assertEquals("Error, invalid email or password", token);
+
+
+		testUsers.clear();
 	}
 
 	// Update events

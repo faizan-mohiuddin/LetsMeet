@@ -95,4 +95,23 @@ public class UserControllerAPI {
         }
     }
 
+    @PutMapping("/api/User/Password")
+    public String API_UpdateUserPassword(@RequestParam(value="Token", defaultValue="") String token,
+                                 @RequestParam(value="CurrentPassword", defaultValue="") String currentPassword,
+                                 @RequestParam(value="NewPassword", defaultValue="") String newPassword,
+                                 @RequestParam(value="PasswordConfirmation", defaultValue="") String passwordConfirmation){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            // Update user
+            return userServiceInterface.updateUserPassword(user, currentPassword, newPassword, passwordConfirmation);
+        }else{
+            return (String) response[1];
+        }
+    }
+
 }
