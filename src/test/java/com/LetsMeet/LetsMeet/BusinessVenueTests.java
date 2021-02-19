@@ -89,13 +89,32 @@ public class BusinessVenueTests {
     @Test
     @Order(2)
     public void deleteBusiness(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
 
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        // Delete event
+        String response = businessController.API_DeleteBusiness(user.token, business.UUID);
+        assertEquals("Business successfully deleted", response);
+
+        // Check DB
+        Optional<Collection<BusinessOwner>> ownerTable = ownerDB.get(user.UUID);
+        assertEquals(0, ownerTable.get().size());
+
+        Optional<Business> businessTable = businessDB.get(UUID.fromString(business.UUID));
+        assertEquals(false, businessTable.isPresent());
+
+        testUsers.clear();
+        testBusiness.clear();
     }
 
     @Test
     @Order(3)
     public void editBusiness(){
-
+        
     }
 
     @Test
@@ -140,6 +159,8 @@ public class BusinessVenueTests {
         testBusiness.clear();
         testUsers.clear();
     }
+
+    // Get user businesses
 
     @Test
     @Order(50)
