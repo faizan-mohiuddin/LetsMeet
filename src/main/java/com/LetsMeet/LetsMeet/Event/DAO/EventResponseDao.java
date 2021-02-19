@@ -8,8 +8,10 @@ package com.LetsMeet.LetsMeet.Event.DAO;
 //-----------------------------------------------------------------
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.sql.PreparedStatement;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -92,7 +94,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
     @Override
     public Optional<Collection<EventResponse>> getAll() {
         // TODO Auto-generated method stub
-        return null;
+        return Optional.empty();
     }
 
     // Save
@@ -100,8 +102,22 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean save(EventResponse t) {
-        // TODO Auto-generated method stub
-        return null;
+        database.open();
+        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, ConditionSetUUID) VALUES (?,?,?)")){
+            statement.setString(1, t.getEvent().toString());
+            statement.setString(2, t.getUser().toString());
+            statement.setString(3, t.getConditionSet().toString());
+            int rows = statement.executeUpdate();
+
+            database.close();
+
+            return (rows > 0)? true : false;
+        }
+        catch(Exception e){
+            LOGGER.error("Unable to save: {}", e.getMessage());
+            database.close();
+            return false;
+        }
     }
 
     // Update
@@ -109,8 +125,27 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean update(EventResponse t) {
-        // TODO Auto-generated method stub
-        return null;
+        database.open();
+        try(PreparedStatement statement = database.getCon().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, ConditionSetUUID = ? WHERE EventUUID = ? AND UserUUID = ?")){
+
+            statement.setString(1, t.getEvent().toString());
+            statement.setString(2, t.getUser().toString());
+            statement.setString(3, t.getConditionSet().toString());
+            statement.setString(4, t.getEvent().toString());
+            statement.setString(5, t.getUser().toString());
+
+            if(statement.executeUpdate() > 0){
+                database.close();
+                return true;
+            }
+            else
+                throw new SQLException("UPDATE on EventResponse failed");
+
+        }catch(Exception e){
+            LOGGER.error("Unable to save: {}", e.getMessage());
+            database.close();
+            return false;
+        }
     }
 
     // Delete
@@ -118,14 +153,27 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean delete(EventResponse t) {
-        // TODO Auto-generated method stub
-        return null;
+        database.open();
+        try(Statement statement = database.con.createStatement()){
+            String query = String.format("DELETE FROM EventResponse WHERE EventResponse.EventUUID = '%s' AND EventResponse.UserUUID = '%s'",
+                    t.getEvent().toString(),t.getUser().toString());
+            int rows = statement.executeUpdate(query);
+            database.close();
+
+            if(rows <= 0)
+                throw new SQLException("UPDATE on EventResponse failed");
+            return true;
+
+        }catch(Exception e){
+            LOGGER.error("Unable to delete: {}", e.getMessage());
+            database.close();
+            return false;
+        }
     }
 
     @Override
-    public Boolean delete(String uuid1, String uuid2) {
-        // TODO Auto-generated method stub
-        return null;
+    public Boolean delete(String eventUUID, String userUUID) {
+        return delete(get(UUID.fromString(eventUUID), UUID.fromString(userUUID)).get());
     }
 
 
