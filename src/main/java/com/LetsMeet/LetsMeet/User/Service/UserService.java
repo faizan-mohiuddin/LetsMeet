@@ -8,6 +8,8 @@ package com.LetsMeet.LetsMeet.User.Service;
 
 //-----------------------------------------------------------------
 
+import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.DAO.*;
@@ -48,6 +50,9 @@ public class UserService implements UserServiceInterface {
 
     @Autowired
     EventService eventService;
+
+    @Autowired
+    BusinessService businessService;
 
 
     // CRUD
@@ -106,6 +111,11 @@ public class UserService implements UserServiceInterface {
             if(eventService.checkOwner(e.getUUID(), user.getUUID())) {
                 eventService.deleteEvent(e.getUUID().toString(), user);
             }
+        }
+
+        Collection<Business> businesses = businessService.getUserBusinesses(user.getStringUUID());
+        for(Business b : businesses){
+            businessService.deleteBusiness(b.getUUID().toString(), user.getStringUUID());
         }
 
 	    if(dao.delete(user)){

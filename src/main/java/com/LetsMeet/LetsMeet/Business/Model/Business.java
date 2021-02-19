@@ -11,4 +11,12 @@ public class Business {
         this.uuid = uuid;
         this.name = name;
     }
+
+    public UUID getUUID(){
+        return this.uuid;
+    }
+
+    public String getName(){
+        return this.name;
+    }
 }

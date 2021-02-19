@@ -10,4 +10,12 @@ public class BusinessOwner {
         this.businessUUID = businessUUID;
         this.userUUID = userUUID;
     }
+
+    public UUID getUserUUID(){
+        return this.userUUID;
+    }
+
+    public UUID getBusinessUUID(){
+        return this.businessUUID;
+    }
 }

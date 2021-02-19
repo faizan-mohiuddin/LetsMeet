@@ -182,7 +182,6 @@ public class EventDao implements DAO<Event> {
         }catch(Exception e){
             System.out.println("Event Dao: delete (UUID)");
             database.close();
-            System.out.println("\nEvent Dao: delete (UUID)");
             e.printStackTrace();
             return false;
         }
