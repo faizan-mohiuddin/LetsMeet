@@ -876,7 +876,13 @@ class  LetsMeetApplicationTests {
 
 
 		// Change all 3
-		assertEquals(true, false);
+		response = this.userController.API_UpdateUser(user.token, user.fName, user.lName, user.email);
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user.fName, checking.getfName());
+		assertEquals(user.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
 
 		testUsers.clear();
 	}
