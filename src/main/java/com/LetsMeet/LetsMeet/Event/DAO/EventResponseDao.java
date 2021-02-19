@@ -10,7 +10,9 @@ package com.LetsMeet.LetsMeet.Event.DAO;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.sql.PreparedStatement;
 
 import java.util.Optional;
@@ -65,22 +67,23 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     }
 
-    public Optional<EventResponse> get(UUID anyUUID){
+    public Optional<List<EventResponse>> get(UUID anyUUID){
         database.open();
         try(Statement statement = database.getCon().createStatement()){
 
             String query = String.format("select * from EventResponse where EventResponse.EventUUID = '%s' OR EventResponse.UserUUID = '%s'", anyUUID, anyUUID);
 
             ResultSet rs = statement.executeQuery(query);
-            rs.next();
+            List<EventResponse> records = new ArrayList<>();
 
-            Optional<EventResponse> response = Optional.ofNullable(new EventResponse(
-                UUID.fromString(rs.getString("UserUUID")), 
-                UUID.fromString(rs.getString("EventUUID")), 
-                UUID.fromString(rs.getString("ConditionSetUUID"))));
+            while(rs.next())
+                records.add(new EventResponse(
+                    UUID.fromString(rs.getString("UserUUID")), 
+                    UUID.fromString(rs.getString("EventUUID")), 
+                    UUID.fromString(rs.getString("ConditionSetUUID"))));
 
             database.close();
-            return response;
+            return Optional.ofNullable(records);
 
         }
         catch(Exception e){
