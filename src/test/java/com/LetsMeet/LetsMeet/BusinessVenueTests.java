@@ -5,6 +5,7 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessOwnerDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
+import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerAPI;
 import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
@@ -34,6 +35,9 @@ public class BusinessVenueTests {
 
     @Autowired
     private BusinessControllerAPI businessController;
+
+    @Autowired
+    private VenueControllerAPI venueController;
 
     @Autowired
     UserDBChecker UserDB;
@@ -120,7 +124,15 @@ public class BusinessVenueTests {
     @Test
     @Order(4)
     public void createVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
 
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        String venueName = RandomStringUtils.randomAlphabetic(8);
+        String response = venueController.API_createVenue(user.token, business.UUID, venueName);
     }
 
     @Test
@@ -161,6 +173,8 @@ public class BusinessVenueTests {
     }
 
     // Get user businesses
+    // Get business venues
+    // When business is deleted - venues are deleted
 
     @Test
     @Order(50)

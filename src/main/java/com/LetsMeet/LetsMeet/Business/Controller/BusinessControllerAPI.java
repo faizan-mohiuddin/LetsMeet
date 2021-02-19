@@ -26,6 +26,7 @@ public class BusinessControllerAPI {
         if(result) {
             return null;
         }else{
+            // return (String) response[1];
             return null;
         }
     }
@@ -39,7 +40,7 @@ public class BusinessControllerAPI {
         if(result) {
             return businessService.createBusiness(name, userValidation.getUserFromToken(token));
         }else{
-            return "Token not valid";
+            return (String) response[1];
         }
     }
 
@@ -53,7 +54,7 @@ public class BusinessControllerAPI {
             User user = userValidation.getUserFromToken(token);
             return businessService.deleteBusiness(businessUUID, user.getStringUUID());
         }else{
-            return "Token not valid";
+            return (String) response[1];
         }
     }
 }

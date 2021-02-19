@@ -942,7 +942,6 @@ class  LetsMeetApplicationTests {
 
 	// Update events
 
-
 	@Test
 	@Order(24)
 	public void cleanup(){

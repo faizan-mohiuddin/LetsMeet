@@ -64,6 +64,8 @@ public class BusinessService {
         return businesses;
     }
 
+
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();
