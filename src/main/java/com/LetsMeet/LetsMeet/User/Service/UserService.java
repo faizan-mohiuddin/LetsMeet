@@ -97,8 +97,9 @@ public class UserService implements UserServiceInterface {
 	    // Check if email needs updated
         if(!email.equals("")){
             // Check email is valid
-            if(!validationService.checkEmailValidity(email)){
-                return "Email is not valid";
+            Object[] valid = validationService.checkEmailValidity(email);
+            if(!(boolean) valid[0]){
+                return (String) valid[1];
             }
         }
 

@@ -90,15 +90,27 @@ public class ValidationService {
         }
     }
 
-    public boolean checkEmailValidity(String email){
+    public Object[] checkEmailValidity(String email){
+        // Returns [boolean, String]
+        Object[] arr = new Object[2];
+
         // Check email is not already in use
         if(!dao.get(email).isPresent()){
             // Check email is comprised of correct parts
             Pattern pattern = Pattern.compile(emailRegex);
             Matcher matcher = pattern.matcher(email);
-            return matcher.matches();
+            boolean result = matcher.matches();
+            arr[0] = result;
+            if(result){
+                arr[1] = "";
+            }else{
+                arr[1] = "Email is not valid";
+            }
+            return arr;
         }
-        return false;
+        arr[0] = false;
+        arr[1] = "Email already in use";
+        return arr;
     }
 
     // Private methods
