@@ -13,6 +13,7 @@ import javax.crypto.spec.PBEKeySpec;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.*;
 
 import static com.LetsMeet.LetsMeet.User.Service.UserService.fromHex;
 
@@ -24,6 +25,9 @@ public class ValidationService {
 
     @Autowired
     TokenDAO tokenDao;
+
+    // For checking email syntax
+    private static final String emailRegex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
 
     public Object[] verifyAPItoken(String token){
         // Returns [boolean, String]
@@ -86,6 +90,18 @@ public class ValidationService {
         }
     }
 
+    public boolean checkEmailValidity(String email){
+        // Check email is not already in use
+        if(!dao.get(email).isPresent()){
+            // Check email is comprised of correct parts
+            Pattern pattern = Pattern.compile(emailRegex);
+            Matcher matcher = pattern.matcher(email);
+            return matcher.matches();
+        }
+        return false;
+    }
+
+    // Private methods
     private boolean validatePassword(String password, User user){
         if(user == null){
             return false;

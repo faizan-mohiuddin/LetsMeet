@@ -54,6 +54,9 @@ public class UserService implements UserServiceInterface {
     @Autowired
     BusinessService businessService;
 
+    @Autowired
+    ValidationService validationService;
+
 
     // CRUD
     //-----------------------------------------------------------------
@@ -89,18 +92,26 @@ public class UserService implements UserServiceInterface {
 	}
 
     @Override
-    public Boolean updateUser(User user) {
+    public String updateUser(User user, String fName, String lName, String email) {
 
-	    if (checkUniqueEmail(user.getEmail())) {
-
-            return dao.update(user);
-
-        } else {
-
-	        return false;
-
+	    // Check if email needs updated
+        if(!email.equals("")){
+            // Check email is valid
+            if(!validationService.checkEmailValidity(email)){
+                return "Email is not valid";
+            }
         }
 
+        // Populate user object with updated values
+        user.switchFName(fName);
+        user.switchLName(lName);
+        user.switchEmail(email);
+
+        // Update in DB
+        if(dao.update(user)){
+            return "User successfully updated";
+        }
+        return "Error updating user";
     }
 
     @Override
@@ -285,5 +296,28 @@ public class UserService implements UserServiceInterface {
 	    return true;
 
     }
+
+    // Function checks if the credentials that are input when updating an account are valid
+    public Boolean isValidUpdate(String firstName, String lastName, String email) {
+
+	    // All fields are required
+	    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
+
+	        return false;
+
+        }
+
+	    // Email should contain an @ and .
+	    if (!email.contains("@") && !email.contains(".")) {
+
+	        return false;
+
+        }
+
+	    return true;
+
+    }
+
+
 
 }

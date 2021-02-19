@@ -74,4 +74,25 @@ public class UserControllerAPI {
         }
     }
 
+    // Put Mappings
+    //-----------------------------------------------------------------
+    @PutMapping("/api/User")
+    public String API_UpdateUser(@RequestParam(value="Token", defaultValue="") String token,
+                                 @RequestParam(value="FName", defaultValue="") String fName,
+                                 @RequestParam(value="LName", defaultValue="") String lName,
+                                 @RequestParam(value="email", defaultValue="") String email){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            // Update user
+            return userServiceInterface.updateUser(user, fName, lName, email);
+        }else{
+            return (String) response[1];
+        }
+    }
+
 }

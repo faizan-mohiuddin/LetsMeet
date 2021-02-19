@@ -800,15 +800,85 @@ class  LetsMeetApplicationTests {
 
 		// Generate new details
 		this.generateUser();
-		TestingUsers user2 = testUsers.get(0);
+		TestingUsers user2 = testUsers.get(1);
+
+		String expectedResponse = "User successfully updated";
 
 		// Change fName
-		//String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
+		String response = this.userController.API_UpdateUser(user.token, user2.fName, "", "");
+
+		assertEquals(expectedResponse, response);
+		User checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
 
 		// Change lName
-		// Change email
+		response = this.userController.API_UpdateUser(user.token, "", user2.lName, "");
+
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
+
+		// Change email - valid
+		String testingEmail = "Test" + user2.email;
+		response = this.userController.API_UpdateUser(user.token, "", "", testingEmail);
+
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		String invalidResponse = "Email is not valid";
+
+		// Change email - invalid
+		String invalidEmail = "Hi@.com";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		invalidEmail = "@correct.com";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		invalidEmail = "hi@correct";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		// Change email - already in use
+		response = this.userController.API_UpdateUser(user.token, "", "", user2.email);
+		assertEquals("Email already in use", response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+
 		// Change all 3
 		assertEquals(true, false);
+
+		testUsers.clear();
 	}
 
 	@Test
@@ -819,8 +889,6 @@ class  LetsMeetApplicationTests {
 	}
 
 	// Update events
-
-	// Test business and venues
 
 
 	@Test

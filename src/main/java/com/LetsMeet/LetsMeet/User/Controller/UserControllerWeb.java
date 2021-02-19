@@ -283,7 +283,11 @@ public class UserControllerWeb {
     }
 
     @PostMapping("/updateuser/{useruuid}")
-    public String updateUser(@PathVariable("useruuid") String useruuid, @RequestParam(name = "userfirstname") String firstName, @RequestParam(name = "userlastname") String lastName, @RequestParam(name = "useremail") String email, @RequestParam(name = "userpassword") String password, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updateUser(@PathVariable("useruuid") String useruuid,
+                             @RequestParam(name = "userfirstname", defaultValue="") String firstName,
+                             @RequestParam(name = "userlastname", defaultValue="") String lastName,
+                             @RequestParam(name = "useremail", defaultValue="") String email,
+                             HttpSession session, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
 
@@ -295,7 +299,7 @@ public class UserControllerWeb {
 
         } else {
 
-            if (!userServiceInterface.isValidRegister(firstName, lastName, email, password)) {
+            if (!userServiceInterface.isValidUpdate(firstName, lastName, email)) {
 
                 redirectAttributes.addFlashAttribute("registerFailed", "There was a problem editing this account. Please check the credentials to see if they are valid.");
 
@@ -305,11 +309,11 @@ public class UserControllerWeb {
 
                 byte[] newSalt = UserService.generateSalt();
 
-                User userToUpdate = new User(UUID.fromString(useruuid), firstName, lastName, email, UserService.toHex(UserService.generateHash(password, newSalt)), UserService.toHex(newSalt));
+                User userToUpdate = userServiceInterface.getUserByUUID(useruuid);
 
-                Boolean tryUpdateUser = userServiceInterface.updateUser(userToUpdate);
+                String tryUpdateUser = userServiceInterface.updateUser(userToUpdate, firstName, lastName, email);
 
-                if (tryUpdateUser) {
+                if (tryUpdateUser.equals("User successfully updated.")) {
 
                     redirectAttributes.addFlashAttribute("success", "User successfully updated.");
 
