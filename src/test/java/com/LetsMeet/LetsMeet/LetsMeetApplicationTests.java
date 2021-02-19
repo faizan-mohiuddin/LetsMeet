@@ -800,20 +800,144 @@ class  LetsMeetApplicationTests {
 
 		// Generate new details
 		this.generateUser();
-		TestingUsers user2 = testUsers.get(0);
+		TestingUsers user2 = testUsers.get(1);
+
+		String expectedResponse = "User successfully updated";
 
 		// Change fName
-		//String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
+		String response = this.userController.API_UpdateUser(user.token, user2.fName, "", "");
+
+		assertEquals(expectedResponse, response);
+		User checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
 
 		// Change lName
-		// Change email
+		response = this.userController.API_UpdateUser(user.token, "", user2.lName, "");
+
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
+
+		// Change email - valid
+		String testingEmail = "Test" + user2.email;
+		response = this.userController.API_UpdateUser(user.token, "", "", testingEmail);
+
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		String invalidResponse = "Email is not valid";
+
+		// Change email - invalid
+		String invalidEmail = "Hi@.com";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		invalidEmail = "@correct.com";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		invalidEmail = "hi@correct";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		// Change email - already in use
+		response = this.userController.API_UpdateUser(user.token, "", "", user2.email);
+		assertEquals("Email already in use", response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+
 		// Change all 3
+		response = this.userController.API_UpdateUser(user.token, user.fName, user.lName, user.email);
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user.fName, checking.getfName());
+		assertEquals(user.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
+
+		testUsers.clear();
 	}
 
 	@Test
 	@Order(23)
 	public void updatePassword(){
-		// Update user password
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		// Test with valid password
+		String testPassword = RandomStringUtils.randomAlphabetic(8);
+		String response = userController.API_UpdateUserPassword(user.token, user.password, testPassword, testPassword);
+		assertEquals("Password successfully updated", response);
+		String token = this.userController.API_Login(user.email, testPassword);
+		assertNotEquals("Error, invalid email or password", token);
+		assertEquals(128, token.length());
+		user.password = testPassword;
+
+		// Test with password which is too short
+
+		this.login(user);
+		String newPassword = RandomStringUtils.randomAlphabetic(5);
+		response = userController.API_UpdateUserPassword(user.token, testPassword, newPassword, newPassword);
+		assertEquals("New password is invalid", response);
+		token = this.userController.API_Login(user.email, newPassword);
+		assertEquals("Error, invalid email or password", token);
+
+		// Test with password confirmation not matching
+		newPassword = RandomStringUtils.randomAlphabetic(8);
+		String wrongPassword = "Wrong" + testPassword;
+		response = userController.API_UpdateUserPassword(user.token, testPassword, newPassword, wrongPassword);
+		assertEquals("New password and password confirmation do not match", response);
+		token = this.userController.API_Login(user.email, wrongPassword);
+		assertEquals("Error, invalid email or password", token);
+
+		// Test with incorrect current password
+		response = userController.API_UpdateUserPassword(user.token, testPassword, testPassword, testPassword);
+		assertEquals("Password successfully updated", response);
+		token = this.userController.API_Login(user.email, testPassword);
+		assertNotEquals("Error, invalid email or password", token);
+		assertEquals(128, token.length());
+		user.password = testPassword;
+
+		this.login(user);
+		newPassword = RandomStringUtils.randomAlphabetic(8);
+		wrongPassword = "Wrong" + testPassword;
+		response = userController.API_UpdateUserPassword(user.token, wrongPassword, newPassword, newPassword);
+		assertEquals("Current Password is not correct", response);
+		token = this.userController.API_Login(user.email, newPassword);
+		assertEquals("Error, invalid email or password", token);
+
+
+		testUsers.clear();
 	}
 
 	// Update events

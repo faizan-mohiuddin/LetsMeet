@@ -27,6 +27,8 @@
 <div class = "container">
     <h2>Your Events</h2>
     <div class = "alert alert-warning" th:if = "${noEvents}">You are not currently in any events.</div>
+    <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
+    <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
     <div th:unless = "${noEvents}">
         <table class = "table table">
             <thead>
@@ -34,6 +36,7 @@
                     <th scope = "col">Event Name</th>
                     <th scope = "col">Description</th>
                     <th scope = "col">Location</th>
+                    <th scope = "col"></th>
                 </tr>
             </thead>
             <tbody>
@@ -41,6 +44,7 @@
                     <td th:text = "${myEvents.name}"></td>
                     <td th:text = "${myEvents.description}"></td>
                     <td th:text = "${myEvents.location}"></td>
+                    <td><a class = "btn btn-danger" th:href = "@{/deleteevent/{eventuuid}(eventuuid = ${myEvents.getUUID()})}">Delete</a></td>
                 </tr>
             </tbody>
         </table>

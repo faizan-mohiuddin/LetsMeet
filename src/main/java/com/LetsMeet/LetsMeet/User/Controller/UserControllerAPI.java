@@ -14,15 +14,6 @@ public class UserControllerAPI {
     @Autowired
     ValidationService userValidation;
 
-    // Request Mappings
-    //-----------------------------------------------------------------
-    @RequestMapping("/api/ping")
-    public String API_Test(){
-        //userServiceInterface.getUsers();
-        //userServiceInterface.createUser("Ping", "Pong", "ding@dong", "youvegotatinywong");
-        return ("Pong!");
-    }
-
     // Post Mappings
     //-----------------------------------------------------------------
     @PostMapping("/api/User")
@@ -78,6 +69,46 @@ public class UserControllerAPI {
 
             // Delete user
             return userServiceInterface.deleteUser(user);
+        }else{
+            return (String) response[1];
+        }
+    }
+
+    // Put Mappings
+    //-----------------------------------------------------------------
+    @PutMapping("/api/User")
+    public String API_UpdateUser(@RequestParam(value="Token", defaultValue="") String token,
+                                 @RequestParam(value="FName", defaultValue="") String fName,
+                                 @RequestParam(value="LName", defaultValue="") String lName,
+                                 @RequestParam(value="email", defaultValue="") String email){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            // Update user
+            return userServiceInterface.updateUser(user, fName, lName, email);
+        }else{
+            return (String) response[1];
+        }
+    }
+
+    @PutMapping("/api/User/Password")
+    public String API_UpdateUserPassword(@RequestParam(value="Token", defaultValue="") String token,
+                                 @RequestParam(value="CurrentPassword", defaultValue="") String currentPassword,
+                                 @RequestParam(value="NewPassword", defaultValue="") String newPassword,
+                                 @RequestParam(value="PasswordConfirmation", defaultValue="") String passwordConfirmation){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            // Update user
+            return userServiceInterface.updateUserPassword(user, currentPassword, newPassword, passwordConfirmation);
         }else{
             return (String) response[1];
         }

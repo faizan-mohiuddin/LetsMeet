@@ -2,9 +2,11 @@
 // EventResponse.java
 // Let's Meet 2021
 //
-// Models a Users's response to an Event.
+// Models a User's response to an Event.
 
 package com.LetsMeet.LetsMeet.Event.Model;
+
+import java.util.ArrayList;
 
 //-----------------------------------------------------------------
 
@@ -18,7 +20,8 @@ public class EventResponse {
     private UUID user;
 
     //Member data
-    private UUID conditionSet;
+    UUID conditionSet;
+	ArrayList<PollResponse> poll;
 
     public EventResponse(UUID event, UUID user, UUID conditionSet){
         this.event = event;

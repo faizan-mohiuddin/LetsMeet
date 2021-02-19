@@ -44,21 +44,7 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Optional<Event> get(UUID uuid) {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
-            String query = String.format("select * from Event where Event.EventUUID = '%s'", uuid);
-
-            ResultSet rs = statement.executeQuery(query);
-            rs.next();
-            database.close();
-            return Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
-
-        }catch(Exception e){
-            database.close();
-            System.out.println("Event Dao: get (UUID)");
-            e.printStackTrace();
-            return Optional.empty();
-        }  
+        return get(uuid.toString());
     }
 
     public Optional<Event> get(String uuid) {
@@ -69,17 +55,16 @@ public class EventDao implements DAO<Event> {
             ResultSet rs = statement.executeQuery(query);
             rs.next();
 
-            Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2),
-                    rs.getString(3), rs.getString(4)));
+            Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5))));
             database.close();
             return response;
 
         }catch(Exception e){
             database.close();
             System.out.println("\nEvent Dao: get (String)");
-            //e.printStackTrace();
             System.out.println(e);
             return Optional.empty();
+            
         }
     }
 
@@ -87,11 +72,11 @@ public class EventDao implements DAO<Event> {
     public Optional<Collection<Event>> getAll() {
         database.open();
         try(Statement statement = database.getCon().createStatement()){
-            ResultSet rs = statement.executeQuery("select * from User");
+            ResultSet rs = statement.executeQuery("select * from Event");
             List<Event> events = new ArrayList<>();
 
             while (rs.next()){
-                events.add(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
+                events.add(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5))));
             }
             database.close();
             return Optional.ofNullable(events);
@@ -112,14 +97,15 @@ public class EventDao implements DAO<Event> {
     public Boolean save(Event t) {
         database.open();
 
-
         // Save the event
-        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location) VALUES (?,?,?,?)")){
+        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, ConditionSet, Poll) VALUES (?,?,?,?,?,?)")){
 
             statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getName());
             statement.setString(3, t.getDescription());
             statement.setString(4, t.getLocation());
+            statement.setString(5, t.getConditions().toString());
+            statement.setString(6, "{}");
 
             if(statement.executeUpdate() > 0){
                 database.close();
@@ -142,8 +128,30 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Boolean update(Event t) {
-        // TODO Auto-generated method stub
-        return false;
+        database.open();
+        // Save the event
+        try(PreparedStatement statement = database.getCon().prepareStatement("UPDATE Event SET Name = ?, Description = ?, Location = ?, ConditionSet = ?, Poll = ? WHERE EventUUID = ?")){
+
+            statement.setString(1, t.getName());
+            statement.setString(2, t.getDescription());
+            statement.setString(3, t.getLocation());
+            statement.setString(4, t.getConditions().toString());
+            statement.setString(5, "{}");
+            statement.setString(6, t.getUUID().toString());
+
+            if(statement.executeUpdate() > 0){
+                database.close();
+                return true;
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch(Exception e){
+            System.out.println("Event Dao : save");
+            database.close();
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // Delete
@@ -158,16 +166,15 @@ public class EventDao implements DAO<Event> {
     @Override
     public Boolean delete(UUID uuid) {
         database.open();
-        try{
-            Statement statement = database.con.createStatement();
-
+        try(Statement statement = database.con.createStatement()){
+        
             String query;
             String eventUUID = uuid.toString();
 
-            query = String.format("DELETE FROM HasUsers where HasUsers.eventUUID = '%s'", eventUUID);
+            query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
-            query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
+            query = String.format("DELETE FROM HasUsers where HasUsers.eventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
             return true;
@@ -175,37 +182,33 @@ public class EventDao implements DAO<Event> {
         }catch(Exception e){
             System.out.println("Event Dao: delete (UUID)");
             database.close();
-            System.out.println("\nEvent Dao: delete (UUID)");
             e.printStackTrace();
             return false;
         }
     }
 
-    // Has Users Table Helpers
-    //-----------------------------------------------------------------
+
 
 
     // Other methods
     //-----------------------------------------------------------------
-
     //TODO EventResponse should be be loaded by BL to find which events a user is registered to.
     public Optional<Collection<Event>> getUserEvents(String uuid){
         database.open();
         try(Statement statement = database.con.createStatement()){
-            List<EventPermission> records = hasUsers.getByUser(uuid).get();
+            List<EventPermission> records = hasUsers.get(uuid).get();
 
             database.open();
 
             List<Event> events = new ArrayList<>();
 
             for(EventPermission record: records){
-                String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location" +
+                String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location, Event.ConditionSet" +
                         " from Event where Event.EventUUID = '%s'", record.getEvent().toString());
 
                 ResultSet rs = statement.executeQuery(query);
                 rs.next();
-                Event event = new Event(rs.getString(1), rs.getString(2),
-                        rs.getString(3), rs.getString(4));
+                Event event = new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5)));
                 events.add(event);
             }
 

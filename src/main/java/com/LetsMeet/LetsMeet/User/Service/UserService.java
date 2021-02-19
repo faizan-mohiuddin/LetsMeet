@@ -8,6 +8,8 @@ package com.LetsMeet.LetsMeet.User.Service;
 
 //-----------------------------------------------------------------
 
+import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.DAO.*;
@@ -49,6 +51,12 @@ public class UserService implements UserServiceInterface {
     @Autowired
     EventService eventService;
 
+    @Autowired
+    BusinessService businessService;
+
+    @Autowired
+    ValidationService validationService;
+
 
     // CRUD
     //-----------------------------------------------------------------
@@ -84,9 +92,27 @@ public class UserService implements UserServiceInterface {
 	}
 
     @Override
-    public void updateUser(String uuid, User user) {
-        dao.update(user);
+    public String updateUser(User user, String fName, String lName, String email) {
 
+	    // Check if email needs updated
+        if(!email.equals("")){
+            // Check email is valid
+            Object[] valid = validationService.checkEmailValidity(email);
+            if(!(boolean) valid[0]){
+                return (String) valid[1];
+            }
+        }
+
+        // Populate user object with updated values
+        user.switchFName(fName);
+        user.switchLName(lName);
+        user.switchEmail(email);
+
+        // Update in DB
+        if(dao.update(user)){
+            return "User successfully updated";
+        }
+        return "Error updating user";
     }
 
     @Override
@@ -97,6 +123,11 @@ public class UserService implements UserServiceInterface {
             if(eventService.checkOwner(e.getUUID(), user.getUUID())) {
                 eventService.deleteEvent(e.getUUID().toString(), user);
             }
+        }
+
+        Collection<Business> businesses = businessService.getUserBusinesses(user.getStringUUID());
+        for(Business b : businesses){
+            businessService.deleteBusiness(b.getUUID().toString(), user.getStringUUID());
         }
 
 	    if(dao.delete(user)){
@@ -239,4 +270,86 @@ public class UserService implements UserServiceInterface {
         }
 	    return null;
     }
+
+    // Function checks if the credentials that are input when creating an account are valid (long password, etc)
+    public Boolean isValidRegister(String firstName, String lastName, String email, String password) {
+
+	    // All fields are required
+	    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+
+	        return false;
+
+        }
+
+	    // Email should contain an @ and .
+	    if (!email.contains("@") && !email.contains(".")) {
+
+	        return false;
+
+        }
+
+	    if (password.length() <= 5 ) {
+
+	        return false;
+
+        }
+
+	    return true;
+
+    }
+
+    // Function checks if the credentials that are input when updating an account are valid
+    public Boolean isValidUpdate(String firstName, String lastName, String email) {
+
+	    // All fields are required
+	    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
+
+	        return false;
+
+        }
+
+	    // Email should contain an @ and .
+	    if (!email.contains("@") && !email.contains(".")) {
+
+	        return false;
+
+        }
+
+	    return true;
+
+    }
+
+    public Boolean passwordMeetsRequirements(String password){
+	    // Must be longer than 5 characters
+        if(password.length() < 6){
+            return false;
+        }
+        return true;
+    }
+
+    public String updateUserPassword(User user, String currentPassword, String newPassword, String passwordConfirmation){
+	    // Check current password is correct
+        User loginCheck = validationService.validate(user.getEmail(), currentPassword);
+        if(loginCheck != null){
+            // Check new password and password confirmation match
+            if(newPassword.equals(passwordConfirmation)){
+                // Check new password meets requirements
+                if(this.passwordMeetsRequirements(newPassword)) {
+                    // Get new password hash
+                    byte[] salt = fromHex(user.getSalt());
+                    byte[] hash = generateHash(newPassword, salt);
+
+                    // Update DB
+                    if(dao.updatePassword(user, this.toHex(hash))){
+                        return "Password successfully updated";
+                    }
+                    return "Error updating password";
+                }
+                return "New password is invalid";
+            }
+            return "New password and password confirmation do not match";
+        }
+        return "Current Password is not correct";
+    }
+
 }

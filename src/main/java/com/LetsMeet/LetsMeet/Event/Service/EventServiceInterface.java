@@ -1,7 +1,11 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import java.time.Period;
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
+import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
@@ -13,7 +17,15 @@ public interface EventServiceInterface {
 
     public abstract Collection<Event> getUserEvents(String uuid);
     public abstract void setPermissions(String eventUuid, String userUuid, Boolean owner);
-    public abstract void addResponse(String eventUuid, String userUuid, String conditonSetUUID);
-    public abstract void removeResponse(String eventUuid, String userUuid);
+
+    // Management of ConditionSets
+
+    // Time
+    public abstract void setTimeRange(UUID event, List<DateTimeRange> ranges);
+    public abstract List<DateTimeRange> getTimeRange(UUID event);
+
+    // Services
+    public abstract void setServices(UUID event, List<String> services);
+    public abstract List<String> getServices(UUID event);
     
 }

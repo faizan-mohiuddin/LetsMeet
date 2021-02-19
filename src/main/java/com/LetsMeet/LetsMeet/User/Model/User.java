@@ -61,4 +61,33 @@ public class User {
         this.passwordHash = null;
         this.salt = null;
     }
+
+    public void switchFName(String fName){
+        if(!fName.equals("")){
+            this.fName = fName;
+        }
+    }
+
+    public void switchLName(String lName){
+        if(!lName.equals("")){
+            this.lName = lName;
+        }
+    }
+
+    public void switchEmail(String email){
+        if(!email.equals("")){
+            this.email = email;
+        }
+    }
+
+    public void prepareUpdate(){
+        // Store password hash and salt in object
+        if(this.passwordHash == null){
+
+        }
+
+        if(this.salt == null){
+
+        }
+    }
 }

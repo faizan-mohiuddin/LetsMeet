@@ -1,5 +1,7 @@
 package com.LetsMeet.LetsMeet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
 public class LetsMeetApplication implements CommandLineRunner{
+
+	// Get logger
+	private static final Logger LOGGER=LoggerFactory.getLogger(LetsMeetApplication.class);
 
 	// Load configuration
 	@Autowired
@@ -22,11 +27,7 @@ public class LetsMeetApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception{
-		System.out.println("Using configuration:");
-		System.out.println(config.getDatabaseHost());
-		System.out.println(config.getDatabaseName());
-		System.out.println(config.getDatabaseUser());
-		System.out.println(config.getDatabasePassword());
+		LOGGER.info("Using database configuration: {} @ {} with user {}", config.getDatabaseName(),config.getDatabaseHost(),config.getDatabaseUser());
 	}
 
 }

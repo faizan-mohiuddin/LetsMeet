@@ -7,9 +7,7 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
@@ -37,6 +35,8 @@ public class EventControllerWeb {
 
         } else {
 
+            model.addAttribute("user", user);
+
             return "createevent";
 
         }
@@ -44,17 +44,29 @@ public class EventControllerWeb {
     }
 
     @GetMapping("/saveevent")
-    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model){
-
-        model.addAttribute("eventname", eventname);
-        model.addAttribute("eventdesc", eventdesc);
-        model.addAttribute("eventlocation", eventlocation);
+    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model, RedirectAttributes redirectAttributes){
 
         User user = (User) session.getAttribute("userlogin");
 
-        EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+        if (user == null){
 
-        return "saveevent";
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            model.addAttribute("user", user);
+            model.addAttribute("eventname", eventname);
+            model.addAttribute("eventdesc", eventdesc);
+            model.addAttribute("eventlocation", eventlocation);
+
+
+            EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+
+            return "saveevent";
+
+        }
 
     }
 
@@ -71,11 +83,43 @@ public class EventControllerWeb {
 
         } else {
 
-            model.addAttribute("events", EventServiceInterface.getEvents());
+            model.addAttribute("user", user);
+
+            model.addAttribute("allevents", EventServiceInterface.getEvents());
 
             return "adminviewallevents";
 
         }
+    }
+
+    @GetMapping("/deleteevent/{eventuuid}")
+    public String deleteEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        if (user == null) {
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
+
+            return "redirect:/Home";
+
+        } else {
+
+            String tryDeleteEvent = EventServiceInterface.deleteEvent(eventuuid, user);
+
+            if (tryDeleteEvent.equals("Event successfully deleted.")) {
+
+                redirectAttributes.addFlashAttribute("success", "The event was successfully deleted.");
+
+            } else {
+
+                redirectAttributes.addFlashAttribute("danger", "An error occurred when deleting the event.");
+
+            }
+            return "redirect:/dashboard";
+
+        }
+
     }
 
 }
