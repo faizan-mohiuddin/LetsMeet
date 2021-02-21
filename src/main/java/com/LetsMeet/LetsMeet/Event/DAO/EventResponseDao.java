@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     // Logger
-    private static final Logger LOGGER=LoggerFactory.getLogger(EventPermissionDao.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(EventResponse.class);
 
     @Autowired
     DBConnector database;
@@ -106,10 +106,11 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
     @Override
     public Boolean save(EventResponse t) {
         database.open();
-        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, ConditionSetUUID) VALUES (?,?,?)")){
+        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, ConditionSetUUID, PollResponseUUID) VALUES (?,?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setString(3, t.getConditionSet().toString());
+            statement.setString(4, "{}");
             int rows = statement.executeUpdate();
 
             database.close();

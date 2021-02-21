@@ -50,7 +50,7 @@ public class EventResponseService {
     }
 
     public EventResponse getResponse(User user, Event event){
-        return dao.get(event.getUUID(), user.getUUID()).orElseThrow(IllegalArgumentException::new);
+        return dao.get(user.getUUID(), event.getUUID()).orElseThrow(IllegalArgumentException::new);
     }
 
     // Modification
@@ -59,7 +59,7 @@ public class EventResponseService {
     // set times
     public boolean setTimes(User user, Event event, List<DateTimeRange> ranges){
         try{
-        EventResponse response = dao.get(event.getUUID(), user.getUUID()).get();
+        EventResponse response = dao.get(user.getUUID(), event.getUUID()).orElse(createResponse(user, event));
         conditionSetService.addTimeRanges(response.getConditionSet(), ranges );
         return true;
         }
@@ -73,7 +73,7 @@ public class EventResponseService {
     public Optional<List<DateTimeRange>> getTimes(User user, Event event){
         try{
             // Call getTimeRange on ConditionSet which is member of the response between this user and this event
-            return Optional.of(conditionSetService.getTimeRange(dao.get(user.getUUID(), event.getUUID()).get().getConditionSet()).get());
+            return Optional.of(conditionSetService.getTimeRange(dao.get(event.getUUID(),user.getUUID()).get().getConditionSet()).get());
         }
         catch (Exception e){
             LOGGER.error("Failed to get times: {} ", e.getMessage());

@@ -9,6 +9,8 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,8 @@ import java.util.UUID;
 
 @RestController
 public class EventControllerAPI {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(EventControllerAPI.class);
 
     @Autowired
     EventService eventService;
@@ -242,14 +246,22 @@ public class EventControllerAPI {
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
 
-        if (result){
+        if (! (boolean) response[0]) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+        try{
             User user = userValidation.getUserFromToken(token);
 
-            return new ResponseEntity<List<DateTimeRange>>(responseService.getTimes(user, eventService.getEvent(eventUUID)).get(), HttpStatus.OK);
+            List<DateTimeRange> times = responseService.getTimes(user, eventService.getEvent(eventUUID)).orElseThrow(IllegalArgumentException::new);
+            return new ResponseEntity<List<DateTimeRange>>(times, HttpStatus.OK);
         }
-        else{
-            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);  
+        catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        catch(Exception e){
+            LOGGER.error("Failed to process request: {}", e.toString());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
 
     }
 
@@ -261,15 +273,20 @@ public class EventControllerAPI {
         @RequestBody List<DateTimeRange> times){
 
         Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
 
-        if (result){
+        if (! (boolean) response[0]) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+        try{
             User user = userValidation.getUserFromToken(token);
             if (responseService.setTimes(user, eventService.getEvent(eventUUID),times)){
                 return new ResponseEntity<String>("Times set",HttpStatus.OK);
             }
+            else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<String>("Failed",HttpStatus.I_AM_A_TEAPOT);  
+        catch (Exception e){
+            LOGGER.error("Failed to process request: {}", e.toString());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
     }
 
