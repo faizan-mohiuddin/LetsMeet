@@ -3,13 +3,17 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
+import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +30,9 @@ public class EventControllerAPI {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    EventResponseService responseService;
 
     // Request Mappings
     //-----------------------------------------------------------------
@@ -219,4 +226,51 @@ public class EventControllerAPI {
             return errorText;
         }
     }
+
+
+    /* Event Responses */
+
+    // Times
+    //-----------------------------------------------------------------
+
+    // Get times
+    @GetMapping("api/Event/{EventUUID}/Response/time")
+    public ResponseEntity<List<DateTimeRange>> responseTimeGet(
+        @RequestParam(value = "Token") String token,
+        @PathVariable(value = "EventUUID") String eventUUID){
+
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if (result){
+            User user = userValidation.getUserFromToken(token);
+
+            return new ResponseEntity<List<DateTimeRange>>(responseService.getTimes(user, eventService.getEvent(eventUUID)).get(), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);  
+        }
+
+    }
+
+    // Set times
+    @PutMapping("api/Event/{EventUUID}/Response/time")
+    public ResponseEntity<String> responseTimeSet(
+        @RequestParam(value = "Token") String token,
+        @PathVariable(value = "EventUUID") String eventUUID,
+        @RequestBody List<DateTimeRange> times){
+
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if (result){
+            User user = userValidation.getUserFromToken(token);
+            if (responseService.setTimes(user, eventService.getEvent(eventUUID),times)){
+                return new ResponseEntity<String>("Times set",HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<String>("Failed",HttpStatus.I_AM_A_TEAPOT);  
+
+    }
+
 }
