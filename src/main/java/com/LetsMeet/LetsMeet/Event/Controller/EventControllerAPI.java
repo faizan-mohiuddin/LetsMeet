@@ -1,16 +1,19 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class EventControllerAPI {
@@ -27,11 +30,13 @@ public class EventControllerAPI {
     // Request Mappings
     //-----------------------------------------------------------------
 
+    // Return all Events
     @GetMapping("api/Events")
     public Collection<Event> API_GetAllEvents(){
         return eventService.getEvents();
     }
 
+    // Return users events
     @GetMapping("api/MyEvents")
     public Collection<EventSanitised> API_GetMyEvents(@RequestParam(value="Token") String token) {
         Object[] response = userValidation.verifyAPItoken(token);
@@ -62,6 +67,14 @@ public class EventControllerAPI {
         return eventService.getEvent(UUID).convertToSanitised();
     }
 
+    @GetMapping("api/Event/{eventUUID}/times")
+    public List<DateTimeRange> getTimes(@PathVariable(value = "eventUUID") String eventUUID){
+        return eventService.getTimeRange(UUID.fromString(eventUUID));
+    }
+
+    // POST Mappings
+    //-----------------------------------------------------------------
+
     // Create event
     @PostMapping("api/Event")
     public String API_AddEvent(@RequestParam(value="Name") String Name, @RequestParam(value="Desc") String desc,
@@ -83,6 +96,56 @@ public class EventControllerAPI {
         }
 
     }
+
+    // PUT Mappings
+    //-----------------------------------------------------------------
+
+    // set users permisions on an event
+    @PutMapping("/api/Event/perms/{EventUUID}")
+    public String setPermisionLevel(@RequestParam(value = "Token", defaultValue = "") String token,
+                                    @PathVariable(value = "EventUUID") String eventUUID,
+                                    @RequestParam(value = "Owner", defaultValue = "false") boolean owner){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if (result){
+            User user = userValidation.getUserFromToken(token);
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+
+            return (eventService.setPermissions(eventService.getEvent(eventUUID), user , owner)) ? "Permisions updated" : "Permisions not updated";         
+        }
+        else{
+            // return the user validation error
+            return (String) response[1];
+        }
+    }
+
+    // set Event Times
+    @PutMapping("/api/Event/{EventUUID}/times")
+    public String setEventTimes(
+                                @RequestParam(value = "Token", defaultValue = "") String token,
+                                @PathVariable(value = "EventUUID") String eventUUID,
+                                @RequestBody List<DateTimeRange> datetime){
+         
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if (result){
+            User user = userValidation.getUserFromToken(token);
+            //User user  = userService.getUserByUUID("48f9f376-0dc0-38e4-bae9-f4e50f5f73db");
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+            return (eventService.setTimeRange(UUID.fromString(eventUUID), datetime)) ? "Event times set" : "Event TImes not set";         
+        }
+        else{
+            // return the user validation error
+            return (String) response[1];
+        }
+    }
+
 
     // Join event
     @PutMapping("api/Event/{EventUUID}")
@@ -129,6 +192,9 @@ public class EventControllerAPI {
             return "Token not valid.";
         }
     }
+
+    // DELETE Mappings
+    //-----------------------------------------------------------------
 
     // Delete event
     @DeleteMapping("api/Event/{EventUUID}")

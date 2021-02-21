@@ -16,12 +16,12 @@ public interface EventServiceInterface {
     public abstract Collection<Event> getEvents();
 
     public abstract Collection<Event> getUserEvents(String uuid);
-    public abstract void setPermissions(String eventUuid, String userUuid, Boolean owner);
+    public abstract Boolean setPermissions(Event event, User user, Boolean owner);
 
     // Management of ConditionSets
 
     // Time
-    public abstract void setTimeRange(UUID event, List<DateTimeRange> ranges);
+    public abstract boolean setTimeRange(UUID event, List<DateTimeRange> ranges);
     public abstract List<DateTimeRange> getTimeRange(UUID event);
 
     // Services

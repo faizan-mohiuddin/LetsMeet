@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -153,8 +154,15 @@ public class EventService implements EventServiceInterface {
 
     // Set the boolean isOwner for a user/event pair
     @Override
-    public void setPermissions(String eventUUID, String userUUID, Boolean owner) {
-        permissionDao.save(new EventPermission(UUID.fromString(eventUUID), UUID.fromString(userUUID), owner));
+    public Boolean setPermissions(Event event, User user, Boolean owner) {
+        try{
+            permissionDao.save(new EventPermission(event.getUUID(), user.getUUID(), owner));
+            return true;
+        }
+        catch (Exception e){
+            LOGGER.error("Could not set event permissions {}", e.getMessage());
+            return false;
+        }
     }
 
     // Returns true if given User owns event, otherwise false.
@@ -182,17 +190,28 @@ public class EventService implements EventServiceInterface {
 
     // Will add a new period to the time range constraint - use to set the periods that the event could take place.
     @Override
-    public void setTimeRange(UUID eventUuid, List<DateTimeRange> ranges) {
-        conditionSetService.addTimeRanges(eventDao.get(eventUuid).get().getConditions(), ranges);
+    public boolean setTimeRange(UUID eventUuid, List<DateTimeRange> ranges) {
+        try{
+            conditionSetService.addTimeRanges(eventDao.get(eventUuid).get().getConditions(), ranges);
+            return true;
+        }
+        catch(Exception e){
+            LOGGER.error("Could not set time range: {}", e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public List<DateTimeRange> getTimeRange(UUID eventUUID) {
+        List<DateTimeRange> test = new ArrayList();
+        test.add(new DateTimeRange(new Date(2021, 9, 12, 12, 5), new Date(2021, 9, 12, 12, 30)));
+
+        conditionSetService.addTimeRanges(eventDao.get(eventUUID).get().getConditions(), test);
         return conditionSetService.getTimeRange(eventDao.get(eventUUID).get().getConditions()).get();
     }
 
     @Override
-    public void setServices(UUID eventUuid, List<String> services) {
+    public boolean setServices(UUID eventUuid, List<String> services) {
         //conditionSetService.addServices(eventDao.get(eventUuid).get().getConditions(), services);
 
     }
