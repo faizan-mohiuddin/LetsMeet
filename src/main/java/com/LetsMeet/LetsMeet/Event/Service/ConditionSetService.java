@@ -1,7 +1,12 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -99,16 +104,25 @@ public class ConditionSetService implements ConditionSetServiceInterface {
         }
     }
 
+    public Boolean clearTimeRange(UUID uuid){
+        ConditionSet set = dao.get(uuid).orElseThrow(IllegalArgumentException::new);
+        set.getVariable("event_time").clearDomain();
+        dao.update(set);
+        return true;
+        //return (set.removeVariable("event_time")) ? dao.update(set) : false;
+    }
+
     @Override
     public void setServices(UUID eventUuid, List<String> services) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
+    @Override 
     public List<String> getServices(UUID event) {
         // TODO Auto-generated method stub
         return null;
     }
+
 
 }

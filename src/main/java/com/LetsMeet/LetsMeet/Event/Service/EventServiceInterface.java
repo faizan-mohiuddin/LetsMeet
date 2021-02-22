@@ -25,7 +25,7 @@ public interface EventServiceInterface {
     public abstract List<DateTimeRange> getTimeRange(UUID event);
 
     // Services
-    public abstract void setServices(UUID event, List<String> services);
+    public abstract boolean setServices(UUID event, List<String> services);
     public abstract List<String> getServices(UUID event);
     
 }

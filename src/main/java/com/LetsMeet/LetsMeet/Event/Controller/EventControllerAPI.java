@@ -258,7 +258,7 @@ public class EventControllerAPI {
     }
 
     // Get all users on an event
-    @GetMapping("api/Event/{EventUUID}/Response/User")
+    @GetMapping("api/Event/{EventUUID}/Response/Users")
     public ResponseEntity<List<UserSanitised>> getResponsesUsers(
         @PathVariable(value = "EventUUID") String eventUUID){
         
@@ -276,6 +276,28 @@ public class EventControllerAPI {
         catch(Exception e){
             LOGGER.error("Could not complete request: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);}
+    }
+
+    @PutMapping("api/Event/{EventUUID}/Response/User")
+    public ResponseEntity<String> addUser(
+        @PathVariable(value = "EventUUID") String eventUUID,
+        @RequestParam(value = "UserUUID") String userUUID,
+        @RequestParam(value = "required") Boolean userRequired){
+        
+        try{
+
+            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID));
+
+            //if (userRequired)
+                //userService.setRequired()
+            
+            return new ResponseEntity<>(HttpStatus.OK);
+            
+        }
+        catch (Exception e){
+            LOGGER.error("Could not complete request: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -333,6 +355,29 @@ public class EventControllerAPI {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    // Clear times
+    @DeleteMapping("api/Event/{EventUUID}/Response/time")
+    public ResponseEntity<String> responseTimeDelete(
+        @RequestParam(value = "Token") String token,
+        @PathVariable(value = "EventUUID") String eventUUID){
+
+        Object[] response = userValidation.verifyAPItoken(token);
+
+        if (! (boolean) response[0]) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+        try{
+            User user = userValidation.getUserFromToken(token);
+            Event event = eventService.getEvent(eventUUID);
+
+            return responseService.clearTimes(user, event) ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        }
+        catch (Exception e){
+            LOGGER.error("Failed to process request: {}", e.toString());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
     }
 
 }

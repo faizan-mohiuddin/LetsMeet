@@ -73,6 +73,10 @@ public class Variable<T extends Serializable> implements Serializable {
         this.domain = domain;
     }
 
+    public void clearDomain(){
+        this.domain.clear();
+    }
+
     @Override
     public String toString() {
         return "Variable [domain=" + domain + ", key=" + key + ", uuid=" + uuid + "]";

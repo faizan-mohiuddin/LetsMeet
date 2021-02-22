@@ -70,14 +70,37 @@ public class ConditionSet implements Serializable {
         this.name = name;
     }
 
-    //TODO overwrite prevention
+    public void setVariables (LinkedHashMap<String, Variable<?>> variables){
+        this.variables= variables;
+    }
+
+    public void setConstraints (LinkedHashMap<String,Constraint<?>> constraints){
+        this.constraints = constraints;
+    }
+
+
+    // Add
+    //-----------------------------------------------------------------
+    
+
     public void addVariable(Variable<?> variable){
             this.variables.put(variable.key, variable);
     }   
 
-    //TODO overwrite prevention
     public void addConstraint(Constraint<?> constraint){
         this.constraints.put(constraint.uuid.toString(), constraint);
     }
+
+    // Delete
+    //-----------------------------------------------------------------
+
+    public Boolean removeVariable(String key){
+        return (this.variables.remove(key) != null) ? true : false;
+    }
+
+    public Boolean removeConstraint(String key){
+        return (this.constraints.remove(key) != null) ? true : false;
+    }
+
 
 }

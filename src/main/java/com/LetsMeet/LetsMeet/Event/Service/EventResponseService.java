@@ -81,4 +81,17 @@ public class EventResponseService {
         }
     }
 
+    // clear times
+    public boolean clearTimes(User user, Event event){
+        try{
+            EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElseThrow(IllegalArgumentException::new);
+            conditionSetService.clearTimeRange(response.getConditionSet());
+            return true;
+        }
+        catch(Exception e){
+            LOGGER.error("Failed to clear times: {} ", e.getMessage());
+            return false;
+        }
+    }
+
 }

@@ -203,16 +203,17 @@ public class EventService implements EventServiceInterface {
 
     @Override
     public List<DateTimeRange> getTimeRange(UUID eventUUID) {
-        List<DateTimeRange> test = new ArrayList();
-        test.add(new DateTimeRange(new Date(2021, 9, 12, 12, 5), new Date(2021, 9, 12, 12, 30)));
+        //List<DateTimeRange> test = new ArrayList();
+        //test.add(new DateTimeRange(new Date(2021, 9, 12, 12, 5), new Date(2021, 9, 12, 12, 30)));
 
-        conditionSetService.addTimeRanges(eventDao.get(eventUUID).get().getConditions(), test);
+        //conditionSetService.addTimeRanges(eventDao.get(eventUUID).get().getConditions(), test);
         return conditionSetService.getTimeRange(eventDao.get(eventUUID).get().getConditions()).get();
     }
 
     @Override
     public boolean setServices(UUID eventUuid, List<String> services) {
-        //conditionSetService.addServices(eventDao.get(eventUuid).get().getConditions(), services);
+        // TODO Auto-generated method stub
+        return false;
 
     }
 
@@ -252,6 +253,12 @@ public class EventService implements EventServiceInterface {
             return "You are already a participant of this event.";
         }
     }
+
+
+   /* ----- DEPRECIATED ------
+   Be aware that these methods shall be removed in future versions and should not be referenced
+   ---------------------------*/
+
 
     @Deprecated // Use SetPermission to "join" user as Owner 
     public String leaveEvent(String EventUUID, String UserUUID) {
@@ -294,9 +301,6 @@ public class EventService implements EventServiceInterface {
         }
         return false;
     }
-
-
-
 }
 
 
