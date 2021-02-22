@@ -1,14 +1,18 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
+import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +41,9 @@ public class EventControllerAPI {
 
     @Autowired
     EventResponseService responseService;
+
+    @Autowired
+    EventResponseDao responseData;
 
     // Request Mappings
     //-----------------------------------------------------------------
@@ -233,6 +240,44 @@ public class EventControllerAPI {
 
 
     /* Event Responses */
+
+    // General
+    //-----------------------------------------------------------------
+
+    // Get all responses to an event
+    @GetMapping("api/Event/{EventUUID}/Response")
+    public ResponseEntity<List<EventResponse>> getResponses(
+        @PathVariable(value = "EventUUID") String eventUUID){
+        
+        try{
+            List<EventResponse> eventResponse = responseData.get(UUID.fromString(eventUUID)).orElseThrow(IllegalArgumentException::new);
+            return new ResponseEntity<List<EventResponse>>(eventResponse,HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e){return new ResponseEntity<>(HttpStatus.NOT_FOUND);}
+        catch(Exception e){return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);}
+    }
+
+    // Get all users on an event
+    @GetMapping("api/Event/{EventUUID}/Response/User")
+    public ResponseEntity<List<UserSanitised>> getResponsesUsers(
+        @PathVariable(value = "EventUUID") String eventUUID){
+        
+        try{
+            ArrayList <UserSanitised> eventUsers = new ArrayList<>();
+            List<EventResponse> eventResponse = responseData.get(UUID.fromString(eventUUID)).orElseThrow(IllegalArgumentException::new);
+
+            for (EventResponse r : eventResponse){
+                User user = userService.getUserByUUID(r.getUser().toString());
+                eventUsers.add(user.convertToUser());
+            }
+            return new ResponseEntity<List<UserSanitised>>(eventUsers,HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e){return new ResponseEntity<>(HttpStatus.NOT_FOUND);}
+        catch(Exception e){
+            LOGGER.error("Could not complete request: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);}
+    }
+
 
     // Times
     //-----------------------------------------------------------------

@@ -59,7 +59,7 @@ public class EventResponseService {
     // set times
     public boolean setTimes(User user, Event event, List<DateTimeRange> ranges){
         try{
-        EventResponse response = dao.get(user.getUUID(), event.getUUID()).orElse(createResponse(user, event));
+        EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElse(createResponse(user, event));
         conditionSetService.addTimeRanges(response.getConditionSet(), ranges );
         return true;
         }

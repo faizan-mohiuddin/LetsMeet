@@ -78,8 +78,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
             while(rs.next())
                 records.add(new EventResponse(
-                    UUID.fromString(rs.getString("UserUUID")), 
                     UUID.fromString(rs.getString("EventUUID")), 
+                    UUID.fromString(rs.getString("UserUUID")), 
                     UUID.fromString(rs.getString("ConditionSetUUID"))));
 
             database.close();
