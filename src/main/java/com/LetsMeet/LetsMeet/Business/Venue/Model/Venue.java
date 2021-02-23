@@ -10,4 +10,12 @@ public class Venue {
         this.venueUUID = uuid;
         this.name = name;
     }
+
+    public UUID getUUID(){
+        return this.venueUUID;
+    }
+
+    public String getName(){
+        return this.name;
+    }
 }

@@ -133,6 +133,10 @@ public class BusinessVenueTests {
 
         String venueName = RandomStringUtils.randomAlphabetic(8);
         String response = venueController.API_createVenue(user.token, business.UUID, venueName);
+        assertEquals("Venue created successfully", response);
+
+        // Check DB
+        
     }
 
     @Test
@@ -175,6 +179,7 @@ public class BusinessVenueTests {
     // Get user businesses
     // Get business venues
     // When business is deleted - venues are deleted
+    // Create venue with invalid business
 
     @Test
     @Order(50)

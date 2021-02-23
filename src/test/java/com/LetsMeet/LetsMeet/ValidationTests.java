@@ -211,6 +211,7 @@ public class ValidationTests {
     // Check only event owner can update event
     // Check who can delete business
     // Check only condition set owner can update condition set
+    // Check who can create venue on behalf of business
 
 
     @Test
