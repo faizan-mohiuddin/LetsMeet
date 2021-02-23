@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.Constraint;
 import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
@@ -47,6 +48,7 @@ public class EventService implements EventServiceInterface {
 
     @Autowired
     ConditionSetService conditionSetService;
+
 
     /* -- CRUD operations -- */
 
@@ -192,7 +194,8 @@ public class EventService implements EventServiceInterface {
     @Override
     public boolean setTimeRange(UUID eventUuid, List<DateTimeRange> ranges) {
         try{
-            conditionSetService.addTimeRanges(eventDao.get(eventUuid).get().getConditions(), ranges);
+            Event event = eventDao.get(eventUuid).get();
+            conditionSetService.addTimeRanges(conditionSetService.get(event.getConditions()), ranges);
             return true;
         }
         catch(Exception e){
@@ -203,18 +206,14 @@ public class EventService implements EventServiceInterface {
 
     @Override
     public List<DateTimeRange> getTimeRange(UUID eventUUID) {
-        //List<DateTimeRange> test = new ArrayList();
-        //test.add(new DateTimeRange(new Date(2021, 9, 12, 12, 5), new Date(2021, 9, 12, 12, 30)));
-
-        //conditionSetService.addTimeRanges(eventDao.get(eventUUID).get().getConditions(), test);
-        return conditionSetService.getTimeRange(eventDao.get(eventUUID).get().getConditions()).get();
+        Event event = eventDao.get(eventUUID).get();
+        return conditionSetService.getTimeRange(conditionSetService.get(event.getConditions())).get();
     }
 
     @Override
     public boolean setServices(UUID eventUuid, List<String> services) {
         // TODO Auto-generated method stub
         return false;
-
     }
 
     @Override
