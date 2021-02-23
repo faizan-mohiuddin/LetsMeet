@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.DAO.ConditionSetDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
@@ -48,7 +47,7 @@ public class ConditionSetServiceTests {
 
     @Test
     @Order(3)
-    public void addPeriod(){
+    public void addTime(){
 
         // Create a conditionset
         ConditionSet set = service.createDefault();
@@ -57,11 +56,11 @@ public class ConditionSetServiceTests {
         List<DateTimeRange> values= new ArrayList<>();
         DateTimeRange date = new DateTimeRange(new Date(2002, 01, 9), new Date(2021, 02, 12));
         values.add(date);
-        service.addTimeRanges(set.getUUID(), values);
+        service.addTimeRanges(set, values);
 
         // Check it saves/loads correct
-        assertEquals(date.getEnd(), service.getTimeRange(set.getUUID()).get().get(0).getEnd());
-        assertEquals(date.getStart(), service.getTimeRange(set.getUUID()).get().get(0).getStart());
+        assertEquals(date.getEnd(), service.getTimeRange(set).get().get(0).getEnd());
+        assertEquals(date.getStart(), service.getTimeRange(set).get().get(0).getStart());
 
         // Delete it
         service.delete(set.getUUID());
