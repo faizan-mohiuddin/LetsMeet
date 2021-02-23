@@ -11,6 +11,7 @@ import java.io.Serializable;
 //-----------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 //-----------------------------------------------------------------
@@ -21,7 +22,7 @@ public class Variable<T extends Serializable> implements Serializable {
     String key;
     ArrayList<T> domain;
     
-
+    @Deprecated
     public Variable(UUID uuid, String key, T[] domain){
         this.uuid = uuid;
         this.key = key;
@@ -31,7 +32,22 @@ public class Variable<T extends Serializable> implements Serializable {
         }
     }
 
+    public Variable(UUID uuid, String key, List<T> domain){
+        this.uuid = uuid;
+        this.key = key;
+        this.domain = new ArrayList<T>();
+        for (T e : domain){
+            this.domain.add(e);
+        }
+       //this.domain.addAll(domain);
+    }
+
+    @Deprecated
     public Variable(String key, T[] domain){
+        this(UUID.randomUUID(),key,domain);
+    }
+
+    public Variable(String key, List<T> domain){
         this(UUID.randomUUID(),key,domain);
     }
 

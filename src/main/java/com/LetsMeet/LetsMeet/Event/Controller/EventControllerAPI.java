@@ -12,7 +12,6 @@ import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
-import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,7 +151,6 @@ public class EventControllerAPI {
 
         if (result){
             User user = userValidation.getUserFromToken(token);
-            //User user  = userService.getUserByUUID("48f9f376-0dc0-38e4-bae9-f4e50f5f73db");
             if (user == null) {
                 return "Error finding user. Is the token still valid? Is the user account still active?";
             }
@@ -317,8 +315,8 @@ public class EventControllerAPI {
 
         try{
             User user = userValidation.getUserFromToken(token);
-
-            List<DateTimeRange> times = responseService.getTimes(user, eventService.getEvent(eventUUID)).orElseThrow(IllegalArgumentException::new);
+            
+            List<DateTimeRange> times = responseService.getTimes(responseData.get(UUID.fromString(eventUUID), user.getUUID()).get()).get();
             return new ResponseEntity<List<DateTimeRange>>(times, HttpStatus.OK);
         }
         catch(IllegalArgumentException e){
@@ -328,8 +326,6 @@ public class EventControllerAPI {
             LOGGER.error("Failed to process request: {}", e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 
     // Set times
@@ -345,7 +341,7 @@ public class EventControllerAPI {
 
         try{
             User user = userValidation.getUserFromToken(token);
-            if (responseService.setTimes(user, eventService.getEvent(eventUUID),times)){
+            if (responseService.setTimes(responseData.get(UUID.fromString(eventUUID), user.getUUID()).get(), times)){
                 return new ResponseEntity<String>("Times set",HttpStatus.OK);
             }
             else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -354,7 +350,6 @@ public class EventControllerAPI {
             LOGGER.error("Failed to process request: {}", e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     // Clear times
@@ -371,13 +366,11 @@ public class EventControllerAPI {
             User user = userValidation.getUserFromToken(token);
             Event event = eventService.getEvent(eventUUID);
 
-            return responseService.clearTimes(user, event) ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            return responseService.clearTimes(responseData.get(UUID.fromString(eventUUID), user.getUUID()).get()) ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
         catch (Exception e){
             LOGGER.error("Failed to process request: {}", e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        
+        }   
     }
-
 }

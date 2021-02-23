@@ -1,12 +1,15 @@
+//-----------------------------------------------------------------
+// ConditionSetService.java
+// Let's Meet 2021
+//
+// Operations possible on a condition set
 package com.LetsMeet.LetsMeet.Event.Service;
 
+//-----------------------------------------------------------------
+
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -21,13 +24,27 @@ import com.LetsMeet.LetsMeet.Event.Model.Variable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+//-----------------------------------------------------------------
+
 @Service
 public class ConditionSetService implements ConditionSetServiceInterface {
+
+    // Constants definitions
+    //-----------------------------------------------------------------
+    private static String EVENT_TIME = "event_time";
+    private static String EVENT_SERVICE = "event_services";
+
+    // Components
+    //-----------------------------------------------------------------
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ConditionSetService.class);
 
     @Autowired
     ConditionSetDao dao;
+
+
+    // ConditionSet helpers for creation
+    //-----------------------------------------------------------------
 
     @Override
     public ConditionSet createEmpty() {
@@ -51,12 +68,25 @@ public class ConditionSetService implements ConditionSetServiceInterface {
         return true;
     }
 
+    public ConditionSet get(UUID conditionSetUUID){
+        return dao.get(conditionSetUUID).get();
+    }
+
+    //-----------------------------------------------------------------
+    // Contents management - Variables
+    //-----------------------------------------------------------------
+
     @Override
-    public Boolean addVariable(UUID conditionSet, Variable<?> variable) {
+    public Boolean addVariable(ConditionSet conditionSet, Variable<? extends Serializable> variable) {
         try{
-            ConditionSet set = dao.get(conditionSet).get();
-            set.addVariable(variable);
-            dao.update(set);
+            // Append the data to existing variable if 
+            if (conditionSet.getVariable(variable.getKey()) != null){
+                return appendVariable(conditionSet.getVariable(variable.getKey()), variable);
+            }
+            else{
+                conditionSet.addVariable(variable);
+                dao.update(conditionSet);
+            }
             return true;
         }
         catch( Exception e){
@@ -65,55 +95,70 @@ public class ConditionSetService implements ConditionSetServiceInterface {
         }
     }
 
-    @Override
-    public Boolean addConstraint(UUID conditionSet, Constraint<?> constraint) {
+    // Appends the contents of one variable to the existing one.
+    private Boolean appendVariable(Variable<Serializable> variable1, Variable<? extends Serializable> variable){
+
+        for (Serializable o : variable.getDomain()){
+            variable1.append(o);
+        }
+        return true;
+    }
+
+    public Boolean removeVariable(ConditionSet conditionSet, String key){
         try{
-            ConditionSet set = dao.get(conditionSet).get();
-            set.addConstraint(constraint);;
-            dao.update(set);
+            conditionSet.removeVariable(key);
             return true;
         }
         catch( Exception e){
-            LOGGER.error("Could not add new constraint", e);
+            LOGGER.error("Could not remove variable", e);
             return false;
+        }  
+    }
+
+    // Helpers for common variable types
+    //-----------------------------------------------------------------
+
+    // EVENT_TIME
+
+    @Override
+    public void addTimeRanges(ConditionSet conditionSet, List<DateTimeRange> ranges) {
+        try{
+            addVariable(conditionSet, new Variable<>(EVENT_TIME, ranges));
+            dao.update(conditionSet);
+        }
+        catch( Exception e){
+            LOGGER.error("Could not add to event_time: {}", e.getMessage());
         }
     }
 
     @Override
-    public void addTimeRanges(UUID uuid, List<DateTimeRange> ranges) {
+    public Optional<List<DateTimeRange>> getTimeRange(ConditionSet conditionSet) {
         try{
-            ConditionSet set = dao.get(uuid).get();
-            for (DateTimeRange i : ranges){
-                set.getVariable("event_time").append(i);
-            }
-            dao.update(set);
+            return Optional.ofNullable(conditionSet.getVariable(EVENT_TIME).getDomain());
         }
         catch( Exception e){
-            LOGGER.error("Could not add to event_time:", e);
-        }
-    }
-
-    @Override
-    public Optional<List<DateTimeRange>> getTimeRange(UUID uuid) {
-        try{
-            return Optional.ofNullable(dao.get(uuid).get().getVariable("event_time").getDomain());
-        }
-        catch( Exception e){
-            LOGGER.error("Could not get event_time:", e);
+            LOGGER.error("Could not get event_time: {}", e.getMessage());
             return Optional.empty();
         }
     }
 
-    public Boolean clearTimeRange(UUID uuid){
-        ConditionSet set = dao.get(uuid).orElseThrow(IllegalArgumentException::new);
-        set.getVariable("event_time").clearDomain();
-        dao.update(set);
-        return true;
-        //return (set.removeVariable("event_time")) ? dao.update(set) : false;
+    public Boolean clearTimeRange(ConditionSet conditionSet){
+        try{
+            removeVariable(conditionSet, EVENT_TIME);
+            dao.update(conditionSet);
+            return true;
+        }
+        catch( Exception e){
+            LOGGER.error("Could not delete event_time: {}", e.getMessage());
+            return false;
+        }
     }
 
+    // EVENT_SERVICES
+    //TODO
+    
     @Override
-    public void setServices(UUID eventUuid, List<String> services) {
+    public void setServices(ConditionSet conditionSet, List<String> services) {
         // TODO Auto-generated method stub
 
     }
@@ -124,5 +169,19 @@ public class ConditionSetService implements ConditionSetServiceInterface {
         return null;
     }
 
+    // Contents management - Constraints
+    //-----------------------------------------------------------------
 
+    @Override
+    public Boolean addConstraint(ConditionSet conditionSet, Constraint<?> constraint) {
+        try{
+            conditionSet.addConstraint(constraint);
+            dao.update(conditionSet);
+            return true;
+        }
+        catch( Exception e){
+            LOGGER.error("Could not add new constraint", e);
+            return false;
+        }
+    }
 }

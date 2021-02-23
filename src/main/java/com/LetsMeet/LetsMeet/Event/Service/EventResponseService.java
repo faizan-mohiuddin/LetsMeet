@@ -38,6 +38,7 @@ public class EventResponseService {
     @Autowired
     ConditionSetService conditionSetService;
 
+
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventService.class);
 
@@ -57,11 +58,12 @@ public class EventResponseService {
     //-----------------------------------------------------------------
 
     // set times
-    public boolean setTimes(User user, Event event, List<DateTimeRange> ranges){
+    public boolean setTimes(EventResponse response, List<DateTimeRange> ranges){
         try{
-        EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElse(createResponse(user, event));
-        conditionSetService.addTimeRanges(response.getConditionSet(), ranges );
-        return true;
+            //EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElse(createResponse(user, event));
+            conditionSetService.addTimeRanges(conditionSetService.get(response.getConditionSet()), ranges);
+            dao.update(response);
+            return true;
         }
         catch (Exception e){
             LOGGER.error("Failed to add response: {} ", e.getMessage());
@@ -70,10 +72,9 @@ public class EventResponseService {
     }
 
     // get times
-    public Optional<List<DateTimeRange>> getTimes(User user, Event event){
+    public Optional<List<DateTimeRange>> getTimes(EventResponse response){
         try{
-            // Call getTimeRange on ConditionSet which is member of the response between this user and this event
-            return Optional.of(conditionSetService.getTimeRange(dao.get(event.getUUID(),user.getUUID()).get().getConditionSet()).get());
+            return conditionSetService.getTimeRange(conditionSetService.get(response.getConditionSet()));
         }
         catch (Exception e){
             LOGGER.error("Failed to get times: {} ", e.getMessage());
@@ -82,10 +83,10 @@ public class EventResponseService {
     }
 
     // clear times
-    public boolean clearTimes(User user, Event event){
+    public boolean clearTimes(EventResponse response){
         try{
-            EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElseThrow(IllegalArgumentException::new);
-            conditionSetService.clearTimeRange(response.getConditionSet());
+            conditionSetService.clearTimeRange(conditionSetService.get(response.getConditionSet()));
+            dao.update(response);
             return true;
         }
         catch(Exception e){
