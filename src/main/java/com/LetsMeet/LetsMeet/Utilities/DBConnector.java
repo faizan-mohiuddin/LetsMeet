@@ -13,29 +13,23 @@ public class DBConnector {
     @Autowired
     LetsMeetConfiguration config;
 
+    @Autowired
+    DatabaseInterface database;
+
     public Connection con;
 
     public Connection getCon(){
         return con;
     }
-
+    @Deprecated // use DatabaseInterface .get() instead
     public void open() {
-        try {
-            System.out.println("Connecting to " + config.getDatabaseName() + "@" + config.getDatabaseHost());
-            
-            this.con = DriverManager.getConnection(this.config.getDatabaseHost() + "/" + this.config.getDatabaseName(),
-                    this.config.getDatabaseUser(), this.config.getDatabasePassword());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        //database.openConnection();
+        this.con = database.get();
     }
 
+    @Deprecated // use DatabaseInterface .drop() instead
     public void close(){
-        try {
-            this.con.close();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        database.drop();
     }
 }
 
