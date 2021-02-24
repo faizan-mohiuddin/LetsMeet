@@ -85,6 +85,22 @@ public class VenueDAO implements DAO<Venue> {
 
     @Override
     public Boolean delete(UUID uuid) {
-        return null;
+        database.open();
+        try(Statement statement = database.con.createStatement()){
+
+            String query;
+            String venueUUID = uuid.toString();
+
+            query = String.format("DELETE FROM Venue where Venue.VenueUUID = '%s'", venueUUID);
+            statement.executeUpdate(query);
+
+            return true;
+
+        }catch(Exception e){
+            System.out.println("Venue Dao: delete (UUID)");
+            database.close();
+            e.printStackTrace();
+            return false;
+        }
     }
 }

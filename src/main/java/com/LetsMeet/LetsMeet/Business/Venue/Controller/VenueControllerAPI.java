@@ -4,6 +4,7 @@ import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,20 @@ public class VenueControllerAPI {
         if(result) {
             User user = userValidation.getUserFromToken(token);
             return venueService.createVenue(user, Name, businessUUID);
+        }else{
+            return (String) response[1];
+        }
+    }
+
+    @DeleteMapping("api/Venue")
+    public String API_deleteVenue(@RequestParam(value="Token") String token, @RequestParam(value="VenueID") String venueUUID){
+        // Check token
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result) {
+            User user = userValidation.getUserFromToken(token);
+            return venueService.deleteVenue(user, venueUUID);
         }else{
             return (String) response[1];
         }

@@ -13,10 +13,12 @@ import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
+import com.LetsMeet.LetsMeet.DBChecks.VenueDBChecker;
 import com.LetsMeet.LetsMeet.Event.Controller.EventControllerAPI;
 import com.LetsMeet.LetsMeet.TestingTools.TestingBusiness;
 import com.LetsMeet.LetsMeet.TestingTools.TestingEvents;
 import com.LetsMeet.LetsMeet.TestingTools.TestingUsers;
+import com.LetsMeet.LetsMeet.TestingTools.TestingVenue;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -53,6 +55,9 @@ public class BusinessVenueTests {
     BusinessDBChecker businessChecker;
 
     @Autowired
+    VenueDBChecker venueDBChecker;
+
+    @Autowired
     BusinessDAO businessDB;
 
     @Autowired
@@ -67,6 +72,7 @@ public class BusinessVenueTests {
     private static ArrayList<TestingUsers> testUsers = new ArrayList<>();
     private static ArrayList<TestingEvents> testEvents = new ArrayList<>();
     private static ArrayList<TestingBusiness> testBusiness = new ArrayList<>();
+    private static ArrayList<TestingVenue> testVenue = new ArrayList<>();
 
 
     @Test
@@ -159,7 +165,25 @@ public class BusinessVenueTests {
     @Test
     @Order(5)
     public void deleteVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
 
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        String response = venueController.API_deleteVenue(user.token, venue.uuid);
+        assertEquals("Venue successfully deleted", response);
+
+        // Check DB
+
+
+        testUsers.clear();
+        testBusiness.clear();
+        testVenue.clear();
     }
 
     @Test
@@ -193,6 +217,7 @@ public class BusinessVenueTests {
         testUsers.clear();
     }
 
+    // When business owner deletes account, check venue is deleted as well (when there is no owners left with accounts)
     // Get user businesses
     // Get business venues
     // When business is deleted - venues are deleted
@@ -251,6 +276,14 @@ public class BusinessVenueTests {
     private void login(TestingUsers user){
         String token = this.userController.API_Login(user.email, user.password);
         user.token = token;
+    }
+
+    private void generateVenue(String userToken, String businessUUID){
+        String name = RandomStringUtils.randomAlphabetic(8);
+        this.venueController.API_createVenue(userToken, businessUUID, name);
+        TestingVenue venue = new TestingVenue(venueDBChecker.venueUUIDFromNameandBusinessUUID(name, businessUUID), name);
+
+        testVenue.add(venue);
     }
 
 }

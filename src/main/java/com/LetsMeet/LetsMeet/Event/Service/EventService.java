@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
@@ -48,6 +49,9 @@ public class EventService implements EventServiceInterface {
 
     @Autowired
     ConditionSetService conditionSetService;
+
+    @Autowired
+    UserService userService;
 
 
     /* -- CRUD operations -- */
@@ -175,6 +179,20 @@ public class EventService implements EventServiceInterface {
             return response.get().getIsOwner();
         }
         return false;
+    }
+
+    // Returns list of users in an event
+    public List<User> EventsUsers(UUID eventUUID){
+        List<User> users = new ArrayList<>();
+
+        // Get list of users permissions
+        List<EventPermission> eventPerms = permissionDao.get(eventUUID.toString()).get();
+
+        // Get each user on permissions list
+        for(EventPermission e : eventPerms){
+            users.add(userService.getUserByUUID(e.getUser().toString()));
+        }
+        return users;
     }
 
     //-----------------------------------------------------------------

@@ -212,10 +212,11 @@ public class ValidationTests {
     // Check who can delete business
     // Check only condition set owner can update condition set
     // Check who can create venue on behalf of business
+    // Check who can delete venue
 
 
     @Test
-    @Order(6)
+    @Order(60)
     public void cleanup(){
         // Remove test records from DB
         UserDB.clearTestData();

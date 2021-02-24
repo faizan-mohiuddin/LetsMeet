@@ -55,6 +55,17 @@ public class VenueService {
         return "Error creating venue";
     }
 
+    public String deleteVenue(User user, String venueUUID){
+        // Check user has permission to delete
+        // Delete business
+        if(DAO.delete(UUID.fromString(venueUUID))){
+            return "Venue successfully deleted";
+        }else{
+            return "Error deleting event";
+        }
+        //return "You dont have permission to delete this venue";
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();
