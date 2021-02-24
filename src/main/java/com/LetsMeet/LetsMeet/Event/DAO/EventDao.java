@@ -19,10 +19,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
 import com.google.gson.Gson;
 
@@ -37,9 +36,6 @@ public class EventDao implements DAO<Event> {
     // Components
     //-----------------------------------------------------------------
     @Autowired
-    DBConnector database;
-
-    @Autowired
     EventPermissionDao hasUsers;
 
     // Get
@@ -51,8 +47,7 @@ public class EventDao implements DAO<Event> {
     }
 
     public Optional<Event> get(String uuid) {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()) {
             String query = String.format("select * from Event where Event.EventUUID = '%s'", uuid);
 
             ResultSet rs = statement.executeQuery(query);
@@ -68,11 +63,11 @@ public class EventDao implements DAO<Event> {
                 UUID.fromString(rs.getString("ConditionSet")),
                 new Gson().fromJson(rs.getString("Poll"), Poll.class)));
 
-            database.close();
+            DatabaseInterface.drop();
             return event;
 
         }catch(Exception e){
-            database.close();
+            DatabaseInterface.drop();
             System.out.println("\nEvent Dao: get (String)");
             System.out.println(e);
             return Optional.empty();
@@ -82,8 +77,7 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Optional<Collection<Event>> getAll() {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()){
             ResultSet rs = statement.executeQuery("select * from Event");
             List<Event> events = new ArrayList<>();
 
@@ -97,12 +91,12 @@ public class EventDao implements DAO<Event> {
                     UUID.fromString(rs.getString("ConditionSet")),
                     new Gson().fromJson(rs.getString("Poll"), Poll.class)));
             }
-            database.close();
+            DatabaseInterface.drop();
             return Optional.ofNullable(events);
 
         }catch(Exception e){
             System.out.println("\nEvent Dao: getALL");
-            database.close();
+            DatabaseInterface.drop();
             e.printStackTrace();
             return Optional.empty();
         }  
@@ -114,10 +108,9 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Boolean save(Event t) {
-        database.open();
 
         // Save the event
-        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, ConditionSet, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, ConditionSet, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
 
             statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getName());
@@ -128,7 +121,7 @@ public class EventDao implements DAO<Event> {
             statement.setString(7, new Gson().toJson(t.getProperties()));
 
             if(statement.executeUpdate() > 0){
-                database.close();
+                DatabaseInterface.drop();
                 return true;
             }else{
                 throw new Exception("Nothing added to DB");
@@ -136,7 +129,7 @@ public class EventDao implements DAO<Event> {
 
         }catch(Exception e){
             System.out.println("Event Dao : save");
-            database.close();
+            DatabaseInterface.drop();
             e.printStackTrace();
             return false;
         }
@@ -148,9 +141,8 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Boolean update(Event t) {
-        database.open();
         // Save the event
-        try(PreparedStatement statement = database.getCon().prepareStatement("UPDATE Event SET Name = ?, Description = ?, Location = ?, ConditionSet = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Event SET Name = ?, Description = ?, Location = ?, ConditionSet = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
 
             statement.setString(1, t.getName());
             statement.setString(2, t.getDescription());
@@ -161,7 +153,7 @@ public class EventDao implements DAO<Event> {
             statement.setString(7, t.getUUID().toString());
 
             if(statement.executeUpdate() > 0){
-                database.close();
+                DatabaseInterface.drop();
                 return true;
             }else{
                 throw new Exception("Nothing added to DB");
@@ -169,7 +161,7 @@ public class EventDao implements DAO<Event> {
 
         }catch(Exception e){
             System.out.println("Event Dao : save");
-            database.close();
+            DatabaseInterface.drop();
             e.printStackTrace();
             return false;
         }
@@ -186,8 +178,7 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Boolean delete(UUID uuid) {
-        database.open();
-        try(Statement statement = database.con.createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()){
         
             String query;
             String eventUUID = uuid.toString();
@@ -202,7 +193,7 @@ public class EventDao implements DAO<Event> {
 
         }catch(Exception e){
             System.out.println("Event Dao: delete (UUID)");
-            database.close();
+            DatabaseInterface.drop();
             e.printStackTrace();
             return false;
         }
@@ -235,13 +226,13 @@ public class EventDao implements DAO<Event> {
             }
 
             Optional<Collection<Event>> response = Optional.ofNullable(events);
-            database.close();
+            DatabaseInterface.drop()
              return response;
 
         }catch(Exception e){
             System.out.println("\nEvent Dao : get user events");
             e.printStackTrace();
-            database.close();
+            DatabaseInterface.drop()
             return Optional.empty();
         }
     }
