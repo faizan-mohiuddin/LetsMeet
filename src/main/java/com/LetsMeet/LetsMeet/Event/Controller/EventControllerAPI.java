@@ -236,6 +236,26 @@ public class EventControllerAPI {
         }
     }
 
+    // Properties
+    //-----------------------------------------------------------------
+    @GetMapping("api/Event/{EventUUID}/Properties")
+    public ResponseEntity<String> eventGetProperty(
+        @PathVariable(value = "EventUUID") String eventUUID,
+        @RequestParam(value = "property") String propertyKey){
+        
+        return new ResponseEntity<>(eventService.getProperty(eventService.getEvent(eventUUID), propertyKey), HttpStatus.OK);      
+    }
+
+    @PutMapping("api/Event/{EventUUID}/Properties")
+    public ResponseEntity<String> eventGetProperty(
+        @PathVariable(value = "EventUUID") String eventUUID,
+        @RequestParam(value = "property") String propertyKey,
+        @RequestParam(value = "value") String value){
+        
+        eventService.setProperty(eventService.getEvent(eventUUID), propertyKey, value);
+        return new ResponseEntity<>(HttpStatus.OK);     
+    }
+
 
     /* Event Responses */
 
@@ -373,4 +393,6 @@ public class EventControllerAPI {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }   
     }
+
+
 }
