@@ -10,4 +10,12 @@ public class VenueBusiness {
         this.businessUUID = businessUUID;
         this.venueUUID = venueUUID;
     }
+
+    public UUID getVenueUUID() {
+        return venueUUID;
+    }
+
+    public UUID getBusinessUUID() {
+        return businessUUID;
+    }
 }

@@ -6,6 +6,10 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessOwnerDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
 import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerAPI;
+import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueBusinessDAO;
+import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
@@ -53,6 +57,12 @@ public class BusinessVenueTests {
 
     @Autowired
     BusinessOwnerDAO ownerDB;
+
+    @Autowired
+    VenueBusinessDAO venueBusinessDAO;
+
+    @Autowired
+    VenueDAO venueDAO;
 
     private static ArrayList<TestingUsers> testUsers = new ArrayList<>();
     private static ArrayList<TestingEvents> testEvents = new ArrayList<>();
@@ -136,7 +146,14 @@ public class BusinessVenueTests {
         assertEquals("Venue created successfully", response);
 
         // Check DB
-        
+        Optional<Collection<VenueBusiness>> venues = venueBusinessDAO.getBusinessVenues(business.UUID);
+        assertEquals(true, venues.isPresent());
+        assertEquals(1, venues.get().size());
+
+        VenueBusiness venue = (VenueBusiness) venues.get().toArray()[0];
+        Optional<Venue> responseVenue = venueDAO.get(venue.getVenueUUID());
+        assertEquals(true, responseVenue.isPresent());
+        assertEquals(venueName, responseVenue.get().getName());
     }
 
     @Test

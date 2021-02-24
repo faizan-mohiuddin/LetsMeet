@@ -2,12 +2,15 @@ package com.LetsMeet.LetsMeet.Business.Venue.DAO;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +23,24 @@ public class VenueDAO implements DAO<Venue> {
 
     @Override
     public Optional<Venue> get(UUID uuid) {
-        return Optional.empty();
+        database.open();
+        try(Statement statement = database.getCon().createStatement()){
+            String query = String.format("select * from Venue where Venue.VenueUUID = '%s'", uuid.toString());
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            Optional<Venue> response = Optional.of(new Venue(rs.getString(1), rs.getString(2)));
+            database.close();
+            return response;
+
+        }catch(Exception e){
+            database.close();
+            System.out.println("\nVenue Dao: get (UUID)");
+            System.out.println(e);
+            return Optional.empty();
+
+        }
     }
 
     @Override

@@ -11,6 +11,11 @@ public class Venue {
         this.name = name;
     }
 
+    public Venue(String uuid, String name){
+        this.venueUUID = UUID.fromString(uuid);
+        this.name = name;
+    }
+
     public UUID getUUID(){
         return this.venueUUID;
     }

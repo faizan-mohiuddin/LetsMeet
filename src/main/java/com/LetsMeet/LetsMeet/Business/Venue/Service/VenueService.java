@@ -29,6 +29,8 @@ public class VenueService {
     BusinessDAO businessDAO;
 
     public String createVenue(User user, String name, String businessUUID){
+        // Check user has permission to make venue on behalf of business
+
         // Generate UUID
         UUID uuid = this.generateUUID(name, user);
 
