@@ -12,16 +12,17 @@ import java.util.UUID;
 public class Poll {
     
     private UUID uuid;
-    private UUID event;
-
     private String name;
     private ArrayList<String> options;
 
-    public Poll(UUID uuid, UUID event, String name, ArrayList<String> options) {
+    public Poll(UUID uuid, String name, ArrayList<String> options) {
         this.uuid = uuid;
-        this.event = event;
         this.name = name;
         this.options = options;
+    }
+
+    public Poll(){
+        this(UUID.randomUUID(), "testPoll", new ArrayList<>());
     }
 
     public UUID getUuid() {
@@ -30,14 +31,6 @@ public class Poll {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    public UUID getEvent() {
-        return event;
-    }
-
-    public void setEvent(UUID event) {
-        this.event = event;
     }
 
     public String getName() {

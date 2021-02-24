@@ -10,7 +10,7 @@ public class PollService {
 
     public Poll create(String name, UUID event, ArrayList<String> options, Boolean multiselect){
 
-        return new Poll(UUID.randomUUID(), event, name, options);
+        return new Poll(UUID.randomUUID(), name, options);
 
     }
     
