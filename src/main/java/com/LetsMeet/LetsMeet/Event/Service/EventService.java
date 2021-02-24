@@ -136,6 +136,15 @@ public class EventService implements EventServiceInterface {
         return eventDao.get(UUID).get();
     }
 
+    public void setProperty(Event event, String key, String value){
+        event.getProperties().set(key, value);
+        eventDao.update(event);
+    }
+
+    public String getProperty(Event event, String key){
+        return event.getProperties().get(key);
+    }
+
     //-----------------------------------------------------------------
     /* -- User related operations --
     

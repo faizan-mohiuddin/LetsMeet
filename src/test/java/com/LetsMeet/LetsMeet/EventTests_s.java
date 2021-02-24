@@ -4,9 +4,11 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Constraint;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Event.Model.Variable;
 import com.LetsMeet.LetsMeet.Event.Service.ConditionSetService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
+import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -32,13 +34,8 @@ public class EventTests_s {
 
     //@Autowired
     //ConditionSetService conditionSetService;
-
-    Event testEvent = new Event(
-        "807e9309-5cb6-4bd6-8909-1a655b950ca2",
-        RandomStringUtils.randomAlphabetic(8),
-        RandomStringUtils.randomAlphabetic(8),
-        RandomStringUtils.randomAlphabetic(8),
-        getConditionSet().getUUID());
+    
+    Event testEvent = new Event("807e9309-5cb6-4bd6-8909-1a655b950ca2", RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), RandomStringUtils.randomAlphabetic(8), new EntityProperties(), getConditionSet().getUUID(), new Poll());
 
     @Test
     @Order(1)
