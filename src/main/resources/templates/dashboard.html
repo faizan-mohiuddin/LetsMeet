@@ -44,6 +44,7 @@
                     <td th:text = "${myEvents.name}"></td>
                     <td th:text = "${myEvents.description}"></td>
                     <td th:text = "${myEvents.location}"></td>
+                    <td><a class = "btn btn-primary" th:href = "@{/event/{eventuuid}(eventuuid = ${myEvents.getUUID()})}">View</a></td>
                     <td><a class = "btn btn-danger" th:href = "@{/deleteevent/{eventuuid}(eventuuid = ${myEvents.getUUID()})}">Delete</a></td>
                 </tr>
             </tbody>
