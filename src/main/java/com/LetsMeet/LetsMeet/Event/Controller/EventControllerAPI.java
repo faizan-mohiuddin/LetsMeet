@@ -241,7 +241,7 @@ public class EventControllerAPI {
     @GetMapping("api/Event/{EventUUID}/Properties")
     public ResponseEntity<String> eventGetProperty(
         @PathVariable(value = "EventUUID") String eventUUID,
-        @RequestParam(value = "property") String propertyKey){
+        @RequestParam(value = "key") String propertyKey){
         
         return new ResponseEntity<>(eventService.getProperty(eventService.getEvent(eventUUID), propertyKey), HttpStatus.OK);      
     }
@@ -249,7 +249,7 @@ public class EventControllerAPI {
     @PutMapping("api/Event/{EventUUID}/Properties")
     public ResponseEntity<String> eventGetProperty(
         @PathVariable(value = "EventUUID") String eventUUID,
-        @RequestParam(value = "property") String propertyKey,
+        @RequestParam(value = "key") String propertyKey,
         @RequestParam(value = "value") String value){
         
         eventService.setProperty(eventService.getEvent(eventUUID), propertyKey, value);
