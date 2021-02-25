@@ -119,6 +119,27 @@ public class BusinessService {
         return null;
     }
 
+    public List<BusinessOwner> businessOwners(String businessUUID){
+        Optional<Collection<BusinessOwner>> records = ownerDAO.get(businessUUID);
+        if(records.isPresent()){
+            List<BusinessOwner> owners = new ArrayList<>();
+            for(BusinessOwner b : records.get()){
+                owners.add(b);
+            }
+
+            if(owners.size() > 1) {
+                return owners;
+            }
+        }
+        return null;
+    }
+
+    public boolean isOwner(User user, Business business){
+        // Check if the user is an owner of the business
+        Optional<BusinessOwner> response = ownerDAO.get(business.getUUID(), user.getUUID());
+        return response.isPresent();
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

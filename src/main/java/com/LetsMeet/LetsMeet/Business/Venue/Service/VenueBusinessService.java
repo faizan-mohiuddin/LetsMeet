@@ -39,7 +39,9 @@ public class VenueBusinessService {
                 VenueBusiness v = (VenueBusiness) o;
                 venues.add(venueDAO.get(v.getVenueUUID()).get());
             }
-            return venues;
+            if(venues.size() > 0) {
+                return venues;
+            }
         }
         return null;
     }

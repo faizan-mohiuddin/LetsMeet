@@ -5,11 +5,14 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessOwnerDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerAPI;
 import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueBusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
@@ -70,6 +73,15 @@ public class BusinessVenueTests {
 
     @Autowired
     VenueDAO venueDAO;
+
+    @Autowired
+    VenueService venueService;
+
+    @Autowired
+    VenueBusinessService venueBusinessService;
+
+    @Autowired
+    BusinessService businessService;
 
     private static ArrayList<TestingUsers> testUsers = new ArrayList<>();
     private static ArrayList<TestingEvents> testEvents = new ArrayList<>();
@@ -419,7 +431,73 @@ public class BusinessVenueTests {
     }
 
     // When business is deleted - venues are deleted
+    @Test
+    @Order(13)
+    public void deleteBusinessWithVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        String response = businessController.API_DeleteBusiness(user.token, business.UUID);
+        assertEquals("Business successfully deleted", response);
+
+        // Check that venues are deleted
+        Venue responseVenue = venueService.getVenue(venue.uuid);
+        assertEquals(null, responseVenue);
+
+        // Check hasVenue records are deleted
+        List<Venue> hasVenueResponse = venueBusinessService.getBusinessVenues(business.UUID);
+        assertEquals(null, hasVenueResponse);
+
+        // Check that HasBusiness records are deleted
+        List<BusinessOwner> hasBusinessResponse = businessService.businessOwners(business.UUID);
+        assertEquals(null, hasBusinessResponse);
+    }
+
     // Create venue with invalid business
+    @Test
+    @Order(14)
+    public void createVenueWithInvalidBusiness(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        String venueName = RandomStringUtils.randomAlphabetic(8);
+        String lastChar = business.UUID.substring(business.UUID.length()-1);
+        String fakeBusinessUUID = business.UUID.substring(0, business.UUID.length()-1);
+
+        String randomChar;
+
+        do {
+            randomChar = RandomStringUtils.randomAlphabetic(1);
+        }while (randomChar.equals(lastChar));
+
+        fakeBusinessUUID = fakeBusinessUUID+randomChar;
+
+        String response = venueController.API_createVenue(user.token, fakeBusinessUUID, venueName);
+        assertEquals("Invalid businessID, cannot create Venue", response);
+
+        // Check DB
+        // Check hasVenue records are deleted
+        List<Venue> hasVenueResponse = venueBusinessService.getBusinessVenues(business.UUID);
+        assertEquals(null, hasVenueResponse);
+    }
+
+    // Get venue
+    // Get business
 
     @Test
     @Order(50)
@@ -435,6 +513,7 @@ public class BusinessVenueTests {
         testVenue.clear();
         testEvents.clear();
     }
+
     // Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
     private void generateUser(){
         // Create a user and add it to list
