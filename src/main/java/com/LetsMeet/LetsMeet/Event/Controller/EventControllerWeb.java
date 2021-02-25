@@ -138,25 +138,43 @@ public class EventControllerWeb {
 
         User user = (User) session.getAttribute("userlogin");
 
-        Boolean checkIfEventHasCurrentLoggedInUser = true;
+        Boolean checkIfEventHasCurrentLoggedInUser = false;
 
-        for(int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
+        // Checks if the currently logged in user is IN (not is owner) of an event.
+        if (user != null) {
 
-            if(EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).get(i).getEmail().equals(user.getEmail())) {
+            for (int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
 
-                checkIfEventHasCurrentLoggedInUser = true;
+                if (EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).get(i).getEmail().equals(user.getEmail())) {
+
+                    checkIfEventHasCurrentLoggedInUser = true;
+
+                }
 
             }
 
         }
 
         // Check if user is logged in AND if the event exists AND if the user is in said event
-        if (user != null && EventServiceInterface.getEvent(eventuuid) != null && checkIfEventHasCurrentLoggedInUser) {
+        if (user != null && EventServiceInterface.getEvent(eventuuid) != null) {
 
             model.addAttribute("user", user);
             model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
 
-            
+            Boolean hasCurrentUserRespondedToEvent = false;
+
+            for (int i = 0; i < eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid)).size(); i++) {
+
+                if (eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid)).get(i).getUser().toString().equals(user.getUUID().toString())) {
+
+                    hasCurrentUserRespondedToEvent = true;
+
+                }
+
+            }
+
+            model.addAttribute("hasUserRespondedToEvent", hasCurrentUserRespondedToEvent);
+
             if (EventServiceInterface.checkOwner(EventServiceInterface.getEvent(eventuuid).getUUID(), user.getUUID())) {
 
                 model.addAttribute("isOwnerOfEvent", true);
@@ -182,6 +200,42 @@ public class EventControllerWeb {
             return "redirect:/Home";
 
         }
+
+    }
+
+    @GetMapping("/event/{eventuuid}/respond")
+    public String respondEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        Boolean checkIfEventHasCurrentLoggedInUser = false;
+
+        if (user != null) {
+
+            for (int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
+
+                if (EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).get(i).getEmail().equals(user.getEmail())) {
+
+                    checkIfEventHasCurrentLoggedInUser = true;
+
+                }
+
+            }
+        }
+        if (user != null && EventServiceInterface.getEvent(eventuuid) != null) {
+
+            eventResponseServiceInterface.createResponse(user, EventServiceInterface.getEvent(eventuuid));
+
+            redirectAttributes.addFlashAttribute("success", "You have joined the event.");
+
+        } else {
+
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+
+        }
+
+        return "redirect:/event/{eventuuid}";
+
 
     }
 }
