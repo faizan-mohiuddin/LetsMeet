@@ -146,8 +146,7 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     @Override
     public Boolean delete(EventPermission t) {
-        // TODO Auto-generated method stub
-        return false;
+        return this.delete(t.getEvent().toString(), t.getUser().toString());
     }
 
     @Override

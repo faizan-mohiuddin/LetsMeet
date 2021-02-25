@@ -59,6 +59,23 @@ public class BusinessService {
         return "You dont have permission to delete this event";
     }
 
+    public String removeEmptyBusiness(String businessUUID){
+        // Check business is empty
+        Optional<Collection<BusinessOwner>> owners = ownerDAO.get(businessUUID);
+        if(owners.get().size() == 0) {
+            // Delete venues
+            venueBusinessService.deleteBusinessVenues(businessUUID);
+
+            // Delete business
+            if (DAO.delete(UUID.fromString(businessUUID))) {
+                return "Business successfully deleted";
+            } else {
+                return "Error deleting event";
+            }
+        }
+        return "Business still has Owners";
+    }
+
     public Collection<Business> getUserBusinesses(String userUUID){
         List<Business> businesses = new ArrayList<>();
 
@@ -72,7 +89,26 @@ public class BusinessService {
         return businesses;
     }
 
+    public String joinBusiness(String businessUUID, String userUUID){
+        BusinessOwner bo = new BusinessOwner(businessUUID, userUUID);
+        if(ownerDAO.save(bo)){
+            return "Successfully joined Business";
+        }
+        return "Error joining Business";
+    }
 
+    public String leaveBusiness(String businessUUID, String userUUID){
+        // Remove user from business
+        ownerDAO.delete(businessUUID, userUUID);
+
+        // If there are no users left in business, delete business
+        Optional<Collection<BusinessOwner>> owners = ownerDAO.get(businessUUID);
+        if(owners.get().size() == 0){
+            // Delete business
+            return this.removeEmptyBusiness(businessUUID);
+        }
+        return "Successfully left Business";
+    }
 
     // Private methods
     private UUID generateUUID(String name, User user){

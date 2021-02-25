@@ -57,4 +57,18 @@ public class BusinessControllerAPI {
             return (String) response[1];
         }
     }
+
+    @PutMapping("api/Business")
+    public String API_JoinBusiness(@RequestParam(value="Token") String token, @RequestParam(value="Business") String businessUUID){
+        // Validate user token
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result) {
+            User user = userValidation.getUserFromToken(token);
+            return businessService.joinBusiness(businessUUID, user.getStringUUID());
+        }else{
+            return (String) response[1];
+        }
+    }
 }

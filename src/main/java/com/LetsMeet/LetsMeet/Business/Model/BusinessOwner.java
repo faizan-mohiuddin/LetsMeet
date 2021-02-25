@@ -11,6 +11,11 @@ public class BusinessOwner {
         this.userUUID = userUUID;
     }
 
+    public BusinessOwner(String businessUUID, String userUUID){
+        this.businessUUID = UUID.fromString(businessUUID);
+        this.userUUID = UUID.fromString(userUUID);
+    }
+
     public UUID getUserUUID(){
         return this.userUUID;
     }

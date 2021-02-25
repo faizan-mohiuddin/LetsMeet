@@ -127,7 +127,7 @@ public class UserService implements UserServiceInterface {
 
         Collection<Business> businesses = businessService.getUserBusinesses(user.getStringUUID());
         for(Business b : businesses){
-            businessService.deleteBusiness(b.getUUID().toString(), user.getStringUUID());
+            businessService.leaveBusiness(b.getUUID().toString(), user.getStringUUID());
         }
 
 	    if(dao.delete(user)){

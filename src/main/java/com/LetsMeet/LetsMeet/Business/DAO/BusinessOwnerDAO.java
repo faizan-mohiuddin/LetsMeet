@@ -2,10 +2,13 @@ package com.LetsMeet.LetsMeet.Business.DAO;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
+import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,9 @@ import java.util.*;
 
 @Component
 public class BusinessOwnerDAO implements DAOconjugate<BusinessOwner> {
+    // Get logger
+    private static final Logger LOGGER= LoggerFactory.getLogger(BusinessOwnerDAO.class);
+
     @Autowired
     DBConnector database;
 
@@ -81,19 +87,34 @@ public class BusinessOwnerDAO implements DAOconjugate<BusinessOwner> {
 
     @Override
     public Boolean delete(BusinessOwner businessOwner) {
-        return null;
+        return this.delete(businessOwner.getBusinessUUID().toString(), businessOwner.getUserUUID().toString());
     }
 
     @Override
-    public Boolean delete(String uuid1, String uuid2) {
-        return null;
+    public Boolean delete(String businessUUID, String userUUID) {
+        database.open();
+
+        try(Statement statement = database.con.createStatement()){
+            String query = String.format("DELETE FROM HasBusiness WHERE HasBusiness.BusinessUUID = '%s' AND " +
+                            "HasBusiness.UserUUID = '%s'", businessUUID, userUUID);
+            int rows = statement.executeUpdate(query);
+            database.close();
+
+            return (rows > 0)? true : false;
+
+        }catch(Exception e){
+            LOGGER.error("Failed to delete BusinessOwner: {} ", e.getMessage());
+            database.close();
+            return false;
+        }
     }
 
-    public Optional<Collection<BusinessOwner>> get(String userUUID){
+    public Optional<Collection<BusinessOwner>> get(String uuid){
         database.open();
         try{
             Statement statement = database.getCon().createStatement();
-            String query = String.format("select * from HasBusiness WHERE HasBusiness.UserUUID = '%s'", userUUID);
+            String query = String.format("select * from HasBusiness WHERE HasBusiness.UserUUID = '%s' OR " +
+                    "HasBusiness.BusinessUUID = '%s'", uuid, uuid);
             ResultSet rs = statement.executeQuery(query);
             Collection<BusinessOwner> businesses = new ArrayList<>();
 

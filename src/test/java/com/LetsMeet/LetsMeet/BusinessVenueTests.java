@@ -253,7 +253,83 @@ public class BusinessVenueTests {
         testVenue.clear();
     }
 
+    @Test
+    @Order(9)
+    public void joinBusiness(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        String response = businessController.API_JoinBusiness(user2.token, business.UUID);
+        assertEquals("Successfully joined Business", response);
+
+        // Check DB
+        Optional<Collection<BusinessOwner>> owners = ownerDB.get(business.UUID);
+        assertEquals(true, owners.isPresent());
+        assertEquals(2, owners.get().size());
+
+        testUsers.clear();
+        testBusiness.clear();
+    }
+
     // Business owner deletes account, but another user is part of business
+    @Test
+    @Order(10)
+    public void venueCoOwnerDeletesAccount(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        // Add another user to business
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        businessController.API_JoinBusiness(user2.token, business.UUID);
+
+        // Remove user account
+        String response = userController.API_DeleteUser(user.token);
+        assertEquals("User successfully deleted.", response);
+
+        // Check Business, HasBusiness, HasVenues and Venues table
+        Optional<Business> businessResponse = businessDB.get(UUID.fromString(business.UUID));
+        assertEquals(true, businessResponse.isPresent());
+        assertEquals(business.name, businessResponse.get().getName());
+        assertEquals(business.UUID, businessResponse.get().getUUID().toString());
+
+        Optional<Collection<BusinessOwner>> owner = ownerDB.get(business.UUID);
+        assertEquals(true, owner.isPresent());
+        assertEquals(1, owner.get().size());
+        BusinessOwner o = (BusinessOwner) owner.get().toArray()[0];
+        assertEquals(user2.UUID, o.getUserUUID().toString());
+        assertEquals(business.UUID, o.getBusinessUUID().toString());
+
+        Optional<Venue> venueResponse = venueDAO.get(UUID.fromString(venue.uuid));
+        assertEquals(true, venueResponse.isPresent());
+        assertEquals(venue.name, venueResponse.get().getName());
+        assertEquals(venue.uuid, venueResponse.get().getUUID().toString());
+
+        Optional<VenueBusiness> businessVenueResponse = venueBusinessDAO.get(UUID.fromString(business.UUID), UUID.fromString(venue.uuid));
+        assertEquals(true, businessVenueResponse.isPresent());
+        assertEquals(venue.uuid, businessVenueResponse.get().getVenueUUID().toString());
+        assertEquals(business.UUID, businessVenueResponse.get().getBusinessUUID().toString());
+
+        testUsers.clear();
+        testBusiness.clear();
+        testVenue.clear();
+    }
+
     // Get user businesses
     // Get business venues
     // When business is deleted - venues are deleted
