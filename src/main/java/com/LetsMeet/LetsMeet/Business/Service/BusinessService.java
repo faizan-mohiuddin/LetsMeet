@@ -119,6 +119,21 @@ public class BusinessService {
         return null;
     }
 
+    public List<BusinessOwner> businessOwners(String businessUUID){
+        Optional<Collection<BusinessOwner>> records = ownerDAO.get(businessUUID);
+        if(records.isPresent()){
+            List<BusinessOwner> owners = new ArrayList<>();
+            for(BusinessOwner b : records.get()){
+                owners.add(b);
+            }
+
+            if(owners.size() > 1) {
+                return owners;
+            }
+        }
+        return null;
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

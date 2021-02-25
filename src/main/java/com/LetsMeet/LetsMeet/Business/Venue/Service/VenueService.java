@@ -66,6 +66,14 @@ public class VenueService {
         //return "You dont have permission to delete this venue";
     }
 
+    public Venue getVenue(String venueUUID){
+        Optional<Venue> venue = DAO.get(UUID.fromString(venueUUID));
+        if(venue.isPresent()){
+            return venue.get();
+        }
+        return null;
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();
