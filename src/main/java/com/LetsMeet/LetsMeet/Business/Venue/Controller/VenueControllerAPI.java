@@ -1,13 +1,17 @@
 package com.LetsMeet.LetsMeet.Business.Venue.Controller;
 
+import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class VenueControllerAPI {
@@ -16,6 +20,12 @@ public class VenueControllerAPI {
 
     @Autowired
     VenueService venueService;
+
+    @Autowired
+    VenueBusinessService venueBusinessService;
+
+    @Autowired
+    BusinessService businessService;
 
     @PostMapping("api/Venue")
     public String API_createVenue(@RequestParam(value="Token") String token, @RequestParam(value="BusinessID") String businessUUID,
@@ -44,5 +54,25 @@ public class VenueControllerAPI {
         }else{
             return (String) response[1];
         }
+    }
+
+    @GetMapping("api/Business/Venues")
+    public String API_getBusinessVenues(@RequestParam(value="BusinessID") String businessUUID){
+        // Check businessUUID is valid
+        Business business = businessService.getBusiness(businessUUID);
+
+        if(business != null) {
+            // Get venues
+            List<Venue> venues = venueBusinessService.getBusinessVenues(businessUUID);
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                String resultString = mapper.writeValueAsString(venues);
+                return resultString;
+            }catch(Exception e){
+                return "An error occured";
+            }
+        }
+        return "Invalid BusinessID";
     }
 }

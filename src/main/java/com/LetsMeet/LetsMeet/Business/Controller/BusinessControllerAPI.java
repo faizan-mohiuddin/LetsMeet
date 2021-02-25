@@ -4,9 +4,12 @@ import com.LetsMeet.LetsMeet.Business.Model.*;
 import com.LetsMeet.LetsMeet.Business.Service.*;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -18,16 +21,24 @@ public class BusinessControllerAPI {
     ValidationService userValidation;
 
     @GetMapping("api/MyBusinesses")
-    public List<Business> API_getMyBusinesses(@RequestParam(value="Token") String token){
+    public String API_getMyBusinesses(@RequestParam(value="Token") String token){
         // Validate user token
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
 
         if(result) {
-            return null;
+            User user = userValidation.getUserFromToken(token);
+            Collection<Business> records = businessService.getUserBusinesses(user.getStringUUID());
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                String resultString = mapper.writeValueAsString(records);
+                return resultString;
+            }catch(Exception e){
+                return "An error occured";
+            }
         }else{
-            // return (String) response[1];
-            return null;
+            return (String) response[1];
         }
     }
 

@@ -7,9 +7,7 @@ import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class VenueBusinessService {
@@ -30,5 +28,19 @@ public class VenueBusinessService {
             }
         }
         return true;
+    }
+
+    public List<Venue> getBusinessVenues(String businessUUID){
+        Optional<Collection<VenueBusiness>> response = DAO.getBusinessVenues(businessUUID);
+        if(response.isPresent()) {
+            Object[] records = response.get().toArray();
+            List<Venue> venues = new ArrayList<>();
+            for (Object o : records) {
+                VenueBusiness v = (VenueBusiness) o;
+                venues.add(venueDAO.get(v.getVenueUUID()).get());
+            }
+            return venues;
+        }
+        return null;
     }
 }

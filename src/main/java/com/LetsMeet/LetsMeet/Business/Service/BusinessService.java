@@ -110,6 +110,15 @@ public class BusinessService {
         return "Successfully left Business";
     }
 
+    public Business getBusiness(String businessUUID){
+        Optional<Business> business = DAO.get(UUID.fromString(businessUUID));
+
+        if(business.isPresent()){
+            return business.get();
+        }
+        return null;
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

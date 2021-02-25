@@ -22,6 +22,8 @@ import com.LetsMeet.LetsMeet.TestingTools.TestingVenue;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.*;
 import static org.junit.Assert.*;
@@ -165,6 +167,9 @@ public class BusinessVenueTests {
         assertEquals(true, hasVenue.isPresent());
         assertEquals(responseVenue.get().getUUID(), hasVenue.get().getVenueUUID());
         assertEquals(UUID.fromString(business.UUID), hasVenue.get().getBusinessUUID());
+
+        testUsers.clear();
+        testBusiness.clear();
     }
 
     @Test
@@ -331,7 +336,88 @@ public class BusinessVenueTests {
     }
 
     // Get user businesses
+    @Test
+    @Order(11)
+    public void getUserBusinesses(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business2 = testBusiness.get(1);
+
+        // Call API method
+        String response = businessController.API_getMyBusinesses(user.token);
+        System.out.println(response);
+
+        try {
+            JSONArray array = new JSONArray(response);
+            int matches = 0;
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject responseBusinesses = array.getJSONObject(i);
+
+                for(TestingBusiness b : testBusiness) {
+                    if (b.UUID.equals(responseBusinesses.getString("uuid"))) {
+                        // Match
+                        matches += 1;
+                        assertEquals(b.name, responseBusinesses.getString("name"));
+                    }
+                }
+            }
+            assertEquals(2, matches);
+        }catch (Exception e){
+            System.out.println("BusinessVenueTests : getUserBusinesses");
+            e.printStackTrace();
+        }
+
+        testBusiness.clear();
+        testUsers.clear();
+    }
+
     // Get business venues
+    @Test
+    @Order(12)
+    public void getBusinessVenues(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue2 = testVenue.get(1);
+
+        String response =  venueController.API_getBusinessVenues(business.UUID);
+        System.out.println(response);
+
+        try {
+            JSONArray array = new JSONArray(response);
+            int matches = 0;
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject responseVenue = array.getJSONObject(i);
+
+                for(TestingVenue v : testVenue) {
+                    if (v.uuid.equals(responseVenue.getString("uuid"))) {
+                        // Match
+                        matches += 1;
+                        assertEquals(v.name, responseVenue.getString("name"));
+                    }
+                }
+            }
+            assertEquals(2, matches);
+        }catch (Exception e){
+            System.out.println("BusinessVenueTests : getBusinessVenues");
+            e.printStackTrace();
+        }
+    }
+
     // When business is deleted - venues are deleted
     // Create venue with invalid business
 
@@ -340,6 +426,14 @@ public class BusinessVenueTests {
     public void cleanup(){
         // Remove test records from DB
         UserDB.clearTestData();
+    }
+
+    @AfterEach
+    public void clearLists(){
+        testUsers.clear();
+        testBusiness.clear();
+        testVenue.clear();
+        testEvents.clear();
     }
     // Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
     private void generateUser(){
