@@ -32,6 +32,7 @@
                     <th scope = "col">Name</th>
                     <th scope = "col">Description</th>
                     <th scope = "col">Location</th>
+                    <th scope = "col"></th>
                 </tr>
             </thead>
             <tbody>
@@ -40,6 +41,7 @@
                     <td th:text = "${event.name}"></td>
                     <td th:text = "${event.description}"></td>
                     <td th:text = "${event.location}"></td>
+                    <td><a class = "btn btn-light" th:href = "@{/event/{eventUUID}(eventUUID = ${event.UUID})}">view</a></td>
                 </tr>
             </tbody>
         </table>

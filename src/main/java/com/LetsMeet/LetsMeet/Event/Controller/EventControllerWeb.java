@@ -138,7 +138,7 @@ public class EventControllerWeb {
 
         User user = (User) session.getAttribute("userlogin");
 
-        Boolean checkIfEventHasCurrentLoggedInUser = false;
+        Boolean checkIfEventHasCurrentLoggedInUser = true;
 
         for(int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
 
@@ -156,27 +156,26 @@ public class EventControllerWeb {
             model.addAttribute("user", user);
             model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
 
-            List<HashMap<String,String>> names= new ArrayList<>();
             
-            for (EventResponse o : eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid))){
-                HashMap<String, String> data = new HashMap<>();
-                data.put("fname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getfName());
-                data.put("lname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getlName());
-                data.put("must_attend", "unknown");
-                names.add(data);
-            }
-
-            model.addAttribute("responses", names);
-
             if (EventServiceInterface.checkOwner(EventServiceInterface.getEvent(eventuuid).getUUID(), user.getUUID())) {
 
                 model.addAttribute("isOwnerOfEvent", true);
 
+                List<HashMap<String,String>> names= new ArrayList<>();
+                for (EventResponse o : eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid))){
+                    HashMap<String, String> data = new HashMap<>();
+                    data.put("fname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getfName());
+                    data.put("lname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getlName());
+                    data.put("must_attend", "unknown");
+                    names.add(data);
+                }
+    
+                model.addAttribute("responses", names);
+
             }
 
             return "viewevent";
-
-        } else {
+        }else {
 
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
 
