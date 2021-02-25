@@ -7,6 +7,7 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
+import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.TestingTools.*;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
@@ -48,6 +49,9 @@ class  LetsMeetApplicationTests {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	EventService eventService;
 
 	@Autowired
 	UserDBChecker UserDB;
@@ -938,6 +942,29 @@ class  LetsMeetApplicationTests {
 
 
 		testUsers.clear();
+	}
+
+	@Test
+	@Order(24)
+	public void getEventUsers(){
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		this.generateEvent(user.token);
+		TestingEvents event = testEvents.get(0);
+
+		this.generateUser();
+		TestingUsers user2 = testUsers.get(1);
+		this.login(user2);
+
+		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+
+		List<User> users = eventService.EventsUsers(UUID.fromString(event.UUID));
+		assertEquals(2, users.size());
+
+		testUsers.clear();
+		testEvents.clear();
 	}
 
 	// Update events

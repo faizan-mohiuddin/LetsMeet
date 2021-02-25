@@ -80,7 +80,7 @@ public class VenueDAO implements DAO<Venue> {
 
     @Override
     public Boolean delete(Venue venue) {
-        return null;
+        return this.delete(venue.getUUID());
     }
 
     @Override

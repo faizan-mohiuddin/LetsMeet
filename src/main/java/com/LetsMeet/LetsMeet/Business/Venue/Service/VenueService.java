@@ -57,7 +57,7 @@ public class VenueService {
 
     public String deleteVenue(User user, String venueUUID){
         // Check user has permission to delete
-        // Delete business
+        // Delete venue
         if(DAO.delete(UUID.fromString(venueUUID))){
             return "Venue successfully deleted";
         }else{

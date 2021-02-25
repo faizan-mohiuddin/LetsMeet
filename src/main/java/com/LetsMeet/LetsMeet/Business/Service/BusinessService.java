@@ -4,6 +4,8 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessOwnerDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -20,6 +22,9 @@ public class BusinessService {
 
     @Autowired
     BusinessOwnerDAO ownerDAO;
+
+    @Autowired
+    VenueBusinessService venueBusinessService;
 
     public String createBusiness(String name, User user){
         UUID uuid = this.generateUUID(name, user);
@@ -41,6 +46,9 @@ public class BusinessService {
         // Check user has permission to delete
         Optional<BusinessOwner> response = ownerDAO.get(UUID.fromString(businessUUID), UUID.fromString(userUUID));
         if(response.isPresent()){
+            // Delete venues
+            venueBusinessService.deleteBusinessVenues(businessUUID);
+
             // Delete business
             if(DAO.delete(UUID.fromString(businessUUID))){
                 return "Business successfully deleted";

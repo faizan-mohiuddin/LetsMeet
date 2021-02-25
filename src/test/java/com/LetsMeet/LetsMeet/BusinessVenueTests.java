@@ -160,6 +160,11 @@ public class BusinessVenueTests {
         Optional<Venue> responseVenue = venueDAO.get(venue.getVenueUUID());
         assertEquals(true, responseVenue.isPresent());
         assertEquals(venueName, responseVenue.get().getName());
+
+        Optional<VenueBusiness> hasVenue = venueBusinessDAO.get(UUID.fromString(business.UUID), responseVenue.get().getUUID());
+        assertEquals(true, hasVenue.isPresent());
+        assertEquals(responseVenue.get().getUUID(), hasVenue.get().getVenueUUID());
+        assertEquals(UUID.fromString(business.UUID), hasVenue.get().getBusinessUUID());
     }
 
     @Test
@@ -179,7 +184,8 @@ public class BusinessVenueTests {
         assertEquals("Venue successfully deleted", response);
 
         // Check DB
-
+        Optional<VenueBusiness> hasVenue = venueBusinessDAO.get(UUID.fromString(business.UUID), UUID.fromString(venue.uuid));
+        assertEquals(false, hasVenue.isPresent());
 
         testUsers.clear();
         testBusiness.clear();
@@ -218,6 +224,36 @@ public class BusinessVenueTests {
     }
 
     // When business owner deletes account, check venue is deleted as well (when there is no owners left with accounts)
+    @Test
+    @Order(8)
+    public void venueOwnerDeletesAccount(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        // Remove user account
+        String response = userController.API_DeleteUser(user.token);
+        assertEquals("User successfully deleted.", response);
+
+        // Check HasVenues and Venues table
+        Optional<Venue> venueResponse = venueDAO.get(UUID.fromString(venue.uuid));
+        assertEquals(false, venueResponse.isPresent());
+
+        Optional<VenueBusiness> businessVenueResponse = venueBusinessDAO.get(UUID.fromString(business.UUID), UUID.fromString(venue.uuid));
+        assertEquals(false, businessVenueResponse.isPresent());
+
+        testUsers.clear();
+        testBusiness.clear();
+        testVenue.clear();
+    }
+
+    // Business owner deletes account, but another user is part of business
     // Get user businesses
     // Get business venues
     // When business is deleted - venues are deleted
