@@ -209,6 +209,32 @@ public class EventControllerAPI {
         }
     }
 
+
+    // PATCH Mappings
+    //-----------------------------------------------------------------
+    @PatchMapping("api/Event/{EventUUID}")
+    public String API_UpdateEvent(@RequestParam(value="Token", defaultValue="") String token,
+                                  @PathVariable(value="EventUUID") String EventUUID,
+                                  @RequestParam(value="Name", defaultValue="") String name,
+                                  @RequestParam(value="Description", defaultValue="") String desc,
+                                  @RequestParam(value="Location", defaultValue="") String location){
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result){
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            // Get event
+            Event event = eventService.getEvent(EventUUID);
+
+            // Update user
+            return eventService.updateEvent(user, event, name, desc, location);
+        }else{
+            return (String) response[1];
+        }
+    }
+
     // DELETE Mappings
     //-----------------------------------------------------------------
 

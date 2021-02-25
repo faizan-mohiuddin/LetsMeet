@@ -160,7 +160,7 @@ public class EventDao implements DAO<Event> {
             }
 
         }catch(Exception e){
-            System.out.println("Event Dao : save");
+            System.out.println("Event Dao : update");
             DatabaseInterface.drop();
             e.printStackTrace();
             return false;

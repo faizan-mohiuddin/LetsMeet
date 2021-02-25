@@ -967,10 +967,61 @@ class  LetsMeetApplicationTests {
 		testEvents.clear();
 	}
 
-	// Update events
+	@Test
+	@Order(25)
+	public void updateEvents(){
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		this.generateEvent(user.token);
+		TestingEvents event = testEvents.get(0);
+
+		this.generateEvent(user.token);
+		TestingEvents event2 = testEvents.get(1);
+
+		String expectedResponse = "Event successfully updated";
+
+		// Update name
+		String resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, event.desc, event.location);
+		assertEquals(expectedResponse, resposne);
+		Event checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event2.name, checking.getName());
+		assertEquals(event.desc, checking.getDescription());
+		assertEquals(event.location, checking.getLocation());
+
+		// Update description
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, event2.desc, event.location);
+		assertEquals(expectedResponse, resposne);
+		checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event2.name, checking.getName());
+		assertEquals(event2.desc, checking.getDescription());
+		assertEquals(event.location, checking.getLocation());
+
+		// Update location
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, event2.desc, event2.location);
+		assertEquals(expectedResponse, resposne);
+		checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event2.name, checking.getName());
+		assertEquals(event2.desc, checking.getDescription());
+		assertEquals(event2.location, checking.getLocation());
+
+		// Update all 3
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event.name, event.desc, event.location);
+		assertEquals(expectedResponse, resposne);
+		checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event.name, checking.getName());
+		assertEquals(event.desc, checking.getDescription());
+		assertEquals(event.location, checking.getLocation());
+
+	}
 
 	@Test
-	@Order(24)
+	@Order(60)
 	public void cleanup(){
 		// Remove test records from DB
 		UserDB.clearTestData();

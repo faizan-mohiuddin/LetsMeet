@@ -11,7 +11,7 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 
 public interface EventServiceInterface {
     public abstract String createEvent(String name, String desc, String location, String UserUUID);
-    public abstract void updateEvent(String uuid, Event event);
+    public abstract String updateEvent(User user, Event event, String name, String desc, String location);
     public abstract String deleteEvent(String uuid, User user);
     public abstract Collection<Event> getEvents();
 

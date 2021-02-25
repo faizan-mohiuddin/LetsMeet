@@ -97,8 +97,22 @@ public class EventService implements EventServiceInterface {
     // Update an existing event
     // Checks if given user has edit privileges. If so sends Event object to DAO
     @Override
-    public void updateEvent(String userUUID, Event event) {
-        // TODO Auto-generated method stub
+    public String updateEvent(User user, Event event, String name, String desc, String location) {
+        // Check user has permission
+        if(this.checkOwner(event.getUUID(), user.getUUID())) {
+
+            // Switch values
+            event.switchName(name);
+            event.switchDesc(desc);
+            event.switchLocation(location);
+
+            // Update in DB
+            if (eventDao.update(event)) {
+                return "Event successfully updated";
+            }
+            return "Error updating Event";
+        }
+        return "You do not have permission to update this Event";
     }
 
 
@@ -133,7 +147,11 @@ public class EventService implements EventServiceInterface {
 
     // Returns a single event as specified
     public Event getEvent(String UUID) {
-        return eventDao.get(UUID).get();
+        Optional<Event> event = eventDao.get(UUID);
+        if(event.isPresent()){
+            return event.get();
+        }
+        return null;
     }
 
     public void setProperty(Event event, String key, String value){
