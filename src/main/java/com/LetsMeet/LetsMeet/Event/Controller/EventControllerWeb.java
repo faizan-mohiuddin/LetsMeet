@@ -1,15 +1,22 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
+import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -19,6 +26,9 @@ public class EventControllerWeb {
 
     @Autowired
     EventService EventServiceInterface;
+
+    @Autowired
+    EventResponseService eventResponseServiceInterface;
 
     @Autowired
     UserService UserServiceInterface;
@@ -145,6 +155,18 @@ public class EventControllerWeb {
 
             model.addAttribute("user", user);
             model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
+
+            List<HashMap<String,String>> names= new ArrayList<>();
+            
+            for (EventResponse o : eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid))){
+                HashMap<String, String> data = new HashMap<>();
+                data.put("fname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getfName());
+                data.put("lname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getlName());
+                data.put("must_attend", "unknown");
+                names.add(data);
+            }
+
+            model.addAttribute("responses", names);
 
             if (EventServiceInterface.checkOwner(EventServiceInterface.getEvent(eventuuid).getUUID(), user.getUUID())) {
 

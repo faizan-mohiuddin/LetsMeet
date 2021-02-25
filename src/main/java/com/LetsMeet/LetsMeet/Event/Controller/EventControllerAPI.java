@@ -275,6 +275,34 @@ public class EventControllerAPI {
         catch(Exception e){return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);}
     }
 
+    // Create a response
+    @PutMapping("api/Event/{EventUUID}/Response")
+    public ResponseEntity<String> makeResponse(
+        @PathVariable(value = "EventUUID") String eventUUID, 
+        @RequestParam(value = "user", defaultValue = "default") String userUUID, 
+        @RequestParam(value = "Token") String token){
+        
+        Object[] response = userValidation.verifyAPItoken(token);
+
+        if (! (boolean) response[0]) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+        try{
+
+            if (userUUID.equals("default")){
+                userUUID = userValidation.getUserUUIDfromToken(token);
+            }
+
+            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID));
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (Exception e){
+            LOGGER.error("Could not complete request: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
     // Get all users on an event
     @GetMapping("api/Event/{EventUUID}/Response/Users")
     public ResponseEntity<List<UserSanitised>> getResponsesUsers(

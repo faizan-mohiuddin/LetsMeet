@@ -40,6 +40,24 @@
     <p><b>Event location: </b><span th:text="${event.getLocation()}"></span></p>
 </div>
 
+
+<div class = "container">
+    <table class = "table">
+        <thead>
+            <tr>
+                <th scope = "col">Participants</th>
+                <th scope = "col">Must attend?</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each = "response : ${responses}">
+                <td th:text = "${response.fname}  + ' ' + ${response.lname}"></td>
+                <td th:text = "${response.must_attend}"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 <div th:insert = "footer :: footer"></div>
 
 </body>
