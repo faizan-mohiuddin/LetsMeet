@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
@@ -44,11 +45,11 @@ public class EventControllerWeb {
     }
 
     @GetMapping("/saveevent")
-    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model, RedirectAttributes redirectAttributes){
+    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
 
-        if (user == null){
+        if (user == null) {
 
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
 
@@ -122,4 +123,44 @@ public class EventControllerWeb {
 
     }
 
+    @GetMapping("/event/{eventuuid}")
+    public String viewEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        Boolean checkIfEventHasCurrentLoggedInUser = false;
+
+        for(int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
+
+            if(EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).get(i).getEmail().equals(user.getEmail())) {
+
+                checkIfEventHasCurrentLoggedInUser = true;
+
+            }
+
+        }
+
+        // Check if user is logged in AND if the event exists AND if the user is in said event
+        if (user != null && EventServiceInterface.getEvent(eventuuid) != null && checkIfEventHasCurrentLoggedInUser) {
+
+            model.addAttribute("user", user);
+            model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
+
+            if (EventServiceInterface.checkOwner(EventServiceInterface.getEvent(eventuuid).getUUID(), user.getUUID())) {
+
+                model.addAttribute("isOwnerOfEvent", true);
+
+            }
+
+            return "viewevent";
+
+        } else {
+
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+
+            return "redirect:/Home";
+
+        }
+
+    }
 }

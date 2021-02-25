@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<html>
+
+<body>
+
+<div th:insert = "header :: navbar"></div>
+
+<div class = "jumbotron">
+
+    <div class = "container">
+
+        <h1>Viewing Event</h1>
+
+    </div>
+
+</div>
+
+
+<div class = "container">
+
+    <div class = "alert alert-primary" th:if="${isOwnerOfEvent}">You are the owner of this event.</div>
+
+    <p><b>Event name: </b><span th:text="${event.getName()}"></span></p>
+    <p><b>Event description: </b><span th:text="${event.getDescription()}"></span></p>
+    <p><b>Event location: </b><span th:text="${event.getLocation()}"></span></p>
+</div>
+
+<div th:insert = "footer :: footer"></div>
+
+</body>
+
+</html>
