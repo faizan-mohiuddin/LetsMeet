@@ -134,6 +134,12 @@ public class BusinessService {
         return null;
     }
 
+    public boolean isOwner(User user, Business business){
+        // Check if the user is an owner of the business
+        Optional<BusinessOwner> response = ownerDAO.get(business.getUUID(), user.getUUID());
+        return response.isPresent();
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

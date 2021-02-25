@@ -465,6 +465,37 @@ public class BusinessVenueTests {
     }
 
     // Create venue with invalid business
+    @Test
+    @Order(14)
+    public void createVenueWithInvalidBusiness(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        String venueName = RandomStringUtils.randomAlphabetic(8);
+        String lastChar = business.UUID.substring(business.UUID.length()-1);
+        String fakeBusinessUUID = business.UUID.substring(0, business.UUID.length()-1);
+
+        String randomChar;
+
+        do {
+            randomChar = RandomStringUtils.randomAlphabetic(1);
+        }while (randomChar.equals(lastChar));
+
+        fakeBusinessUUID = fakeBusinessUUID+randomChar;
+
+        String response = venueController.API_createVenue(user.token, fakeBusinessUUID, venueName);
+        assertEquals("Invalid businessID, cannot create Venue", response);
+
+        // Check DB
+        // Check hasVenue records are deleted
+        List<Venue> hasVenueResponse = venueBusinessService.getBusinessVenues(business.UUID);
+        assertEquals(null, hasVenueResponse);
+    }
+
     // Get venue
     // Get business
 
