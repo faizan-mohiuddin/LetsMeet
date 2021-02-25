@@ -8,6 +8,8 @@ package com.LetsMeet.LetsMeet.Event.Service;
 //-----------------------------------------------------------------
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,9 +22,11 @@ import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Constraint;
 import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Variable;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.Location;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.expression.Lists;
 
 //-----------------------------------------------------------------
 
@@ -32,6 +36,7 @@ public class ConditionSetService implements ConditionSetServiceInterface {
     // Constants definitions
     //-----------------------------------------------------------------
     private static String EVENT_TIME = "event_time";
+    private static String EVENT_LOCATION = "event_location";
     private static String EVENT_SERVICE = "event_services";
 
     // Components
@@ -150,6 +155,41 @@ public class ConditionSetService implements ConditionSetServiceInterface {
         }
         catch( Exception e){
             LOGGER.error("Could not delete event_time: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    // EVENT_LOCATION
+    public Boolean addLocation(ConditionSet conditionSet, List<Location> locations) {
+        try{
+            addVariable(conditionSet, new Variable<>(EVENT_LOCATION, locations));
+            dao.update(conditionSet);
+            return true;
+        }
+        catch( Exception e){
+            LOGGER.error("Could not add to event_location: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public Optional<List<Location>> getLocation(ConditionSet conditionSet) {
+        try{
+            return Optional.ofNullable(conditionSet.getVariable(EVENT_LOCATION).getDomain());
+        }
+        catch( Exception e){
+            LOGGER.error("Could not get event_location: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Boolean clearLocation(ConditionSet conditionSet){
+        try{
+            removeVariable(conditionSet, EVENT_LOCATION);
+            dao.update(conditionSet);
+            return true;
+        }
+        catch( Exception e){
+            LOGGER.error("Could not delete event_location: {}", e.getMessage());
             return false;
         }
     }

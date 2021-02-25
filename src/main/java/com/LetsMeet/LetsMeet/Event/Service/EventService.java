@@ -28,6 +28,7 @@ import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.Variable;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.Location;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -247,6 +248,23 @@ public class EventService implements EventServiceInterface {
     public List<String> getServices(UUID event) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public boolean setLocations(UUID eventUuid, List<Location> locations) {
+        try{
+            Event event = eventDao.get(eventUuid).get();
+            conditionSetService.addLocation(conditionSetService.get(event.getConditions()), locations);
+            return true;
+        }
+        catch(Exception e){
+            LOGGER.error("Could not set time range: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public List<Location> getLocation(UUID eventUUID) {
+        Event event = eventDao.get(eventUUID).get();
+        return conditionSetService.getLocation(conditionSetService.get(event.getConditions())).get();
     }
 
 
