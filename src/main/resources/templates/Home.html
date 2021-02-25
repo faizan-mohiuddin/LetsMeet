@@ -31,21 +31,31 @@
         <div class = "alert alert-warning" th:text = "${alreadyLoggedIn}" th:if = "${alreadyLoggedIn}"></div>
         <div class = "alert alert-danger" th:text = "${accessDenied}" th:if = "${accessDenied}"></div>
         <div class = "row">
-            <div class = "col-sm">
-                <a class="btn btn-primary" href="/createevent" role="button">Create an Event</a>
-            </div>
-            <div class = "col-sm">
-                <a class = "btn btn-primary" href = "/createuser" role = "button">Create a User</a>
-            </div>
-            <div class = "col-sm">
-                <a th:unless = "${user}" class = "btn btn-success" href = "/login" role = "button">Login</a>
-            </div>
-        </div>
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                  <h5 class="card-title">Create your event</h5>
+                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                  <a class="btn btn-primary" href="/createevent" role="button">Create an Event</a>
+                </div>
+              </div>
+              <div class="card" th:unless = "${user}" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Get Started</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                        <div class = "row mt-2">
+                            <div class = "col-sm"><a class="btn btn-primary" href="/login" role="button">Login</a></div>
+                            <div class = "col-sm"><a class="btn btn-outline-primary" href="/createuser" role="button">Register</a></div> 
+                        </div>
+                    </div>
+                </div>
+              </div>
+
+
         
         <h1>&nbsp;</h1>
 
         <div class = "card border-warning mb-3" style="max-width: 18rem;">
-            <div class="card-header">admin stuff</div>
+            <div class="card-header">Debug Tools</div>
             <div class = "card-body">
                 <div class = "row">
                     <div class = "col-sm">
@@ -57,6 +67,8 @@
                 </div>
             </div>
         </div>
+
+    </div>
 
 
     </div>

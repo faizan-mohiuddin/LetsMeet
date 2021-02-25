@@ -1,10 +1,13 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
+import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.Location;
+import com.LetsMeet.LetsMeet.Event.Service.ConditionSetService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -18,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.expression.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +48,9 @@ public class EventControllerAPI {
 
     @Autowired
     EventResponseDao responseData;
+
+    @Autowired
+    ConditionSetService conditionSetService;
 
     // Request Mappings
     //-----------------------------------------------------------------
@@ -282,6 +290,40 @@ public class EventControllerAPI {
         return new ResponseEntity<>(HttpStatus.OK);     
     }
 
+    // Location
+    //-----------------------------------------------------------------
+    @GetMapping("api/Event/{EventUUID}/location")
+    public List<Location> getLocation(@PathVariable(value = "EventUUID") String eventUUID){
+        return conditionSetService.getLocation(
+                conditionSetService.get(
+                    eventService.getEvent(eventUUID).getConditions())).orElseThrow(IllegalArgumentException::new);
+    }
+
+    @PostMapping("/api/Event/{EventUUID}/location")
+    public String setLocation(
+                                @RequestParam(value = "Token", defaultValue = "") String token,
+                                @PathVariable(value = "EventUUID") String eventUUID,
+                                @RequestBody List<Location> locations){
+         
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if (result){
+
+            User user = userValidation.getUserFromToken(token);
+            if (user == null) {
+                return "Error finding user. Is the token still valid? Is the user account still active?";
+            }
+            ConditionSet set = conditionSetService.get(eventService.getEvent(eventUUID).getConditions());
+            conditionSetService.clearLocation(set);
+            boolean operationResult = conditionSetService.addLocation(set,locations);
+            return (operationResult) ? "Event location set" : "Event location not set"; 
+        }
+        else{
+            // return the user validation error
+            return (String) response[1];
+        }
+    }
 
     /* Event Responses */
 
@@ -383,7 +425,6 @@ public class EventControllerAPI {
         @PathVariable(value = "EventUUID") String eventUUID){
 
         Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
 
         if (! (boolean) response[0]) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
@@ -438,7 +479,6 @@ public class EventControllerAPI {
 
         try{
             User user = userValidation.getUserFromToken(token);
-            Event event = eventService.getEvent(eventUUID);
 
             return responseService.clearTimes(responseData.get(UUID.fromString(eventUUID), user.getUUID()).get()) ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
