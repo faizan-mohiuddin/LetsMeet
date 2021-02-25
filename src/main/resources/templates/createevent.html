@@ -9,6 +9,17 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <html xmlns:th="http://www.thymeleaf.org">
 
+	
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+$(function(){
+   $('.datepicker').datepicker({
+      format: 'mm-dd-yyyy'
+    });
+});
+</script>
+
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -37,6 +48,24 @@
             <div class = "form-group">
                 <label for = "eventlocation">Event Location:</label>
                 <input type = "text" class = "form-control" name = "eventlocation" placeholder="Location...">
+            <div class = "form-group">
+                <label for = "eventTimes">Event Times:</label>
+                <div class="container" id="timeRangeGroup">
+                    <div class="row align-items-start">
+                      <div class="col">
+                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="From...">
+                      </div>
+                      <div class="col">
+                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="Until...">
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-light" onclick="msg()" >Remove</button>
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-light" onclick="msg()" >Add</button>
+                      </div>
+                    </div>
+            
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
           </form>
