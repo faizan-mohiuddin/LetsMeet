@@ -157,12 +157,16 @@ public class EventControllerWeb {
 
         // Check if user is logged in AND if the event exists AND if the user is in said event
         if (user != null && EventServiceInterface.getEvent(eventuuid) != null) {
-
+            
+            Event event = EventServiceInterface.getEvent(eventuuid);
             model.addAttribute("user", user);
-            model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
+            model.addAttribute("event", event);
 
             Boolean hasCurrentUserRespondedToEvent = false;
 
+            if (eventResponseServiceInterface.getResponse(user, event) != null){hasCurrentUserRespondedToEvent = true;}
+            
+            /*
             for (int i = 0; i < eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid)).size(); i++) {
 
                 if (eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid)).get(i).getUser().toString().equals(user.getUUID().toString())) {
@@ -172,15 +176,16 @@ public class EventControllerWeb {
                 }
 
             }
+            */
 
             model.addAttribute("hasUserRespondedToEvent", hasCurrentUserRespondedToEvent);
 
-            if (EventServiceInterface.checkOwner(EventServiceInterface.getEvent(eventuuid).getUUID(), user.getUUID())) {
+            if (EventServiceInterface.checkOwner(event.getUUID(), user.getUUID())) {
 
                 model.addAttribute("isOwnerOfEvent", true);
 
                 List<HashMap<String,String>> names= new ArrayList<>();
-                for (EventResponse o : eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid))){
+                for (EventResponse o : eventResponseServiceInterface.getResponses(event)){
                     HashMap<String, String> data = new HashMap<>();
                     data.put("fname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getfName());
                     data.put("lname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getlName());
