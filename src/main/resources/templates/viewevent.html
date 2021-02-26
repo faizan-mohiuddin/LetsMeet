@@ -34,6 +34,9 @@
 <div class = "container">
 
     <div class = "alert alert-primary" th:if="${isOwnerOfEvent}">You are the owner of this event.</div>
+    <div class = "alert alert-info" th:unless = "${hasUserRespondedToEvent}">You have not joined the event yet. <a class = "btn btn-success" th:href="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}">Join</a></div>
+    <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
+    <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
 
     <p><b>Event name: </b><span th:text="${event.getName()}"></span></p>
     <p><b>Event description: </b><span th:text="${event.getDescription()}"></span></p>
