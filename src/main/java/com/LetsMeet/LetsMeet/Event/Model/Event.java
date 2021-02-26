@@ -82,14 +82,20 @@ public class Event {
     }
 
     public void setName(String name){
-        this.name = name;
+        if(!name.equals("")) {
+            this.name = name;
+        }
     }
 
     public void setDescription(String desc){
-        this.desc = desc;
+        if(!desc.equals("")) {
+            this.desc = desc;
+        }
     }
 
     public void setLocation(String location){
-        this.location = location;
+        if(!location.equals("")) {
+            this.location = location;
+        }
     }
 }

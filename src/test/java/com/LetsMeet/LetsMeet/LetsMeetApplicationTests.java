@@ -983,7 +983,7 @@ class  LetsMeetApplicationTests {
 		String expectedResponse = "Event successfully updated";
 
 		// Update name
-		String resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, event.desc, event.location);
+		String resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, "", "");
 		assertEquals(expectedResponse, resposne);
 		Event checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());
@@ -992,7 +992,7 @@ class  LetsMeetApplicationTests {
 		assertEquals(event.location, checking.getLocation());
 
 		// Update description
-		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, event2.desc, event.location);
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, "", event2.desc, "");
 		assertEquals(expectedResponse, resposne);
 		checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());
@@ -1001,7 +1001,7 @@ class  LetsMeetApplicationTests {
 		assertEquals(event.location, checking.getLocation());
 
 		// Update location
-		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, event2.desc, event2.location);
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID,"", "", event2.location);
 		assertEquals(expectedResponse, resposne);
 		checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());
