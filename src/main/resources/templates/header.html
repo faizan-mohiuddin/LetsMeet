@@ -5,41 +5,74 @@
 <div th:include="fragments/js :: bootstrap"></div>
 
 <body>
-    <div th:fragment = "navbar">
+  <div th:fragment="navbar">
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <img src="../static/images/logo_64.png" th:src="@{images/logo_64.png}" class="img-responsive"/>
-            <a class="navbar-brand" href="/Home">LetsMeet</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-              <div class="navbar-nav">
-                <a class="nav-item nav-link" href = "/Home">Home </a>
-                <a class="nav-item nav-link" href="/createuser">Register</a>
-                <a th:if = "${user}" class = "btn btn-primary" href = "/dashboard" role = "button">Dashboard</a>
-                <a th:if = "${user}" class = "btn btn-danger" href = "/logout" role = "button">Logout</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <img src="../static/images/logo_64.png" th:src="@{images/logo_64.png}" class="img-responsive" />
+      <a class="navbar-brand" href="/Home">LetsMeet</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/Home">Home </a>
+          <a class="nav-item nav-link" href="/createuser">Register</a>
+          <a th:if="${user}" class="btn btn-primary" href="/dashboard" role="button">Dashboard</a>
+          <a th:if="${user}" class="btn btn-danger" href="/logout" role="button">Logout</a>
+        </div>
+      </div>
+
+
+
+
+
+      <div class="text-right" th:if="${user}">
+        <div class="btn-group">
+          <button type="button" class="btn btn-light"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+              fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              <path fill-rule="evenodd"
+                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+            </svg> Welcome <th th:text="${user.fName}">.</th></button>
+          <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/Home">Account Options </a>
+            <a class="dropdown-item" href="/dashboard">Dashboard</a>
+            <a class="dropdown-item" href="/logout">Logout</a>
+          </div>
+        </div>
+      </div>
+      <div th:unless="${user}">
+        <!-- Trigger the modal with a button -->
+        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#myModal">Login</button>
+        <a class="btn btn-outline-light" href="/createuser" role="button">Register</a>
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+          <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Login</h4>
+              </div>
+              <div class="modal-body">
+                <div th:insert="fragments/auth :: login"></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
-            <div class="text-right" th:if="${user}">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-light">             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                  </svg> Welcome <th th:text="${user.fName}">.</th></button>
-                  <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href = "/Home">Account Options </a>
-                      <a class="dropdown-item" href = "/dashboard">Dashboard</a>
-                      <a class="dropdown-item" href="/logout">Logout</a>
-                    </div>
-                </div>
-            </div>
-          </nav>
 
-    </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+  </div>
 </body>
 
 </html>

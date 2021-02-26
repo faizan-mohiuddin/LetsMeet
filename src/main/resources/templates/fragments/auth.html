@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+
+<body>
+    <div th:fragment="login">
+
+        <form th:action="@{login}" method="POST">
+
+            <div class="form-group">
+                <label for="eventname">E-mail: </label>
+                <input type="text" class="form-control" name="loginemail" placeholder="E-mail...">
+            </div>
+
+            <div class="form-group">
+                <label for="eventdesc">Password: </label>
+                <input type="password" class="form-control" name="loginpassword" placeholder="Password...">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Log In</button>
+        </form>
+    </div>
+</body>
