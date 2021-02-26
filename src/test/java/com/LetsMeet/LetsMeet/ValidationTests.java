@@ -1,13 +1,25 @@
 package com.LetsMeet.LetsMeet;
 
+import com.LetsMeet.LetsMeet.Business.Controller.BusinessControllerAPI;
+import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerAPI;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
+import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
+import com.LetsMeet.LetsMeet.DBChecks.VenueDBChecker;
 import com.LetsMeet.LetsMeet.Event.Controller.EventControllerAPI;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
+import com.LetsMeet.LetsMeet.Event.Service.EventService;
+import com.LetsMeet.LetsMeet.TestingTools.TestingBusiness;
 import com.LetsMeet.LetsMeet.TestingTools.TestingEvents;
 import com.LetsMeet.LetsMeet.TestingTools.TestingUsers;
+import com.LetsMeet.LetsMeet.TestingTools.TestingVenue;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
@@ -37,16 +49,37 @@ public class ValidationTests {
     private EventControllerAPI eventController;
 
     @Autowired
+    VenueControllerAPI venueController;
+
+    @Autowired
+    private BusinessControllerAPI businessController;
+
+    @Autowired
     private ValidationService userValidation;
 
     @Autowired
     private UserService userService;
 
     @Autowired
+    VenueBusinessService venueBusinessService;
+
+    @Autowired
+    BusinessService businessService;
+
+    @Autowired
+    EventService eventService;
+
+    @Autowired
     UserDBChecker UserDB;
 
     @Autowired
     EventDBChecker EventDB;
+
+    @Autowired
+    BusinessDBChecker businessChecker;
+
+    @Autowired
+    VenueDBChecker venueDBChecker;
 
     @Autowired
     UserDao userModel;
@@ -59,6 +92,8 @@ public class ValidationTests {
 
     private static ArrayList<TestingUsers> testUsers = new ArrayList<>();
     private static ArrayList<TestingEvents> testEvents = new ArrayList<>();
+    private static ArrayList<TestingBusiness> testBusiness = new ArrayList<>();
+    private static ArrayList<TestingVenue> testVenue = new ArrayList<>();
 
     @Test
     @Order(1)
@@ -207,13 +242,87 @@ public class ValidationTests {
         this.clearData();
     }
 
-    // Check only event owner can update event
+    @Test
+    @Order(6)
+    public void NonOwnerUpdatingEvent(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
 
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
 
-    // Check who can delete business
-    // Check only condition set owner can update condition set
+        this.generateEvent(user.token);
+        TestingEvents event = testEvents.get(0);
+
+        this.generateEvent(user.token);
+        TestingEvents event2 = testEvents.get(1);
+
+        String response = eventController.API_UpdateEvent(user2.token, event.UUID, event2.name, event2.desc, event2.location);
+        assertEquals("You do not have permission to update this Event", response);
+
+        // Check DB
+        Event checking = eventService.getEvent(event.UUID);
+        assertEquals(event.UUID, checking.getUUID().toString());
+        assertEquals(event.name, checking.getName());
+        assertEquals(event.desc, checking.getDescription());
+        assertEquals(event.location, checking.getLocation());
+    }
+
+    @Test
+    @Order(7)
+    public void nonOwnerDeleteBusiness(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        String response =  businessController.API_DeleteBusiness(user2.token, business.UUID);
+        assertEquals("You dont have permission to delete this event", response);
+
+        // Check DB
+        Business checking = businessService.getBusiness(business.UUID);
+        assertEquals(business.UUID, checking.getUUID().toString());
+        assertEquals(business.name, checking.getName());
+    }
+
     // Check who can create venue on behalf of business
+    @Test
+    @Order(8)
+    public void nonOwnerCreatingVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateUser();
+        TestingUsers user2 = testUsers.get(1);
+        this.login(user2);
+
+         this.generateBusiness(user.token);
+         TestingBusiness business = testBusiness.get(0);
+
+        String Name = RandomStringUtils.randomAlphabetic(8);
+        String response = venueController.API_createVenue(user2.token, business.UUID, Name);
+        assertEquals("You do not have permission to create a Venue for this Business", response);
+
+        List<Venue> venues = venueBusinessService.getBusinessVenues(business.UUID);
+        assertEquals(null, venues);
+    }
+
     // Check who can delete venue
+    // Check who can update business
+    // Check who can update venue
+
+    // Check only condition set owner can update condition set
+
+
 
 
     @Test
@@ -254,6 +363,25 @@ public class ValidationTests {
         TestingEvents event = new TestingEvents(Ename, Edesc, Elocation);
         event.UUID = EventDB.eventUUIDFromNameAndDesc(Ename, Edesc);
         testEvents.add(event);
+    }
+
+    private void generateVenue(String userToken, String businessUUID){
+        String name = RandomStringUtils.randomAlphabetic(8);
+        this.venueController.API_createVenue(userToken, businessUUID, name);
+        TestingVenue venue = new TestingVenue(venueDBChecker.venueUUIDFromNameandBusinessUUID(name, businessUUID), name);
+
+        testVenue.add(venue);
+    }
+
+    public void generateBusiness(String token){
+        String name = RandomStringUtils.randomAlphabetic(8);
+
+        this.businessController.API_CreateBusiness(token, name);
+
+        TestingBusiness business = new TestingBusiness(name);
+        business.UUID = businessChecker.businessUUIDFromName(name);
+
+        testBusiness.add(business);
     }
 
     private void login(TestingUsers user){
