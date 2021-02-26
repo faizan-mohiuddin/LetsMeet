@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+  integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+  $(function () {
+    $('.datepicker').datepicker({
+      format: 'mm-dd-yyyy'
+    });
+  });
+</script>
+
+<head>
+  <title>Lets Meet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+  <div th:insert="header :: navbar"></div>
+
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Response</h1>
+      <p><span th:text="${event.name}"></span></p>
+      <p><span th:text="${event.description}"></span></p>
+    </div>
+  </div>
+
+  <div class="container">
+    
+  </div>
+
+  <div class="container">
+    <form th:action="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}">
+
+      <div class="form-group">
+        <label for="eventdesc">When are you available?</label>
+        <div class="container" id="timeRangeGroup">
+          <div class="row align-items-start">
+            <div class="col-sm-5">
+              <input type="datetime" class="form-control datepicker" name="eventlocation" placeholder="From...">
+            </div>
+            <div class="col-sm-5">
+              <input type="datetime" class="form-control datepicker" name="eventlocation" placeholder="Until...">
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-secondary" onclick="msg()">-</button>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-secondary" onclick="msg()">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="eventdesc">Where would you like to meet? </label>
+        <input type="text" class="form-control" name="eventdesc" placeholder="Search for location...">
+      </div>
+
+      <div class="form-group">
+        <label for="eventdesc">What facilities should the venue have? </label>
+        <input type="text" class="form-control" name="eventdesc" placeholder="Search for facilities...">
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Confirm</button>
+      <p>You are responding as <span th:text="${user.fName} + ' ' + ${user.lName}"></span></p>
+    </form>
+  </div>
+
+  <div th:insert="footer :: footer"></div>
+
+</body>
+
+</html>

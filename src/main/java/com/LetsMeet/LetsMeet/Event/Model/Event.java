@@ -81,15 +81,15 @@ public class Event {
         this.poll = poll;
     }
 
-    public void switchName(String name){
+    public void setName(String name){
         this.name = name;
     }
 
-    public void switchDesc(String desc){
+    public void setDescription(String desc){
         this.desc = desc;
     }
 
-    public void switchLocation(String location){
+    public void setLocation(String location){
         this.location = location;
     }
 }

@@ -103,9 +103,9 @@ public class EventService implements EventServiceInterface {
         if(this.checkOwner(event.getUUID(), user.getUUID())) {
 
             // Switch values
-            event.switchName(name);
-            event.switchDesc(desc);
-            event.switchLocation(location);
+            event.setName(name);
+            event.setDescription(desc);
+            event.setLocation(location);
 
             // Update in DB
             if (eventDao.update(event)) {

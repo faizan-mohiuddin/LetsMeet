@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+$(function(){
+   $('.datepicker').datepicker({
+      format: 'mm-dd-yyyy'
+    });
+});
+</script>
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+    <div th:insert = "header :: navbar"></div>
+
+    <div class = "jumbotron">
+        <div class = "container">
+            <h1>Create an Event</h1>
+        </div>
+    </div>
+
+    <div class = "container">
+        <form th:action = "@{/saveevent}">
+            <div class="form-group">
+              <label for="eventname">Event Name: </label>
+              <input type="text" class="form-control" name="eventname" th:value = "*{eventname}" placeholder="Enter event name...">
+            </div>
+            <div class="form-group">
+              <label for="eventdesc">Event Description: </label>
+              <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
+            </div>
+            <div class = "form-group">
+                <label for = "eventlocation">Event Location:</label>
+                <input type = "text" class = "form-control" name = "eventlocation" placeholder="Location...">
+            <div class = "form-group">
+                <label for = "eventTimes">Event Times:</label>
+                <div class="container" id="timeRangeGroup">
+                    <div class="row align-items-start">
+                      <div class="col">
+                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="From...">
+                      </div>
+                      <div class="col">
+                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="Until...">
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-light" onclick="msg()" >Remove</button>
+                      </div>
+                      <div class="col">
+                        <button type="button" class="btn btn-light" onclick="msg()" >Add</button>
+                      </div>
+                    </div>
+            
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+          </form>
+    </div>
+    <div th:insert = "footer :: footer"></div>
+</body>
+
+</html>
