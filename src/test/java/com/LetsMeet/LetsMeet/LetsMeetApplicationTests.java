@@ -1027,6 +1027,12 @@ class  LetsMeetApplicationTests {
 		UserDB.clearTestData();
 	}
 
+	@AfterEach
+	public void clearLists(){
+		testUsers.clear();
+		testEvents.clear();
+	}
+
 	// Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
 	private void generateUser(){
 		// Create a user and add it to list

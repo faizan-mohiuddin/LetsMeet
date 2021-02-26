@@ -26,10 +26,7 @@ import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -330,6 +327,14 @@ public class ValidationTests {
     public void cleanup(){
         // Remove test records from DB
         UserDB.clearTestData();
+    }
+
+    @AfterEach
+    public void clearLists(){
+        testUsers.clear();
+        testBusiness.clear();
+        testVenue.clear();
+        testEvents.clear();
     }
 
     // Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
