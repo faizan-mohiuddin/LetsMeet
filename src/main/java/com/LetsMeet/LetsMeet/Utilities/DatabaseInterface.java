@@ -10,7 +10,6 @@ package com.LetsMeet.LetsMeet.Utilities;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +35,7 @@ public class DatabaseInterface{
 
     // The database connection
     private static Connection connection;
+    private static long ts;
 
     // database users
     private static int users = 0;
@@ -46,6 +46,7 @@ public class DatabaseInterface{
         try{
             DatabaseInterface.connection = DriverManager.getConnection(config.getDatabaseHost() + "/" + config.getDatabaseName(), config.getDatabaseUser(), config.getDatabasePassword());
             LOGGER.info("Established connection to {} @ {}", config.getDatabaseName(), config.getDatabaseHost());
+            ts = System.currentTimeMillis()/1000;
             return true;
         }
         catch(Exception e){
@@ -68,7 +69,7 @@ public class DatabaseInterface{
     // Initialises a connection if required and returns reference to it
     public static Connection get(){
         try{
-            if (users < 0 || connection == null || connection.isClosed()){openConnection();}
+            if (users < 0 || connection == null || (System.currentTimeMillis()/1000)-ts > 600000 ||connection.isClosed()){openConnection();}
             users++;
             return connection;
         }
