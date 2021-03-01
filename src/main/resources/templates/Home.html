@@ -34,7 +34,30 @@
                         <h5 class="card-title">Create your event</h5>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of
                             the card's content.</p>
-                        <a class="btn btn-primary" href="/createevent" role="button">Create an Event</a>
+                        <a class="btn btn-primary" th:if="${user}" href="/createevent" role="button">Create an Event</a>
+                        <div th:unless="${user}">
+                            <!-- Trigger the modal with a button -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Create an Event</button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="myModal" role="dialog">
+                              <div class="modal-dialog">
+                    
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h4 class="modal-title">Login</h4>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div th:insert="fragments/auth :: login"></div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                  </div>
+                                </div>
+                    
+                              </div>
+                            </div>
+                          </div>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+
+
+<body>
+    <div th:fragment="basic_search">
+        <div class="btn-group mr-1">
+            <input id="searchBox" type="text" class="form-control" placeholder="Find events...">
+            <button class="btn btn-light" type="submit"
+                onclick="window.open(`/search?term=${document.getElementById('searchBox').value}`,'_self');"
+                id="searchButton"><i class="bi bi-search"></i></button>
+        </div>
+    </div>
+</body>
