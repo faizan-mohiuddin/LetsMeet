@@ -51,8 +51,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
             rs.next();
 
             Optional<EventResponse> response = Optional.ofNullable(new EventResponse(
-                UUID.fromString(rs.getString("UserUUID")), 
                 UUID.fromString(rs.getString("EventUUID")), 
+                UUID.fromString(rs.getString("UserUUID")), 
                 UUID.fromString(rs.getString("ConditionSetUUID"))));
 
             database.close();

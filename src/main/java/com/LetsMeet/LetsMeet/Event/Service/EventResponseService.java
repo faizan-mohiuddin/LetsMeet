@@ -63,6 +63,10 @@ public class EventResponseService {
         return dao.get(event.getUUID()).get();
     }
 
+    public List<EventResponse> getResponses(User user){
+        return dao.get(user.getUUID()).get();
+    }
+
     // Modification
     //-----------------------------------------------------------------
 

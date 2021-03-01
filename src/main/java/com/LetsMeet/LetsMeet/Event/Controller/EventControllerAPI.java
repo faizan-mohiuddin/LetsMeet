@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpSession;
+
 @RestController
 public class EventControllerAPI {
 
@@ -369,6 +371,14 @@ public class EventControllerAPI {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @DeleteMapping("api/Event/{EventUUID}/Response")
+    public ResponseEntity<String> deleteResponse(@PathVariable(value = "EventUUID") String eventUUID, HttpSession session){
+        User user = (User) session.getAttribute("userlogin");
+
+        responseData.delete(eventUUID, user.getUUID().toString());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Get all users on an event

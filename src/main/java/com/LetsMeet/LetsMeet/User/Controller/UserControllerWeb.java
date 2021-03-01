@@ -1,5 +1,8 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Event.Service.EventServiceInterface;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -18,6 +21,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import javax.swing.event.HyperlinkEvent;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 @Controller
@@ -32,6 +38,9 @@ public class UserControllerWeb {
 
     @Autowired
     EventService eventServiceInterface;
+
+    @Autowired
+    EventResponseService eventResponseService;
 
     @RequestMapping(value = "/")
     public String redirect() {
@@ -205,6 +214,11 @@ public class UserControllerWeb {
             } else {
 
                 model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user.getUUID().toString()));
+                ArrayList<Event> responseEvents = new ArrayList<>();
+                for (EventResponse o : eventResponseService.getResponses(user)){
+                    responseEvents.add(eventServiceInterface.getEvent(o.getEvent().toString()));
+                }
+                model.addAttribute("responses", responseEvents);
 
             }
             return "dashboard";

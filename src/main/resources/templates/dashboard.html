@@ -1,7 +1,26 @@
 <!DOCTYPE html>
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
+
+
 <html xmlns:th="http://www.thymeleaf.org">
+
+<script>
+    function deleteResponse(userID, eventID){
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200){
+                //document.getElementById("demo").innerHTML = this.responseText;
+                $(`#${eventID}`).parent().remove();
+            }
+        };
+        let requestURL = `http://localhost:8080/api/Event/${eventID}/Response`
+        xhttp.open("DELETE", requestURL);
+        xhttp.send();
+        $(`#${eventID}`).parent().append('<div class="spinner-border" role="status"><span class="visually-hidden">Working...</span></div>')
+    }
+</script>
+
 
 <head>
     <title>Lets Meet</title>
@@ -41,6 +60,36 @@
                     <td th:text = "${myEvents.location}"></td>
                     <td><a class = "btn btn-primary" th:href = "@{/event/{eventuuid}(eventuuid = ${myEvents.getUUID()})}">View</a></td>
                     <td><a class = "btn btn-danger" th:href = "@{/deleteevent/{eventuuid}(eventuuid = ${myEvents.getUUID()})}">Delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <h2>Your Responses</h2>
+
+    <div>
+        <table class = "table table">
+            <thead>
+                <tr>
+                    <th scope = "col">Event Name</th>
+                    <th scope = "col">Description</th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each = "response : ${responses}" id="hiya">
+                    <div th:if = "${response}">
+                        <td th:text = "${response.getName()}" th:id = "${response.UUID}"></td>
+                        <td th:text = "${response.description}"></td>
+                        <td></td>
+                        <td><a class = "btn btn-danger" onclick="deleteResponse()" th:attr="onclick=|deleteResponse('${user.UUID}','${response.UUID}')|">Delete</a></td>
+                    </div>
+                    <div th:unless = "${response}">
+                        <td th:text = "${response} +''">Null entity</td>
+                        <td></td>
+                        <td></td>
+                    </div>
                 </tr>
             </tbody>
         </table>
