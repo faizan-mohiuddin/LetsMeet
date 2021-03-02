@@ -1,5 +1,9 @@
 package com.LetsMeet.LetsMeet.User.Controller;
+
 import com.LetsMeet.LetsMeet.User.Service.*;
+
+import javax.servlet.http.HttpSession;
+
 import com.LetsMeet.LetsMeet.User.Model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +55,17 @@ public class UserControllerAPI {
         }else{
             String errorText = (String) response[1];
             return new UserSanitised(errorText, errorText, errorText);
+        }
+    }
+
+    @GetMapping("/api/User/token")
+    public String getToken(HttpSession session){
+        try{
+            User user = (User) session.getAttribute("userlogin");
+            return userServiceInterface.getUserToken(user);
+        }
+        catch(Exception e){
+            return "nothing"; //TODO logger
         }
     }
 

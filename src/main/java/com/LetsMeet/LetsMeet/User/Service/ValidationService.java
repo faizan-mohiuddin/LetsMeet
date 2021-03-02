@@ -29,6 +29,17 @@ public class ValidationService {
     // For checking email syntax
     private static final String emailRegex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
 
+    public User getAuthenticatedUser(String token){
+        Object[] response = verifyAPItoken(token);
+        if ((boolean) response[0]){
+            return getUserFromToken(token);
+        }
+        else{
+            return null;
+        }
+    }
+
+
     public Object[] verifyAPItoken(String token){
         // Returns [boolean, String]
         Object[] arr = new Object[2];
