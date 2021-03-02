@@ -259,4 +259,20 @@ public class EventControllerWeb {
 
         return "event/response";
     }
+
+    @GetMapping("/event/{eventuuid}/edit")
+    public String editEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        if (user != null){
+            model.addAttribute("user", user);
+            model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
+        }
+
+        else { redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
+
+
+        return "event/edit";
+    }
 }

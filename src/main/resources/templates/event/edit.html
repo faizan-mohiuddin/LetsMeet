@@ -1,23 +1,66 @@
 <!DOCTYPE html>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<div th:include="fragments/js :: letsmeet"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
-	
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<script src="/js/letsmeet.js"></script>
 
 <script>
-$(function(){
-   $('.datepicker').datepicker({
-      format: 'mm-dd-yyyy'
+    $(function () {
+        $('.datepicker').datepicker({
+            format: 'mm-dd-yyyy'
+        });
     });
-});
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#btn_upload').click(function () {
+            let token = getToken();
+            let url = `http://localhost:8080/api/media?Token=${token}`
+            var fd = new FormData();
+            var files = $('#file')[0].files[0];
+            fd.append('file', files);
+            // AJAX request
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response != 0) {
+                        // Show image preview
+                        alert(response);
+                        $('#preview').append(`<img src="http://localhost:8080/${response}" width="150" class="img-thumbnail" alt="Responsive image">`);
+                        setEventImage('c8c32808-54df-3694-9daa-4045ed0f722b',response);
+                    } else {
+                        alert('file not uploaded');
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    function setEventImage(event, imageURL) {
+        alert("hello!")
+        let token = getToken();
+        let url = `http://localhost:8080/api/Event/${event}/Properties?key=event_image&value=${imageURL}`;
+        $.ajax({
+            url: url,
+            type: 'put',
+            contentType: false,
+            processData: false,
+            success: alert("updated")   
+        })
+    }
 </script>
 
 <head>
@@ -27,50 +70,28 @@ $(function(){
 
 <body>
 
-    <div th:insert = "header :: navbar"></div>
+    <div th:insert="header :: navbar"></div>
 
-    <div class = "jumbotron">
-        <div class = "container">
-            <h1>Create an Event</h1>
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Edit Event</h1>
+            <a class="btn btn-danger" onclick="getToken()">Delete</a>
         </div>
     </div>
 
-    <div class = "container">
-        <form th:action = "@{/saveevent}">
-            <div class="form-group">
-              <label for="eventname">Event Name: </label>
-              <input type="text" class="form-control" name="eventname" th:value = "*{eventname}" placeholder="Enter event name...">
-            </div>
-            <div class="form-group">
-              <label for="eventdesc">Event Description: </label>
-              <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
-            </div>
-            <div class = "form-group">
-                <label for = "eventlocation">Event Location:</label>
-                <input type = "text" class = "form-control" name = "eventlocation" placeholder="Location...">
-            <div class = "form-group">
-                <label for = "eventTimes">Event Times:</label>
-                <div class="container" id="timeRangeGroup">
-                    <div class="row align-items-start">
-                      <div class="col">
-                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="From...">
-                      </div>
-                      <div class="col">
-                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="Until...">
-                      </div>
-                      <div class="col">
-                        <button type="button" class="btn btn-light" onclick="msg()" >Remove</button>
-                      </div>
-                      <div class="col">
-                        <button type="button" class="btn btn-light" onclick="msg()" >Add</button>
-                      </div>
-                    </div>
-            
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-          </form>
+    <div class="container">
+
+        <form method='post' action='' enctype="multipart/form-data">
+            Select file : <input type='file' name='file' id='file' class='form-control'><br>
+            <input type='button' class='btn btn-info' value='Upload' id='btn_upload' onUpload="setEventImage()">
+        </form>
+        
+        <div id="preview"></div>
+        <button id= 'btn_set' onclick="setEventImage('c8c32808-54df-3694-9daa-4045ed0f722b','yes')" type="button" class="btn btn-primary">Primary</button>
+
+
     </div>
-    <div th:insert = "footer :: footer"></div>
+    <div th:insert="footer :: footer"></div>
 </body>
 
 </html>
