@@ -6,6 +6,8 @@
 
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import java.io.IOException;
+
 //-----------------------------------------------------------------
 
 import java.time.Instant;
@@ -61,7 +63,7 @@ public class EventService implements EventServiceInterface {
     // Creates a new event and sets the given user (typically the one creating the event) administrative rights over it. 
 
     @Override
-    public String createEvent(String name, String desc, String location, String UserUUID) {
+    public Event createEvent(String name, String desc, String location, String UserUUID) throws IOException{
         // Generate EventUUID
         UUID eventUUID = generateEventUUID(name, desc, location);
 
@@ -69,19 +71,18 @@ public class EventService implements EventServiceInterface {
         Event event = new Event(eventUUID.toString(), name, desc, location,conditionSetService.createDefault().getUUID());
 
         // Ensure event is saved to persistent storage
-        if (eventDao.save(event)) {
-            
+        try{
+            eventDao.save(event); 
             // Set the User as owner (admin) of Event
             EventPermission record = new EventPermission(eventUUID.toString(), UserUUID, true);
-
-            if (permissionDao.save(record)) {
-                return "Event successfully created.";
-            } else {
-                return "Error creating event.";
-            }
-        } else {
-            return "Error creating event.";
+            permissionDao.save(record);
         }
+        catch(Exception e){
+            throw new IOException("Unable to create new event");
+        }
+
+        return event;
+
     }
 
 

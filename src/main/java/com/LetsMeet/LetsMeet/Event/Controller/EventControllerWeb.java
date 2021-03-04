@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -7,16 +8,21 @@ import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
+import com.LetsMeet.LetsMeet.Root.Media.Media;
+import com.LetsMeet.LetsMeet.Root.Media.MediaService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
@@ -33,8 +39,14 @@ public class EventControllerWeb {
     @Autowired
     UserService UserServiceInterface;
 
-    @GetMapping("/createevent")
-    public String createevent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    @Autowired
+    MediaService mediaService;
+
+    @Autowired
+    EventDao eventDao;
+
+    @GetMapping({"/createevent", "/event/new"})
+    public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
 
@@ -54,8 +66,12 @@ public class EventControllerWeb {
 
     }
 
-    @GetMapping("/saveevent")
-    public String saveevent(@RequestParam(name = "eventname") String eventname, @RequestParam(name = "eventdesc") String eventdesc, @RequestParam(name = "eventlocation") String eventlocation, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    @PostMapping("/createevent")
+    public String saveevent(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+        @RequestParam("file") MultipartFile file, 
+        @RequestParam(name = "eventname") String eventname, 
+        @RequestParam(name = "eventdesc") String eventdesc, 
+        @RequestParam(name = "eventlocation") String eventlocation) {
 
         User user = (User) session.getAttribute("userlogin");
 
@@ -65,18 +81,26 @@ public class EventControllerWeb {
 
             return "redirect:/Home";
 
-        } else {
+        }
+
+        try{
 
             model.addAttribute("user", user);
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
-
-
-            EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+            
+            Event event = EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+            String path= mediaService.saveMedia(new Media(file, user.getUUID())).get();
+            EventServiceInterface.setProperty(event, "header_image", path);
+            eventDao.update(event);
 
             return "saveevent";
 
+        }
+        catch(Exception e){
+            redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
+            return "redirect:/Home";
         }
 
     }
@@ -138,22 +162,7 @@ public class EventControllerWeb {
 
         User user = (User) session.getAttribute("userlogin");
 
-        Boolean checkIfEventHasCurrentLoggedInUser = false;
-
         // Checks if the currently logged in user is IN (not is owner) of an event.
-        if (user != null) {
-
-            for (int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
-
-                if (EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).get(i).getEmail().equals(user.getEmail())) {
-
-                    checkIfEventHasCurrentLoggedInUser = true;
-
-                }
-
-            }
-
-        }
 
         // Check if user is logged in AND if the event exists AND if the user is in said event
         if (user != null && EventServiceInterface.getEvent(eventuuid) != null) {
@@ -165,18 +174,6 @@ public class EventControllerWeb {
             Boolean hasCurrentUserRespondedToEvent = false;
 
             if (eventResponseServiceInterface.getResponse(user, event) != null){hasCurrentUserRespondedToEvent = true;}
-            
-            /*
-            for (int i = 0; i < eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid)).size(); i++) {
-
-                if (eventResponseServiceInterface.getResponses(EventServiceInterface.getEvent(eventuuid)).get(i).getUser().toString().equals(user.getUUID().toString())) {
-
-                    hasCurrentUserRespondedToEvent = true;
-
-                }
-
-            }
-            */
 
             model.addAttribute("hasUserRespondedToEvent", hasCurrentUserRespondedToEvent);
 

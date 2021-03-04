@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import java.io.IOException;
 import java.time.Period;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +11,7 @@ import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
 public interface EventServiceInterface {
-    public abstract String createEvent(String name, String desc, String location, String UserUUID);
+    public abstract Event createEvent(String name, String desc, String location, String UserUUID) throws IOException;
     public abstract String updateEvent(User user, Event event, String name, String desc, String location);
     public abstract String deleteEvent(String uuid, User user);
     public abstract Collection<Event> getEvents();

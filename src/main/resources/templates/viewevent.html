@@ -14,12 +14,20 @@
 
 <div th:insert = "header :: navbar"></div>
 
-<div class = "jumbotron"  th:style="'background:url('+'/'+ ${event.properties.properties.event_image} +');border-radius: 0%;'">
+<div class = "jumbotron" th:if="${event.properties.properties.get('header_image')}" th:style="'background:url('+'/'+ ${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
 
     <div class = "container">
         <h5>Event:</span></h5>
         <h1><span th:text="${event.getName()}"></span></h1>
+    </div>
 
+</div>
+
+<div class = "jumbotron" th:unless="${event.properties.properties.get('header_image')}">
+
+    <div class = "container">
+        <h5>Event:</span></h5>
+        <h1><span th:text="${event.getName()}"></span></h1>
     </div>
 
 </div>

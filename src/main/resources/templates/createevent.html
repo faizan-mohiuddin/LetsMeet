@@ -3,15 +3,16 @@
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
-	
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
 
 <script>
-$(function(){
-   $('.datepicker').datepicker({
-      format: 'mm-dd-yyyy'
+    $(function () {
+        $('.datepicker').datepicker({
+            format: 'mm-dd-yyyy'
+        });
     });
-});
 </script>
 
 <head>
@@ -21,50 +22,74 @@ $(function(){
 
 <body>
 
-    <div th:insert = "header :: navbar"></div>
+    <div th:insert="header :: navbar"></div>
 
-    <div class = "jumbotron">
-        <div class = "container">
+    <div class="jumbotron">
+        <div class="container">
             <h1>Create an Event</h1>
         </div>
     </div>
 
-    <div class = "container">
-        <form th:action = "@{/saveevent}">
+    <div class="container">
+        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT">
+
             <div class="form-group">
-              <label for="eventname">Event Name: </label>
-              <input type="text" class="form-control" name="eventname" th:value = "*{eventname}" placeholder="Enter event name...">
+                <label for="eventname">Event Name: </label>
+                <input type="text" class="form-control" name="eventname" th:value="*{eventname}"
+                    placeholder="Enter event name...">
             </div>
+
             <div class="form-group">
-              <label for="eventdesc">Event Description: </label>
-              <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
+                <label for="eventdesc">Image: </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="file">
+                    <label class="custom-file-label" for="customFile">Choose file</label>
+                </div>
             </div>
-            <div class = "form-group">
-                <label for = "eventlocation">Event Location:</label>
-                <input type = "text" class = "form-control" name = "eventlocation" placeholder="Location...">
-            <div class = "form-group">
-                <label for = "eventTimes">Event Times:</label>
+
+            <div class="form-group">
+                <label for="eventdesc">Event Description: </label>
+                <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
+            </div>
+
+            <div class="form-group">
+                <label for="eventlocation">Event Location:</label>
+                <input type="text" class="form-control" name="eventlocation" placeholder="Location...">
+            </div>
+
+            <div class="form-group">
+                <label for="eventTimes">Event Times:</label>
                 <div class="container" id="timeRangeGroup">
                     <div class="row align-items-start">
-                      <div class="col">
-                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="From...">
-                      </div>
-                      <div class="col">
-                        <input type = "datetime" class = "form-control datepicker" name = "eventlocation" placeholder="Until...">
-                      </div>
-                      <div class="col">
-                        <button type="button" class="btn btn-light" onclick="msg()" >Remove</button>
-                      </div>
-                      <div class="col">
-                        <button type="button" class="btn btn-light" onclick="msg()" >Add</button>
-                      </div>
+                        <div class="col">
+                            <input type="datetime" class="form-control datepicker" name="eventlocation"
+                                placeholder="From...">
+                        </div>
+                        <div class="col">
+                            <input type="datetime" class="form-control datepicker" name="eventlocation"
+                                placeholder="Until...">
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-light" onclick="msg()">Remove</button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-light" onclick="msg()">Add</button>
+                        </div>
                     </div>
-            
+
+                </div>
             </div>
+
             <button type="submit" class="btn btn-primary">Create</button>
-          </form>
+        </form>
     </div>
-    <div th:insert = "footer :: footer"></div>
-</body>
+    <div th:insert="footer :: footer"></div>
+
+    <script>
+        $(".custom-file-input").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
 
 </html>
