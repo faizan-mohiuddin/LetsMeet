@@ -116,7 +116,13 @@ public class EventControllerAPI {
             if(user == null){
                 return "Error finding user. Is the token still valid? Is the user account still active?";
             }
-            return eventService.createEvent(Name, desc, location, user.getStringUUID());
+
+            try {
+                eventService.createEvent(Name, desc, location, user.getStringUUID());
+                return "Event successfully created.";
+            }catch (Exception e){
+                return "Error creating event";
+            }
         }else{
             String errorText = (String) response[1];
             return errorText;

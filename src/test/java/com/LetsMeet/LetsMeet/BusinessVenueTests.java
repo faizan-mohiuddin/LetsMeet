@@ -24,6 +24,7 @@ import com.LetsMeet.LetsMeet.TestingTools.TestingUsers;
 import com.LetsMeet.LetsMeet.TestingTools.TestingVenue;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -148,7 +149,7 @@ public class BusinessVenueTests {
     @Test
     @Order(3)
     public void editBusiness(){
-
+        assertEquals(true, false);
     }
 
     @Test
@@ -212,8 +213,26 @@ public class BusinessVenueTests {
     @Test
     @Order(6)
     public void editVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
 
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        String expectedResponse = "Event successfully updated";
+
+        // Update name
+        String name = RandomStringUtils.randomAlphabetic(8);
+        String response = venueController.API_updateVenue(user.token, venue.uuid, name);
+        assertEquals(expectedResponse, response);
+
+        // Check DB
+        assertEquals(true, false);
     }
+
 
     @Test
     @Order(7)
@@ -497,7 +516,63 @@ public class BusinessVenueTests {
     }
 
     // Get venue
+    @Test
+    @Order(15)
+    public void getVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String response = mapper.writeValueAsString(venueController.API_getVenue(venue.uuid));
+            System.out.println(response);
+
+            String expectedResponse = String.format("{\"Name\":\"%s\",\"Facilities\":[]}", venue.name);
+            assertEquals(expectedResponse, response);
+
+        }catch (Exception e){
+            System.out.println("BusinessVenue Tests : getVenue");
+            System.out.println(e);
+        }
+    }
+
     // Get business
+    @Test
+    @Order(16)
+    public void getBusiness(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String response = mapper.writeValueAsString(businessController.API_getBusiness(business.UUID));
+            System.out.println(response);
+
+            String expectedResponse = String.format("{\"Name\":\"%s\",\"Venues\":[]}", business.name);
+            assertEquals(expectedResponse, response);
+
+        }catch (Exception e){
+            System.out.println("BusinessVenue Tests : getBusiness");
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    @Order(17)
+    public void addFacilitiesVenue(){
+
+    }
 
     @Test
     @Order(50)

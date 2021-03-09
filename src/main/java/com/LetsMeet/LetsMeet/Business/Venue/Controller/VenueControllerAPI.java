@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Business.Venue.Controller;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueSanitised;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -74,5 +75,21 @@ public class VenueControllerAPI {
             }
         }
         return "Invalid BusinessID";
+    }
+
+    @PatchMapping
+    public String API_updateVenue(@RequestParam(value="Token") String token, @RequestParam(value="VenueID") String venueUUID,
+                                  @RequestParam(value="Name") String name){
+        return null;
+    }
+
+    @GetMapping("api/Venue")
+    public VenueSanitised API_getVenue(@RequestParam(value="venueID") String venueUUID){
+        Venue v = venueService.getVenue(venueUUID);
+        if(v != null){
+            return v.convertToSanitised();
+        }else{
+            return null;
+        }
     }
 }

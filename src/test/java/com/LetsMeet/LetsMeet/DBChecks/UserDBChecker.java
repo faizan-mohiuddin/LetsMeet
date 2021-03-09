@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.DBChecks;
 
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
@@ -7,6 +8,7 @@ import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 
 @Component
@@ -20,6 +22,9 @@ public class UserDBChecker {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    VenueService venueService;
 
     public void removeUserByEmail(String email){
         database.open();
@@ -84,8 +89,13 @@ public class UserDBChecker {
             String query = String.format("Select * FROM User WHERE User.email like '%%InternalTesting.com'");
             ResultSet rs = statement.executeQuery(query);
 
+            String userUUID;
+            User user;
+
             while(rs.next()){
-                userService.deleteUser(new User(rs.getString(1)));
+                userUUID = rs.getString(1);
+                user = new User(userUUID);
+                userService.deleteUser(user);
             }
             database.close();
         }catch(Exception e){

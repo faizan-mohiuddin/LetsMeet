@@ -42,6 +42,11 @@ public class BusinessControllerAPI {
         }
     }
 
+    @GetMapping("api/Business")
+    public Business API_getBusiness(@RequestParam(value="BusinessID") String businessUUID){
+        return businessService.getBusiness(businessUUID);
+    }
+
     @PostMapping("api/Business")
     public String API_CreateBusiness(@RequestParam(value="Token") String token, @RequestParam(value="Name") String name){
         // Validate user token

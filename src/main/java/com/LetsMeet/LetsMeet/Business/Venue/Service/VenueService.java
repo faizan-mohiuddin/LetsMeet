@@ -55,6 +55,7 @@ public class VenueService {
                         return "Venue created successfully";
                     }
                 }
+
                 return "Error creating venue";
             }
             return "You do not have permission to create a Venue for this Business";
@@ -64,6 +65,7 @@ public class VenueService {
 
     public String deleteVenue(User user, String venueUUID){
         // Check user has permission to delete
+
         // Delete venue
         if(DAO.delete(UUID.fromString(venueUUID))){
             return "Venue successfully deleted";
@@ -79,6 +81,26 @@ public class VenueService {
             return venue.get();
         }
         return null;
+    }
+
+    public String updateVenue(Venue venue){
+        if(DAO.update(venue)){
+            return "Venue successfully updated";
+        }
+        return "Error updating venue";
+    }
+
+    public String updateVenue(Venue venue, String name){
+        venue.setName(name);
+        return this.updateVenue(venue);
+    }
+
+    public String addFacility(Venue venue, String facility){
+        venue.addFacility(facility);
+        if(DAO.update(venue)){
+            return "Facility added to Venue successfully";
+        }
+        return "Error adding facility to Venue";
     }
 
     // Private methods
