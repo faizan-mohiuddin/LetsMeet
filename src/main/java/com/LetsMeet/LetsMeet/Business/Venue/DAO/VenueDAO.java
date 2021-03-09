@@ -5,6 +5,7 @@ import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,8 @@ public class VenueDAO implements DAO<Venue> {
             ResultSet rs = statement.executeQuery(query);
             rs.next();
 
-            Optional<Venue> response = Optional.of(new Venue(rs.getString(1), rs.getString(2)));
+            Optional<Venue> response = Optional.of(new Venue(rs.getString(1), rs.getString(2),
+                    rs.getString(3)));
             database.close();
             return response;
 
@@ -75,7 +77,27 @@ public class VenueDAO implements DAO<Venue> {
 
     @Override
     public Boolean update(Venue venue) {
-        return null;
+        try{
+            PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Venue SET Name = ?, " +
+                    "Facilities = ? WHERE VenueUUID = ?");
+            statement.setString(1, venue.getName());
+            statement.setString(2, venue.getJsonFacilities());
+
+            statement.setString(3, venue.getUUID().toString());
+
+            if(statement.executeUpdate() > 0){
+                DatabaseInterface.drop();
+                return true;
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch(Exception e){
+            System.out.println("Venue Dao : update");
+            DatabaseInterface.drop();
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

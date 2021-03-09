@@ -49,6 +49,27 @@ public class VenueBusinessDAO implements DAOconjugate<VenueBusiness> {
         }
     }
 
+    public Optional<VenueBusiness> get(UUID venueUUID) {
+        database.open();
+        try(Statement statement = database.getCon().createStatement()){
+            String query = String.format("select * from HasVenue where HasVenue.VenueUUID = '%s'", venueUUID.toString());
+
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            Optional<VenueBusiness> response = Optional.of(new VenueBusiness(UUID.fromString(rs.getString(2)),
+                    UUID.fromString(rs.getString(1))));
+            database.close();
+            return response;
+        }
+        catch(Exception e){
+            LOGGER.error("Failed to get VenueBusiness: {} ", e.getMessage());
+            database.close();
+            return Optional.empty();
+        }
+    }
+
+
     @Override
     public Optional<Collection<VenueBusiness>> getAll() {
         return Optional.empty();

@@ -92,4 +92,29 @@ public class VenueControllerAPI {
             return null;
         }
     }
+
+    @PutMapping
+    public String API_addFacility(@RequestParam(value="Token") String token, @RequestParam(value="VenueID") String venueUUID,
+                                  @RequestParam(value="facilityTag") String facility){
+        // validate token
+        Object[] response = userValidation.verifyAPItoken(token);
+        boolean result = (boolean) response[0];
+
+        if(result) {
+            // Get user
+            User user = userValidation.getUserFromToken(token);
+
+            // Get venue
+            Venue venue = venueService.getVenue(venueUUID);
+
+            // Check user has permission to work on venue
+            if(venueService.checkUserPermission(venue, user)) {
+                return venueService.addFacility(venue, facility);
+            }else{
+                return "You dont have permission to do this.";
+            }
+        }else{
+            return (String) response[1];
+        }
+    }
 }

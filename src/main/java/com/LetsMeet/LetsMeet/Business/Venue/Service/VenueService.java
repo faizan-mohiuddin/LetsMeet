@@ -103,6 +103,20 @@ public class VenueService {
         return "Error adding facility to Venue";
     }
 
+    public boolean checkUserPermission(Venue venue, User user){
+        // Check if user has permission to work on venue
+        this.findBusiness(venue);
+        return businessService.isOwner(user, venue.getBusiness());
+    }
+
+    public void findBusiness(Venue venue){
+        // Set venue.business to a business object
+        Optional<VenueBusiness> record = venueBusinessDAO.get(venue.getUUID());
+        if(record.isPresent()){
+            venue.setBusiness(businessService.getBusiness(record.get().getBusinessUUID()));
+        }
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

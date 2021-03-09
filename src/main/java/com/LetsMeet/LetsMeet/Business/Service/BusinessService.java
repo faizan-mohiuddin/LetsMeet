@@ -119,6 +119,10 @@ public class BusinessService {
         return null;
     }
 
+    public Business getBusiness(UUID businessUUID){
+        return this.getBusiness(businessUUID.toString());
+    }
+
     public List<BusinessOwner> businessOwners(String businessUUID){
         Optional<Collection<BusinessOwner>> records = ownerDAO.get(businessUUID);
         if(records.isPresent()){

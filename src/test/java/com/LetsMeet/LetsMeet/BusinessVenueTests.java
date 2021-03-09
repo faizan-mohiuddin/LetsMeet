@@ -570,8 +570,36 @@ public class BusinessVenueTests {
 
     @Test
     @Order(17)
-    public void addFacilitiesVenue(){
+    public void addFacilityVenue(){
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
 
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        // generate facility tag
+        String tag = RandomStringUtils.randomAlphabetic(8);
+        String response = venueController.API_addFacility(user.token, venue.uuid, tag);
+        assertEquals("Facility added to Venue successfully", response);
+
+        // Get venue
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            response = mapper.writeValueAsString(venueController.API_getVenue(venue.uuid));
+
+            String expectedResponse = String.format("{\"Name\":\"%s\",\"Facilities\":[\"%s\"]}", venue.name, tag);
+            assertEquals(expectedResponse, response);
+
+        }catch (Exception e){
+            System.out.println("BusinessVenue Tests : addFacilityVenue");
+            System.out.println(e);
+        }
+
+        // Check DB
     }
 
     @Test

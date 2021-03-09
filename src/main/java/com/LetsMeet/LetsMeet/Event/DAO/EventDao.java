@@ -142,7 +142,8 @@ public class EventDao implements DAO<Event> {
     @Override
     public Boolean update(Event t) {
         // Save the event
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Event SET Name = ?, Description = ?, Location = ?, ConditionSet = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Event SET Name = ?, " +
+                "Description = ?, Location = ?, ConditionSet = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
 
             statement.setString(1, t.getName());
             statement.setString(2, t.getDescription());
