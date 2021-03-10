@@ -214,6 +214,8 @@ public class EventService implements EventServiceInterface {
     public List<User> EventsUsers(UUID eventUUID){
         List<User> users = new ArrayList<>();
 
+        
+
         // Get list of users permissions
         List<EventPermission> eventPerms = permissionDao.get(eventUUID.toString()).get();
 

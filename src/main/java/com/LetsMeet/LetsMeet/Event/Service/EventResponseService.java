@@ -50,12 +50,12 @@ public class EventResponseService {
         return response;
     }
 
-    public EventResponse getResponse(User user, Event event){
+    public Optional<EventResponse> getResponse(User user, Event event){
         try{
-            return dao.get(event.getUUID(), user.getUUID()).orElseThrow(IllegalArgumentException::new);
+            return Optional.of(dao.get(event.getUUID(), user.getUUID()).orElseThrow(IllegalArgumentException::new));
         }
         catch(Exception e){
-            return null;
+            return Optional.empty();
         }
     }
 

@@ -5,11 +5,13 @@ import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
-import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,8 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
@@ -30,14 +30,16 @@ import javax.servlet.http.HttpSession;
 @SessionAttributes("userlogin")
 public class EventControllerWeb {
 
-    @Autowired
-    EventService EventServiceInterface;
+    private static final Logger LOGGER=LoggerFactory.getLogger(EventControllerWeb.class);
 
     @Autowired
-    EventResponseService eventResponseServiceInterface;
+    EventService eventService;
 
     @Autowired
-    UserService UserServiceInterface;
+    EventResponseService responseService;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     MediaService mediaService;
@@ -51,36 +53,29 @@ public class EventControllerWeb {
         User user = (User) session.getAttribute("userlogin");
 
         if (user == null) {
-
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-
             return "redirect:/Home";
-
-        } else {
-
+        } 
+        
+        else {
             model.addAttribute("user", user);
-
             return "createevent";
-
         }
 
     }
 
-    @PostMapping("/createevent")
+    @PostMapping({"/createevent", "/event/new"})
     public String saveevent(HttpSession session, Model model, RedirectAttributes redirectAttributes,
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
         @RequestParam(name = "eventlocation") String eventlocation) {
 
+        // Validate user
         User user = (User) session.getAttribute("userlogin");
-
         if (user == null) {
-
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
-
             return "redirect:/Home";
-
         }
 
         try{
@@ -90,42 +85,37 @@ public class EventControllerWeb {
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
             
-            Event event = EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+            Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+
+            // Store and set header image file if present
             if (file.getSize()>0){
-                String path= mediaService.saveMedia(new Media(file, user.getUUID())).get();
-                EventServiceInterface.setProperty(event, "header_image", path);
+                String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
+                eventService.setProperty(event, "header_image", path);
                 eventDao.update(event);
             }
 
             return "saveevent";
-
         }
+
         catch(Exception e){
             redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
             return "redirect:/Home";
         }
-
     }
 
     @GetMapping("/adminviewallevents")
     public String adminviewallevents(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
-
         if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) { // this user UUID is the admin account's UUID
-
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-
             return "redirect:/Home";
-
-        } else {
-
+        } 
+        
+        else {
             model.addAttribute("user", user);
-
-            model.addAttribute("allevents", EventServiceInterface.getEvents());
-
+            model.addAttribute("allevents", eventService.getEvents());
             return "adminviewallevents";
-
         }
     }
 
@@ -133,30 +123,23 @@ public class EventControllerWeb {
     public String deleteEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
-
         if (user == null) {
-
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
-
             return "redirect:/Home";
+        } 
+        
+        else {
 
-        } else {
-
-            String tryDeleteEvent = EventServiceInterface.deleteEvent(eventuuid, user);
-
+            String tryDeleteEvent = eventService.deleteEvent(eventuuid, user);
             if (tryDeleteEvent.equals("Event successfully deleted.")) {
-
                 redirectAttributes.addFlashAttribute("success", "The event was successfully deleted.");
-
-            } else {
-
+            } 
+            
+            else {
                 redirectAttributes.addFlashAttribute("danger", "An error occurred when deleting the event.");
-
             }
             return "redirect:/dashboard";
-
         }
-
     }
 
     @GetMapping("/event/{eventuuid}")
@@ -167,33 +150,31 @@ public class EventControllerWeb {
         // Checks if the currently logged in user is IN (not is owner) of an event.
 
         // Check if user is logged in AND if the event exists AND if the user is in said event
-        if (user != null && EventServiceInterface.getEvent(eventuuid) != null) {
+        if (user != null && eventService.getEvent(eventuuid) != null) {
             
-            Event event = EventServiceInterface.getEvent(eventuuid);
+            Event event = eventService.getEvent(eventuuid);
             model.addAttribute("user", user);
             model.addAttribute("event", event);
 
             Boolean hasCurrentUserRespondedToEvent = false;
 
-            if (eventResponseServiceInterface.getResponse(user, event) != null){hasCurrentUserRespondedToEvent = true;}
-
+            if (responseService.getResponse(user, event).isPresent()){hasCurrentUserRespondedToEvent = true;}
             model.addAttribute("hasUserRespondedToEvent", hasCurrentUserRespondedToEvent);
 
-            if (EventServiceInterface.checkOwner(event.getUUID(), user.getUUID())) {
+            if (eventService.checkOwner(event.getUUID(), user.getUUID())) {
 
                 model.addAttribute("isOwnerOfEvent", true);
 
                 List<HashMap<String,String>> names= new ArrayList<>();
-                for (EventResponse o : eventResponseServiceInterface.getResponses(event)){
+                for (EventResponse o : responseService.getResponses(event)){
                     HashMap<String, String> data = new HashMap<>();
-                    data.put("fname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getfName());
-                    data.put("lname", UserServiceInterface.getUserByUUID(o.getUser().toString()).getlName());
+                    data.put("fname", userService.getUserByUUID(o.getUser().toString()).getfName());
+                    data.put("lname", userService.getUserByUUID(o.getUser().toString()).getlName());
                     data.put("must_attend", "unknown");
                     names.add(data);
                 }
     
                 model.addAttribute("responses", names);
-
             }
 
             return "viewevent";
@@ -210,34 +191,21 @@ public class EventControllerWeb {
     @GetMapping("/event/{eventuuid}/respond")
     public String respondEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
+        // Get and validate user and event
         User user = (User) session.getAttribute("userlogin");
-
-        Boolean checkIfEventHasCurrentLoggedInUser = false;
-
-        if (user != null) {
-
-            for (int i = 0; i < EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).size(); i++) {
-
-                if (EventServiceInterface.EventsUsers(EventServiceInterface.getEvent(eventuuid).getUUID()).get(i).getEmail().equals(user.getEmail())) {
-
-                    checkIfEventHasCurrentLoggedInUser = true;
-
-                }
-
-            }
-        }
-        if (user != null && EventServiceInterface.getEvent(eventuuid) != null) {
-
-            eventResponseServiceInterface.createResponse(user, EventServiceInterface.getEvent(eventuuid));
-
-            redirectAttributes.addFlashAttribute("success", "You have joined the event.");
-
-        } else {
-
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
             redirectAttributes.addFlashAttribute("danger", "An error occurred.");
-
+            return "redirect:/event/{eventuuid}";
         }
 
+        // Get or create response
+        EventResponse response = responseService.getResponse(user, event).orElse(responseService.createResponse(user, event));
+
+        // Do stuff to the response
+        responseService.clearTimes(response);
+
+        redirectAttributes.addFlashAttribute("success", "You have joined the event.");
         return "redirect:/event/{eventuuid}";
 
 
@@ -250,7 +218,7 @@ public class EventControllerWeb {
 
         if (user != null){
             model.addAttribute("user", user);
-            model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
+            model.addAttribute("event", eventService.getEvent(eventuuid));
         }
 
         else { redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
@@ -266,7 +234,7 @@ public class EventControllerWeb {
 
         if (user != null){
             model.addAttribute("user", user);
-            model.addAttribute("event", EventServiceInterface.getEvent(eventuuid));
+            model.addAttribute("event", eventService.getEvent(eventuuid));
         }
 
         else { redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
