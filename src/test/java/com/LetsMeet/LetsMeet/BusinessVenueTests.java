@@ -615,18 +615,72 @@ public class BusinessVenueTests {
         this.generateVenue(user.token, business.UUID);
         TestingVenue venue1 = testVenue.get(0);
 
-        this.generateVenue(user.token, business.UUID);
-        TestingVenue venue2 = testVenue.get(1);
+        // Search with the whole string
+        List<Venue> response = venueController.API_SearchVenue(venue1.name, "");
+        assertEquals(1, response.size());
+        Venue responseVenue = response.get(0);
+        assertEquals(venue1.uuid, responseVenue.getUUID().toString());
+        assertEquals(venue1.name, responseVenue.getName());
 
-        venueController.API_SearchVenue(venue1.name, "");
+        // Try searching with only the start of the string
+        response = venueController.API_SearchVenue(venue1.name.substring(0, 3), "");
+        assertEquals(1, response.size());
+        responseVenue = response.get(0);
+        assertEquals(venue1.uuid, responseVenue.getUUID().toString());
+        assertEquals(venue1.name, responseVenue.getName());
 
-        assertEquals(true, false);
+        // Try searching with only the middle of the string
+        response = venueController.API_SearchVenue(venue1.name.substring(3, 6), "");
+        assertEquals(1, response.size());
+        responseVenue = response.get(0);
+        assertEquals(venue1.uuid, responseVenue.getUUID().toString());
+        assertEquals(venue1.name, responseVenue.getName());
+
+        // Try searching with only the end of the string
+        response = venueController.API_SearchVenue(venue1.name.substring(5), "");
+        assertEquals(1, response.size());
+        responseVenue = response.get(0);
+        assertEquals(venue1.uuid, responseVenue.getUUID().toString());
+        assertEquals(venue1.name, responseVenue.getName());
     }
 
     @Test
     @Order(19)
     public void queryVenuesByFacilities(){
-        assertEquals(true, false);
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue = testVenue.get(0);
+
+        // Add facilities to venue
+        String tag1 = RandomStringUtils.randomAlphabetic(8);
+        venueController.API_addFacility(user.token, venue.uuid, tag1);
+
+        String tag2 = RandomStringUtils.randomAlphabetic(8);
+        venueController.API_addFacility(user.token, venue.uuid, tag2);
+
+        String tag3 = RandomStringUtils.randomAlphabetic(8);
+        venueController.API_addFacility(user.token, venue.uuid, tag3);
+
+        // Search with no name given
+        String searchFacilities = String.format("[\"%s\",\"%s\",\"%s\"]", tag1, tag2, tag3);
+        List<Venue> response = venueController.API_SearchVenue("", searchFacilities);
+        assertEquals(1, response.size());
+        Venue responseVenue = response.get(0);
+        assertEquals(venue.uuid, responseVenue.getUUID().toString());
+        assertEquals(venue.name, responseVenue.getName());
+
+        // Search with name given
+        response = venueController.API_SearchVenue(venue.name, searchFacilities);
+        assertEquals(1, response.size());
+        responseVenue = response.get(0);
+        assertEquals(venue.uuid, responseVenue.getUUID().toString());
+        assertEquals(venue.name, responseVenue.getName());
     }
 
     @Test

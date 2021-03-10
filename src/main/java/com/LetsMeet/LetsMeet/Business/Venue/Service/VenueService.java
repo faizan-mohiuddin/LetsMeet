@@ -122,11 +122,13 @@ public class VenueService {
 
     public List<Venue> search(String name, String unparsedFacilitiesList){
         // Build a query to execute
-        String query = String.format("GET * FROM Venue WHERE ");
+        String query = String.format("SELECT * FROM Venue WHERE ");
 
         boolean nameSearch = false;
         if(name.length() > 0){
-            query = query + String.format("Venue.Name = '%s'", name);
+            //query = query + String.format("Venue.Name = '%s'", name);
+            query = query + "Venue.Name LIKE '%" + String.format("%s", name) + "%'";
+            //query = query + String.format("MATCH(Venue.Name) AGAINST('*%s*')", name);
             nameSearch = true;
         }
 
@@ -139,8 +141,14 @@ public class VenueService {
                     query = query + String.format(" AND ");
                 }
 
-                for (int i = 0; i < parsedFacilitiesList.length(); i++) {
-                    query = query + String.format("Venue.Facilities = '%s'", name);
+                int len = parsedFacilitiesList.length();
+
+                for (int i = 0; i < len; i++) {
+                    query = query + "Venue.Facilities LIKE '%" + String.format("%s", parsedFacilitiesList.get(i)) + "%'";
+
+                    if(i + 1 < len){
+                        query = query + String.format(" AND ");
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("VenueService : Search");

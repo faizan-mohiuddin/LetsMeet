@@ -124,9 +124,9 @@ public class VenueDAO implements DAO<Venue> {
     }
 
     public Optional<List<Venue>> search(String query){
+        System.out.println(query);
         try(Statement statement = database.getCon().createStatement()){
             ResultSet rs = statement.executeQuery(query);
-            rs.next();
 
             List<Venue> venues = new ArrayList<>();
 
@@ -138,7 +138,7 @@ public class VenueDAO implements DAO<Venue> {
 
         }catch(Exception e){
             database.close();
-            System.out.println("\nVenue Dao: get (UUID)");
+            System.out.println("\nVenue Dao: Search");
             System.out.println(e);
             return Optional.empty();
 
