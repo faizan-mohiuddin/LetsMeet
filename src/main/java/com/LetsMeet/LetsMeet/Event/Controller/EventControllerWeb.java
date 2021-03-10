@@ -91,9 +91,11 @@ public class EventControllerWeb {
             model.addAttribute("eventlocation", eventlocation);
             
             Event event = EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
-            String path= mediaService.saveMedia(new Media(file, user.getUUID())).get();
-            EventServiceInterface.setProperty(event, "header_image", path);
-            eventDao.update(event);
+            if (file.getSize()>0){
+                String path= mediaService.saveMedia(new Media(file, user.getUUID())).get();
+                EventServiceInterface.setProperty(event, "header_image", path);
+                eventDao.update(event);
+            }
 
             return "saveevent";
 
