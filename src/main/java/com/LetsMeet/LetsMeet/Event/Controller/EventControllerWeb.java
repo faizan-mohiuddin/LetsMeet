@@ -61,11 +61,48 @@ public class EventControllerWeb {
             model.addAttribute("user", user);
             return "createevent";
         }
+    }
+
+    @PostMapping("/event/{EventUUID}/edit")
+    public String updateEvent (HttpSession session, Model model, RedirectAttributes redirectAttributes,
+        @PathVariable("EventUUID") String eventUUID,
+        @RequestParam("file") MultipartFile file, 
+        @RequestParam(name = "eventname") String eventname, 
+        @RequestParam(name = "eventdesc") String eventdesc, 
+        @RequestParam(name = "eventlocation") String eventlocation){
+
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventUUID);
+        if (user == null || event == null) {
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when editing the event.");
+            return "redirect:/Home";
+        }
+        
+        try{
+            event.setName(eventname);
+            event.setDescription(eventdesc);
+            event.setLocation(eventlocation);
+
+            if (file.getSize()>0){
+                String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
+                eventService.setProperty(event, "header_image", path);
+            }
+
+            eventDao.update(event);
+        }
+        catch(Exception e){
+            redirectAttributes.addFlashAttribute("accessDenied", "Could not update event. Please try again later.");
+            return "redirect:/Home";
+        }
+
+        // Delegate to viewEvent to return the modified event's page
+        return viewEvent(eventUUID, model, redirectAttributes, session);
 
     }
 
+
     @PostMapping({"/createevent", "/event/new"})
-    public String saveevent(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+    public String saveEvent(HttpSession session, Model model, RedirectAttributes redirectAttributes,
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
@@ -94,7 +131,7 @@ public class EventControllerWeb {
                 eventDao.update(event);
             }
 
-            return "saveevent";
+            return viewEvent(event.getUUID().toString(), model, redirectAttributes, session);
         }
 
         catch(Exception e){

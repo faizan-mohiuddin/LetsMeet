@@ -12,64 +12,120 @@
 
 <body>
 
-<div th:insert = "header :: navbar"></div>
+    <div th:insert="header :: navbar"></div>
 
-<div class = "jumbotron" th:if="${event.properties.properties.get('header_image')}" th:style="'background:url('+ ${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
+    <div class="jumbotron" th:if="${event.properties.properties.get('header_image')}"
+        th:style="'background:url('+ ${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
+        <div class="container">
+            <div class="shadow p-3 mb-5 bg-primary text-white rounded">
+                <h5>Event:</span></h5>
+                <h1><span th:text="${event.getName()}"></span></h1>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="jumbotron" th:unless="${event.properties.properties.get('header_image')}">
+
+        <div class="container">
+            <h5>Event:</span></h5>
+            <h1><span th:text="${event.getName()}"></span></h1>
+        </div>
+
+    </div>
+
+
     <div class="container">
-    <div class="shadow p-3 mb-5 bg-primary text-white rounded">
-        <h5>Event:</span></h5>
-        <h1><span th:text="${event.getName()}"></span></h1>
-    </div>
-</div>
 
-</div>
+        <div class="alert alert-success" th:text="${success}" th:if="${success}"></div>
+        <div class="alert alert-danger" th:text="${danger}" th:if="${danger}"></div>
 
-<div class = "jumbotron" th:unless="${event.properties.properties.get('header_image')}">
+        <div class="row">
 
-    <div class = "container">
-        <h5>Event:</span></h5>
-        <h1><span th:text="${event.getName()}"></span></h1>
-    </div>
+            <div class="col-8">
+                <h2>Description</h2>
+                <p><span th:text="${event.getDescription()}"></span></p>
+                <p><b>Event location: </b><span th:text="${event.getLocation()}"></span></p>
 
-</div>
+                <div class="container" th:if="${isOwnerOfEvent}">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Participants</th>
+                                <th scope="col">Must attend?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="response : ${responses}">
+                                <td th:text="${response.fname}  + ' ' + ${response.lname}"></td>
+                                <td th:text="${response.must_attend}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
+            <div class="col-4">
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" th:src="${event.properties.properties.get('header_image')}" th:if="${event.properties.properties.get('header_image')}"
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <div th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
+                        <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
+                        <a th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}" class="btn btn-info btn-block"><i class="bi bi-check-circle"></i> Respond</a>
 
-<div class = "container">
+                        <div class="alert alert-info" th:unless="${hasUserRespondedToEvent}"> You have not responded to this event. Let the organiser know your preferences!</div>
 
-    <div class = "alert alert-primary" th:if="${isOwnerOfEvent}">You are the owner of this event.</div>
-    <div class = "alert alert-info" th:unless = "${hasUserRespondedToEvent}">
-        <div class="row align-items-start">
-            <div class="col-sm-9">You have not responded to this event. Let the organiser know your preferences! </div>
-            <div class="col-sm-3"><a class = "btn btn-success" th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}">Add Response</a></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
-    <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
-
-    <p><b>Event name: </b><span th:text="${event.getName()}"></span></p>
-    <p><b>Event description: </b><span th:text="${event.getDescription()}"></span></p>
-    <p><b>Event location: </b><span th:text="${event.getLocation()}"></span></p>
-</div>
 
 
-<div class = "container" th:if="${isOwnerOfEvent}">
-    <table class = "table">
-        <thead>
-            <tr>
-                <th scope = "col">Participants</th>
-                <th scope = "col">Must attend?</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each = "response : ${responses}">
-                <td th:text = "${response.fname}  + ' ' + ${response.lname}"></td>
-                <td th:text = "${response.must_attend}"></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    </div>
 
-<div th:insert = "footer :: footer"></div>
+
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit</h4>
+                </div>
+                <div class="modal-body">
+                    <div th:insert="event/fragments :: edit"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteConfirmation" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Event</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are your sure you want to delete this event?</p>
+                </div>
+                <div class="modal-footer">
+                    <a th:href="@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}" class="btn btn-danger btn-block">Delete</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:insert="footer :: footer"></div>
 
 </body>
 
