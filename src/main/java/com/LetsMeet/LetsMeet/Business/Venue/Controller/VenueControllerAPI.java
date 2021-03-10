@@ -117,4 +117,10 @@ public class VenueControllerAPI {
             return (String) response[1];
         }
     }
+
+    @GetMapping
+    public List<Venue> API_SearchVenue(@RequestParam(value="Name", defaultValue = "") String name,
+                                       @RequestParam(value = "Facilities", defaultValue = "") String unparsedFacilitiesList){
+        return venueService.search(name, unparsedFacilitiesList);
+    }
 }

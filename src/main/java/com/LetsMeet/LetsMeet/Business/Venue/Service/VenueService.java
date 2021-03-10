@@ -11,9 +11,12 @@ import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -115,6 +118,47 @@ public class VenueService {
         if(record.isPresent()){
             venue.setBusiness(businessService.getBusiness(record.get().getBusinessUUID()));
         }
+    }
+
+    public List<Venue> search(String name, String unparsedFacilitiesList){
+        // Build a query to execute
+        String query = String.format("GET * FROM Venue WHERE ");
+
+        boolean nameSearch = false;
+        if(name.length() > 0){
+            query = query + String.format("Venue.Name = '%s'", name);
+            nameSearch = true;
+        }
+
+        // Parse facilities list
+        if(!unparsedFacilitiesList.equals("")) {
+            try {
+                JSONArray parsedFacilitiesList = new JSONArray(unparsedFacilitiesList);
+
+                if (nameSearch) {
+                    query = query + String.format(" AND ");
+                }
+
+                for (int i = 0; i < parsedFacilitiesList.length(); i++) {
+                    query = query + String.format("Venue.Facilities = '%s'", name);
+                }
+            } catch (Exception e) {
+                System.out.println("VenueService : Search");
+                System.out.println(e);
+            }
+        }
+
+        // Check ending of query
+        if(query.endsWith(" AND ")){
+            query = query.substring(0, query.length() - 6);
+        }
+
+        // Query DB
+        Optional<List<Venue>> venues = DAO.search(query);
+        if(venues.isPresent()){
+            return venues.get();
+        }
+        return null;
     }
 
     // Private methods

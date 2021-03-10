@@ -36,6 +36,7 @@ public class Venue {
                 this.facilities.add(obj.get(i).toString());
             }
         }catch (Exception e){
+            System.out.println("Venue : Init(String, String, String)");
             System.out.println(e);
         }
 
