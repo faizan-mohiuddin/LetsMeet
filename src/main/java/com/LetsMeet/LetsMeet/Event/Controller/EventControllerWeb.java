@@ -18,11 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -89,8 +85,12 @@ public class EventControllerWeb {
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
+
+            // Process event location - split by comma's
+            List<String> locationList = Arrays.asList(eventlocation.split(","));
             
             Event event = EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+
             if (file.getSize()>0){
                 String path= mediaService.saveMedia(new Media(file, user.getUUID())).get();
                 EventServiceInterface.setProperty(event, "header_image", path);
