@@ -1,9 +1,6 @@
 package com.LetsMeet.LetsMeet.Root.Media;
 
-import java.lang.StackWalker.Option;
 import java.util.Optional;
-
-import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +21,7 @@ public class MediaService {
             mediaDao.save(t);
         }
         catch (Exception e){
-            LOGGER.error("Unable to save {}", e.getMessage());
+            LOGGER.error("Unable to save: {}", e.getMessage());
             return Optional.empty();
         }
         return Optional.of(t.getURL());

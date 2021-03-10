@@ -12,7 +12,7 @@ public class Media {
 
     public Media(MultipartFile file, String path, UUID uuid, UUID owner) {
         this.file = file;
-        this.path = "upload" + path;
+        this.path = path;
         this.uuid = uuid;
         this.owner = owner;
     }
@@ -51,7 +51,7 @@ public class Media {
     }
 
     public String getURL(){
-        return this.path +"/" + this.getFilename();
+        return "/media/"+ this.path +"/" + this.getFilename();
     }
 
     public String getFilename(){

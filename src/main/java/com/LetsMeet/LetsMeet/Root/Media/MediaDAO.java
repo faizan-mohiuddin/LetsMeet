@@ -7,18 +7,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MediaDAO implements DAO<Media> {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(MediaDAO.class);
+
+    @Autowired
+    LetsMeetConfiguration config;
 
     @Override
     public Optional<Media> get(UUID uuid) {
@@ -35,8 +44,14 @@ public class MediaDAO implements DAO<Media> {
     @Override
     public Boolean save(Media t) throws IOException {
 
+        // Check Media object for common errors
+        if (t.getFile() == null){throw new IllegalArgumentException("No media file");}
+        if (t.getFilename().isEmpty()){throw new IllegalArgumentException("invalid name");}
+        if (t.getPath().isEmpty()){throw new IllegalArgumentException("invalid file path");}
+
         // Save file within file system
-        Path uploadPath = Paths.get(t.getPath());
+        Path uploadPath = Paths.get(config.getdataFolder() +"\\" + t.getPath());
+        LOGGER.debug("Saving {} to path: {}",t.getFilename(), uploadPath);
 
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
@@ -45,7 +60,7 @@ public class MediaDAO implements DAO<Media> {
         try (InputStream inputStream = t.getFile().getInputStream()) {
             Path filePath = uploadPath.resolve(t.getFilename());
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-        } 
+        }
         catch (IOException ioe) {        
             throw new IOException("Could not save file: " + t.getFile().getOriginalFilename(), ioe);
         }
@@ -62,14 +77,12 @@ public class MediaDAO implements DAO<Media> {
                 DatabaseInterface.drop();
                 return true;
             }else{
-                throw new Exception("Nothing added to DB");
+                throw new IOException("Nothing added to DB");
             }
 
         }catch(Exception e){
-            System.out.println("Event Dao : save");
             DatabaseInterface.drop();
-            e.printStackTrace();
-            return false;
+            throw new IOException("Could not reference media file in database", e);
         }
     }
 
