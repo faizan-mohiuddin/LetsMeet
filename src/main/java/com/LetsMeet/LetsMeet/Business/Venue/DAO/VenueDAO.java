@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class VenueDAO implements DAO<Venue> {
@@ -41,7 +39,6 @@ public class VenueDAO implements DAO<Venue> {
             System.out.println("\nVenue Dao: get (UUID)");
             System.out.println(e);
             return Optional.empty();
-
         }
     }
 
@@ -123,6 +120,28 @@ public class VenueDAO implements DAO<Venue> {
             database.close();
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public Optional<List<Venue>> search(String query){
+        try(Statement statement = database.getCon().createStatement()){
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+
+            List<Venue> venues = new ArrayList<>();
+
+            while (rs.next()) {
+                venues.add(new Venue(rs.getString(1), rs.getString(2),
+                        rs.getString(3)));
+            }
+            return Optional.of(venues);
+
+        }catch(Exception e){
+            database.close();
+            System.out.println("\nVenue Dao: get (UUID)");
+            System.out.println(e);
+            return Optional.empty();
+
         }
     }
 }

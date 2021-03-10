@@ -599,7 +599,34 @@ public class BusinessVenueTests {
             System.out.println(e);
         }
 
-        // Check DB
+    }
+
+    @Test
+    @Order(18)
+    public void searchVenueByName(){
+        // Create a venue and search for it
+        this.generateUser();
+        TestingUsers user = testUsers.get(0);
+        this.login(user);
+
+        this.generateBusiness(user.token);
+        TestingBusiness business = testBusiness.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue1 = testVenue.get(0);
+
+        this.generateVenue(user.token, business.UUID);
+        TestingVenue venue2 = testVenue.get(1);
+
+        venueController.API_SearchVenue(venue1.name, "");
+
+        assertEquals(true, false);
+    }
+
+    @Test
+    @Order(19)
+    public void queryVenuesByFacilities(){
+        assertEquals(true, false);
     }
 
     @Test
