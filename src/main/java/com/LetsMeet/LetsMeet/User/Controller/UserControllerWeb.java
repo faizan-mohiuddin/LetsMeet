@@ -1,5 +1,7 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
+import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpSession;
 import javax.swing.event.HyperlinkEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -41,6 +44,9 @@ public class UserControllerWeb {
 
     @Autowired
     EventResponseService eventResponseService;
+    
+    @Autowired
+    BusinessService businessService;
 
     @RequestMapping(value = "/")
     public String redirect() {
@@ -221,6 +227,11 @@ public class UserControllerWeb {
                 model.addAttribute("responses", responseEvents);
 
             }
+            
+            // Get users businesses
+            Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());
+            model.addAttribute("businesses", businesses);
+            
             return "dashboard";
 
         }

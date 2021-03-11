@@ -22,7 +22,6 @@
     }
 </script>
 
-
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -65,8 +64,8 @@
             </tbody>
         </table>
     </div>
-    <h2>Your Responses</h2>
 
+    <h2>Your Responses</h2>
     <div>
         <table class = "table table">
             <thead>
@@ -90,6 +89,30 @@
                         <td th:text = "${response} +''">Null entity</td>
                         <td></td>
                         <td></td>
+                    </div>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Your Businesses</h2>
+    <div>
+        <table class = "table table">
+            <thead>
+                <tr>
+                    <th scope = "col">Business Name</th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each = "b : ${businesses}" id="businessRow">
+                    <div th:if ="${b}">
+                        <td th:text = "${b.getName()}"></td>
+                        <td></td>
+                        <td><a class = "btn btn-primary" th:href = "@{/Business/{businessID}(businessID = ${b.getUUID()})}">View</a></td>
                     </div>
                 </tr>
             </tbody>

@@ -61,6 +61,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-sm-4">
                 <div class="card" th:unless="${user}" style="width: 18rem;">
                     <div class="card-body">
@@ -75,6 +76,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-sm-4">
                 <div class="card" th:if="${user}" style="width: 18rem;">
                     <div class="card-body">
@@ -85,6 +87,18 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-sm-4">
+                <div class="card" th:if="${user}" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Got a business to list?</h5>
+                        <p class="card-text">List your business on Let's Meet for people to see!</p>
+                        <div class="col-sm"><a class="btn btn-primary" href="/business/new" role="button">Create a Business</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
 

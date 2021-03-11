@@ -26,7 +26,7 @@ public class BusinessService {
     @Autowired
     VenueBusinessService venueBusinessService;
 
-    public String createBusiness(String name, User user){
+    public Business createBusiness(String name, User user){
         UUID uuid = this.generateUUID(name, user);
         Business business = new Business(uuid, name);
 
@@ -35,11 +35,11 @@ public class BusinessService {
 
             // Add connection between business and user
             BusinessOwner owner = new BusinessOwner(uuid, user.getUUID());
-            if(ownerDAO.save(owner)) {
-                return "Business created successfully";
+            if(ownerDAO.save(owner))  {
+                return business;
             }
         }
-        return "Error creating business";
+        return null;
     }
 
     public String deleteBusiness(String businessUUID, String userUUID){

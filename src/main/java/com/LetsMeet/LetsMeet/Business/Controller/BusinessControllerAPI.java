@@ -54,7 +54,11 @@ public class BusinessControllerAPI {
         boolean result = (boolean) response[0];
 
         if(result) {
-            return businessService.createBusiness(name, userValidation.getUserFromToken(token));
+            Business business =businessService.createBusiness(name, userValidation.getUserFromToken(token));
+            if(business == null){
+                return "Error creating Business";
+            }
+            return "Business created successfully";
         }else{
             return (String) response[1];
         }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <div th:insert="header :: navbar"></div>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Create a Business</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <form th:action="@{/createBusiness}" enctype="multipart/form-data" th:method="POST">
+
+            <div class="form-group">
+                <label for="businessName">Business Name: </label>
+                <input type="text" class="form-control" name="Name" th:value="*{businessName}"
+                       placeholder="Enter Business name...">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+
+    <div th:insert="footer :: footer"></div>
+</body>
+
+</html>

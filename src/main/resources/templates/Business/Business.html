@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <div th:insert = "header :: navbar"></div>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span th:text="${business.getName()}"></span></h1>
+        </div>
+    </div>
+
+    <!-- Controls to create venue, and add users to the business -->
+    <div class="container">
+        <div class="row align-items-start">
+            <div class="col-sm-4">
+                <div class="card" style="width: 25 rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Add a Venue to your Business</h5>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Add users to your Business</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:insert = "footer :: footer"></div>
+</body>
+</html>
