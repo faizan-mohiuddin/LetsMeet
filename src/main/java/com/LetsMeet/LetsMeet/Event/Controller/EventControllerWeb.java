@@ -71,7 +71,7 @@ public class EventControllerWeb {
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation) {
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelong") String eventLongitude, @RequestParam(name = "thelat") String eventLatitude) {
 
         User user = (User) session.getAttribute("userlogin");
 
@@ -89,6 +89,8 @@ public class EventControllerWeb {
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
+            model.addAttribute("eventlongitude", eventLongitude);
+            model.addAttribute("eventlatitude", eventLatitude);
             
             Event event = EventServiceInterface.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
             if (file.getSize()>0){

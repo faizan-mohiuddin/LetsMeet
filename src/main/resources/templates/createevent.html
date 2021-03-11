@@ -144,6 +144,9 @@
             marker.setVisible(false);
             const place = autocomplete.getPlace();
 
+            document.getElementById('thelat').value = place.geometry.location.lat();
+            document.getElementById('thelong').value = place.geometry.location.lng();
+
             if (!place.geometry || !place.geometry.location) {
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
@@ -198,8 +201,7 @@
             "vi",
             "gu",
             "mp",
-        ]);
-    }
+        ]);}
 </script>
 
 <script type="text/javascript"
@@ -267,6 +269,9 @@
                         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&callback=initMap&libraries=places&v=weekly"
                         async
                 ></script>
+
+                <input type="hidden" name="thelat" id="thelat"/> //get latitude
+                <input type="hidden" name="thelong" id="thelong"/> //get longitude
             </div>
 
             <div class="form-group">
