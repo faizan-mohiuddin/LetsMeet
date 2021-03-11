@@ -2,7 +2,7 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
-import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
@@ -21,11 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.expression.Lists;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -158,9 +158,9 @@ public class EventControllerAPI {
     // set Event Times
     @PutMapping("/api/Event/{EventUUID}/times")
     public String setEventTimes(
-                                @RequestParam(value = "Token", defaultValue = "") String token,
-                                @PathVariable(value = "EventUUID") String eventUUID,
-                                @RequestBody List<DateTimeRange> datetime){
+            @RequestParam(value = "Token", defaultValue = "") String token,
+            @PathVariable(value = "EventUUID") String eventUUID,
+            @RequestBody List<HashMap<String,String>> times){
          
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
@@ -170,7 +170,13 @@ public class EventControllerAPI {
             if (user == null) {
                 return "Error finding user. Is the token still valid? Is the user account still active?";
             }
-            return (eventService.setTimeRange(UUID.fromString(eventUUID), datetime)) ? "Event times set" : "Event TImes not set";         
+
+            ArrayList<DateTimeRange> timeRanges = new ArrayList<>();
+            for (HashMap<String, String> o : times){
+                timeRanges.add(new DateTimeRange(ZonedDateTime.parse(o.get("start")), ZonedDateTime.parse(o.get("end"))));
+            }
+
+            return (eventService.setTimeRange(UUID.fromString(eventUUID), timeRanges)) ? "Event times set" : "Event TImes not set";         
         }
         else{
             // return the user validation error
@@ -448,6 +454,7 @@ public class EventControllerAPI {
             User user = userValidation.getUserFromToken(token);
             
             List<DateTimeRange> times = responseService.getTimes(responseData.get(UUID.fromString(eventUUID), user.getUUID()).get()).get();
+
             return new ResponseEntity<List<DateTimeRange>>(times, HttpStatus.OK);
         }
         catch(IllegalArgumentException e){
@@ -464,7 +471,7 @@ public class EventControllerAPI {
     public ResponseEntity<String> responseTimeSet(
         @RequestParam(value = "Token") String token,
         @PathVariable(value = "EventUUID") String eventUUID,
-        @RequestBody List<DateTimeRange> times){
+        @RequestBody List<HashMap<String,String>> times){
 
         Object[] response = userValidation.verifyAPItoken(token);
 
@@ -472,10 +479,18 @@ public class EventControllerAPI {
 
         try{
             User user = userValidation.getUserFromToken(token);
-            if (responseService.setTimes(responseData.get(UUID.fromString(eventUUID), user.getUUID()).get(), times)){
-                return new ResponseEntity<String>("Times set",HttpStatus.OK);
+            Event event = eventService.getEvent(eventUUID);
+
+            EventResponse eventResponse = responseService.getResponse(user, event).orElseGet(() -> responseService.createResponse(user, event));
+
+            // Create list of TimeRange
+            ArrayList<DateTimeRange> timeRanges = new ArrayList<>();
+            for (HashMap<String, String> o : times){
+                timeRanges.add(new DateTimeRange(ZonedDateTime.parse(o.get("start")), ZonedDateTime.parse(o.get("end"))));
             }
-            else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+            // Update response and return
+            return responseService.setTimes(eventResponse, timeRanges) ? new ResponseEntity<>("Times set",HttpStatus.OK) : new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         catch (Exception e){
             LOGGER.error("Failed to process request: {}", e.toString());

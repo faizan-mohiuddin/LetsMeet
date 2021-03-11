@@ -8,13 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.sql.Date;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.LetsMeet.LetsMeet.Event.DAO.ConditionSetDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
-import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Service.ConditionSetService;
 
 @SpringBootTest
@@ -54,9 +54,12 @@ public class ConditionSetServiceTests {
 
         // Add period to condition
         List<DateTimeRange> values= new ArrayList<>();
-        DateTimeRange date = new DateTimeRange(new Date(2002, 01, 9), new Date(2021, 02, 12));
+        DateTimeRange date = new DateTimeRange(ZonedDateTime.parse("2019-05-03T10:15:30+01:00[Europe/Paris]"),ZonedDateTime.parse("2019-05-03T12:15:30+01:00[Europe/London]"));
         values.add(date);
         service.addTimeRanges(set, values);
+
+        assertTrue(date.getStart().isBefore(date.getEnd()));
+        
 
         // Check it saves/loads correct
         assertEquals(date.getEnd(), service.getTimeRange(set).get().get(0).getEnd());

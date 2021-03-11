@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Constraint;
-import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Variable;
 
 public interface ConditionSetServiceInterface {

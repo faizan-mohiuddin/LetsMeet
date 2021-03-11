@@ -10,11 +10,13 @@ package com.LetsMeet.LetsMeet.Event.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
-import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -73,7 +75,6 @@ public class EventResponseService {
     // set times
     public boolean setTimes(EventResponse response, List<DateTimeRange> ranges){
         try{
-            //EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElse(createResponse(user, event));
             conditionSetService.addTimeRanges(conditionSetService.get(response.getConditionSet()), ranges);
             dao.update(response);
             return true;

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.ConditionSetDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Constraint;
-import com.LetsMeet.LetsMeet.Event.Model.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Variable;
 import com.LetsMeet.LetsMeet.Event.Model.Variables.Location;
 
