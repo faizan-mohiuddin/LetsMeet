@@ -71,7 +71,7 @@ public class BusinessControllerWeb {
         // Validate user
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the Business.");
             return "redirect:/Home";
         }
 
