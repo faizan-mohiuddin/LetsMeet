@@ -40,10 +40,16 @@ public class EventResponseService {
 
     // Creation
     //-----------------------------------------------------------------
-    public EventResponse createResponse(User user, Event event){
+    public EventResponse createResponse(User user, Event event) throws IllegalArgumentException{
+        try{
         EventResponse response = new EventResponse(event.getUUID(), user.getUUID(), EventProperties.getEmpty());
         dao.save(response);
         return response;
+        }        
+        catch(Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        
     }
 
     public Optional<EventResponse> getResponse(User user, Event event){
@@ -56,11 +62,21 @@ public class EventResponseService {
     }
 
     public List<EventResponse> getResponses(Event event){
-        return dao.get(event.getUUID()).get();
+        try{
+            return dao.get(event.getUUID()).get();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public List<EventResponse> getResponses(User user){
-        return dao.get(user.getUUID()).get();
+        try{
+            return dao.get(user.getUUID()).get();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     // Modification

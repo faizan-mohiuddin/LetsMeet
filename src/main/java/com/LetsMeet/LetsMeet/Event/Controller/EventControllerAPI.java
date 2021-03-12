@@ -1,12 +1,10 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
-import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties.*;
-import com.LetsMeet.LetsMeet.Event.Service.ConditionSetService;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -50,9 +48,6 @@ public class EventControllerAPI {
     @Autowired
     EventResponseDao responseData;
 
-    @Autowired
-    ConditionSetService conditionSetService;
-
     // Request Mappings
     //-----------------------------------------------------------------
 
@@ -64,38 +59,39 @@ public class EventControllerAPI {
 
     // Return users events
     @GetMapping("api/MyEvents")
-    public Collection<EventSanitised> API_GetMyEvents(@RequestParam(value="Token") String token) {
-        Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
-
-        if(result){
-            // Get user UUID
-            String UserUUID = userValidation.getUserUUIDfromToken(token);
-            Collection<Event> events = eventService.getUserEvents(UserUUID);
-            Collection<EventSanitised> sanitisedEvents = new ArrayList<>();
-
-            for(Event e : events){
-                sanitisedEvents.add(e.convertToSanitised());
-            }
-            return sanitisedEvents;
-        }else{
-            String errorText = (String) response[1];
-            EventSanitised error = new EventSanitised(errorText, errorText, errorText);
-            List<EventSanitised> ErrorReturn = new ArrayList<>();
-            ErrorReturn.add(error);
-            return ErrorReturn;
+    public ResponseEntity<Collection<Event>> getActiveUserEvents(@RequestParam(value="Token") String token) {
+        try{
+            User user = userValidation.getAuthenticatedUser(token);
+            return new ResponseEntity<>(eventService.getUserEvents(user),HttpStatus.OK);
+        }
+        catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        catch(Exception e){
+            LOGGER.error("Could not fetch all events: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Get event by specific eventUUID
     @GetMapping("api/Event/{UUID}")
-    public EventSanitised API_GetEvent(@PathVariable(value="UUID") String UUID){
-        return eventService.getEvent(UUID).convertToSanitised();
+    public ResponseEntity<Event> API_GetEvent(@PathVariable(value="UUID") String eventUUID){
+        try{
+            return new ResponseEntity<>(eventService.getEvent(eventUUID), HttpStatus.OK);
+        }
+        catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("api/Event/{eventUUID}/times")
-    public List<DateTimeRange> getTimes(@PathVariable(value = "eventUUID") String eventUUID){
-        return eventService.getTimeRange(UUID.fromString(eventUUID));
+    public ResponseEntity<List<DateTimeRange>> getTimes(@PathVariable(value = "eventUUID") String eventUUID){
+        try{
+            return new ResponseEntity<>(eventService.getTimeRange(UUID.fromString(eventUUID)),HttpStatus.OK);
+        }
+        catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     // POST Mappings
@@ -108,7 +104,7 @@ public class EventControllerAPI {
                                @RequestParam(value="Token", defaultValue="") String token){
         Object[] response = userValidation.verifyAPItoken(token);
         boolean result = (boolean) response[0];
-
+        
         if(result){
             // Get user
             User user = userValidation.getUserFromToken(token);
@@ -132,12 +128,13 @@ public class EventControllerAPI {
     // PUT Mappings
     //-----------------------------------------------------------------
 
-    // set users permisions on an event
+    // set users permissions on an event
     @PutMapping("/api/Event/perms/{EventUUID}")
     public String setPermisionLevel(@RequestParam(value = "Token", defaultValue = "") String token,
                                     @PathVariable(value = "EventUUID") String eventUUID,
                                     @RequestParam(value = "Owner", defaultValue = "false") boolean owner){
         Object[] response = userValidation.verifyAPItoken(token);
+
         boolean result = (boolean) response[0];
 
         if (result){
@@ -184,75 +181,32 @@ public class EventControllerAPI {
     }
 
 
-    // Join event
-    @PutMapping("api/Event/{EventUUID}")
-    public String API_AddUserToEvent(@RequestParam(value="Token", defaultValue ="") String token,
-                                     @PathVariable(value="EventUUID") String EventUUID) {
-
-        Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
-
-        if(result){
-            // Get user
-            User user = userValidation.getUserFromToken(token);
-            if (user == null) {
-                return "Error finding user. Is the token still valid? Is the user account still active?";
-            }
-
-            // Add user to event
-            return eventService.joinEvent(EventUUID, user.getStringUUID());
-
-        }else{
-            String errorText = (String) response[1];
-            return errorText;
-        }
-    }
-
-    @PutMapping("api/Event/{EventUUID}/Leave")
-    public String API_LeaveEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
-        // Validate token
-        Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
-
-        if(result){
-            // Get user
-            User user = userValidation.getUserFromToken(token);
-
-            if (user == null) {
-                return "Error finding user. Is the token still valid? Is the user account still active?";
-            }
-
-            // Leave event
-            return eventService.leaveEvent(EventUUID, user.getStringUUID());
-
-        }else{
-            return "Token not valid.";
-        }
-    }
-
 
     // PATCH Mappings
     //-----------------------------------------------------------------
     @PatchMapping("api/Event/{EventUUID}")
-    public String API_UpdateEvent(@RequestParam(value="Token", defaultValue="") String token,
+    public ResponseEntity<String> API_UpdateEvent(@RequestParam(value="Token", defaultValue="") String token,
                                   @PathVariable(value="EventUUID") String EventUUID,
                                   @RequestParam(value="Name", defaultValue="") String name,
                                   @RequestParam(value="Description", defaultValue="") String desc,
                                   @RequestParam(value="Location", defaultValue="") String location){
-        Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
-
-        if(result){
+        try{
             // Get user
-            User user = userValidation.getUserFromToken(token);
+            User user = userValidation.getAuthenticatedUser(token);
 
             // Get event
             Event event = eventService.getEvent(EventUUID);
+            event.setName(name);
+            event.setDescription(desc);
+            event.setLocation(location);
 
-            // Update user
-            return eventService.updateEvent(user, event, name, desc, location);
-        }else{
-            return (String) response[1];
+            eventService.updateEvent(user, event);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -261,25 +215,19 @@ public class EventControllerAPI {
 
     // Delete event
     @DeleteMapping("api/Event/{EventUUID}")
-    public String API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String EventUUID){
-
-        Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
-
-        if(result){
+    public ResponseEntity<Boolean> API_DeleteEvent(@RequestParam(value="Token") String token, @PathVariable(value="EventUUID") String eventUUID){
+        try{
             // Get user
-            User user = userValidation.getUserFromToken(token);
-
-            if (user == null) {
-                return "Error finding user. Is the token still valid? Is the user account still active?";
-            }
+            User user = userValidation.getAuthenticatedUser(token);
+            Event event = eventService.getEvent(eventUUID);
 
             // Add user to event
-            return eventService.deleteEvent(EventUUID, user);
+            return new ResponseEntity<>(eventService.deleteEvent(event, user),HttpStatus.OK);
 
-        }else{
-            String errorText = (String) response[1];
-            return errorText;
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -299,8 +247,15 @@ public class EventControllerAPI {
         @RequestParam(value = "key") String propertyKey,
         @RequestParam(value = "value") String value){
         
-        eventService.setProperty(eventService.getEvent(eventUUID), propertyKey, value);
-        return new ResponseEntity<>(HttpStatus.OK);     
+        try{
+            eventService.setProperty(eventService.getEvent(eventUUID), propertyKey, value);
+            return new ResponseEntity<>(HttpStatus.OK); 
+            
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }  
     }
 
     // Location

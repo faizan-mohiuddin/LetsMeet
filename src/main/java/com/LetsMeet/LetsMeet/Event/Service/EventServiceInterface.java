@@ -1,13 +1,12 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
 import java.io.IOException;
-import java.time.Period;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.EventProperties.*;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
 public interface EventServiceInterface {

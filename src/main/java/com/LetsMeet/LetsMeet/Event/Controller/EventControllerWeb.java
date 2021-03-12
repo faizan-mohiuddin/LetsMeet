@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
@@ -157,7 +158,7 @@ public class EventControllerWeb {
     }
 
     @GetMapping("/deleteevent/{eventuuid}")
-    public String deleteEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String deleteEvent(@PathVariable("eventuuid") String eventUUID, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
@@ -166,9 +167,7 @@ public class EventControllerWeb {
         } 
         
         else {
-
-            String tryDeleteEvent = eventService.deleteEvent(eventuuid, user);
-            if (tryDeleteEvent.equals("Event successfully deleted.")) {
+            if (eventService.deleteEvent(UUID.fromString(eventUUID), user)) {
                 redirectAttributes.addFlashAttribute("success", "The event was successfully deleted.");
             } 
             
@@ -258,7 +257,9 @@ public class EventControllerWeb {
             model.addAttribute("event", eventService.getEvent(eventuuid));
         }
 
-        else { redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
+        else { 
+            LOGGER.error("Response error");
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
 
 
         return "event/response";

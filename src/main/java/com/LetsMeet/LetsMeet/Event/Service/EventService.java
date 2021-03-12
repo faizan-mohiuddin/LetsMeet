@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -100,10 +101,10 @@ public class EventService{
 
     // Delete an existing event
     // Checks if given user has edit privileges first. Also deletes Events ConditionSet.
-    public Boolean deleteEvent(UUID eventUUID, User user) throws IllegalArgumentException{
+    public Boolean deleteEvent(Event event, User user) throws IllegalArgumentException{
 
         try{
-            if(!this.checkOwner(eventUUID, user.getUUID())) {
+            if(!this.checkOwner(event.getUUID(), user.getUUID())) {
                 throw new IllegalArgumentException("Provided User does not have sufficient privileges. User= <" + user.getUUID() + ">");
             }
 
@@ -112,10 +113,10 @@ public class EventService{
             //TODO delete event responses
             
             // Delete Event
-            return eventDao.delete(eventUUID);
+            return eventDao.delete(event);
         }
         catch (Exception e){
-            throw new IllegalArgumentException("Unable to delete Event <" + eventUUID + ">" + e.getMessage());
+            throw new IllegalArgumentException("Unable to delete Event <" + event.getUUID() + ">" + e.getMessage());
         }
     }
 
@@ -123,7 +124,13 @@ public class EventService{
 
     // Returns all Events on the system (expensive)
     public Collection<Event> getEvents() {
-        return eventDao.getAll().get();
+        try{
+            return eventDao.getAll().get();
+        }
+        catch(Exception e){
+            LOGGER.error("Could not get all events: {}", e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
 
@@ -131,10 +138,17 @@ public class EventService{
     // Returns a single event as specified
     public Event getEvent(String eventUUID) throws IllegalArgumentException {
 
-        Optional<Event> event = eventDao.get(eventUUID);
+        try{
 
-        if(event.isPresent()){return event.get();}
-        else throw new IllegalArgumentException("No Event found for UUID <" + eventUUID + ">");
+            Optional<Event> event = eventDao.get(eventUUID);        
+
+            if(event.isPresent()){return event.get();}
+            else throw new IllegalArgumentException("No Event found for UUID <" + eventUUID + ">");
+
+        }
+        catch (IOException e){
+            throw new IllegalArgumentException("No Event found for UUID <" + eventUUID + ">");
+        }
     }
 
     public void setProperty(Event event, String key, String value) throws IOException{
@@ -154,17 +168,22 @@ public class EventService{
     */
 
     // Returns all events which given user is owner of
-    public Collection<Event> getUserEvents(String userUUID) {
+    public Collection<Event> getUserEvents(User user) {
         List<Event> events = new ArrayList<>();
 
-        // Get list of users permissions
-        List<EventPermission> eventPerms = permissionDao.get(userUUID).get();
+        try{
+            // Get list of users permissions
+            List<EventPermission> eventPerms = permissionDao.get(user.getUUID().toString()).get();
 
-        // Get each event on permissions list
-        for (EventPermission e : eventPerms){
-            events.add(eventDao.get(e.getEvent()).get());
+            // Get each event on permissions list
+            for (EventPermission e : eventPerms){
+                events.add(eventDao.get(e.getEvent()).get());
+            }
+            return events;
         }
-        return events;
+        catch (Exception e){
+            throw new IllegalArgumentException("No Event found for UUID <" + user.getUUID() + ">");
+        }
     }
 
     // Set the boolean isOwner for a user/event pair
@@ -232,19 +251,34 @@ public class EventService{
     }
 
     public List<DateTimeRange> getTimeRange(UUID eventUUID) {
-        Event event = eventDao.get(eventUUID).get();
-        return event.getEventProperties().getTimes();
+        try{
+            Event event = eventDao.get(eventUUID).get();
+            return event.getEventProperties().getTimes();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException();
+        }
     }
 
     public boolean setFacilities(UUID eventUUID, List<String> facilities) {
-        Event event = eventDao.get(eventUUID).get();
-        event.getEventProperties().setFacilities(facilities);
-        return true;
+        try{
+            Event event = eventDao.get(eventUUID).get();
+            event.getEventProperties().setFacilities(facilities);
+            return true;
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException();
+        }
     }
     
     public List<String> getFacilities(UUID eventUUID) {
-        Event event = eventDao.get(eventUUID).get();
-        return event.getEventProperties().getFacilities();
+        try{
+            Event event = eventDao.get(eventUUID).get();
+            return event.getEventProperties().getFacilities();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException();
+        }
     }
 
     public boolean setLocations(UUID eventUuid, Location location) {
@@ -260,10 +294,14 @@ public class EventService{
     }
 
     public Location getLocation(UUID eventUUID) {
-        Event event = eventDao.get(eventUUID).get();
-        return event.getEventProperties().getLocation();
+        try{
+            Event event = eventDao.get(eventUUID).get();
+            return event.getEventProperties().getLocation();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException();
+        }
     }
-
 }
 
 

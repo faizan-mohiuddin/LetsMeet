@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,15 +29,15 @@ public class ValidationService {
     TokenDAO tokenDao;
 
     // For checking email syntax
-    private static final String emailRegex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+    private static final String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
 
-    public User getAuthenticatedUser(String token){
+    public User getAuthenticatedUser(String token) throws IllegalArgumentException{
         Object[] response = verifyAPItoken(token);
         if ((boolean) response[0]){
             return getUserFromToken(token);
         }
         else{
-            return null;
+            throw new IllegalArgumentException("Authentication failed: invalid token");
         }
     }
 
@@ -108,7 +110,7 @@ public class ValidationService {
         // Check email is not already in use
         if(!dao.get(email).isPresent()){
             // Check email is comprised of correct parts
-            Pattern pattern = Pattern.compile(emailRegex);
+            Pattern pattern = Pattern.compile(EMAIL_REGEX);
             Matcher matcher = pattern.matcher(email);
             boolean result = matcher.matches();
             arr[0] = result;
