@@ -14,6 +14,9 @@ public class Venue {
     String name;
     List<String> facilities = new ArrayList<>();
     public Business business;
+    String address;
+    double longitude;
+    double latitude;
 
     public Venue(UUID uuid, String name){
         this.venueUUID = uuid;
@@ -51,11 +54,22 @@ public class Venue {
         }
     }
 
+    public Venue(UUID uuid, String name, List<String> facilities, String address, String longitude, String latitude){
+        this.venueUUID = uuid;
+        this.name = name;
+        this.facilities = facilities;
+        this.address = address;
+        this.longitude = Double.parseDouble(longitude);
+        this.latitude = Double.parseDouble(latitude);
+    }
+
     public Venue(String uuid, String name, String facilities, String address, String longitude, String latitude){
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
+        this.address = address;
+        this.longitude = Double.parseDouble(longitude);
+        this.latitude = Double.parseDouble(latitude);
 
-        // Check if facilities is null
         if(!(facilities == null)){
             // Populate facilities
             try {
@@ -64,7 +78,7 @@ public class Venue {
                     this.facilities.add(obj.get(i).toString());
                 }
             } catch (Exception e) {
-                System.out.println("Venue : Init(String, String, String, String, String, String)");
+                System.out.println("Venue : Init(String, String, String)");
                 System.out.println(e);
                 e.printStackTrace();
             }
@@ -112,5 +126,17 @@ public class Venue {
 
     public List<String> getFacilities(){
         return this.facilities;
+    }
+
+    public String getAddress(){
+        return this.address;
+    }
+
+    public Double getLongitude(){
+        return this.longitude;
+    }
+
+    public Double getLatitude(){
+        return this.latitude;
     }
 }

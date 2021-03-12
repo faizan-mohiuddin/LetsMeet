@@ -77,16 +77,23 @@ public class VenueDAO implements DAO<Venue> {
 
         // Save the event
         try{
-            PreparedStatement statement;
-            if(venue.numFacilities() < 1) {
-                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name) VALUES (?,?)");
-            }else{
-                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, Facilities) VALUES (?,?,?)");
-                statement.setString(3, venue.getJsonFacilities());
-            }
+//            PreparedStatement statement;
+//            if(venue.numFacilities() < 1) {
+//                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name) VALUES (?,?)");
+//            }else{
+//                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, Facilities) VALUES (?,?,?)");
+//                statement.setString(3, venue.getJsonFacilities());
+//            }
+
+            PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, " +
+                            "Facilities, Address, Longitude, Latitude) VALUES (?,?,?,?,?,?)");
+
             statement.setString(1, venue.getUUID().toString());
             statement.setString(2, venue.getName());
-
+            statement.setString(3, venue.getJsonFacilities());
+            statement.setString(4, venue.getAddress());
+            statement.setDouble(5, venue.getLongitude());
+            statement.setDouble(6, venue.getLatitude());
 
             if(statement.executeUpdate() > 0){
                 database.close();

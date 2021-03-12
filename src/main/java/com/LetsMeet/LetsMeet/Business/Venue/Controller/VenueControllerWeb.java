@@ -89,7 +89,10 @@ public class VenueControllerWeb {
     @PostMapping("/venue/new")
     public String saveVenue(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                             @RequestParam(value="Name") String name, @RequestParam(value="businessID") String businessUUID,
-                            @RequestParam(value="facilities") String facilities, @RequestParam(value = "venuelocation") String venueLocation, @RequestParam(value = "thelat") String venueLatitude, @RequestParam(value = "thelong") String venueLongitude){
+                            @RequestParam(value="facilities") String facilities,
+                            @RequestParam(value = "venuelocation") String venueLocation,
+                            @RequestParam(value = "thelat") String venueLatitude,
+                            @RequestParam(value = "thelong") String venueLongitude){
         // Validate user
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
@@ -115,7 +118,7 @@ public class VenueControllerWeb {
             // Get business
             Business b = businessService.getBusiness(businessUUID);
 
-            Object[] response = venueService.createVenue(user, name, b.getUUID().toString(), facs);
+            Object[] response = venueService.createVenue(user, name, b.getUUID().toString(), facs, venueLocation, venueLatitude, venueLongitude);
             Venue v = (Venue) response[1];
             String redirectAddress = String.format("redirect:/Venue/%s", v.getUUID().toString());
             return redirectAddress;
@@ -131,15 +134,9 @@ public class VenueControllerWeb {
     public String getAllVenues(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                                @RequestParam(value="VenueName", defaultValue = "") String searchName,
                                @RequestParam(value="Facilities", defaultValue = "") String searchFacilities){
-
-        // Validate user
         User user = (User) session.getAttribute("userlogin");
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the Venue.");
-            return "redirect:/Home";
-        }
-
         model.addAttribute("user", user);
+
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
             searchFacilities = "[" + searchFacilities + "]";

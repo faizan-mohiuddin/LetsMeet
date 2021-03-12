@@ -72,7 +72,8 @@ public class VenueService {
         return arr;
     }
 
-    public Object[] createVenue(User user, String name, String businessUUID, List<String> facilities){
+    public Object[] createVenue(User user, String name, String businessUUID, List<String> facilities, String location,
+                                String latitude, String longitude){
         // Returns [String, Venue]
         Object[] arr = new Object[2];
         arr[1] = null;
@@ -88,7 +89,7 @@ public class VenueService {
                 UUID uuid = this.generateUUID(name, user);
 
                 // Create internal venue object
-                Venue venue = new Venue(uuid, name, facilities);
+                Venue venue = new Venue(uuid, name, facilities, location, longitude, latitude);
 
                 // Save in DB
                 if (DAO.save(venue)) {
