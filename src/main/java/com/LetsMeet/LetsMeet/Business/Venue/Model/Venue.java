@@ -13,7 +13,7 @@ public class Venue {
     UUID venueUUID;
     String name;
     List<String> facilities = new ArrayList<>();
-    Business business;
+    public Business business;
 
     public Venue(UUID uuid, String name){
         this.venueUUID = uuid;
@@ -23,6 +23,12 @@ public class Venue {
     public Venue(String uuid, String name){
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
+    }
+
+    public Venue(UUID uuid, String name, List<String> facilities){
+        this.venueUUID = uuid;
+        this.name = name;
+        this.facilities = facilities;
     }
 
     public Venue(String uuid, String name, String facilities){
@@ -78,5 +84,13 @@ public class Venue {
 
     public void setBusiness(Business b){
         this.business = b;
+    }
+
+    public int numFacilities(){
+        return this.facilities.size();
+    }
+
+    public List<String> getFacilities(){
+        return this.facilities;
     }
 }

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+<div th:insert = "header :: navbar"></div>
+
+<div class="jumbotron">
+    <div class="container">
+        <h1><span th:text="${venue.getName()}"></span></h1>
+        <h3><span th:text="${venue.business.getName()}"></span></h3>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Facilities within this Venue</h2>
+    <div>
+        <table class = "table table">
+            <thead>
+            <tr>
+                <th scope = "col">Facility</th>
+                <th scope = "col"></th>
+                <th scope = "col"></th>
+                <th scope = "col"></th>
+                <th scope = "col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each = "f : ${venue.getFacilities()}" id="businessRow">
+                <div th:if ="${f}">
+                    <td th:text = "${f}"></td>
+                    <td></td>
+                    <td th:if="${permission}"><a class = "btn btn-primary" href = "/Home">Remove</a></td>
+                </div>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:if="${permission}" class="container">
+    <hr class="featurette-divider">
+    <h4>Owner privileges</h4>
+
+</div>
+
+<div th:insert = "footer :: footer"></div>
+</body>
+</html>

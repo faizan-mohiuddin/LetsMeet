@@ -14,12 +14,12 @@
 <div class="jumbotron">
     <div class="container">
         <h1>Create a Venue</h1>
-        <h2>Business <span th:text="${business.getName()}"></span></h2>
+        <h2>Business: <span th:text="${business.getName()}"></span></h2>
     </div>
 </div>
 
 <div class="container">
-    <form th:action="venue/new" enctype="multipart/form-data" th:method="POST">
+    <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST">
 
         <div class="form-group">
             <label for="venueName">Venue Name: </label>
@@ -27,10 +27,50 @@
                    placeholder="Enter Venue name...">
         </div>
 
+        <input type = "hidden" name = "businessID" th:value = "${business.getUUID().toString()}">
+
+        <div class="form-group">
+            <label for="facilities">Venue Facilities:</label>
+            <div class="container" id="facilities">
+
+                <div class="row align-items-start">
+                    <div class="col">
+                        <input type="text" class="form-control" name="facilities"
+                               placeholder="Facility Tag...">
+                    </div>
+
+                    <div class="col">
+                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button type="button" class="append" id="append" onclick="msg()">Add More Facilities</button>
+                </div>
+
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
 </div>
-
 <div th:insert = "footer :: footer"></div>
 </body>
+
+<script>
+    $(document).on('click', '.append', function(){
+        var html = '<div class="row align-items-start">\n' +
+            '                    <div class="col">\n' +
+            '                        <input type="text" class="form-control" name="facilities"\n' +
+            '                               placeholder="Facility Tag...">\n' +
+            '                    </div>\n' +
+            '\n' +
+            '                    <div class="col">\n' +
+            '                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>\n' +
+            '                    </div>\n' +
+            '                </div>';
+        $(html).insertBefore(".append");
+
+    });
+</script>
 </html>

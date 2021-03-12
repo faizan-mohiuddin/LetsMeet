@@ -35,7 +35,11 @@ public class VenueService {
     @Autowired
     BusinessService businessService;
 
-    public String createVenue(User user, String name, String businessUUID){
+    public Object[] createVenue(User user, String name, String businessUUID){
+        // Returns [String, Venue]
+        Object[] arr = new Object[2];
+        arr[1] = null;
+
         // Check business exists
         Business business = businessService.getBusiness(businessUUID);
 
@@ -55,15 +59,60 @@ public class VenueService {
                     // Create internal businessHasVenue object
                     VenueBusiness owner = new VenueBusiness(business.getUUID(), uuid);
                     if (venueBusinessDAO.save(owner)) {
-                        return "Venue created successfully";
+                        arr[0] = "Venue created successfully";
+                        arr[1] = venue;
+                        return arr;
                     }
                 }
 
-                return "Error creating venue";
+                arr[0] = "Error creating venue";
+                return arr;
             }
-            return "You do not have permission to create a Venue for this Business";
+            arr[0] = "You do not have permission to create a Venue for this Business";
+            return arr;
         }
-        return "Invalid businessID, cannot create Venue";
+        arr[0] = "Invalid businessID, cannot create Venue";
+        return arr;
+    }
+
+    public Object[] createVenue(User user, String name, String businessUUID, List<String> facilities){
+        // Returns [String, Venue]
+        Object[] arr = new Object[2];
+        arr[1] = null;
+
+        // Check business exists
+        Business business = businessService.getBusiness(businessUUID);
+
+        if(business != null) {
+            // Check user has permission to make venue on behalf of business
+            if (businessService.isOwner(user, business)) {
+
+                // Generate UUID
+                UUID uuid = this.generateUUID(name, user);
+
+                // Create internal venue object
+                Venue venue = new Venue(uuid, name, facilities);
+
+                // Save in DB
+                if (DAO.save(venue)) {
+
+                    // Create internal businessHasVenue object
+                    VenueBusiness owner = new VenueBusiness(business.getUUID(), uuid);
+                    if (venueBusinessDAO.save(owner)) {
+                        arr[0] = "Venue created successfully";
+                        arr[1] = venue;
+                        return arr;
+                    }
+                }
+
+                arr[0] = "Error creating venue";
+                return arr;
+            }
+            arr[0] = "You do not have permission to create a Venue for this Business";
+            return arr;
+        }
+        arr[0] = "Invalid businessID, cannot create Venue";
+        return arr;
     }
 
     public String deleteVenue(User user, String venueUUID){
