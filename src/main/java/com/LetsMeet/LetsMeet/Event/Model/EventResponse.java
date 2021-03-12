@@ -20,13 +20,14 @@ public class EventResponse {
     private UUID user;
 
     //Member data
-    UUID conditionSet;
-	ArrayList<PollResponse> poll;
+    private EventProperties properties;
+	private ArrayList<PollResponse> poll;
+	private Boolean required;
 
-    public EventResponse(UUID event, UUID user, UUID conditionSet){
+    public EventResponse(UUID event, UUID user, EventProperties properties){
         this.event = event;
         this.user = user;
-        this.conditionSet = conditionSet;
+        this.properties = properties;
     }
 
 	public UUID getEvent() {
@@ -45,12 +46,28 @@ public class EventResponse {
 		this.user = user;
 	}
 
-	public UUID getConditionSet() {
-		return conditionSet;
+	public EventProperties getEventProperties() {
+		return properties;
 	}
 
-	public void setConditionSet(UUID conditionSet) {
-		this.conditionSet = conditionSet;
+	public void setEventProperties(EventProperties properties) {
+		this.properties = properties;
+	}
+
+	public ArrayList<PollResponse> getPoll() {
+		return poll;
+	}
+
+	public void setPoll(ArrayList<PollResponse> poll) {
+		this.poll = poll;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
 	}
 
 }

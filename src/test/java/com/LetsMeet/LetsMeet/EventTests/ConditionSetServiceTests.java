@@ -14,7 +14,7 @@ import java.util.List;
 
 import com.LetsMeet.LetsMeet.Event.DAO.ConditionSetDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
-import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.*;
 import com.LetsMeet.LetsMeet.Event.Service.ConditionSetService;
 
 @SpringBootTest

@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties.*;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
 public interface EventServiceInterface {

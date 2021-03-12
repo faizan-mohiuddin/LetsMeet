@@ -6,8 +6,10 @@
 
 package com.LetsMeet.LetsMeet.Event.DAO;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
@@ -35,6 +38,8 @@ public class EventDao implements DAO<Event> {
 
     // Components
     //-----------------------------------------------------------------
+
+
     @Autowired
     EventPermissionDao hasUsers;
 
@@ -42,63 +47,58 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Optional<Event> get(UUID uuid) {
+    public Optional<Event> get(UUID uuid) throws IOException {
         return get(uuid.toString());
     }
 
-    public Optional<Event> get(String uuid) {
+    public Optional<Event> get(String uuid) throws IOException {
         try(Statement statement = DatabaseInterface.get().createStatement()) {
             String query = String.format("select * from Event where Event.EventUUID = '%s'", uuid);
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
 
-            //Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5))));
             Optional<Event> event = Optional.ofNullable(new Event(
-                rs.getString("EventUUID"),
+                UUID.fromString(rs.getString("EventUUID")),
                 rs.getString("Name"),
                 rs.getString("Description"),
                 rs.getString("Location"),
                 new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
-                UUID.fromString(rs.getString("ConditionSet")),
+                new Gson().fromJson(rs.getString("EventProperties"), EventProperties.class),
                 new Gson().fromJson(rs.getString("Poll"), Poll.class)));
 
             DatabaseInterface.drop();
             return event;
 
-        }catch(Exception e){
+        }catch(SQLException e){
             DatabaseInterface.drop();
-            System.out.println("\nEvent Dao: get (String)");
-            System.out.println(e);
-            return Optional.empty();
-            
+            throw new IOException(e.getMessage());
         }
     }
 
     @Override
-    public Optional<Collection<Event>> getAll() {
+    public Optional<Collection<Event>> getAll() throws IOException{
         try(Statement statement = DatabaseInterface.get().createStatement()){
             ResultSet rs = statement.executeQuery("select * from Event");
             List<Event> events = new ArrayList<>();
 
             while (rs.next()){
                 events.add(new Event(
-                    rs.getString("EventUUID"),
+                    UUID.fromString(rs.getString("EventUUID")),
                     rs.getString("Name"),
                     rs.getString("Description"),
                     rs.getString("Location"),
                     new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
-                    UUID.fromString(rs.getString("ConditionSet")),
+                    new Gson().fromJson(rs.getString("EventProperties"), EventProperties.class),
                     new Gson().fromJson(rs.getString("Poll"), Poll.class)));
             }
+
             DatabaseInterface.drop();
             return Optional.ofNullable(events);
 
-        }catch(Exception e){
-            System.out.println("\nEvent Dao: getALL");
+        }catch(SQLException e){
             DatabaseInterface.drop();
-            e.printStackTrace();
-            return Optional.empty();
+            throw new IOException(e.getMessage());
         }  
     }
 
@@ -107,7 +107,7 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Boolean save(Event t) {
+    public Boolean save(Event t) throws IOException {
 
         // Save the event
         try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, ConditionSet, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
@@ -116,22 +116,15 @@ public class EventDao implements DAO<Event> {
             statement.setString(2, t.getName());
             statement.setString(3, t.getDescription());
             statement.setString(4, t.getLocation());
-            statement.setString(5, t.getConditions().toString());
+            statement.setString(5, new Gson().toJson(t.getEventProperties()));
             statement.setString(6, new Gson().toJson(t.getPoll()));
             statement.setString(7, new Gson().toJson(t.getProperties()));
 
-            if(statement.executeUpdate() > 0){
-                DatabaseInterface.drop();
-                return true;
-            }else{
-                throw new Exception("Nothing added to DB");
-            }
+            if(statement.executeUpdate() > 0){return true;}
+            else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
 
-        }catch(Exception e){
-            System.out.println("Event Dao : save");
-            DatabaseInterface.drop();
-            e.printStackTrace();
-            return false;
+        }catch(SQLException e){
+            throw new IOException(e.getMessage());
         }
 
     }
@@ -140,31 +133,24 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Boolean update(Event t) {
+    public Boolean update(Event t) throws IOException{
         // Save the event
         try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Event SET Name = ?, " +
-                "Description = ?, Location = ?, ConditionSet = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
+                "Description = ?, Location = ?, EventProperties = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
 
             statement.setString(1, t.getName());
             statement.setString(2, t.getDescription());
             statement.setString(3, t.getLocation());
-            statement.setString(4, t.getConditions().toString());
+            statement.setString(4, new Gson().toJson(t.getEventProperties()));
             statement.setString(5, new Gson().toJson(t.getPoll()));
             statement.setString(6, new Gson().toJson(t.getProperties()));
             statement.setString(7, t.getUUID().toString());
 
-            if(statement.executeUpdate() > 0){
-                DatabaseInterface.drop();
-                return true;
-            }else{
-                throw new Exception("Nothing added to DB");
-            }
+            if(statement.executeUpdate() > 0) return true;      
+            else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
 
         }catch(Exception e){
-            System.out.println("Event Dao : update");
-            DatabaseInterface.drop();
-            e.printStackTrace();
-            return false;
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -172,13 +158,12 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Boolean delete(Event t) {
-        // TODO Auto-generated method stub
-        return false;
+    public Boolean delete(Event event) throws IOException {
+        return delete(event.getUUID());
     }
 
     @Override
-    public Boolean delete(UUID uuid) {
+    public Boolean delete(UUID uuid) throws IOException{
         try(Statement statement = DatabaseInterface.get().createStatement()){
         
             String query;
@@ -192,50 +177,8 @@ public class EventDao implements DAO<Event> {
 
             return true;
 
-        }catch(Exception e){
-            System.out.println("Event Dao: delete (UUID)");
-            DatabaseInterface.drop();
-            e.printStackTrace();
-            return false;
+        }catch(SQLException e){
+            throw new IOException(e.getMessage());
         }
     }
-
-
-
-
-    // Other methods
-    //-----------------------------------------------------------------
-    //TODO EventResponse should be be loaded by BL to find which events a user is registered to.
-    /*
-    public Optional<Collection<Event>> getUserEvents(String uuid){
-        database.open();
-        try(Statement statement = database.con.createStatement()){
-            List<EventPermission> records = hasUsers.get(uuid).get();
-
-            database.open();
-
-            List<Event> events = new ArrayList<>();
-
-            for(EventPermission record: records){
-                String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location, Event.ConditionSet" +
-                        " from Event where Event.EventUUID = '%s'", record.getEvent().toString());
-
-                ResultSet rs = statement.executeQuery(query);
-                rs.next();
-                Event event = new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),UUID.fromString(rs.getString(5)));
-                events.add(event);
-            }
-
-            Optional<Collection<Event>> response = Optional.ofNullable(events);
-            DatabaseInterface.drop()
-             return response;
-
-        }catch(Exception e){
-            System.out.println("\nEvent Dao : get user events");
-            e.printStackTrace();
-            DatabaseInterface.drop()
-            return Optional.empty();
-        }
-    }
-    */
 }

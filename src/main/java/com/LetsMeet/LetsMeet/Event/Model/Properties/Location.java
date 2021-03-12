@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.Event.Model.Variables;
+package com.LetsMeet.LetsMeet.Event.Model.Properties;
 
 import java.io.Serializable;
 

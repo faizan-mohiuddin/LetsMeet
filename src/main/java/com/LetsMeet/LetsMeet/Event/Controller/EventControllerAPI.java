@@ -2,11 +2,10 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;
-import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventSanitised;
-import com.LetsMeet.LetsMeet.Event.Model.Variables.Location;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties.*;
 import com.LetsMeet.LetsMeet.Event.Service.ConditionSetService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;

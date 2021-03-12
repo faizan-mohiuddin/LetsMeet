@@ -10,15 +10,14 @@ package com.LetsMeet.LetsMeet.Event.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
-import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,18 +35,13 @@ public class EventResponseService {
     @Autowired
     EventResponseDao dao;
 
-    // Service for manipulating the responses condition set
-    @Autowired
-    ConditionSetService conditionSetService;
-
-
     // Logger
-    private static final Logger LOGGER=LoggerFactory.getLogger(EventService.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(EventResponseService.class);
 
     // Creation
     //-----------------------------------------------------------------
     public EventResponse createResponse(User user, Event event){
-        EventResponse response = new EventResponse(event.getUUID(), user.getUUID(), conditionSetService.createDefault().getUUID());
+        EventResponse response = new EventResponse(event.getUUID(), user.getUUID(), EventProperties.getEmpty());
         dao.save(response);
         return response;
     }
@@ -73,9 +67,9 @@ public class EventResponseService {
     //-----------------------------------------------------------------
 
     // set times
-    public boolean setTimes(EventResponse response, List<DateTimeRange> ranges){
+    public boolean setTimes(EventResponse response, List<DateTimeRange> times){
         try{
-            conditionSetService.addTimeRanges(conditionSetService.get(response.getConditionSet()), ranges);
+            response.getEventProperties().setTimes(times);
             dao.update(response);
             return true;
         }
@@ -88,7 +82,7 @@ public class EventResponseService {
     // get times
     public Optional<List<DateTimeRange>> getTimes(EventResponse response){
         try{
-            return conditionSetService.getTimeRange(conditionSetService.get(response.getConditionSet()));
+            return Optional.of(response.getEventProperties().getTimes());
         }
         catch (Exception e){
             LOGGER.error("Failed to get times: {} ", e.getMessage());
@@ -99,7 +93,7 @@ public class EventResponseService {
     // clear times
     public boolean clearTimes(EventResponse response){
         try{
-            conditionSetService.clearTimeRange(conditionSetService.get(response.getConditionSet()));
+            response.getEventProperties().getTimes().clear();
             dao.update(response);
             return true;
         }

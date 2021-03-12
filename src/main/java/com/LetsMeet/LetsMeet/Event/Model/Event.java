@@ -24,21 +24,21 @@ public class Event {
     EntityProperties properties;
 
     // The events own specific set of conditions and constraints (not those belonging to a user)
-    UUID conditionSet;
+    EventProperties eventProperties;
     Poll poll;
 
-    public Event(String uuid, String name, String desc, String location, EntityProperties properties, UUID conditions, Poll poll){
-        this.uuid = UUID.fromString(uuid);
+    public Event(UUID uuid, String name, String desc, String location, EntityProperties properties, EventProperties eventProperties, Poll poll){
+        this.uuid = uuid;
         this.name = name;
         this.desc = desc;
         this.location = location;
         this.properties = properties;
-        this.conditionSet = conditions;
+        this.eventProperties = eventProperties;
         this.poll = poll;
     }
 
-    public Event(String uuid, String name, String desc, String location, UUID conditions){
-        this(uuid, name, desc, location, new EntityProperties(), conditions, new Poll());
+    public Event(UUID uuid, String name, String desc, String location, EventProperties eventProperties){
+        this(uuid, name, desc, location, new EntityProperties(), eventProperties, new Poll());
     }
 
     public UUID getUUID(){
@@ -55,14 +55,6 @@ public class Event {
 
     public String getLocation(){
         return this.location;
-    }
-
-    public UUID getConditions(){
-        return this.conditionSet;
-    }
-
-    public EventSanitised convertToSanitised(){
-        return new EventSanitised(this.name, this.desc, this.location);
     }
 
     public EntityProperties getProperties() {
@@ -97,5 +89,13 @@ public class Event {
         if(!location.equals("")) {
             this.location = location;
         }
+    }
+
+    public EventProperties getEventProperties() {
+        return eventProperties;
+    }
+
+    public void setEventProperties(EventProperties eventProperties) {
+        this.eventProperties = eventProperties;
     }
 }

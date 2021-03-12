@@ -11,10 +11,8 @@ import java.io.IOException;
 //-----------------------------------------------------------------
 
 import java.time.Instant;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,13 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
-import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
-import com.LetsMeet.LetsMeet.Event.Model.Constraint;
-import com.LetsMeet.LetsMeet.Event.Model.Variables.*;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
-import com.LetsMeet.LetsMeet.Event.Model.Variable;
-import com.LetsMeet.LetsMeet.Event.Model.Variables.Location;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +34,7 @@ import org.springframework.stereotype.Service;
 //-----------------------------------------------------------------
 
 @Service
-public class EventService implements EventServiceInterface {
+public class EventService{
 
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventService.class);
@@ -51,9 +47,6 @@ public class EventService implements EventServiceInterface {
     EventPermissionDao permissionDao;
 
     @Autowired
-    ConditionSetService conditionSetService;
-
-    @Autowired
     UserService userService;
 
 
@@ -62,27 +55,23 @@ public class EventService implements EventServiceInterface {
     // Create a new event:
     // Creates a new event and sets the given user (typically the one creating the event) administrative rights over it. 
 
-    @Override
     public Event createEvent(String name, String desc, String location, String UserUUID) throws IOException{
-        // Generate EventUUID
-        UUID eventUUID = generateEventUUID(name, desc, location);
 
-        // Create an Event POJO
-        Event event = new Event(eventUUID.toString(), name, desc, location,conditionSetService.createDefault().getUUID());
-
-        // Ensure event is saved to persistent storage
         try{
-            eventDao.save(event); 
-            // Set the User as owner (admin) of Event
+            // Prepare and save new event object with specialized UUID
+            UUID eventUUID = generateEventUUID(name, desc, location);
+            Event event = new Event(eventUUID, name, desc, location, EventProperties.getEmpty());
+            eventDao.save(event);
+
+            // Prepare and save new EventPermission to record user as an editor of the event
             EventPermission record = new EventPermission(eventUUID.toString(), UserUUID, true);
             permissionDao.save(record);
+
+            return event;
         }
         catch(Exception e){
             throw new IOException("Unable to create new event");
         }
-
-        return event;
-
     }
 
 
@@ -92,71 +81,63 @@ public class EventService implements EventServiceInterface {
         String strTime = Long.toString(time);
 
         String uuidData = name + desc + location + strTime;
-        UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
-        return uuid;
+        return UUID.nameUUIDFromBytes(uuidData.getBytes());
     }
 
     // Update an existing event
     // Checks if given user has edit privileges. If so sends Event object to DAO
-    @Override
-    public String updateEvent(User user, Event event, String name, String desc, String location) {
-        // Check user has permission
-        if(this.checkOwner(event.getUUID(), user.getUUID())) {
+    public Boolean updateEvent(User user, Event event) throws IllegalArgumentException, IOException{
 
-            // Switch values
-            event.setName(name);
-            event.setDescription(desc);
-            event.setLocation(location);
-
-            // Update in DB
-            if (eventDao.update(event)) {
-                return "Event successfully updated";
-            }
-            return "Error updating Event";
+        // Check user has edit permissions
+        if(!this.checkOwner(event.getUUID(), user.getUUID())) {
+            throw new IllegalArgumentException("Provided User does not have sufficient privileges. User= <" + user.getUUID() + ">");
         }
-        return "You do not have permission to update this Event";
+        // Update event in persistance layer
+        return eventDao.update(event);
+
     }
 
 
     // Delete an existing event
     // Checks if given user has edit privileges first. Also deletes Events ConditionSet.
-    @Override
-    public String deleteEvent(String uuid, User user) {
-        // Check if user has permission to delete event
-        Optional<EventPermission> record = permissionDao.get(UUID.fromString(uuid), user.getUUID());
-        if (record.isPresent()) {
-            if (!record.get().getIsOwner()) {
-                return "You do not have permission to delete this event";
-            }
-        } else {
-            return "You do not have permission to delete this event";
-        }
+    public Boolean deleteEvent(UUID eventUUID, User user) throws IllegalArgumentException{
 
-        Event event = eventDao.get(uuid).get();
-        conditionSetService.delete(event.getConditions());
-        if (eventDao.delete(UUID.fromString(uuid))) {
-            return "Event successfully deleted.";
-        } else {
-            return "Error deleting event";
+        try{
+            if(!this.checkOwner(eventUUID, user.getUUID())) {
+                throw new IllegalArgumentException("Provided User does not have sufficient privileges. User= <" + user.getUUID() + ">");
+            }
+
+            // Perform any pre-delete cleanup here
+            //TODO delete event images
+            //TODO delete event responses
+            
+            // Delete Event
+            return eventDao.delete(eventUUID);
+        }
+        catch (Exception e){
+            throw new IllegalArgumentException("Unable to delete Event <" + eventUUID + ">" + e.getMessage());
         }
     }
 
+
+
     // Returns all Events on the system (expensive)
-    @Override
     public Collection<Event> getEvents() {
         return eventDao.getAll().get();
     }
 
+
+
     // Returns a single event as specified
-    public Event getEvent(String UUID) {
-        Optional<Event> event = eventDao.get(UUID);
-        if(event.isPresent()){
-            return event.get();
-        }
-        return null;
+    public Event getEvent(String eventUUID) throws IllegalArgumentException {
+
+        Optional<Event> event = eventDao.get(eventUUID);
+
+        if(event.isPresent()){return event.get();}
+        else throw new IllegalArgumentException("No Event found for UUID <" + eventUUID + ">");
     }
 
-    public void setProperty(Event event, String key, String value){
+    public void setProperty(Event event, String key, String value) throws IOException{
         event.getProperties().set(key, value);
         eventDao.update(event);
     }
@@ -173,7 +154,6 @@ public class EventService implements EventServiceInterface {
     */
 
     // Returns all events which given user is owner of
-    @Override
     public Collection<Event> getUserEvents(String userUUID) {
         List<Event> events = new ArrayList<>();
 
@@ -188,7 +168,6 @@ public class EventService implements EventServiceInterface {
     }
 
     // Set the boolean isOwner for a user/event pair
-    @Override
     public Boolean setPermissions(Event event, User user, Boolean owner) {
         try{
             permissionDao.save(new EventPermission(event.getUUID(), user.getUUID(), owner));
@@ -240,11 +219,10 @@ public class EventService implements EventServiceInterface {
 
 
     // Will add a new period to the time range constraint - use to set the periods that the event could take place.
-    @Override
-    public boolean setTimeRange(UUID eventUuid, List<DateTimeRange> ranges) {
+    public boolean setTimeRange(UUID eventUuid, List<DateTimeRange> times) {
         try{
             Event event = eventDao.get(eventUuid).get();
-            conditionSetService.addTimeRanges(conditionSetService.get(event.getConditions()), ranges);
+            event.getEventProperties().setTimes(times);
             return true;
         }
         catch(Exception e){
@@ -253,28 +231,26 @@ public class EventService implements EventServiceInterface {
         }
     }
 
-    @Override
     public List<DateTimeRange> getTimeRange(UUID eventUUID) {
         Event event = eventDao.get(eventUUID).get();
-        return conditionSetService.getTimeRange(conditionSetService.get(event.getConditions())).get();
+        return event.getEventProperties().getTimes();
     }
 
-    @Override
-    public boolean setServices(UUID eventUuid, List<String> services) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean setFacilities(UUID eventUUID, List<String> facilities) {
+        Event event = eventDao.get(eventUUID).get();
+        event.getEventProperties().setFacilities(facilities);
+        return true;
+    }
+    
+    public List<String> getFacilities(UUID eventUUID) {
+        Event event = eventDao.get(eventUUID).get();
+        return event.getEventProperties().getFacilities();
     }
 
-    @Override
-    public List<String> getServices(UUID event) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public boolean setLocations(UUID eventUuid, List<Location> locations) {
+    public boolean setLocations(UUID eventUuid, Location location) {
         try{
             Event event = eventDao.get(eventUuid).get();
-            conditionSetService.addLocation(conditionSetService.get(event.getConditions()), locations);
+            event.getEventProperties().setLocation(location);
             return true;
         }
         catch(Exception e){
@@ -283,89 +259,11 @@ public class EventService implements EventServiceInterface {
         }
     }
 
-    public List<Location> getLocation(UUID eventUUID) {
+    public Location getLocation(UUID eventUUID) {
         Event event = eventDao.get(eventUUID).get();
-        return conditionSetService.getLocation(conditionSetService.get(event.getConditions())).get();
+        return event.getEventProperties().getLocation();
     }
 
-
-
-    // Depreciated methods. These are no longer required and should be removed when possible
-    // ---------------------------------------------------------------------------------------------------------------
-
-    @Deprecated // Use SetPermission to "join" user as Owner 
-    public String joinEvent(String EventUUID, String UserUUID) {
-        // Check event exists
-        Event data = eventDao.get(EventUUID).get();
-
-        if (data == null) {
-            return "Event Doesnt exist";
-        }
-
-        // Check that user is not already in event
-        Optional<EventPermission> checker = permissionDao.get(UUID.fromString(EventUUID), UUID.fromString(UserUUID));
-
-        if (!checker.isPresent()) {
-            // Add user to event not as an owner
-            boolean result = permissionDao.save(new EventPermission(EventUUID, UserUUID, false));
-
-            if (!result) {
-                return "Error adding user to event";
-            } else {
-                return "User added to event";
-            }
-        } else {
-            return "You are already a participant of this event.";
-        }
-    }
-
-
-   /* ----- DEPRECIATED ------
-   Be aware that these methods shall be removed in future versions and should not be referenced
-   ---------------------------*/
-
-
-    @Deprecated // Use SetPermission to "join" user as Owner 
-    public String leaveEvent(String EventUUID, String UserUUID) {
-        // Check that user is in event
-        Optional<EventPermission> checker = permissionDao.get(UUID.fromString(EventUUID), UUID.fromString(UserUUID));
-        if (!checker.isPresent()) {
-            return "You have not joined this event";
-        }
-
-        if (permissionDao.delete(EventUUID, UserUUID)) {
-            return "Successfully left event.";
-        } else {
-            return "Error leaving event";
-        }
-    }
-
-    
-    @Deprecated // Use specific methods for adding variables (e.g timerange)
-    public boolean addVariable(UUID eventUUID, Variable<?> variable) {
-        if (eventDao.get(eventUUID).isPresent()) {
-            Event event = eventDao.get(eventUUID).get();
-            //event.getConditions().addVariable(variable);
-            if (eventDao.update(event).booleanValue()) {
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
-
-    @Deprecated // Use specific methods for adding constraints
-    public boolean addConstraint(UUID eventUUID, Constraint<?> constraint) {
-        if (eventDao.get(eventUUID).isPresent()) {
-            Event event = eventDao.get(eventUUID).get();
-            //event.getConditions().addConstraint(constraint);
-            if (eventDao.update(event).booleanValue()) {
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
 }
 
 

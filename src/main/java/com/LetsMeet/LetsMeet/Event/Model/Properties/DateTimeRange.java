@@ -1,13 +1,10 @@
-package com.LetsMeet.LetsMeet.Event.Model.Variables;
+package com.LetsMeet.LetsMeet.Event.Model.Properties;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 public class DateTimeRange implements Serializable {
