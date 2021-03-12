@@ -89,7 +89,7 @@ public class VenueControllerWeb {
     @PostMapping("/venue/new")
     public String saveVenue(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                             @RequestParam(value="Name") String name, @RequestParam(value="businessID") String businessUUID,
-                            @RequestParam(value="facilities") String facilities){
+                            @RequestParam(value="facilities") String facilities, @RequestParam(value = "venuelocation") String venueLocation, @RequestParam(value = "thelat") String venueLatitude, @RequestParam(value = "thelong") String venueLongitude){
         // Validate user
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
@@ -106,6 +106,10 @@ public class VenueControllerWeb {
             System.out.println(name);
             System.out.println(businessUUID);
             System.out.println(facilities);
+            System.out.println(venueLocation);
+            System.out.println(venueLatitude);
+            System.out.println(venueLongitude);
+
             List<String> facs = new ArrayList<>(Arrays.asList(facilities.split(",")));
 
             // Get business
@@ -127,6 +131,15 @@ public class VenueControllerWeb {
     public String getAllVenues(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                                @RequestParam(value="VenueName", defaultValue = "") String searchName,
                                @RequestParam(value="Facilities", defaultValue = "") String searchFacilities){
+
+        // Validate user
+        User user = (User) session.getAttribute("userlogin");
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the Venue.");
+            return "redirect:/Home";
+        }
+
+        model.addAttribute("user", user);
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
             searchFacilities = "[" + searchFacilities + "]";
