@@ -15,10 +15,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class VenueService {
@@ -170,6 +167,13 @@ public class VenueService {
     }
 
     public List<Venue> search(String name, String unparsedFacilitiesList){
+        // If neither name nor unparsedFacilitiesList have anything to search for, return all
+        if(name.length() == 0 && unparsedFacilitiesList.equals("")){
+            Collection<Venue> venues = DAO.getAll().get();
+            List<Venue> v = new ArrayList<>(venues);
+            return v;
+        }
+
         // Build a query to execute
         String query = String.format("SELECT * FROM Venue WHERE ");
 

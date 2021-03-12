@@ -71,7 +71,7 @@ public class VenueControllerWeb {
         Venue venue = venueService.getVenue(venueUUID);
         venueService.findBusiness(venue);   // Venue.business
         model.addAttribute("venue", venue);
-        
+
         // Get user
         User user = (User) session.getAttribute("userlogin");
         if(user == null){
@@ -121,5 +121,21 @@ public class VenueControllerWeb {
             redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
             return "redirect:/Home";
         }
+    }
+
+    @GetMapping("/Venues")
+    public String getAllVenues(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                               @RequestParam(value="VenueName", defaultValue = "") String searchName,
+                               @RequestParam(value="Facilities", defaultValue = "") String searchFacilities){
+        // searchFacilities should be within square brackets
+        if(searchFacilities.length() > 0){
+            searchFacilities = "[" + searchFacilities + "]";
+        }
+
+        // Search for events by what is given
+        List<Venue> venues = venueService.search(searchName, searchFacilities);
+        model.addAttribute("venues", venues);
+
+        return "Venue/allVenues";
     }
 }

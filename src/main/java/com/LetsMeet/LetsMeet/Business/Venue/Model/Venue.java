@@ -51,6 +51,26 @@ public class Venue {
         }
     }
 
+    public Venue(String uuid, String name, String facilities, String address, String longitude, String latitude){
+        this.venueUUID = UUID.fromString(uuid);
+        this.name = name;
+
+        // Check if facilities is null
+        if(!(facilities == null)){
+            // Populate facilities
+            try {
+                JSONArray obj = new JSONArray(facilities);
+                for (int i = 0; i < obj.length(); i++) {
+                    this.facilities.add(obj.get(i).toString());
+                }
+            } catch (Exception e) {
+                System.out.println("Venue : Init(String, String, String, String, String, String)");
+                System.out.println(e);
+                e.printStackTrace();
+            }
+        }
+    }
+
     public UUID getUUID(){
         return this.venueUUID;
     }
