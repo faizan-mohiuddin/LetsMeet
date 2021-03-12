@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -55,8 +53,8 @@ public class EventControllerWeb {
         if (user == null) {
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
             return "redirect:/Home";
-        } 
-        
+        }
+
         else {
             model.addAttribute("user", user);
             return "createevent";
@@ -66,9 +64,9 @@ public class EventControllerWeb {
     @PostMapping("/event/{EventUUID}/edit")
     public String updateEvent (HttpSession session, Model model, RedirectAttributes redirectAttributes,
         @PathVariable("EventUUID") String eventUUID,
-        @RequestParam("file") MultipartFile file, 
-        @RequestParam(name = "eventname") String eventname, 
-        @RequestParam(name = "eventdesc") String eventdesc, 
+        @RequestParam("file") MultipartFile file,
+        @RequestParam(name = "eventname") String eventname,
+        @RequestParam(name = "eventdesc") String eventdesc,
         @RequestParam(name = "eventlocation") String eventlocation){
 
         User user = (User) session.getAttribute("userlogin");
@@ -77,7 +75,7 @@ public class EventControllerWeb {
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when editing the event.");
             return "redirect:/Home";
         }
-        
+
         try{
             event.setName(eventname);
             event.setDescription(eventdesc);
@@ -103,10 +101,10 @@ public class EventControllerWeb {
 
     @PostMapping({"/createevent", "/event/new"})
     public String saveEvent(HttpSession session, Model model, RedirectAttributes redirectAttributes,
-        @RequestParam("file") MultipartFile file, 
-        @RequestParam(name = "eventname") String eventname, 
-        @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation) {
+        @RequestParam("file") MultipartFile file,
+        @RequestParam(name = "eventname") String eventname,
+        @RequestParam(name = "eventdesc") String eventdesc,
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelong") String eventLongitude, @RequestParam(name = "thelat") String eventLatitude) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -121,10 +119,14 @@ public class EventControllerWeb {
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
-            
+            model.addAttribute("eventlongitude", eventLongitude);
+            model.addAttribute("eventlatitude", eventLatitude);
+
+            // Process event location - split by comma's
+            List<String> locationList = Arrays.asList(eventlocation.split(","));
+
             Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
 
-            // Store and set header image file if present
             if (file.getSize()>0){
                 String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
                 eventService.setProperty(event, "header_image", path);
@@ -147,8 +149,8 @@ public class EventControllerWeb {
         if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) { // this user UUID is the admin account's UUID
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
             return "redirect:/Home";
-        } 
-        
+        }
+
         else {
             model.addAttribute("user", user);
             model.addAttribute("allevents", eventService.getEvents());
@@ -163,15 +165,15 @@ public class EventControllerWeb {
         if (user == null) {
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
             return "redirect:/Home";
-        } 
-        
+        }
+
         else {
 
             String tryDeleteEvent = eventService.deleteEvent(eventuuid, user);
             if (tryDeleteEvent.equals("Event successfully deleted.")) {
                 redirectAttributes.addFlashAttribute("success", "The event was successfully deleted.");
-            } 
-            
+            }
+
             else {
                 redirectAttributes.addFlashAttribute("danger", "An error occurred when deleting the event.");
             }
@@ -188,7 +190,7 @@ public class EventControllerWeb {
 
         // Check if user is logged in AND if the event exists AND if the user is in said event
         if (user != null && eventService.getEvent(eventuuid) != null) {
-            
+
             Event event = eventService.getEvent(eventuuid);
             model.addAttribute("user", user);
             model.addAttribute("event", event);
@@ -210,7 +212,7 @@ public class EventControllerWeb {
                     data.put("must_attend", "unknown");
                     names.add(data);
                 }
-    
+
                 model.addAttribute("responses", names);
             }
 
