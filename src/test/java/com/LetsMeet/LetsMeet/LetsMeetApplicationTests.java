@@ -584,9 +584,8 @@ class  LetsMeetApplicationTests {
 
 		// Test response
 		try{
-			String result = this.eventController.API_DeleteEvent(user.token, event.UUID);
-			String expectedResult = String.format("Event successfully deleted.");
-			assertEquals(expectedResult, result);
+			Boolean result = this.eventController.API_DeleteEvent(user.token, event.UUID).getBody();
+			assertEquals(true, result);
 		}catch(Exception e){
 			System.out.println("API Tests : deleteEvent");
 			System.out.println(e);
@@ -626,13 +625,12 @@ class  LetsMeetApplicationTests {
 		TestingEvents event = testEvents.get(0);
 
 		// User2 join event
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		// Delete event
 		try {
-			String result = this.eventController.API_DeleteEvent(user.token, event.UUID);
-			String expectedResult = String.format("Event successfully deleted.");
-			assertEquals(expectedResult, result);
+			Boolean result = this.eventController.API_DeleteEvent(user.token, event.UUID).getBody();
+			assertEquals(true, result);
 		}catch(Exception e){
 			System.out.println("API Tests : ownerDeleteEventWithParticipant");
 			System.out.println(e);
@@ -670,7 +668,7 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
 
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		try {
 			String result = this.userController.API_DeleteUser(user.token);
@@ -716,7 +714,7 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
 
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		try {
 			String result = this.eventController.API_LeaveEvent(user.token, event.UUID);
@@ -760,7 +758,7 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
 
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		try {
 			String result = this.userController.API_DeleteUser(user2.token);
@@ -958,7 +956,8 @@ class  LetsMeetApplicationTests {
 		TestingUsers user2 = testUsers.get(1);
 		this.login(user2);
 
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		//this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		List<User> users = eventService.EventsUsers(UUID.fromString(event.UUID));
 		assertEquals(2, users.size());
@@ -983,7 +982,7 @@ class  LetsMeetApplicationTests {
 		String expectedResponse = "Event successfully updated";
 
 		// Update name
-		String resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, "", "");
+		String resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, "", "").getBody();
 		assertEquals(expectedResponse, resposne);
 		Event checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());
@@ -992,7 +991,7 @@ class  LetsMeetApplicationTests {
 		assertEquals(event.location, checking.getLocation());
 
 		// Update description
-		resposne = eventController.API_UpdateEvent(user.token, event.UUID, "", event2.desc, "");
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, "", event2.desc, "").getBody();
 		assertEquals(expectedResponse, resposne);
 		checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());
@@ -1001,7 +1000,7 @@ class  LetsMeetApplicationTests {
 		assertEquals(event.location, checking.getLocation());
 
 		// Update location
-		resposne = eventController.API_UpdateEvent(user.token, event.UUID,"", "", event2.location);
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID,"", "", event2.location).getBody();
 		assertEquals(expectedResponse, resposne);
 		checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());
@@ -1010,7 +1009,7 @@ class  LetsMeetApplicationTests {
 		assertEquals(event2.location, checking.getLocation());
 
 		// Update all 3
-		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event.name, event.desc, event.location);
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event.name, event.desc, event.location).getBody();
 		assertEquals(expectedResponse, resposne);
 		checking = eventService.getEvent(event.UUID);
 		assertEquals(event.UUID, checking.getUUID().toString());

@@ -208,11 +208,9 @@ public class EventService{
         return false;
     }
 
-    // Returns list of users in an event
+    // Returns list of users who have responded to an event
     public List<User> EventsUsers(UUID eventUUID){
         List<User> users = new ArrayList<>();
-
-        
 
         // Get list of users permissions
         List<EventPermission> eventPerms = permissionDao.get(eventUUID.toString()).get();
