@@ -3,6 +3,11 @@
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 <style type="text/css">
     /* Always set the map height explicitly to define the size of the div
@@ -194,109 +199,91 @@
         ]);}
 </script>
 
-<script type="text/javascript"
-    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-
-<script>
-    $(function () {
-        $('.datepicker').datepicker({
-            format: 'mm-dd-yyyy'
-        });
-    });
-</script>
-
-<head>
-    <title>Lets Meet</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-
 <body>
+<div th:insert = "header :: navbar"></div>
 
-    <div th:insert="header :: navbar"></div>
-
-    <div class="jumbotron">
-        <div class="container">
-            <h1>Create an Event</h1>
-        </div>
-    </div>
-
+<div class="jumbotron">
     <div class="container">
-        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT">
+        <h1>Create a Venue</h1>
+        <h2>Business: <span th:text="${business.getName()}"></span></h2>
+    </div>
+</div>
 
-            <div class="form-group">
-                <label for="eventname">Event Name: </label>
-                <input type="text" class="form-control" name="eventname" th:value="*{eventname}"
-                    placeholder="Enter event name...">
+<div class="container">
+    <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST">
+
+        <div class="form-group">
+            <label for="venueName">Venue Name: </label>
+            <input type="text" class="form-control" name="Name" th:value="*{venueName}"
+                   placeholder="Enter Venue name...">
+        </div>
+
+        <div class="form-group">
+            <label for="venuelocation">Venue Location:</label>
+            <div id="pac-container">
+                <input name = "venuelocation" id="pac-input" class = "form-control" type="text" placeholder="Enter a location" />
+            </div>
+            <div id="map" style="clear:both; height:200px;"></div>
+            <div id="infowindow-content">
+                <img src="" width="16" height="16" id="place-icon" />
+                <span id="place-name" class="title"></span><br />
+                <span id="place-address"></span>
             </div>
 
-            <div class="form-group">
-                <label for="eventdesc">Image: </label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFile" name="file">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
-                </div>
-            </div>
+            <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+            <script
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=places&v=weekly"
+                    async
+            ></script>
 
-            <div class="form-group">
-                <label for="eventdesc">Event Description: </label>
-                <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
-            </div>
+            <input type="hidden" name="thelat" id="thelat"/>
+            <input type="hidden" name="thelong" id="thelong"/>
+        </div>
 
-            <div class="form-group">
-                <label for="eventlocation">Event Location:</label>
-                <div id="pac-container">
-                    <input name = "eventlocation" id="pac-input" class = "form-control" type="text" placeholder="Enter a location" />
-                </div>
-                <div id="map" style="clear:both; height:200px;"></div>
-                <div id="infowindow-content">
-                    <img src="" width="16" height="16" id="place-icon" />
-                    <span id="place-name" class="title"></span><br />
-                    <span id="place-address"></span>
-                </div>
+        <input type = "hidden" name = "businessID" th:value = "${business.getUUID().toString()}">
 
-                <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
-                <script
-                        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=places&v=weekly"
-                        async
-                ></script>
+        <div class="form-group">
+            <label for="facilities">Venue Facilities:</label>
+            <div class="container" id="facilities">
 
-                <input type="hidden" name="thelat" id="thelat"/>
-                <input type="hidden" name="thelong" id="thelong"/>
-            </div>
-
-            <div class="form-group">
-                <label for="eventTimes">Event Times:</label>
-                <div class="container" id="timeRangeGroup">
-                    <div class="row align-items-start">
-                        <div class="col">
-                            <input type="datetime" class="form-control datepicker" name="eventlocation"
-                                placeholder="From...">
-                        </div>
-                        <div class="col">
-                            <input type="datetime" class="form-control datepicker" name="eventlocation"
-                                placeholder="Until...">
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Remove</button>
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Add</button>
-                        </div>
+                <div class="row align-items-start">
+                    <div class="col">
+                        <input type="text" class="form-control" name="facilities"
+                               placeholder="Facility Tag...">
                     </div>
 
+                    <div class="col">
+                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>
+                    </div>
                 </div>
+
+                <div class="col">
+                    <button type="button" class="append" id="append" onclick="msg()">Add More Facilities</button>
+                </div>
+
             </div>
+        </div>
 
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
-    </div>
-    <div th:insert="footer :: footer"></div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+<div th:insert = "footer :: footer"></div>
+</body>
 
-    <script>
-        $(".custom-file-input").on("change", function() {
-          var fileName = $(this).val().split("\\").pop();
-          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-        });
-    </script>
+<script>
+    $(document).on('click', '.append', function(){
+        var html = '<div class="row align-items-start">\n' +
+            '                    <div class="col">\n' +
+            '                        <input type="text" class="form-control" name="facilities"\n' +
+            '                               placeholder="Facility Tag...">\n' +
+            '                    </div>\n' +
+            '\n' +
+            '                    <div class="col">\n' +
+            '                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>\n' +
+            '                    </div>\n' +
+            '                </div>';
+        $(html).insertBefore(".append");
 
+    });
+</script>
 </html>

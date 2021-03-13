@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+<div th:insert = "header :: navbar"></div>
+
+<div class="jumbotron">
+    <div class="container">
+        <h1>Venues</h1>
+    </div>
+
+    <form th:action="@{/Venues}" enctype="multipart/form-data" th:method="GET">
+        <div class="form-group">
+            <label for="VenueName">Venue Name: </label>
+            <input type="text" class="form-control" name="VenueName" th:value="*{VenueName}"
+                   placeholder="Enter Venue name...">
+        </div>
+
+        <div class="form-group">
+            <label for="Facilities">Venue Facilities: </label>
+            <input type="text" class="form-control" name="Facilities" th:value="*{Facilities}"
+                   placeholder="Enter Venue Facilities...">
+            <p>Separate different facilities by a comma (,)</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a th:href="@{/Venues}" class="btn btn-primary">Reset</a>
+    </form>
+</div>
+
+<div class="container">
+    <a style="color:black; text-decoration: none; background-color: transparent;" th:each = "v : ${venues}" th:href="@{/Venue/{venueID}(venueID = ${v.getUUID()})}">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title" th:text = "${v.getName()}"></h5>
+            </div>
+        </div>
+    </a>
+</div>
+
+<div th:insert = "footer :: footer"></div>
+</body>
+</html>

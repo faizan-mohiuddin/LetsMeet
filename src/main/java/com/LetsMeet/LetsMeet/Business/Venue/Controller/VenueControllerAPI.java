@@ -37,7 +37,8 @@ public class VenueControllerAPI {
 
         if(result) {
             User user = userValidation.getUserFromToken(token);
-            return venueService.createVenue(user, Name, businessUUID);
+            response = venueService.createVenue(user, Name, businessUUID);
+            return (String) response[0];
         }else{
             return (String) response[1];
         }

@@ -28,12 +28,11 @@
         <div class="alert alert-danger" th:text="${accessDenied}" th:if="${accessDenied}"></div>
 
         <div class="row align-items-start">
-            <div class="col-sm-4">
+            <div class="col-md-4">
                 <div class="card" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title">Create your event</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                            the card's content.</p>
+                        <p class="card-text"> Create your event! Go on. It's free. We totally won't sell your data to third parties 😏</p>
                         <a class="btn btn-primary" th:if="${user}" href="/createevent" role="button">Create an Event</a>
                         <div th:unless="${user}">
                             <!-- Trigger the modal with a button -->
@@ -62,7 +61,7 @@
                 </div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-md-4">
                 <div class="card" th:unless="${user}" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title">Get Started</h5>
@@ -75,25 +74,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-sm-4">
-                <div class="card" th:if="${user}" style="width: 18rem;">
-                    <div class="card-body">
-                        <h5 class="card-title">Dashboard</h5>
-                        <p class="card-text">Manage and respond to events from your dashboard.</p>
-                        <div class="col-sm"><a class="btn btn-primary" href="/dashboard" role="button">Dashboard</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-sm-4">
                 <div class="card" th:if="${user}" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title">Got a business to list?</h5>
                         <p class="card-text">List your business on Let's Meet for people to see!</p>
                         <div class="col-sm"><a class="btn btn-primary" href="/business/new" role="button">Create a Business</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card" th:if="${user}" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Dashboard</h5>
+                        <p class="card-text">Manage and respond to events from your dashboard.</p>
+                        <div class="col-sm"><a class="btn btn-primary" href="/dashboard" role="button">Dashboard</a>
                         </div>
                     </div>
                 </div>

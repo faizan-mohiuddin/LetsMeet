@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.Business.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
 import com.LetsMeet.LetsMeet.Event.Controller.EventControllerWeb;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
@@ -24,9 +25,11 @@ public class BusinessControllerWeb {
     @Autowired
     BusinessService businessService;
 
+    @Autowired
+    VenueBusinessService venueBusinessService;
 
     @GetMapping({"/createBusiness", "/business/new"})
-    public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String newBusiness(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("userlogin");
 
         if (user == null) {
@@ -60,6 +63,7 @@ public class BusinessControllerWeb {
             // Display business page
             model.addAttribute("user", user);
             model.addAttribute("business", business);
+            model.addAttribute("venues", venueBusinessService.getBusinessVenues(business.getUUID().toString()));
 
             return "Business/Business";
         }
@@ -71,7 +75,7 @@ public class BusinessControllerWeb {
         // Validate user
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the Business.");
             return "redirect:/Home";
         }
 

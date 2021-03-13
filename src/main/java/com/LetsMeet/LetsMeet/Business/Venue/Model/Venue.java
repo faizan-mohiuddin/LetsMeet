@@ -13,7 +13,10 @@ public class Venue {
     UUID venueUUID;
     String name;
     List<String> facilities = new ArrayList<>();
-    Business business;
+    public Business business;
+    String address;
+    double longitude;
+    double latitude;
 
     public Venue(UUID uuid, String name){
         this.venueUUID = uuid;
@@ -25,11 +28,48 @@ public class Venue {
         this.name = name;
     }
 
+    public Venue(UUID uuid, String name, List<String> facilities){
+        this.venueUUID = uuid;
+        this.name = name;
+        this.facilities = facilities;
+    }
+
     public Venue(String uuid, String name, String facilities){
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
 
         // Check if facilities is null
+        if(!(facilities == null)){
+            // Populate facilities
+            try {
+                JSONArray obj = new JSONArray(facilities);
+                for (int i = 0; i < obj.length(); i++) {
+                    this.facilities.add(obj.get(i).toString());
+                }
+            } catch (Exception e) {
+                System.out.println("Venue : Init(String, String, String)");
+                System.out.println(e);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Venue(UUID uuid, String name, List<String> facilities, String address, String longitude, String latitude){
+        this.venueUUID = uuid;
+        this.name = name;
+        this.facilities = facilities;
+        this.address = address;
+        this.longitude = Double.parseDouble(longitude);
+        this.latitude = Double.parseDouble(latitude);
+    }
+
+    public Venue(String uuid, String name, String facilities, String address, String longitude, String latitude){
+        this.venueUUID = UUID.fromString(uuid);
+        this.name = name;
+        this.address = address;
+        this.longitude = Double.parseDouble(longitude);
+        this.latitude = Double.parseDouble(latitude);
+
         if(!(facilities == null)){
             // Populate facilities
             try {
@@ -78,5 +118,25 @@ public class Venue {
 
     public void setBusiness(Business b){
         this.business = b;
+    }
+
+    public int numFacilities(){
+        return this.facilities.size();
+    }
+
+    public List<String> getFacilities(){
+        return this.facilities;
+    }
+
+    public String getAddress(){
+        return this.address;
+    }
+
+    public Double getLongitude(){
+        return this.longitude;
+    }
+
+    public Double getLatitude(){
+        return this.latitude;
     }
 }

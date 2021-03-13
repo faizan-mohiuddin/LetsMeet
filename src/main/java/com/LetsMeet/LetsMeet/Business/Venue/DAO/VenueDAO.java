@@ -3,9 +3,12 @@ package com.LetsMeet.LetsMeet.Business.Venue.DAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
+import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +47,28 @@ public class VenueDAO implements DAO<Venue> {
 
     @Override
     public Optional<Collection<Venue>> getAll() {
-        return Optional.empty();
+        try(Statement statement = DatabaseInterface.get().createStatement()){
+            ResultSet rs = statement.executeQuery("select * from Venue");
+            List<Venue> venues = new ArrayList<>();
+
+            while (rs.next()){
+                venues.add(new Venue(
+                        rs.getString("VenueUUID"),
+                        rs.getString("Name"),
+                        rs.getString("Facilities"),
+                        rs.getString("Address"),
+                        rs.getString("Longitude"),
+                        rs.getString("Latitude")));
+            }
+            DatabaseInterface.drop();
+            return Optional.ofNullable(venues);
+
+        }catch(Exception e){
+            System.out.println("\nVenue Dao: getALL");
+            DatabaseInterface.drop();
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -52,10 +76,24 @@ public class VenueDAO implements DAO<Venue> {
         database.open();
 
         // Save the event
-        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name) VALUES (?,?)")){
+        try{
+//            PreparedStatement statement;
+//            if(venue.numFacilities() < 1) {
+//                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name) VALUES (?,?)");
+//            }else{
+//                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, Facilities) VALUES (?,?,?)");
+//                statement.setString(3, venue.getJsonFacilities());
+//            }
+
+            PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, " +
+                            "Facilities, Address, Longitude, Latitude) VALUES (?,?,?,?,?,?)");
+
             statement.setString(1, venue.getUUID().toString());
             statement.setString(2, venue.getName());
-
+            statement.setString(3, venue.getJsonFacilities());
+            statement.setString(4, venue.getAddress());
+            statement.setDouble(5, venue.getLongitude());
+            statement.setDouble(6, venue.getLatitude());
 
             if(statement.executeUpdate() > 0){
                 database.close();
@@ -125,7 +163,7 @@ public class VenueDAO implements DAO<Venue> {
 
     public Optional<List<Venue>> search(String query){
         System.out.println(query);
-        try(Statement statement = database.getCon().createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()){
             ResultSet rs = statement.executeQuery(query);
 
             List<Venue> venues = new ArrayList<>();
