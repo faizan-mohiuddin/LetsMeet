@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
@@ -40,9 +41,10 @@ public class EventResponseService {
 
     // Creation
     //-----------------------------------------------------------------
-    public EventResponse createResponse(User user, Event event) throws IllegalArgumentException{
+    public EventResponse createResponse(User user, Event event, Boolean required) throws IllegalArgumentException{
         try{
         EventResponse response = new EventResponse(event.getUUID(), user.getUUID(), EventProperties.getEmpty());
+        response.setRequired(required);
         dao.save(response);
         return response;
         }        
@@ -50,6 +52,39 @@ public class EventResponseService {
             throw new IllegalArgumentException(e.getMessage());
         }
         
+    }
+
+    public Boolean deleteResponse(User user, Event event) throws IllegalArgumentException{
+        try{
+            EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElseThrow();
+            
+            if (response.getRequired() == true){
+                LOGGER.debug("Can't delete response between User <{}> and Event <{}> : It is marked as required. Attempting to clear contents instead.",user.getUUID(), event.getUUID());
+                return this.clearResponse(user, event);
+            }
+
+            return dao.delete(response);
+
+        }catch(NoSuchElementException e){
+            throw new IllegalArgumentException("Resonse not found");
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Unable to delete");
+        }
+    }
+
+    public Boolean clearResponse(User user, Event event) throws IllegalArgumentException{
+        try{
+            EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElseThrow();
+            response.setEventProperties(EventProperties.getEmpty());
+            return dao.update(response);
+
+        }catch(NoSuchElementException e){
+            throw new IllegalArgumentException("Resonse not found");
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Unable to delete");
+        }
     }
 
     public Optional<EventResponse> getResponse(User user, Event event){

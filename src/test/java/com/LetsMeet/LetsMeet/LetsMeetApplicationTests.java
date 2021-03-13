@@ -314,7 +314,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
 			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]", event.name,
 					event.desc, event.location);
 			assertEquals(expectedResult, result);
@@ -400,7 +400,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
 			System.out.println(result);
 
 			JSONArray array = new JSONArray(result);
@@ -462,7 +462,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
 			System.out.println(result);
 
 			JSONArray array = new JSONArray(result);
@@ -535,7 +535,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
 			System.out.println(result);
 
 			JSONArray array = new JSONArray(result);

@@ -28,6 +28,7 @@ public class EventResponse {
         this.event = event;
         this.user = user;
         this.properties = properties;
+		this.required = false;
     }
 
 	public UUID getEvent() {

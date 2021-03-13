@@ -117,11 +117,11 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public String deleteUser(User user) {
-        Collection<Event> events = eventService.getUserEvents(user.getStringUUID());
+        Collection<Event> events = eventService.getUserEvents(user);
 
         for(Event e : events){
             if(eventService.checkOwner(e.getUUID(), user.getUUID())) {
-                eventService.deleteEvent(e.getUUID().toString(), user);
+                eventService.deleteEvent(e, user);
             }
         }
 

@@ -3,8 +3,8 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventProperties.*;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -261,35 +261,27 @@ public class EventControllerAPI {
     // Location
     //-----------------------------------------------------------------
     @GetMapping("api/Event/{EventUUID}/location")
-    public List<Location> getLocation(@PathVariable(value = "EventUUID") String eventUUID){
-        return conditionSetService.getLocation(
-                conditionSetService.get(
-                    eventService.getEvent(eventUUID).getConditions())).orElseThrow(IllegalArgumentException::new);
+    public Location getLocation(@PathVariable(value = "EventUUID") String eventUUID){
+        Event event =  eventService.getEvent(eventUUID);
+        return event.getEventProperties().getLocation();
     }
 
     @PostMapping("/api/Event/{EventUUID}/location")
-    public String setLocation(
+    public ResponseEntity<String> setLocation(
                                 @RequestParam(value = "Token", defaultValue = "") String token,
                                 @PathVariable(value = "EventUUID") String eventUUID,
                                 @RequestBody List<Location> locations){
          
-        Object[] response = userValidation.verifyAPItoken(token);
-        boolean result = (boolean) response[0];
-
-        if (result){
-
-            User user = userValidation.getUserFromToken(token);
-            if (user == null) {
-                return "Error finding user. Is the token still valid? Is the user account still active?";
-            }
-            ConditionSet set = conditionSetService.get(eventService.getEvent(eventUUID).getConditions());
-            conditionSetService.clearLocation(set);
-            boolean operationResult = conditionSetService.addLocation(set,locations);
-            return (operationResult) ? "Event location set" : "Event location not set"; 
+        try{
+            userValidation.getAuthenticatedUser(token);
+            Event event = eventService.getEvent(eventUUID);
+            event.getEventProperties().setLocation(locations.get(0));
+            return new ResponseEntity<>(HttpStatus.OK);
+            
         }
-        else{
-            // return the user validation error
-            return (String) response[1];
+        catch(Exception e){
+            LOGGER.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -328,7 +320,7 @@ public class EventControllerAPI {
                 userUUID = userValidation.getUserUUIDfromToken(token);
             }
 
-            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID));
+            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID),false);
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -341,11 +333,21 @@ public class EventControllerAPI {
 
     @DeleteMapping("api/Event/{EventUUID}/Response")
     public ResponseEntity<String> deleteResponse(@PathVariable(value = "EventUUID") String eventUUID, HttpSession session){
-        User user = (User) session.getAttribute("userlogin");
 
-        responseData.delete(eventUUID, user.getUUID().toString());
-        return new ResponseEntity<>(HttpStatus.OK);
+        try{    
+            User user = (User) session.getAttribute("userlogin");
+            Event event = eventService.getEvent(eventUUID);
+
+            responseService.deleteResponse(user, event);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }        
+        catch (Exception e){
+            LOGGER.error("Could not complete request: {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+        
 
     // Get all users on an event
     @GetMapping("api/Event/{EventUUID}/Response/Users")
@@ -372,14 +374,11 @@ public class EventControllerAPI {
     public ResponseEntity<String> addUser(
         @PathVariable(value = "EventUUID") String eventUUID,
         @RequestParam(value = "UserUUID") String userUUID,
-        @RequestParam(value = "required") Boolean userRequired){
+        @RequestParam(value = "required", defaultValue = "false") Boolean userRequired){
         
         try{
 
-            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID));
-
-            //if (userRequired)
-                //userService.setRequired()
+            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID),userRequired);
             
             return new ResponseEntity<>(HttpStatus.OK);
             
@@ -435,7 +434,7 @@ public class EventControllerAPI {
             User user = userValidation.getUserFromToken(token);
             Event event = eventService.getEvent(eventUUID);
 
-            EventResponse eventResponse = responseService.getResponse(user, event).orElseGet(() -> responseService.createResponse(user, event));
+            EventResponse eventResponse = responseService.getResponse(user, event).orElseGet(() -> responseService.createResponse(user, event, false));
 
             // Create list of TimeRange
             ArrayList<DateTimeRange> timeRanges = new ArrayList<>();

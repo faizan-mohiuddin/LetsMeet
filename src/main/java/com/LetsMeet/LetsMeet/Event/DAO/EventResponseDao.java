@@ -98,7 +98,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean save(EventResponse t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, ConditionSetUUID, PollResponseUUID) VALUES (?,?,?,?)")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, EventProperties, PollResponseUUID) VALUES (?,?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setString(3, new Gson().toJson(t.getEventProperties()));
@@ -118,7 +118,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean update(EventResponse t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, ConditionSetUUID = ? WHERE EventUUID = ? AND UserUUID = ?")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, EventProperties = ? WHERE EventUUID = ? AND UserUUID = ?")){
 
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());

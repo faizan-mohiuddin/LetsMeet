@@ -110,7 +110,7 @@ public class EventDao implements DAO<Event> {
     public Boolean save(Event t) throws IOException {
 
         // Save the event
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, ConditionSet, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, EventProperties, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
 
             statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getName());

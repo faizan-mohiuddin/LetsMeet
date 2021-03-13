@@ -23,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
@@ -161,13 +160,13 @@ public class EventControllerWeb {
     public String deleteEvent(@PathVariable("eventuuid") String eventUUID, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventUUID);
         if (user == null) {
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
             return "redirect:/Home";
         } 
-        
         else {
-            if (eventService.deleteEvent(UUID.fromString(eventUUID), user)) {
+            if (eventService.deleteEvent(event, user)) {
                 redirectAttributes.addFlashAttribute("success", "The event was successfully deleted.");
             } 
             
@@ -236,7 +235,7 @@ public class EventControllerWeb {
         }
 
         // Get or create response
-        EventResponse response = responseService.getResponse(user, event).orElse(responseService.createResponse(user, event));
+        EventResponse response = responseService.getResponse(user, event).orElse(responseService.createResponse(user, event, true));
 
         // Do stuff to the response
         responseService.clearTimes(response);

@@ -12,7 +12,6 @@ package com.LetsMeet.LetsMeet.Event.Model;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 
 //-----------------------------------------------------------------
 

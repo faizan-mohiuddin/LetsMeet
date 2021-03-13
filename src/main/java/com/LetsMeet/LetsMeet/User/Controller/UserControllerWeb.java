@@ -212,14 +212,14 @@ public class UserControllerWeb {
 
             model.addAttribute("user", user);
 
-            if (eventServiceInterface.getUserEvents(user.getUUID().toString()).isEmpty()) {
+            if (eventServiceInterface.getUserEvents(user).isEmpty()) {
 
                 Boolean noEvents = true;
                 model.addAttribute("noEvents", noEvents);
 
             } else {
 
-                model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user.getUUID().toString()));
+                model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user));
                 ArrayList<Event> responseEvents = new ArrayList<>();
                 for (EventResponse o : eventResponseService.getResponses(user)){
                     responseEvents.add(eventServiceInterface.getEvent(o.getEvent().toString()));
