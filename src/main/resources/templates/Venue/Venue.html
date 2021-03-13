@@ -43,7 +43,100 @@
             </tbody>
         </table>
     </div>
+
+    <div class="alert alert-warning" th:unless="${venue.getLongitude()}">A location has not been set for this Venue.</div>
+    <div class th:if = "${venue.getLongitude()}">
+
+    <input type = "hidden" id = "longitudeformarker" th:value = "${venue.getLongitude()}"/>
+    <input type = "hidden" id = "latitudeformarker" th:value = "${venue.getLatitude()}"/>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <style type="text/css">
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script>
+        // In this example, we center the map, and add a marker, using a LatLng object
+        // literal instead of a google.maps.LatLng object. LatLng object literals are
+        // a convenient way to add a LatLng coordinate and, in most cases, can be used
+        // in place of a google.maps.LatLng object.
+        let map;
+
+        function initMap() {
+            var markerLongitude = $("#longitudeformarker").val();
+            var markerLatitude = $("#latitudeformarker").val();
+            const mapOptions = {
+                zoom: 8,
+                center: { lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude) },
+            };
+            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            console.log(markerLongitude);
+            console.log(markerLatitude);
+            const marker = new google.maps.Marker({
+                // The below line is equivalent to writing:
+                // position: new google.maps.LatLng(-34.397, 150.644)
+                position: { lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude) },
+                map: map,
+            });
+
+            const geocoder = new google.maps.Geocoder();
+
+            // You can use a LatLng literal in place of a google.maps.LatLng object when
+            // creating the Marker object. Once the Marker object is instantiated, its
+            // position will be available as a google.maps.LatLng object. In this case,
+            // we retrieve the marker's position using the
+            // google.maps.LatLng.getPosition() method.
+            const infowindow = new google.maps.InfoWindow();
+            function geocodeLatLng(geocoder, map, infowindow) {
+                const latlng = {
+                    lat: parseFloat(markerLatitude),
+                    lng: parseFloat(markerLongitude),
+                };
+                geocoder.geocode({ location: latlng }, (results, status) => {
+                    if (status === "OK") {
+                        if (results[0]) {
+                            map.setZoom(11);
+                            const marker = new google.maps.Marker({
+                                position: latlng,
+                                map: map,
+                            });
+                            infowindow.setContent(results[0].formatted_address);
+                            infowindow.open(map, marker);
+                        } else {
+                            window.alert("No results found");
+                        }
+                    } else {
+                        window.alert("Geocoder failed due to: " + status);
+                    }
+                });
+            }
+            google.maps.event.addListener(marker, "click", function () {
+                geocodeLatLng(geocoder, map, infowindow);
+            })
+        }
+    </script>
+    <div id="map" style="clear:both; height:200px;"></div>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=&v=weekly"
+            async
+    ></script>
+
+    </div>
+
 </div>
+
 
 <div th:if="${permission}" class="container">
     <hr class="featurette-divider">
