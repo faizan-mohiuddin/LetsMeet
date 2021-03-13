@@ -18,6 +18,7 @@ import java.sql.Statement;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,28 +41,24 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     @Override
     public Optional<EventPermission> get(UUID event, UUID user) {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()){
             String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s' and HasUsers.UserUUID = '%s'", event.toString(),user.toString());
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
 
             Optional<EventPermission> response = Optional.ofNullable(new EventPermission(UUID.fromString(rs.getString(1)), UUID.fromString(rs.getString(2)), rs.getBoolean(3)));
-            database.close();
             return response;
         }
         catch(Exception e){
             LOGGER.error("Failed to get EventPermission: {} ", e.getMessage());
-            database.close();
             return Optional.empty();
         }
     }
 
     // Get EventPermission accepts either EventUUID or UserUUID (as either *should* be unique)
     public Optional<List<EventPermission>> get(String uuid) {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()){
             String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s' OR HasUsers.UserUUID = '%s'", uuid, uuid);
 
             ResultSet rs = statement.executeQuery(query);
@@ -70,14 +67,11 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
                 EventPermission record = new EventPermission(rs.getString(1), rs.getString(2), rs.getBoolean(3));
                 records.add(record);
             }
-
-            database.close();
             return Optional.ofNullable(records);
 
         }
         catch(Exception e){
             LOGGER.error("Failed to get EventPermission: {} ", e.getMessage());
-            database.close();
             return Optional.empty();
         }
     }
@@ -93,8 +87,7 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     @Override
     public Boolean save(EventPermission t) {
-        database.open();
-        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?,?,?)")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setBoolean(3, t.getIsOwner());
@@ -105,7 +98,6 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
         }
         catch(Exception e){
             LOGGER.error("Unable to save: {}", e.getMessage());
-            database.close();
             return false;
         }
     }
@@ -116,8 +108,8 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     @Override
     public Boolean update(EventPermission t) {
-        database.open();
-        try(PreparedStatement statement = database.getCon().prepareStatement("UPDATE HasUsers SET EventUUID = ?, UserUUID = ?, IsOwner = ? WHERE EventUUID = ? AND UserUUID = ?")){
+
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE HasUsers SET EventUUID = ?, UserUUID = ?, IsOwner = ? WHERE EventUUID = ? AND UserUUID = ?")){
 
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
@@ -126,7 +118,6 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
             statement.setString(5, t.getUser().toString());
 
             if(statement.executeUpdate() > 0){
-                database.close();
                 return true;
             }
             else
@@ -134,7 +125,6 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
         }catch(Exception e){
             LOGGER.error("Unable to update: {}", e.getMessage());
-            database.close();
             return false;
         }
     }
@@ -151,19 +141,16 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     @Override
     public Boolean delete(String EventUUID, String UserUUID) {
-        database.open();
 
-        try(Statement statement = database.con.createStatement()){
+        try(Statement statement = DatabaseInterface.get().createStatement()){
             String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
                     EventUUID, UserUUID);
             int rows = statement.executeUpdate(query);
-            database.close();
 
             return (rows > 0)? true : false;
 
         }catch(Exception e){
             LOGGER.error("Failed to delete EventPermission: {} ", e.getMessage());
-            database.close();
             return false;
         }
     }
