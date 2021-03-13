@@ -72,6 +72,10 @@ public class VenueControllerWeb {
         venueService.findBusiness(venue);   // Venue.business
         model.addAttribute("venue", venue);
 
+        System.out.println("\nVenue Loading:");
+        System.out.println(venue.getLatitude());
+        System.out.println(venue.getLongitude());
+
         // Get user
         User user = (User) session.getAttribute("userlogin");
         if(user == null){

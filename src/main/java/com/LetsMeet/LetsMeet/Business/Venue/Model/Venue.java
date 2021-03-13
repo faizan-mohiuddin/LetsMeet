@@ -15,6 +15,7 @@ public class Venue {
     List<String> facilities = new ArrayList<>();
     public Business business;
     String address;
+    boolean coords;
     double longitude;
     double latitude;
 
@@ -59,16 +60,28 @@ public class Venue {
         this.name = name;
         this.facilities = facilities;
         this.address = address;
-        this.longitude = Double.parseDouble(longitude);
-        this.latitude = Double.parseDouble(latitude);
+
+        if(longitude == null || latitude == null) {
+            this.coords = false;
+        }else{
+            this.longitude = Double.parseDouble(longitude);
+            this.latitude = Double.parseDouble(latitude);
+            this.coords = true;
+        }
     }
 
     public Venue(String uuid, String name, String facilities, String address, String longitude, String latitude){
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
         this.address = address;
-        this.longitude = Double.parseDouble(longitude);
-        this.latitude = Double.parseDouble(latitude);
+
+        if(longitude == null || latitude == null) {
+            this.coords = false;
+        }else{
+            this.longitude = Double.parseDouble(longitude);
+            this.latitude = Double.parseDouble(latitude);
+            this.coords = true;
+        }
 
         if(!(facilities == null)){
             // Populate facilities
@@ -133,10 +146,18 @@ public class Venue {
     }
 
     public Double getLongitude(){
-        return this.longitude;
+        if(this.coords) {
+            return this.longitude;
+        }else{
+            return null;
+        }
     }
 
     public Double getLatitude(){
-        return this.latitude;
+        if(this.coords) {
+            return this.latitude;
+        }else{
+            return null;
+        }
     }
 }
