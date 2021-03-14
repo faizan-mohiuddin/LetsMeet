@@ -6,7 +6,9 @@
 
 package com.LetsMeet.LetsMeet.Event.DAO;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -64,7 +66,7 @@ public class EventDao implements DAO<Event> {
                 rs.getString("Description"),
                 rs.getString("Location"),
                 new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
-                new Gson().fromJson(rs.getString("EventProperties"), EventProperties.class),
+                readSerialised(rs.getBytes("EventProperties")),
                 new Gson().fromJson(rs.getString("Poll"), Poll.class)));
 
             DatabaseInterface.drop();
@@ -89,7 +91,7 @@ public class EventDao implements DAO<Event> {
                     rs.getString("Description"),
                     rs.getString("Location"),
                     new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
-                    new Gson().fromJson(rs.getString("EventProperties"), EventProperties.class),
+                    readSerialised(rs.getBytes("EventProperties")),
                     new Gson().fromJson(rs.getString("Poll"), Poll.class)));
             }
 
@@ -116,7 +118,7 @@ public class EventDao implements DAO<Event> {
             statement.setString(2, t.getName());
             statement.setString(3, t.getDescription());
             statement.setString(4, t.getLocation());
-            statement.setString(5, new Gson().toJson(t.getEventProperties()));
+            statement.setObject(5, t.getEventProperties());
             statement.setString(6, new Gson().toJson(t.getPoll()));
             statement.setString(7, new Gson().toJson(t.getProperties()));
 
@@ -141,7 +143,7 @@ public class EventDao implements DAO<Event> {
             statement.setString(1, t.getName());
             statement.setString(2, t.getDescription());
             statement.setString(3, t.getLocation());
-            statement.setString(4, new Gson().toJson(t.getEventProperties()));
+            statement.setObject(4, t.getEventProperties());
             statement.setString(5, new Gson().toJson(t.getPoll()));
             statement.setString(6, new Gson().toJson(t.getProperties()));
             statement.setString(7, t.getUUID().toString());
@@ -179,6 +181,29 @@ public class EventDao implements DAO<Event> {
 
         }catch(SQLException e){
             throw new IOException(e.getMessage());
+        }
+    }
+
+    private EventProperties readSerialised(byte[] buf){
+        try{
+            ObjectInputStream objectIn = null;
+
+            // If bytes are present, try to deserialize
+            if (buf != null){
+
+                objectIn = new ObjectInputStream(new ByteArrayInputStream(buf));
+                Object object = objectIn.readObject();
+
+                // Attempt to cast object to ConditionSet - is there a better way to do this?
+                if (object instanceof EventProperties){
+                    return (EventProperties) object;  
+                }
+                
+            }
+            return EventProperties.getEmpty();
+        }
+        catch(Exception e){
+            return EventProperties.getEmpty();
         }
     }
 }

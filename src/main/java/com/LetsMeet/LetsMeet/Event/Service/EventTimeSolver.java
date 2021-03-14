@@ -17,12 +17,10 @@ public class EventTimeSolver {
         OptimalityRange(DateTimeRange range, Integer optimality){this.range = range; this.optimality = optimality;}
     }
     
-    private Event event;
     private ArrayList<OptimalityRange> solution;
     private List<EventResponse> responses;
 
     public EventTimeSolver(Event event, List<EventResponse> responses){
-        this.event = event;
         this.responses = responses;
         this.solution = new ArrayList<>();
 
@@ -32,7 +30,7 @@ public class EventTimeSolver {
         }
     }
 
-    public void solve(){
+    public List<OptimalityRange> solve(){
         //TODO sort solution list first from early to late
 
         // move through each response and find intersection of times
@@ -48,6 +46,7 @@ public class EventTimeSolver {
                 }
             }
         }
+        return this.solution;
     }
 
     // Splits a DateTimeRange at time point and returns index of new range. New range is created in front of time point

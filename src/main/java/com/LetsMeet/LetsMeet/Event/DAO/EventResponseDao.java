@@ -13,7 +13,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.sql.PreparedStatement;
 
 import java.util.Optional;
@@ -56,7 +58,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
             return Optional.ofNullable(new EventResponse(
                 UUID.fromString(rs.getString("EventUUID")), 
                 UUID.fromString(rs.getString("UserUUID")), 
-                new Gson().fromJson(rs.getString("EventProperties"), EventProperties.class)));
+                readSerialised(rs.getBytes("EventProperties"))));
 
         }
         catch(Exception e){
@@ -77,7 +79,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
                 records.add(new EventResponse(
                     UUID.fromString(rs.getString("EventUUID")), 
                     UUID.fromString(rs.getString("UserUUID")), 
-                    new Gson().fromJson(rs.getString("EventProperties"), EventProperties.class)));
+                    readSerialised(rs.getBytes("EventProperties"))));
 
             return Optional.ofNullable(records);
 
@@ -101,7 +103,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
         try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, EventProperties, PollResponseUUID) VALUES (?,?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
-            statement.setString(3, new Gson().toJson(t.getEventProperties()));
+            statement.setObject(3, t.getEventProperties());
             statement.setString(4, "{}");
             int rows = statement.executeUpdate();
 
@@ -122,7 +124,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
-            statement.setString(3, new Gson().toJson(t.getEventProperties()));
+            statement.setObject(3, t.getEventProperties());
             statement.setString(4, t.getEvent().toString());
             statement.setString(5, t.getUser().toString());
 
@@ -157,6 +159,27 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
         return delete(get(UUID.fromString(eventUUID), UUID.fromString(userUUID)).get());
     }
 
+    private EventProperties readSerialised(byte[] buf){
+        try{
+            ObjectInputStream objectIn = null;
 
+            // If bytes are present, try to deserialize
+            if (buf != null){
+
+                objectIn = new ObjectInputStream(new ByteArrayInputStream(buf));
+                Object object = objectIn.readObject();
+
+                // Attempt to cast object to ConditionSet - is there a better way to do this?
+                if (object instanceof EventProperties){
+                    return (EventProperties) object;  
+                }
+                
+            }
+            return EventProperties.getEmpty();
+        }
+        catch(Exception e){
+            return EventProperties.getEmpty();
+        }
+    }
     
 }

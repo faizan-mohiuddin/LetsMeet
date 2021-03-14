@@ -84,13 +84,31 @@ public class EventControllerAPI {
         }
     }
 
-    @GetMapping("api/Event/{eventUUID}/times")
+    @GetMapping("api/Event/{eventUUID}/time")
     public ResponseEntity<List<DateTimeRange>> getTimes(@PathVariable(value = "eventUUID") String eventUUID){
         try{
             return new ResponseEntity<>(eventService.getTimeRange(UUID.fromString(eventUUID)),HttpStatus.OK);
         }
         catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("api/Event/{eventUUID}/results")
+    public ResponseEntity<String> getResults(
+        @PathVariable(value = "eventUUID") String eventUUID, 
+        @RequestParam(value = "Token", defaultValue = "") String token){
+
+        try{
+            User user = userValidation.getAuthenticatedUser(token);
+            Event event = eventService.getEvent(eventUUID);
+
+            eventService.calculateResults(event, user);
+            return new ResponseEntity<>(eventService.getProperty(event, "results.time"),HttpStatus.OK);
+        }
+        catch (Exception e){
+            LOGGER.error("Unable to calculate results for Event <{}> : {}", eventUUID,e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -152,7 +170,7 @@ public class EventControllerAPI {
     }
 
     // set Event Times
-    @PutMapping("/api/Event/{EventUUID}/times")
+    @PutMapping("/api/Event/{EventUUID}/time")
     public String setEventTimes(
             @RequestParam(value = "Token", defaultValue = "") String token,
             @PathVariable(value = "EventUUID") String eventUUID,

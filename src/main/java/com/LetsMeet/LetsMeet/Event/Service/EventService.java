@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Service.UserService;
+import com.google.gson.Gson;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
@@ -49,6 +51,9 @@ public class EventService{
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    EventResponseService responseService;
 
 
     /* -- CRUD operations -- */
@@ -160,6 +165,20 @@ public class EventService{
         return event.getProperties().get(key);
     }
 
+    public void calculateResults(Event event, User user) throws IllegalArgumentException{
+        try{
+            if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
+            
+
+            EventTimeSolver timeSolver = new EventTimeSolver(event, responseService.getResponses(event));
+            List<EventTimeSolver.OptimalityRange> results = timeSolver.solve();
+            setProperty(event, "results.time", new Gson().toJson(results));
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Could not calculate results: " + e.getMessage());
+        }
+    }
+
     //-----------------------------------------------------------------
     /* -- User related operations --
     
@@ -240,7 +259,7 @@ public class EventService{
         try{
             Event event = eventDao.get(eventUuid).get();
             event.getEventProperties().setTimes(times);
-            return true;
+            return eventDao.update(event);
         }
         catch(Exception e){
             LOGGER.error("Could not set time range: {}", e.getMessage());
