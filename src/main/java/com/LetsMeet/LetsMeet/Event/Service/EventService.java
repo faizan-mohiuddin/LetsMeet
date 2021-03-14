@@ -170,7 +170,7 @@ public class EventService{
             if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
             
 
-            EventTimeSolver timeSolver = new EventTimeSolver(event, responseService.getResponses(event));
+            EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responseService.getResponses(event)); //TODO Getting another event instance to avoid side effects is a bodge. Fix it
             List<EventTimeSolver.OptimalityRange> results = timeSolver.solve();
             setProperty(event, "results.time", new Gson().toJson(results));
         }

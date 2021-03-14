@@ -29,8 +29,8 @@ public class EventTimeSolverTests {
     private Event createTestEvent(){
         ArrayList<DateTimeRange> times = new ArrayList<>();
         times.add(new DateTimeRange(ZonedDateTime.parse("2000-01-01T12:00:00+01:00") , ZonedDateTime.parse("2000-05-01T12:00:00+01:00")));
-        times.add(new DateTimeRange(ZonedDateTime.parse("2000-07-01T12:00:00+01:00") , ZonedDateTime.parse("2000-09-01T12:00:00+01:00")));
-        times.add(new DateTimeRange(ZonedDateTime.parse("2000-09-01T12:00:00+01:00") , ZonedDateTime.parse("2000-12-01T12:00:00+01:00")));
+        //times.add(new DateTimeRange(ZonedDateTime.parse("2000-07-01T12:00:00+01:00") , ZonedDateTime.parse("2000-09-01T12:00:00+01:00")));
+        //times.add(new DateTimeRange(ZonedDateTime.parse("2000-09-01T12:00:00+01:00") , ZonedDateTime.parse("2000-12-01T12:00:00+01:00")));
         return new Event(UUID.randomUUID(), "name", "desc", "location", new EntityProperties(), new EventProperties(times, new ArrayList<>(), null), new Poll());
     }
 
@@ -38,7 +38,7 @@ public class EventTimeSolverTests {
         ArrayList<EventResponse> responses = new ArrayList<>();
         for (int i = 0; i < n; i++){
             ArrayList<DateTimeRange> times = new ArrayList<>();
-            times.add(new DateTimeRange(ZonedDateTime.parse("2000-02-01T12:00:00+01:00") , ZonedDateTime.parse("2000-11-01T12:00:00+01:00")));
+            times.add(new DateTimeRange(ZonedDateTime.parse("2000-02-01T12:00:00+01:00") , ZonedDateTime.parse("2000-03-01T12:00:00+01:00")));
             //times.add(new DateTimeRange(ZonedDateTime.parse("2000-02-01T12:00:00+01:00") , ZonedDateTime.parse("2000-07-01T12:00:00+01:00")));
             responses.add(new EventResponse(UUID.fromString(TEST_UUID), UUID.fromString(TEST_UUID), new EventProperties(times, new ArrayList<>(), null)));
         }

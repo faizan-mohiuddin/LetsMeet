@@ -72,6 +72,8 @@
                     <div class="card-body">
                         <div th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block" data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
+                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}" class="btn btn-info btn-block"><i class="bi bi-check-circle"></i> Results</a>
+                        <div class="alert alert-info" > n users have responded! View results</div>
                         <a th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}" class="btn btn-info btn-block"><i class="bi bi-check-circle"></i> Respond</a>
 
                         <div class="alert alert-info" th:unless="${hasUserRespondedToEvent}"> You have not responded to this event. Let the organiser know your preferences!</div>

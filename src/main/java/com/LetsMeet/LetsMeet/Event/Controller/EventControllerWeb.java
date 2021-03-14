@@ -5,6 +5,7 @@ import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
+import com.google.gson.Gson;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
@@ -220,6 +221,34 @@ public class EventControllerWeb {
             return "redirect:/Home";
 
         }
+
+    }
+
+    @GetMapping("/event/{eventUUID}/results")
+    public String eventResults(@PathVariable("eventUUID") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }
+
+        try{
+            model.addAttribute("user", user);
+            model.addAttribute("event", eventService.getEvent(eventuuid));
+
+            eventService.calculateResults(event, user);
+            model.addAttribute("results",eventService.getProperty(event, "results.time"));
+            
+            return "event/results";
+        }
+        catch(Exception e){
+            LOGGER.error("Could not view results User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+            return "redirect:/event/{eventUUID}";
+        }
+
+
 
     }
 
