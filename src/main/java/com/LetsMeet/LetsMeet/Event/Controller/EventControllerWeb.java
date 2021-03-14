@@ -5,7 +5,6 @@ import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
-import com.google.gson.Gson;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
@@ -237,8 +236,8 @@ public class EventControllerWeb {
             model.addAttribute("user", user);
             model.addAttribute("event", eventService.getEvent(eventuuid));
 
-            eventService.calculateResults(event, user);
-            model.addAttribute("results",eventService.getProperty(event, "results.time"));
+            
+            model.addAttribute("results",eventService.calculateResults(event, user));
             
             return "event/results";
         }

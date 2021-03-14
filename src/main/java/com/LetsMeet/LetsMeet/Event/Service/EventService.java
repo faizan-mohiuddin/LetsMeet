@@ -25,9 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.DAO.EventResultDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
+import com.LetsMeet.LetsMeet.Event.Model.EventResult;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -54,6 +56,9 @@ public class EventService{
 
     @Autowired
     EventResponseService responseService;
+
+    @Autowired
+    EventResultDao resultDao;
 
 
     /* -- CRUD operations -- */
@@ -165,17 +170,37 @@ public class EventService{
         return event.getProperties().get(key);
     }
 
-    public void calculateResults(Event event, User user) throws IllegalArgumentException{
+    public EventResult calculateResults(Event event, User user) throws IllegalArgumentException{
         try{
             if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
-            
+            EventResult result;
+
+            try{
+                result = resultDao.get(event.getUUID()).orElseGet(() -> newEventResult(event));
+            }
+            catch(Exception e){
+                result = newEventResult(event);
+            }
 
             EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responseService.getResponses(event)); //TODO Getting another event instance to avoid side effects is a bodge. Fix it
-            List<EventTimeSolver.OptimalityRange> results = timeSolver.solve();
-            setProperty(event, "results.time", new Gson().toJson(results));
+            result.setDateTimeRanges(timeSolver.solve());
+            resultDao.update(result);
+            setProperty(event, "results.time", new Gson().toJson(result));
+            return result;
         }
         catch(Exception e){
             throw new IllegalArgumentException("Could not calculate results: " + e.getMessage());
+        }
+    }
+
+    private EventResult newEventResult(Event event){
+        try{
+        EventResult result = new EventResult(event.getUUID(), null);
+        resultDao.save(result);
+        return result;
+        }
+        catch (Exception e){
+            return null;
         }
     }
 

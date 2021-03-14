@@ -6,16 +6,12 @@ import java.util.List;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.EventResult.OptimalityRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 
 public class EventTimeSolver {
 
-    class OptimalityRange{
-        DateTimeRange range;
-        Integer optimality;
 
-        OptimalityRange(DateTimeRange range, Integer optimality){this.range = range; this.optimality = optimality;}
-    }
     
     private ArrayList<OptimalityRange> solution;
     private List<EventResponse> responses;

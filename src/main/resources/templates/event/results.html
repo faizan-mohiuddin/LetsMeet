@@ -26,22 +26,27 @@
 
     <div class="jumbotron">
         <div class="container">
-            <h1>Response</h1>
+            <h1>Results</h1>
             <p><span th:text="${event.name}"></span></p>
-            <p><span th:text="${event.description}"></span></p>
         </div>
     </div>
-
     <div class="container">
-        <div class="card w-100" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-              <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-              <p class="card-text"th:text="${results}"></p>
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Optimality</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="range : ${results.dateTimeRanges}">
+                    <td th:text="${range.range.start.getDayOfMonth()} +'/'+ ${range.range.start.getMonthValue()} +'/'+ ${range.range.start.getYear()} +' @ '+ ${range.range.start.getHour()}+':'+ ${range.range.start.getMinute()}"></td>
+                    <td th:text="${range.range.end.getDayOfMonth()} +'/'+ ${range.range.end.getMonthValue()} +'/'+ ${range.range.end.getYear()} +' @ '+ ${range.range.end.getHour()}+':'+ ${range.range.end.getMinute()}"></td>
+                    <td th:text="${range.optimality}"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
 
