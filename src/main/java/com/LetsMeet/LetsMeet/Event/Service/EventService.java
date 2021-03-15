@@ -7,6 +7,7 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
 import java.io.IOException;
+import java.time.Duration;
 
 //-----------------------------------------------------------------
 
@@ -170,7 +171,7 @@ public class EventService{
         return event.getProperties().get(key);
     }
 
-    public EventResult calculateResults(Event event, User user) throws IllegalArgumentException{
+    public EventResult calculateResults(Event event, User user, int duration, boolean requiredUsers) throws IllegalArgumentException{
         try{
             if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
             EventResult result;
@@ -183,7 +184,7 @@ public class EventService{
             }
 
             EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responseService.getResponses(event)); //TODO Getting another event instance to avoid side effects is a bodge. Fix it
-            result.setDateTimeRanges(timeSolver.solve());
+            result.setDateTimeRanges(EventTimeSolver.withDuration(timeSolver.solve(5), Duration.ofMinutes(duration)));
             resultDao.update(result);
             setProperty(event, "results.time", new Gson().toJson(result));
             return result;

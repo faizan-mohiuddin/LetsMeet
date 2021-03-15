@@ -224,7 +224,12 @@ public class EventControllerWeb {
     }
 
     @GetMapping("/event/{eventUUID}/results")
-    public String eventResults(@PathVariable("eventUUID") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String eventResults(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "duration", defaultValue = "30") int duration,
+        @RequestParam( value = "attendance", defaultValue = "90") int attendance,
+        @RequestParam( value = "requiredUsers", defaultValue = "true") boolean requiredUsers) {
+
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
         if (user == null || event == null){
@@ -237,7 +242,7 @@ public class EventControllerWeb {
             model.addAttribute("event", eventService.getEvent(eventuuid));
 
             
-            model.addAttribute("results",eventService.calculateResults(event, user));
+            model.addAttribute("results",eventService.calculateResults(event, user, duration,requiredUsers));
             
             return "event/results";
         }

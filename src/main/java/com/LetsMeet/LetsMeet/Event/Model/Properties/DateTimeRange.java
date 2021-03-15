@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Model.Properties;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -78,6 +79,10 @@ public class DateTimeRange implements Serializable {
 
     public Period getPeriod(){
         return Period.between(this.start.toLocalDate(), this.end.toLocalDate());
+    }
+
+    public Duration getDuration(){
+        return Duration.between(this.start, this.end);
     }
     
 
