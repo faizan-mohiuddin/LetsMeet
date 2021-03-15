@@ -135,7 +135,9 @@ public class VenueControllerWeb {
     @GetMapping("/Venues")
     public String getAllVenues(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                                @RequestParam(value="VenueName", defaultValue = "") String searchName,
-                               @RequestParam(value="Facilities", defaultValue = "") String searchFacilities){
+                               @RequestParam(value="Facilities", defaultValue = "") String searchFacilities,
+                               @RequestParam(value="location", defaultValue = "") String searchLocation){
+
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
 
@@ -149,5 +151,32 @@ public class VenueControllerWeb {
         model.addAttribute("venues", venues);
 
         return "Venue/allVenues";
+    }
+
+    @PostMapping("/Venue/{VenueID}/facility/{Facility}")
+    public String removeFacility(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                                 @PathVariable(value="VenueID") String venueUUID,
+                                 @PathVariable(value="Facility") String facilityToRemove){
+        System.out.println(venueUUID);
+        System.out.println(facilityToRemove);
+
+        // Check user has permission
+        User user = (User) session.getAttribute("userlogin");
+        Venue venue = venueService.getVenue(venueUUID);
+
+        System.out.println("got venue");
+
+        if(venueService.checkUserPermission(venue, user)){
+            // Remove facility from venue
+            venueService.removeFacility(venue, facilityToRemove);
+
+            // Redirect to venue page
+            System.out.println("reloading");
+            String destination = String.format("redirect:/Venue/%s", venueUUID);
+            return destination;
+        }
+
+        redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to do this.");
+        return "redirect:/Home";
     }
 }

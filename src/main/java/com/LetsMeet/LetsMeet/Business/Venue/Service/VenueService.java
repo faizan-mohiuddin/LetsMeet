@@ -223,6 +223,16 @@ public class VenueService {
         return null;
     }
 
+    public void removeFacility(Venue venue, String facility){
+        // Remove facility from venue if its there
+        int len1 = venue.numFacilities();
+        venue.removeFacility(facility);
+        int len2 = venue.numFacilities();
+        if(len2 < len1){
+            updateVenue(venue);
+        }
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

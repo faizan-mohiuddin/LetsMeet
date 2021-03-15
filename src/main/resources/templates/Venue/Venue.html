@@ -37,7 +37,10 @@
                 <div th:if ="${f}">
                     <td th:text = "${f}"></td>
                     <td></td>
-                    <td th:if="${permission}"><a class = "btn btn-primary" href = "/Home">Remove</a></td>
+                    <td th:if="${permission}"><form th:action = "@{/Venue/{ID}/facility/{Facility}
+                    (ID=${venue.getUUID().toString()}, Facility=${f})}" method = "post">
+                        <button type="submit" class="btn btn-primary">Remove</button>
+                    </form></td>
                 </div>
             </tr>
             </tbody>

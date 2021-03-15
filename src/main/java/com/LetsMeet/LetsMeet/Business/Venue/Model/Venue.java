@@ -160,4 +160,8 @@ public class Venue {
             return null;
         }
     }
+
+    public void removeFacility(String facility){
+        this.facilities.remove(facility);
+    }
 }
