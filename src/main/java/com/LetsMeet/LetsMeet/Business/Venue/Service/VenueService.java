@@ -140,8 +140,11 @@ public class VenueService {
         return "Error updating venue";
     }
 
-    public String updateVenue(Venue venue, String name){
+    public String updateVenue(Venue venue, String name, String facilities, String venueLocation, String venueLatitude,
+                              String venueLongitude){
         venue.setName(name);
+        venue.setFacilities(facilities);
+        venue.setLocation(venueLocation, venueLatitude, venueLongitude);
         return this.updateVenue(venue);
     }
 

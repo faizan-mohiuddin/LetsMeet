@@ -11,6 +11,7 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.quartz.QuartzTransactionManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -177,6 +178,49 @@ public class VenueControllerWeb {
         }
 
         redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to do this.");
+        return "redirect:/Home";
+    }
+
+    @GetMapping("/Venue/{VenueID}/edit")
+    public String editVenuePage(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                            @PathVariable(value="VenueID") String venueUUID){
+        // Check user has permission to view the page
+        Venue venue = venueService.getVenue(venueUUID);
+        if(!(venue == null)) {
+            User user = (User) session.getAttribute("userlogin");
+
+            if(venueService.checkUserPermission(venue, user)) {
+                model.addAttribute("venue", venue);
+                return "Venue/editVenue";
+            }
+        }
+        return "/Home";
+    }
+
+    @PostMapping("/Venue/{VenueID}/edit")
+    public String editVenue(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                            @PathVariable(value="VenueID") String venueUUID,
+                            @RequestParam(value="venueName") String name,
+                            @RequestParam(value="facilities") String facilities,
+                            @RequestParam(value = "venuelocation") String venueLocation,
+                            @RequestParam(value = "thelat") String venueLatitude,
+                            @RequestParam(value = "thelong") String venueLongitude){
+        // Get venue
+        Venue venue = venueService.getVenue(venueUUID);
+
+        if(!(venue == null)) {
+            // Get user
+            User user = (User) session.getAttribute("userlogin");
+
+            // Check if user has permission
+            if(venueService.checkUserPermission(venue, user)) {
+                // Update venue
+                venueService.updateVenue(venue, name, facilities, venueLocation, venueLatitude, venueLongitude);
+                String destination = String.format("redirect:/Venue/%s", venueUUID);
+                return destination;
+            }
+        }
+
         return "redirect:/Home";
     }
 }

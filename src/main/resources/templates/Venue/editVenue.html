@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+</body>
+<div th:insert = "header :: navbar"></div>
+
+<div class="jumbotron">
+    <h1 th:text="Update ${venue.getName()}"></h1>
+</div>
+
+<div class="container">
+    <form th:action="@{/Venue/${venue.getUUID().toString()}/edit}" method = "post">
+        <div class="form-group">
+            <label for="venueName">Venue Name: </label>
+            <input type="text" class="form-control" name="venueName" th:value = "*{venueName}" th:placeholder="${venue.getName()}">
+        </div>
+
+        div class="form-group">
+        <label for="facilities">Venue Facilities:</label>
+        <div class="container" id="facilities">
+
+            <div class="row align-items-start">
+                <div class="col">
+                    <input type="text" class="form-control" name="facilities"
+                           placeholder="Facility Tag...">
+                </div>
+
+                <div class="col">
+                    <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>
+                </div>
+            </div>
+
+            <div class="col">
+                <button type="button" class="append" id="append" onclick="msg()">Add More Facilities</button>
+            </div>
+
+        </div>
+
+    </form>
+</div>
+
+<div th:insert = "footer :: footer"></div>
+</body>
+
+<script>
+    $(document).on('click', '.append', function(){
+        var html = '<div class="row align-items-start">\n' +
+            '                    <div class="col">\n' +
+            '                        <input type="text" class="form-control" name="facilities"\n' +
+            '                               placeholder="Facility Tag...">\n' +
+            '                    </div>\n' +
+            '\n' +
+            '                    <div class="col">\n' +
+            '                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>\n' +
+            '                    </div>\n' +
+            '                </div>';
+        $(html).insertBefore(".append");
+
+    });
+</script>
+</html>

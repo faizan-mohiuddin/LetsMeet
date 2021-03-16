@@ -121,6 +121,30 @@ public class Venue {
         }
     }
 
+    public void setFacilities(String facilities){
+        if(!facilities.equals("")){
+            // Iterate over facilities, check if already in list
+            System.out.println("Venue.setFacilities: " + facilities);
+        }
+    }
+
+    public void setLocation(String location, String latitude, String longitude){
+
+        if(!location.equals("")){
+            // Set values
+            this.address = location;
+            this.coords = false;
+            this.longitude = 0;
+            this.latitude = 0;
+        }
+
+        if((!latitude.equals("") && !(latitude == null)) || (!longitude.equals("") && !(longitude == null))){
+            this.latitude = Double.parseDouble(latitude);
+            this.longitude = Double.parseDouble(longitude);
+            this.coords = true;
+        }
+    }
+
     public VenueSanitised convertToSanitised(){
         return new VenueSanitised(this.name, this.facilities);
     }
