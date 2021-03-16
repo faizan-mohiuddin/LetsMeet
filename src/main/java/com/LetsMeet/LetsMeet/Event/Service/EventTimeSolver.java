@@ -1,6 +1,5 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
-import java.time.Period;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
