@@ -253,12 +253,12 @@
                     </div>
 
                     <div class="col">
-                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>
+                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
                     </div>
                 </div>
 
                 <div class="col">
-                    <button type="button" class="append" id="append" onclick="msg()">Add More Facilities</button>
+                    <button type="button" class="append" id="append">Add More Facilities</button>
                 </div>
 
             </div>
@@ -279,11 +279,18 @@
             '                    </div>\n' +
             '\n' +
             '                    <div class="col">\n' +
-            '                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>\n' +
+            '                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>\n' +
             '                    </div>\n' +
             '                </div>';
         $(html).insertBefore(".append");
 
     });
 </script>
+<script>
+    function remove(el){
+        var myobj = el.parentElement.parentElement;
+        myobj.remove();
+    }
+</script>
+
 </html>

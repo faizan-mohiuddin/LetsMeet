@@ -188,13 +188,20 @@ public class VenueControllerWeb {
         Venue venue = venueService.getVenue(venueUUID);
         if(!(venue == null)) {
             User user = (User) session.getAttribute("userlogin");
+            model.addAttribute("user", user);
+
+            if(user == null){
+                redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to view this page.");
+                return "redirect:/Home";
+            }
 
             if(venueService.checkUserPermission(venue, user)) {
                 model.addAttribute("venue", venue);
                 return "Venue/editVenue";
             }
         }
-        return "/Home";
+        redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to view this page.");
+        return "redirect:/Home";
     }
 
     @PostMapping("/Venue/{VenueID}/edit")
@@ -202,9 +209,9 @@ public class VenueControllerWeb {
                             @PathVariable(value="VenueID") String venueUUID,
                             @RequestParam(value="venueName") String name,
                             @RequestParam(value="facilities") String facilities,
-                            @RequestParam(value = "venuelocation") String venueLocation,
-                            @RequestParam(value = "thelat") String venueLatitude,
-                            @RequestParam(value = "thelong") String venueLongitude){
+                            @RequestParam(value = "venuelocation", defaultValue = "") String venueLocation,
+                            @RequestParam(value = "thelat", defaultValue = "") String venueLatitude,
+                            @RequestParam(value = "thelong", defaultValue = "") String venueLongitude){
         // Get venue
         Venue venue = venueService.getVenue(venueUUID);
 
@@ -222,5 +229,35 @@ public class VenueControllerWeb {
         }
 
         return "redirect:/Home";
+    }
+
+    @GetMapping("/Venue/{VenueID}/delete")
+    public String deleteVenue(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                              @PathVariable(value="VenueID") String venueUUID){
+        // Check user has permission
+        User user = (User) session.getAttribute("userlogin");
+        if(user == null){
+            redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to carry out this action.");
+            return"redirect:/Home";
+        }
+
+        Venue venue = venueService.getVenue(venueUUID);
+        if(venue == null){
+            redirectAttributes.addFlashAttribute("accessDenied", "Invalid action");
+            return"redirect:/Home";
+        }
+
+        if(venueService.checkUserPermission(venue, user)){
+            venueService.findBusiness(venue);
+            String destination = String.format("redirect:/Business/%s", venue.business.getUUID().toString());
+
+            // Delete venue
+            venueService.deleteVenue(user, venue);
+
+            // Redirect to business page
+            return destination;
+        }
+        redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to carry out this action.");
+        return"redirect:/Home";
     }
 }

@@ -5,9 +5,7 @@ import com.google.gson.Gson;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Venue {
     UUID venueUUID;
@@ -123,8 +121,8 @@ public class Venue {
 
     public void setFacilities(String facilities){
         if(!facilities.equals("")){
-            // Iterate over facilities, check if already in list
-            System.out.println("Venue.setFacilities: " + facilities);
+            this.facilities = new ArrayList<>(Arrays.asList(facilities.split(",")));
+            this.facilities.removeAll(Collections.singletonList(""));
         }
     }
 

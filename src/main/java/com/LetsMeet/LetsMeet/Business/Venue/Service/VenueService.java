@@ -125,6 +125,10 @@ public class VenueService {
         //return "You dont have permission to delete this venue";
     }
 
+    public String deleteVenue(User user, Venue venue){
+        return this.deleteVenue(user, venue.getUUID().toString());
+    }
+
     public Venue getVenue(String venueUUID){
         Optional<Venue> venue = DAO.get(UUID.fromString(venueUUID));
         if(venue.isPresent()){
