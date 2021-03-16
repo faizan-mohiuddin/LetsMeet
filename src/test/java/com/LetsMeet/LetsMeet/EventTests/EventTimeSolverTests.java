@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.EventTests;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -49,7 +50,10 @@ public class EventTimeSolverTests {
     @Order(1)
     public void basictest(){
         EventTimeSolver solver = new EventTimeSolver(createTestEvent(), createTestResponse(1));
-        solver.solve();
+        //solver.solve(5);
+        //System.out.println(solver.solve(5));
+        //EventTimeSolver.withDuration(solver.solve(5), Duration.ofDays(35));
+        EventTimeSolver.withResponses(solver.solve(5), createTestResponse(1));
         assertTrue(true);
     }
 }

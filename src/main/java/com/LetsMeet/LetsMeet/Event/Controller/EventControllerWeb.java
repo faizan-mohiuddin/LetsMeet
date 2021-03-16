@@ -200,16 +200,15 @@ public class EventControllerWeb {
 
                 model.addAttribute("isOwnerOfEvent", true);
 
-                List<HashMap<String,String>> names= new ArrayList<>();
+                List<HashMap<String,Object>> responses= new ArrayList<>();
                 for (EventResponse o : responseService.getResponses(event)){
-                    HashMap<String, String> data = new HashMap<>();
-                    data.put("fname", userService.getUserByUUID(o.getUser().toString()).getfName());
-                    data.put("lname", userService.getUserByUUID(o.getUser().toString()).getlName());
-                    data.put("must_attend", "unknown");
-                    names.add(data);
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("user", userService.getUserByUUID(o.getUser().toString()));
+                    data.put("response", o);
+                    responses.add(data);
                 }
     
-                model.addAttribute("responses", names);
+                model.addAttribute("responses", responses);
             }
 
             return "viewevent";
@@ -224,7 +223,12 @@ public class EventControllerWeb {
     }
 
     @GetMapping("/event/{eventUUID}/results")
-    public String eventResults(@PathVariable("eventUUID") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String eventResults(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "duration", defaultValue = "30") int duration,
+        @RequestParam( value = "attendance", defaultValue = "90") int attendance,
+        @RequestParam( value = "requiredUsers", defaultValue = "true") boolean requiredUsers) {
+
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
         if (user == null || event == null){
@@ -237,7 +241,7 @@ public class EventControllerWeb {
             model.addAttribute("event", eventService.getEvent(eventuuid));
 
             
-            model.addAttribute("results",eventService.calculateResults(event, user));
+            model.addAttribute("results",eventService.calculateResults(event, user, duration,requiredUsers));
             
             return "event/results";
         }

@@ -1,5 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import java.time.Period;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +10,7 @@ import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventResult.OptimalityRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+
 
 public class EventTimeSolver {
 
@@ -26,7 +29,8 @@ public class EventTimeSolver {
         }
     }
 
-    public List<OptimalityRange> solve(){
+    public List<OptimalityRange> solve(long minDurationMins){
+        Duration minDuration = Duration.ofMinutes(minDurationMins);
         //TODO sort solution list first from early to late
 
         // move through each response and find intersection of times
@@ -38,6 +42,7 @@ public class EventTimeSolver {
                 int end = splitRange(range.getEnd(),false);   // Attempt split at end
                 
                 for (int i = start; i < end; i++){          // Increment optimality of each OptimalityRange until end of range
+                    if (solution.get(i).range.getDuration().compareTo(minDuration) < 0) continue; //TODO remove element
                     solution.get(i).optimality++;
                 }
             }
@@ -73,10 +78,37 @@ public class EventTimeSolver {
     }
 
     private int getLast(ZonedDateTime time){
-        for (int i = solution.size(); i>0; i--){
+        for (int i = solution.size() - 1; i > 0; i--){
             if (!solution.get(i).range.getStart().isAfter(time)) return i;
         }
         return -1;
+    }
+
+    // return only those ranges which have the duration given or greater
+    public static List<OptimalityRange> withDuration(List<OptimalityRange> ranges, Duration duration){
+        List<OptimalityRange> withDuration = new ArrayList<>();
+
+        for (OptimalityRange or : ranges)
+            if (or.range.getDuration().compareTo(duration) >= 0) withDuration.add(or);
+        
+        return withDuration;
+    }
+
+    // return only those ranges which fit within the responses
+    public static List<OptimalityRange> withResponses(List<OptimalityRange> ranges, List<EventResponse> responses){
+        List<OptimalityRange> withResponses = new ArrayList<>();
+
+        // This pains me
+        for (EventResponse er : responses){
+            for (DateTimeRange dtr : er.getEventProperties().getTimes()){
+                for (OptimalityRange or : ranges){
+                    if (!dtr.getEnd().isAfter(or.range.getEnd()) && !dtr.getStart().isBefore(or.range.getStart())){
+                        withResponses.add(or);
+                    }
+                }
+            }
+        }
+        return withResponses;
     }
 
 }

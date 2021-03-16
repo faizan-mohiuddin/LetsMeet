@@ -6,6 +6,7 @@
 
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import org.apache.catalina.connector.Response;
 //-----------------------------------------------------------------
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,15 @@ public class EventResponseService {
     public List<EventResponse> getResponses(User user){
         try{
             return dao.get(user.getUUID()).get();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Boolean saveResponse(EventResponse response){
+        try{
+            return dao.update(response);
         }
         catch(Exception e){
             throw new IllegalArgumentException(e.getMessage());

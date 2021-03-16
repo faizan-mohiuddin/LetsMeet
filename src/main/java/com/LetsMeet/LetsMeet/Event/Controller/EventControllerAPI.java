@@ -103,7 +103,7 @@ public class EventControllerAPI {
             User user = userValidation.getAuthenticatedUser(token);
             Event event = eventService.getEvent(eventUUID);
 
-            eventService.calculateResults(event, user);
+            eventService.calculateResults(event, user, 5, true);
             return new ResponseEntity<>(eventService.getProperty(event, "results.time"),HttpStatus.OK);
         }
         catch (Exception e){
@@ -388,16 +388,19 @@ public class EventControllerAPI {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);}
     }
 
-    @PutMapping("api/Event/{EventUUID}/Response/User")
+    @PutMapping("api/Event/{EventUUID}/Response/{UserUUID}")
     public ResponseEntity<String> addUser(
         @PathVariable(value = "EventUUID") String eventUUID,
-        @RequestParam(value = "UserUUID") String userUUID,
+        @PathVariable(value = "UserUUID") String userUUID,
         @RequestParam(value = "required", defaultValue = "false") Boolean userRequired){
         
         try{
-
-            responseService.createResponse(userService.getUserByUUID(userUUID), eventService.getEvent(eventUUID),userRequired);
-            
+            User user = userService.getUserByUUID(userUUID);
+            Event event = eventService.getEvent(eventUUID);
+            EventResponse response = responseService.getResponse(user, event).orElseGet(
+                () -> responseService.createResponse(user, event, userRequired));
+            response.setRequired(userRequired);
+            responseService.saveResponse(response);
             return new ResponseEntity<>(HttpStatus.OK);
             
         }
