@@ -11,12 +11,12 @@
 <body>
     <div th:fragment="edit">
 
-        <form th:action="@{/event/{eventUUID}/edit(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" method="post">
+        <form th:action="@{/event/{eventUUID}/edit(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data"
+            method="post">
 
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
-                <input type="text" class="form-control" name="eventname" th:value="${event.getName()}"
-                   >
+                <input type="text" class="form-control" name="eventname" th:value="${event.getName()}">
             </div>
 
             <div class="form-group">
@@ -29,12 +29,14 @@
 
             <div class="form-group">
                 <label for="eventdesc">Event Description: </label>
-                <textarea type="text" class="form-control" name="eventdesc" placeholder="Description..." th:text="${event.getDescription()}"></textarea>
+                <textarea type="text" class="form-control" name="eventdesc" placeholder="Description..."
+                    th:text="${event.getDescription()}"></textarea>
             </div>
 
             <div class="form-group">
                 <label for="eventlocation">Event Location:</label>
-                <input type="text" class="form-control" name="eventlocation" placeholder="Location..." th:value="${event.getLocation()}">
+                <input type="text" class="form-control" name="eventlocation" placeholder="Location..."
+                    th:value="${event.getLocation()}">
             </div>
 
             <div class="form-group">
@@ -64,4 +66,60 @@
         </form>
 
     </div>
+
+
+    <div th:fragment="invite">
+        <button type="button" class="btn btn-primary"><i class="bi bi-file-earmark-arrow-up"></i> Import from CSV</button>
+        <form th:action="@{/event/{eventUUID}/users(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST">
+            <div class="form-group">
+                <div class="container" id="usersRequired">
+                <div class="input-group mb-3">  
+                    <input type="text" class="form-control" id="myInput" name="usersRequired" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" id="but_add" type="button"><i class="bi bi-plus"></i></button>
+                    </div>
+                </div>
+                    
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Confirm</button>
+        </form>
+
+        
+        <script>
+            $(document).ready(function () {
+        
+                $('#but_add').click(function () {
+                    var userID = $('#but_add').parent().parent().find('#myInput').val();
+                    var div = document.createElement('div');
+                    div.className = 'input-group mb-3';
+                    div.id = "usersRequired";
+                    var label = document.createElement('input');
+                    label.className = 'form-control';
+                    label.innerHTML = 'Comments';
+                    label.placeholder = "Recipient's username";
+                    label.value = userID;
+                    label.for = 'inputText';
+                    var div1 = document.createElement('div');
+                    div1.className = 'input-group-append';
+                    var commentText = document.createElement('button');
+                    commentText.className = 'btn btn-outline-secondary';
+                    commentText.id = 'inputText';
+                    commentText.type = 'button'
+                    commentText.innerHTML = '<i class="bi bi-dash"></i>';
+                    commentText.onclick = function () {$(this).parent().parent().remove();}
+                    div.appendChild(label);
+                    div1.appendChild(commentText);
+                    //commentText.innerHTML = "hello";
+                    div.appendChild(div1);
+
+                    $(div).insertAfter("#usersRequired");
+                });
+        
+            });
+        </script>
+    </div>
+
 </body>
+
