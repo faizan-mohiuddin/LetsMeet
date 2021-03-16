@@ -14,7 +14,7 @@
 <div th:insert = "header :: navbar"></div>
 
 <div class="jumbotron">
-    <h1 th:text="Update ${venue.getName()}"></h1>
+    <h1>Update <span th:text="${venue.getName()}"></span></h1>
 </div>
 
 <div class="container">
@@ -24,25 +24,25 @@
             <input type="text" class="form-control" name="venueName" th:value = "*{venueName}" th:placeholder="${venue.getName()}">
         </div>
 
-        div class="form-group">
-        <label for="facilities">Venue Facilities:</label>
-        <div class="container" id="facilities">
+        <div class="form-group">
+            <label for="facilities">Venue Facilities:</label>
+            <div class="container" id="facilities">
 
-            <div class="row align-items-start">
-                <div class="col">
-                    <input type="text" class="form-control" name="facilities"
-                           placeholder="Facility Tag...">
+                <div class="row align-items-start">
+                    <div class="col">
+                        <input type="text" class="form-control" name="facilities"
+                               placeholder="Facility Tag...">
+                    </div>
+
+                    <div class="col">
+                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+                    </div>
                 </div>
 
                 <div class="col">
-                    <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>
+                    <button type="button" class="append" id="append">Add More Facilities</button>
                 </div>
             </div>
-
-            <div class="col">
-                <button type="button" class="append" id="append" onclick="msg()">Add More Facilities</button>
-            </div>
-
         </div>
 
     </form>
@@ -60,11 +60,17 @@
             '                    </div>\n' +
             '\n' +
             '                    <div class="col">\n' +
-            '                        <button type="button" class="btn btn-light" id="remove" onclick="msg()">Remove</button>\n' +
+            '                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>\n' +
             '                    </div>\n' +
             '                </div>';
         $(html).insertBefore(".append");
-
     });
+</script>
+
+<script>
+    function remove(el){
+        var myobj = el.parentElement.parentElement;
+        myobj.remove();
+    }
 </script>
 </html>

@@ -144,7 +144,7 @@
 <div th:if="${permission}" class="container">
     <hr class="featurette-divider">
     <h4>Owner privileges</h4>
-    <a class="btn btn-primary" th:href="@{/}">Edit Venue</a>
+    <a class="btn btn-primary" th:href="@{/Venue/{venueID}/edit(venueID = ${venue.getUUID().toString()})}">Edit Venue</a>
 </div>
 
 <div th:insert = "footer :: footer"></div>

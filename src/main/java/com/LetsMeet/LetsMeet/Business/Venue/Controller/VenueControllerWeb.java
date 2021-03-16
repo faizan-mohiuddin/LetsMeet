@@ -188,13 +188,20 @@ public class VenueControllerWeb {
         Venue venue = venueService.getVenue(venueUUID);
         if(!(venue == null)) {
             User user = (User) session.getAttribute("userlogin");
+            model.addAttribute("user", user);
+
+            if(user == null){
+                redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to view this page.");
+                return "redirect:/Home";
+            }
 
             if(venueService.checkUserPermission(venue, user)) {
                 model.addAttribute("venue", venue);
                 return "Venue/editVenue";
             }
         }
-        return "/Home";
+        redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to view this page.");
+        return "redirect:/Home";
     }
 
     @PostMapping("/Venue/{VenueID}/edit")
