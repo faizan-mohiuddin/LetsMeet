@@ -222,6 +222,13 @@ public class EventControllerWeb {
 
     }
 
+    @PostMapping("/event/{eventUUID}/users")
+    public String eventUsers(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+    @PathVariable("eventUUID") String eventuuid,
+    @RequestParam(value="usersRequired") String[] users){
+        return "redirect:/event/{eventUUID}";
+    }
+
     @GetMapping("/event/{eventUUID}/results")
     public String eventResults(Model model, RedirectAttributes redirectAttributes, HttpSession session,
         @PathVariable("eventUUID") String eventuuid,

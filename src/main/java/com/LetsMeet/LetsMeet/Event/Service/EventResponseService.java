@@ -6,7 +6,6 @@
 
 package com.LetsMeet.LetsMeet.Event.Service;
 
-import org.apache.catalina.connector.Response;
 //-----------------------------------------------------------------
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
