@@ -18,7 +18,7 @@
 </div>
 
 <div class="container">
-    <form th:action="@{/Venue/${venue.getUUID().toString()}/edit}" method = "post">
+    <form th:action="@{/Venue/{VenueID}/edit (VenueID=${venue.getUUID().toString()})}" method = "post">
         <div class="form-group">
             <label for="venueName">Venue Name: </label>
             <input type="text" class="form-control" name="venueName" th:value = "*{venueName}" th:placeholder="${venue.getName()}">
@@ -44,7 +44,7 @@
                 </div>
             </div>
         </div>
-
+        <button type="submit" class="btn btn-primary">Update Venue</button>
     </form>
 </div>
 
