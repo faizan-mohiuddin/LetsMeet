@@ -9,6 +9,7 @@ import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,9 @@ public class BusinessService {
 
     @Autowired
     VenueBusinessService venueBusinessService;
+
+    @Autowired
+    UserService userService;
 
     public Business createBusiness(String name, User user){
         UUID uuid = this.generateUUID(name, user);
@@ -131,11 +135,23 @@ public class BusinessService {
                 owners.add(b);
             }
 
-            if(owners.size() > 1) {
+            if(owners.size() > 0) {
+                System.out.println(owners);
                 return owners;
             }
         }
         return null;
+    }
+
+    public List<User> businessUsers(Business business){
+        List<BusinessOwner> owners = this.businessOwners(business.getUUID().toString());
+        List<User> businessUsers = new ArrayList<>();
+
+        for(BusinessOwner b : owners){
+            businessUsers.add(userService.getUserByUUID(b.getUserUUID().toString()));
+        }
+
+        return businessUsers;
     }
 
     public boolean isOwner(User user, Business business){

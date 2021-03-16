@@ -73,6 +73,12 @@ public class VenueControllerWeb {
         venueService.findBusiness(venue);   // Venue.business
         model.addAttribute("venue", venue);
 
+        if(venue.numFacilities() == 0){
+            model.addAttribute("facilities", false);
+        }else{
+            model.addAttribute("facilities", true);
+        }
+
         LOGGER.info("Venue loading coordinates: " + venue.getLatitude() + ", " + venue.getLongitude());
 
         // Get user

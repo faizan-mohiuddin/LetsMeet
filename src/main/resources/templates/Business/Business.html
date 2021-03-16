@@ -43,7 +43,7 @@
 
     <div class="container">
         <h2>Venues registered to this Business</h2>
-        <div>
+        <div th:if="${venuesRegistered}">
             <table class = "table table">
                 <thead>
                 <tr>
@@ -65,7 +65,32 @@
                 </tbody>
             </table>
         </div>
+        <div class="alert alert-warning" th:unless="${venuesRegistered}">This Business has no registered Venues.</div>
     </div>
+
+    <div class="container">
+        <h2>Venues registered to this Business</h2>
+        <table class = "table table">
+            <thead>
+            <tr>
+                <th scope = "col">User First Name</th>
+                <th scope = "col">User Last Name</th>
+                <th scope = "col">User Email</th>
+                <th scope = "col"></th>
+                <th scope = "col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each = "u : ${BusinessUsers}" id="userRow">
+                <div th:if ="${u}">
+                    <td th:text = "${u.getfName()}"></td>
+                    <td th:text = "${u.getlName()}"></td>
+                    <td th:text = "${u.getEmail()}"></td>
+                </div>
+            </tr>
+            </tbody>
+    </div>
+
     </div>
 
     <div th:insert = "footer :: footer"></div>

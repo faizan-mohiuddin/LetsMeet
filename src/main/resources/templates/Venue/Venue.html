@@ -21,7 +21,7 @@
 
 <div class="container">
     <h2>Facilities within this Venue</h2>
-    <div>
+    <div th:if="${facilities}">
         <table class = "table table">
             <thead>
             <tr>
@@ -46,6 +46,8 @@
             </tbody>
         </table>
     </div>
+
+    <div class="alert alert-warning" th:unless="${facilities}">This Venue has no registered facilities.</div>
 
     <div class="alert alert-warning" th:unless="${venue.getLongitude()}">A location has not been set for this Venue.</div>
     <div class th:if = "${venue.getLongitude()}">

@@ -24,7 +24,6 @@ public class User {
         this.UUID = UUID.fromString(uuid);
     }
 
-
     public UserSanitised convertToUser(){
         return new UserSanitised(this.fName, this.lName, this.email);
     }

@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.Business.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
 import com.LetsMeet.LetsMeet.Event.Controller.EventControllerWeb;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 @SessionAttributes("userlogin")
@@ -63,7 +65,17 @@ public class BusinessControllerWeb {
             // Display business page
             model.addAttribute("user", user);
             model.addAttribute("business", business);
-            model.addAttribute("venues", venueBusinessService.getBusinessVenues(business.getUUID().toString()));
+
+            List<Venue> venues = venueBusinessService.getBusinessVenues(business.getUUID().toString());
+            model.addAttribute("venues", venues);
+
+            if(venues == null) {
+                model.addAttribute("venuesRegistered", false);
+            }else{
+                model.addAttribute("venuesRegistered", true);
+            }
+
+            model.addAttribute("BusinessUsers", businessService.businessUsers(business));
 
             return "Business/Business";
         }
