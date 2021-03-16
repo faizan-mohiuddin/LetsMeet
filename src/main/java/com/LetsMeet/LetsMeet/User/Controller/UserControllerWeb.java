@@ -162,11 +162,12 @@ public class UserControllerWeb {
     }
 
     @PostMapping("/login")
-    public String attemptlogin(@RequestParam(name = "loginemail") String email, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes, Model model) {
+    public String attemptlogin(@RequestParam(name = "loginemail") String email, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes, Model model, HttpSession session) {
 
         User user = userValidation.validate(email, password);
         if(user != null) {
             model.addAttribute("userlogin", user);
+            session.setAttribute("apiToken", userServiceInterface.getUserToken(user));
             redirectAttributes.addFlashAttribute("success", "You have logged in as " + user.getfName() + " " + user.getlName());
             return "redirect:/Home";
         }else{

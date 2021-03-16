@@ -25,11 +25,15 @@ public class EventResponse {
 	private Boolean required;
 
     public EventResponse(UUID event, UUID user, EventProperties properties){
-        this.event = event;
+		this(event, user, properties, false);
+    }
+
+	public EventResponse(UUID event, UUID user, EventProperties properties, Boolean required){
+		this.event = event;
         this.user = user;
         this.properties = properties;
-		this.required = false;
-    }
+		this.required = required;
+	}
 
 	public UUID getEvent() {
 		return event;
@@ -69,6 +73,10 @@ public class EventResponse {
 
 	public void setRequired(Boolean required) {
 		this.required = required;
+	}
+
+	public boolean hasResponded(){
+		return !this.properties.getTimes().isEmpty();
 	}
 
 }

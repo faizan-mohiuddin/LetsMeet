@@ -200,16 +200,15 @@ public class EventControllerWeb {
 
                 model.addAttribute("isOwnerOfEvent", true);
 
-                List<HashMap<String,String>> names= new ArrayList<>();
+                List<HashMap<String,Object>> responses= new ArrayList<>();
                 for (EventResponse o : responseService.getResponses(event)){
-                    HashMap<String, String> data = new HashMap<>();
-                    data.put("fname", userService.getUserByUUID(o.getUser().toString()).getfName());
-                    data.put("lname", userService.getUserByUUID(o.getUser().toString()).getlName());
-                    data.put("must_attend", "unknown");
-                    names.add(data);
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("user", userService.getUserByUUID(o.getUser().toString()));
+                    data.put("response", o);
+                    responses.add(data);
                 }
     
-                model.addAttribute("responses", names);
+                model.addAttribute("responses", responses);
             }
 
             return "viewevent";

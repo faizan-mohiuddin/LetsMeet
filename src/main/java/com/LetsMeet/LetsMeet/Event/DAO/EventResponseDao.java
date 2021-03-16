@@ -57,7 +57,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
             return Optional.ofNullable(new EventResponse(
                 UUID.fromString(rs.getString("EventUUID")), 
                 UUID.fromString(rs.getString("UserUUID")), 
-                readSerialised(rs.getBytes("EventProperties"))));
+                readSerialised(rs.getBytes("EventProperties")),
+                rs.getBoolean("Required")));
 
         }
         catch(Exception e){
@@ -78,7 +79,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
                 records.add(new EventResponse(
                     UUID.fromString(rs.getString("EventUUID")), 
                     UUID.fromString(rs.getString("UserUUID")), 
-                    readSerialised(rs.getBytes("EventProperties"))));
+                    readSerialised(rs.getBytes("EventProperties")),
+                    rs.getBoolean("Required")));
 
             return Optional.ofNullable(records);
 
@@ -99,11 +101,12 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean save(EventResponse t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, EventProperties, PollResponseUUID) VALUES (?,?,?,?)")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, EventProperties, PollResponseUUID, Required) VALUES (?,?,?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setObject(3, t.getEventProperties());
             statement.setString(4, "{}");
+            statement.setBoolean(5, t.getRequired());
             int rows = statement.executeUpdate();
 
             if (rows > 0) return true;
@@ -119,13 +122,14 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean update(EventResponse t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, EventProperties = ? WHERE EventUUID = ? AND UserUUID = ?")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, EventProperties = ?, Required = ? WHERE EventUUID = ? AND UserUUID = ?")){
 
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setObject(3, t.getEventProperties());
-            statement.setString(4, t.getEvent().toString());
-            statement.setString(5, t.getUser().toString());
+            statement.setBoolean(4, t.getRequired());
+            statement.setString(5, t.getEvent().toString());
+            statement.setString(6, t.getUser().toString());
 
             if(statement.executeUpdate() > 0)return true;
             else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
