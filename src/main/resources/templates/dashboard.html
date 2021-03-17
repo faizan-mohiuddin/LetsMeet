@@ -71,8 +71,8 @@
             <thead>
                 <tr>
                     <th scope = "col">Event Name</th>
-                    <th scope = "col">Description</th>
-                    <th scope = "col"></th>
+                    <th scope = "col">Required</th>
+                    <th scope = "col">Responded</th>
                     <th scope = "col"></th>
                     <th scope = "col"></th>
                 </tr>
@@ -80,10 +80,10 @@
             <tbody>
                 <tr th:each = "response : ${responses}" id="hiya">
                     <div th:if = "${response}">
-                        <td th:text = "${response.getName()}" ></td>
-                        <td th:text = "${response.description}"></td>
-                        <td></td>
-                        <td><a class = "btn btn-danger" style=" color: white !important;" th:id = "${response.UUID}" onclick="deleteResponse()" th:attr="onclick=|deleteResponse('${user.UUID}','${response.UUID}')|">Delete</a></td>
+                        <td th:text = "${response.event.getName()}" ></td>
+                        <td th:text = "${response.response.required}"></td>
+                        <td th:text = "${response.response.hasResponded()}"></td>
+                        <td><a class = "btn btn-danger" style=" color: white !important;" th:id = "${response.event.UUID}" onclick="deleteResponse()" th:attr="onclick=|deleteResponse('${user.UUID}','${response.event.UUID}')|">Delete</a></td>
                     </div>
                     <div th:unless = "${response}">
                         <td th:text = "${response} +''">Null entity</td>

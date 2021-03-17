@@ -27,6 +27,7 @@ import javax.swing.event.HyperlinkEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -221,11 +222,17 @@ public class UserControllerWeb {
             } else {
 
                 model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user));
-                ArrayList<Event> responseEvents = new ArrayList<>();
+
+
+                List<HashMap<String,Object>> responses= new ArrayList<>();
                 for (EventResponse o : eventResponseService.getResponses(user)){
-                    responseEvents.add(eventServiceInterface.getEvent(o.getEvent().toString()));
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("event", eventServiceInterface.getEvent(o.getEvent().toString()));
+                    data.put("response", o);
+                    responses.add(data);
                 }
-                model.addAttribute("responses", responseEvents);
+
+                model.addAttribute("responses", responses);
 
             }
             
