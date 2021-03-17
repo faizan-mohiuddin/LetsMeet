@@ -4,6 +4,7 @@ import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +76,24 @@ public class BusinessDAO implements DAO<Business> {
 
     @Override
     public Boolean update(Business business) {
-        return null;
+        try{
+            PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Business SET Name = ? WHERE BusinessUUID = ?");
+            statement.setString(1, business.getName());
+            statement.setString(2, business.getUUID().toString());
+
+            if(statement.executeUpdate() > 0){
+                DatabaseInterface.drop();
+                return true;
+            }else{
+                throw new Exception("Nothing added to DB");
+            }
+
+        }catch(Exception e){
+            System.out.println("Business Dao : update");
+            DatabaseInterface.drop();
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

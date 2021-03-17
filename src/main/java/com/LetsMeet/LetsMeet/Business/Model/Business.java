@@ -32,4 +32,10 @@ public class Business {
     public void setVenues(List<Venue> v){
         this.venues = v;
     }
+
+    public void setName(String name){
+        if(!name.equals("")){
+            this.name = name;
+        }
+    }
 }

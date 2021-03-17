@@ -136,7 +136,6 @@ public class BusinessService {
             }
 
             if(owners.size() > 0) {
-                System.out.println(owners);
                 return owners;
             }
         }
@@ -158,6 +157,11 @@ public class BusinessService {
         // Check if the user is an owner of the business
         Optional<BusinessOwner> response = ownerDAO.get(business.getUUID(), user.getUUID());
         return response.isPresent();
+    }
+
+    public boolean updateBusiness(Business business, String name){
+        business.setName(name);
+        return DAO.update(business);
     }
 
     // Private methods

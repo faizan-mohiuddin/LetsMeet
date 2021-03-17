@@ -109,4 +109,47 @@ public class BusinessControllerWeb {
             return "redirect:/Home";
         }
     }
+
+    @GetMapping("/Business/{BusinessID}/edit")
+    public String editBusiness(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                               @PathVariable(value="BusinessID") String businessUUID){
+        // Get business and user
+        Business business = businessService.getBusiness(businessUUID);
+        User user = (User) session.getAttribute("userlogin");
+
+        // Check user has permission
+        if(!(business == null) && !(user == null) && businessService.isOwner(user, business)){
+            model.addAttribute("user", user);
+            model.addAttribute("business", business);
+            return "Business/editBusiness";
+        }
+
+        redirectAttributes.addFlashAttribute("accessDenied", "You don't have permission to view this page");
+        return "redirect:/Home";
+    }
+    
+    @PostMapping("/Business/{BusinessID}/edit")
+    public String editBusinessDetails(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                                      @PathVariable(value="BusinessID") String businessUUID,
+                                      @RequestParam(value="Name") String name){
+        // Get user and business
+        Business business = businessService.getBusiness(businessUUID);
+        User user = (User) session.getAttribute("userlogin");
+
+        // Check user has permission
+        if(businessService.isOwner(user, business)) {
+            // Update business
+            if(businessService.updateBusiness(business, name)) {
+
+                // Return to business page
+                String destination = String.format("redirect:/Business/%s", businessUUID);
+                return destination;
+            }
+            redirectAttributes.addFlashAttribute("accessDenied", "Something went wrong!");
+            return "redirect:/Home";
+        }
+
+        redirectAttributes.addFlashAttribute("accessDenied", "You don't have permission to carry out this action");
+        return "redirect:/Home";
+    }
 }
