@@ -69,8 +69,20 @@
 
 
     <div th:fragment="invite">
-        <button type="button" class="btn btn-primary"><i class="bi bi-file-earmark-arrow-up"></i> Import from CSV</button>
+
+        
         <form th:action="@{/event/{eventUUID}/users(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST">
+            <div class="form-group">
+                <div class="container">
+                    <row>
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">Caution</h4>
+                            Enter the required users UUID string (e.g. 244ab0d3-332c-4aeb-83d8-962e21bff7c1) exactly. Email search and CSV import in progress.
+                          </div>
+                        <button type="button" class="btn btn-primary"><i class="bi bi-file-earmark-arrow-up"></i> Import from CSV</button>
+                    </row>
+                </div>
+            </div>
             <div class="form-group">
                 <div class="container" id="usersRequired">
                 <div class="input-group mb-3">  

@@ -224,9 +224,22 @@ public class EventControllerWeb {
 
     @PostMapping("/event/{eventUUID}/users")
     public String eventUsers(Model model, RedirectAttributes redirectAttributes, HttpSession session,
-    @PathVariable("eventUUID") String eventuuid,
-    @RequestParam(value="usersRequired") String users){
-        System.out.println(users);
+    @PathVariable("eventUUID") String eventUUID,
+    @RequestParam(value="usersRequired") List<String> userUUIDs){
+        try{
+            Event event = eventService.getEvent(eventUUID);
+            List<User> users = new ArrayList<>();
+            for ( var v : userUUIDs){
+                users.add(userService.getUserByUUID(v));
+            }
+            for (var user : users){
+                responseService.createResponse(user, event, false);
+            }
+            redirectAttributes.addFlashAttribute("success","Invitation sent!");
+        }
+        catch(Exception e){
+            redirectAttributes.addFlashAttribute("danger","Failed to invite users: " + e.getMessage());
+        }
         return "redirect:/event/{eventUUID}";
     }
 
