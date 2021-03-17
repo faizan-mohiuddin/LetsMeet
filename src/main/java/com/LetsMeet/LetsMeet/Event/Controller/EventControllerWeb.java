@@ -225,7 +225,8 @@ public class EventControllerWeb {
     @PostMapping("/event/{eventUUID}/users")
     public String eventUsers(Model model, RedirectAttributes redirectAttributes, HttpSession session,
     @PathVariable("eventUUID") String eventuuid,
-    @RequestParam(value="usersRequired") String[] users){
+    @RequestParam(value="usersRequired") String users){
+        System.out.println(users);
         return "redirect:/event/{eventUUID}";
     }
 

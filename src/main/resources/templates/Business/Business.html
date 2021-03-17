@@ -30,13 +30,24 @@
             </div>
 
             <div class = "col-sm">
-
                     <div class="card" style="width: 18rem;">
                         <div class="card-body">
                             <h5 class="card-title">Add users to your Business</h5>
 
                         </div>
                     </div>
+            </div>
+
+            <div class = "col-sm">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Privileges</h5>
+                        <div class="row">
+                            <a class="btn btn-primary" th:href="@{'/' + ${business.getUUID().toString()} + '/Venue/new'}" role="button">Edit Business</a>
+                            <a class="btn btn-primary" th:href="@{'/' + ${business.getUUID().toString()} + '/Venue/new'}" role="button">Delete Business</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

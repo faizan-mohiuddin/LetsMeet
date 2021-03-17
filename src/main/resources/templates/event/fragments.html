@@ -74,9 +74,10 @@
             <div class="form-group">
                 <div class="container" id="usersRequired">
                 <div class="input-group mb-3">  
-                    <input type="text" class="form-control" id="myInput" name="usersRequired" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <input type="text" class="form-control" id="myInput" name="usersRequired" placeholder="Recipient's username"
+                           aria-label="Recipient's username" aria-describedby="basic-addon2">
                     <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" id="but_add" type="button"><i class="bi bi-plus"></i></button>
+                        <button class="btn btn-outline-secondary" id="but_add" type="button"><i class="bi bi-plus"></i></button>
                     </div>
                 </div>
                     
@@ -91,33 +92,22 @@
             $(document).ready(function () {
         
                 $('#but_add').click(function () {
-                    var userID = $('#but_add').parent().parent().find('#myInput').val();
-                    var div = document.createElement('div');
-                    div.className = 'input-group mb-3';
-                    div.id = "usersRequired";
-                    var label = document.createElement('input');
-                    label.className = 'form-control';
-                    label.innerHTML = 'Comments';
-                    label.placeholder = "Recipient's username";
-                    label.value = userID;
-                    label.for = 'inputText';
-                    var div1 = document.createElement('div');
-                    div1.className = 'input-group-append';
-                    var commentText = document.createElement('button');
-                    commentText.className = 'btn btn-outline-secondary';
-                    commentText.id = 'inputText';
-                    commentText.type = 'button'
-                    commentText.innerHTML = '<i class="bi bi-dash"></i>';
-                    commentText.onclick = function () {$(this).parent().parent().remove();}
-                    div.appendChild(label);
-                    div1.appendChild(commentText);
-                    //commentText.innerHTML = "hello";
-                    div.appendChild(div1);
-
-                    $(div).insertAfter("#usersRequired");
+                    var html = '<div class="input-group mb-3"><input type="text" class="form-control" id="myInput" name="usersRequired" ' +
+                        'placeholder="Recipient\'s username" aria-label="Recipient\'s username" aria-describedby="basic-addon2">' +
+                        '<div class="input-group-append"> <button class="btn btn-outline-secondary" id="but_add" type="button" onclick="remove(this)">' +
+                        '<i class="bi bi-dash"></i></button></div></div>';
+                    var b = document.getElementById("but_add").parentElement.parentElement;
+                    $(html).insertAfter(b);
                 });
         
             });
+        </script>
+
+        <script>
+            function remove(el){
+                var myobj = el.parentElement.parentElement;
+                myobj.remove();
+            }
         </script>
     </div>
 
