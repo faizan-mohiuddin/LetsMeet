@@ -140,10 +140,16 @@ public class VenueControllerWeb {
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
 
+        String printTxt = String.format("\n\nVenueControllerWeb: SearchFacilities: %s", searchFacilities);
+        System.out.println(printTxt);
+
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
-            searchFacilities = "[" + searchFacilities + "]";
+            searchFacilities = "[\"" + searchFacilities + "\"]";
         }
+
+        printTxt = String.format("VenueControllerWeb: SearchFacilities: %s", searchFacilities);
+        System.out.println(printTxt);
 
         // Search for events by what is given
         List<Venue> venues = venueService.search(searchName, searchFacilities);

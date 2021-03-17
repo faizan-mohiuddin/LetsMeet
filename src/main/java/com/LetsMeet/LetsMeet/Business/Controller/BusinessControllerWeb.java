@@ -166,7 +166,7 @@ public class BusinessControllerWeb {
             businessService.deleteBusiness(businessUUID, user.getUUID().toString());
 
             // Return to user dashboard
-            redirectAttributes.addFlashAttribute("alert alert-success", "Business successfully deleted");
+            redirectAttributes.addFlashAttribute("success", "Business successfully deleted");
             return "redirect:/dashboard";
         }
 

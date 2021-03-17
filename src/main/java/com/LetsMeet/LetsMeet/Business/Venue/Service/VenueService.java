@@ -175,6 +175,9 @@ public class VenueService {
     }
 
     public List<Venue> search(String name, String unparsedFacilitiesList){
+        String printTxt = String.format("VenueService.search: Name: %s \tfacilities: %s", name, unparsedFacilitiesList);
+        System.out.println(printTxt);
+
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
         if(name.length() == 0 && unparsedFacilitiesList.equals("")){
             Collection<Venue> venues = DAO.getAll().get();
@@ -212,7 +215,7 @@ public class VenueService {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("VenueService : Search");
+                System.out.println("VenueService.Search");
                 System.out.println(e);
             }
         }
