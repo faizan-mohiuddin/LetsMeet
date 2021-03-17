@@ -4,6 +4,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 
+
+
+
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -43,37 +46,42 @@
         <div class="row">
 
             <div class="col-8">
-                <h2>Description</h2>
-                <p><span th:text="${event.getDescription()}"></span></p>
-                <p><b>Event location: </b><span th:text="${event.getLocation()}"></span></p>
 
-                <div class="container" th:if="${isOwnerOfEvent}">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Participants</th>
-                                <th scope="col">Required</th>
-                                <th scope="col">Responded</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="response : ${responses}">
-                                <td hidden id="userUUID" th:text="${response.response.user}"></td>
-                                <td hidden id="eventUUID" th:text="${response.response.event}"></td>
-                                <td th:text="${response.user.fName}  + ' ' + ${response.user.lName}"></td>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input required_check" type="checkbox" th:checked="${response.response.required}" id="required_check">
-                                        <label class="form-check-label" for="required_check">Required</label>
+                    <p th:text="${event.getDescription()}"></p>
+
+                <h4><i class="bi bi-geo"></i> Location</h4>
+                <p th:text="${event.getLocation()}"></p>
+
+                <div th:if="${isOwnerOfEvent}">
+                    <h4><i class="bi bi-people"></i> Participants</h4>
+                    <tr th:each="response : ${responses}">
+                        <div class="card w-100 mt-2 bg-light">
+                            <div class="card-body">
+                                <a hidden id="userUUID" th:text="${response.response.user}"></a>
+                                <a hidden id="eventUUID" th:text="${response.response.event}"></a>
+                                <div class="row align-items-center">
+                                    <div class="col-sm-5">
+                                        <p class="card-text" th:text="${response.user.fName}  + ' ' + ${response.user.lName}"></p>
                                     </div>
-                                </td>
-                                <td th:text="${response.response.hasResponded()}"></td>
-                                <td><a href="#" class="btn btn-outline-danger btn-block"><i class="bi bi-person-x"></i></a></td>
+                                    <div class="col-sm-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input required_check" type="checkbox" th:checked="${response.response.required}" id="required_check">
+                                            <label class="form-check-label" for="required_check">VIP</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <i th:if="${response.response.hasResponded()}"  class="bi bi-check-circle" style="font-size: 1.25rem; color: green;" data-toggle="tooltip" data-placement="top" th:title="${response.user.fName}  + ' has responded'"></i>
+                                        <i th:unless="${response.response.hasResponded()}" class="bi bi-hourglass" style="font-size: 1.25rem; color: orangered;"  data-toggle="tooltip" data-placement="top" th:title="'Waiting for ' + ${response.user.fName}  + ' to respond'"></i>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <td><a href="#" class="btn btn-outline-danger btn-block disabled"><i class="bi bi-person-x"></i></a></td>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
 
-                            </tr>
-                        </tbody>
-                    </table>
+                    </tr>
                 </div>
 
 
@@ -89,11 +97,11 @@
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
                         <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
-                            class="btn btn-info btn-block"><i class="bi bi-calendar-week"></i> Results</a>
+                            class="btn btn-dark btn-block"><i class="bi bi-calendar-week"></i> Results</a>
                         <a th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}"
-                            class="btn btn-info btn-block"><i class="bi bi-check-circle"></i> Respond</a>
+                            class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Respond</a>
 
-                        <div class="alert alert-info" th:unless="${hasUserRespondedToEvent}"> You have not responded to
+                        <div class="alert alert-dark" th:unless="${hasUserRespondedToEvent}"> You have not responded to
                             this event. Let the organiser know your preferences!</div>
                         <a href="#" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
@@ -176,9 +184,8 @@
     $(document).ready(function () {
         $('input.required_check').click(function () {
             var apiToken = /*[[${session.apiToken}]]*/5;
-            var eventID = $(this).parent().parent().parent().find('#eventUUID').text();
-            var userID = $(this).parent().parent().parent().find('#userUUID').text();
-            //var value = !($(this).val()== "on" ? false : true);
+            var eventID = $(this).parent().parent().parent().parent().parent().find('#eventUUID').text();
+            var userID = $(this).parent().parent().parent().parent().parent().find('#userUUID').text();
             
             value = $(this).prop('checked');
             $.ajax({
@@ -194,6 +201,12 @@
             //window.open(`/event/${eventUUID}/results?duration=${duration}&attendance=${attendance}&required=${requiredUsers}`, "_self");
         });
     });
+</script>
+
+<script>
+    $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
 </script>
 
 
