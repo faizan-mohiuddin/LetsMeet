@@ -28,6 +28,10 @@ public class EventTimeSolver {
         }
     }
 
+    public ArrayList<OptimalityRange> getSolution(){
+        return this.solution;
+    }
+
     public List<OptimalityRange> solve(long minDurationMins){
         Duration minDuration = Duration.ofMinutes(minDurationMins);
         //TODO sort solution list first from early to late
@@ -84,29 +88,31 @@ public class EventTimeSolver {
     }
 
     // return only those ranges which have the duration given or greater
-    public static List<OptimalityRange> withDuration(List<OptimalityRange> ranges, Duration duration){
+    public List<OptimalityRange> withDuration(Duration duration){
         List<OptimalityRange> withDuration = new ArrayList<>();
 
-        for (OptimalityRange or : ranges)
+        for (OptimalityRange or : this.solution)
             if (or.range.getDuration().compareTo(duration) >= 0) withDuration.add(or);
         
+        this.solution = (ArrayList<OptimalityRange>) withDuration;
         return withDuration;
     }
 
     // return only those ranges which fit within the responses
-    public static List<OptimalityRange> withResponses(List<OptimalityRange> ranges, List<EventResponse> responses){
+    public List<OptimalityRange> withResponses(List<EventResponse> responses){
         List<OptimalityRange> withResponses = new ArrayList<>();
 
         // This pains me
         for (EventResponse er : responses){
             for (DateTimeRange dtr : er.getEventProperties().getTimes()){
-                for (OptimalityRange or : ranges){
+                for (OptimalityRange or : this.solution){
                     if (!dtr.getEnd().isAfter(or.range.getEnd()) && !dtr.getStart().isBefore(or.range.getStart())){
                         withResponses.add(or);
                     }
                 }
             }
         }
+        this.solution = (ArrayList<OptimalityRange>) withResponses;
         return withResponses;
     }
 

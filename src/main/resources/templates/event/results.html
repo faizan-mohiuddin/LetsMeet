@@ -53,7 +53,7 @@
                     <label for="customRange3" class="form-label"></label>
                     <div class="col-sm-8">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="requiredUsersCheck" checked>
+                            <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${param.requiredUsers}">
                             <label class="form-check-label" for="flexSwitchCheckChecked">Required users must be present</label>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
 
 
         <div th:each="range : ${results.dateTimeRanges}">
-            <div class="card w-100">
+            <div class="card w-100 mt-2 bg-light">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-sm-3">
@@ -95,12 +95,16 @@
 
                         </div>
                         <div class="col-sm-2">
-                            <p class="card-text"
-                                th:text="${range.range.getDuration().toHours()} + ':' + ${range.range.getDuration().toMinutesPart()}">
-                            </p>
+                            <div class="row">
+                                <div class="col"><i class="bi bi-stopwatch"></i></div>
+                                
+                                <p class="card-text" th:text="${range.range.getDuration().toHours()} + ':' + ${range.range.getDuration().toMinutesPart()}"></p>
+                            </div>
+                            
+
                         </div>
                         <div class="col-sm-1">
-                            <p class="card-text" th:text="${range.optimality}"></p>
+                            <p class="card-text" th:text="${range.optimality * 100 / results.uniqueResponses} +'%'"></p>
                         </div>
                         <div class="col-sm-2">
                             <a href="#" class="btn btn-primary">Select</a>
@@ -121,9 +125,9 @@
             var eventUUID = /*[[${event.UUID}]]*/5;
             var duration = $('#durationRange').val();
             var attendance = $('#attendanceRange').val();
-            var requiredUsers = $('#requiredUsersCheck').val();
+            var requiredUsers = $('#requiredUsersCheck').prop('checked');
             //alert(eventUUID+"\n"+duration + "\n" + attendance + "\n" + requiredUsers);
-            window.open(`/event/${eventUUID}/results?duration=${duration}&attendance=${attendance}&required=${requiredUsers}`, "_self");
+            window.open(`/event/${eventUUID}/results?duration=${duration}&attendance=${attendance}&requiredUsers=${requiredUsers}`, "_self");
         });
     });
 </script>

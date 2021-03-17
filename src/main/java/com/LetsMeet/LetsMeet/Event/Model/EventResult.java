@@ -20,10 +20,12 @@ public class EventResult implements Serializable{
 
     private UUID eventUUID;
     private List<OptimalityRange> dateTimeRanges;
+    private int uniqueResponses;
     
     public EventResult(UUID eventUUID, List<OptimalityRange> dateTimeRanges){
         this.eventUUID = eventUUID;
         this.dateTimeRanges = dateTimeRanges;
+        uniqueResponses = 0;
     }
 
     public List<OptimalityRange> getDateTimeRanges() {
@@ -40,5 +42,17 @@ public class EventResult implements Serializable{
 
     public void setEventUUID(UUID eventUUID) {
         this.eventUUID = eventUUID;
+    }
+
+    public int getUniqueResponses() {
+        return uniqueResponses;
+    }
+
+    public void setUniqueResponses(int uniqueResponses) {
+        this.uniqueResponses = uniqueResponses;
+    }
+
+    public float getPercent(int optimality){
+        return ((float) optimality /(float)this.uniqueResponses);
     }
 }

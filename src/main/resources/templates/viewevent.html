@@ -71,7 +71,7 @@
                                     </div>
                                     <div class="col-sm-2">
                                         <i th:if="${response.response.hasResponded()}"  class="bi bi-check-circle" style="font-size: 1.25rem; color: green;" data-toggle="tooltip" data-placement="top" th:title="${response.user.fName}  + ' has responded'"></i>
-                                        <i th:unless="${response.response.hasResponded()}" class="bi bi-hourglass" style="font-size: 1.25rem; color: orangered;"  data-toggle="tooltip" data-placement="top" th:title="'Waiting for ' + ${response.user.fName}  + ' to respond'"></i>
+                                        <i th:unless="${response.response.hasResponded()}" class="bi bi-hourglass" style="font-size: 1.25rem; color: orange;"  data-toggle="tooltip" data-placement="top" th:title="'Waiting for ' + ${response.user.fName}  + ' to respond'"></i>
                                     </div>
                                     <div class="col-sm-2">
                                         <td><a href="#" class="btn btn-outline-danger btn-block disabled"><i class="bi bi-person-x"></i></a></td>

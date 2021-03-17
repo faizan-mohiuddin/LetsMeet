@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Service.UserService;
-import com.google.gson.Gson;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventResultDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventResult;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
@@ -174,15 +174,26 @@ public class EventService{
     public EventResult calculateResults(Event event, User user, int duration, boolean requiredUsers) throws IllegalArgumentException{
         try{
             if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
+
             EventResult result;
-
+            List<EventResponse> responses = responseService.getResponses(event);
             result = resultDao.get(event.getUUID()).orElseGet(() -> newEventResult(event));
-            
 
-            EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responseService.getResponses(event)); //TODO Getting another event instance to avoid side effects is a bodge. Fix it
-            result.setDateTimeRanges(EventTimeSolver.withDuration(timeSolver.solve(5), Duration.ofMinutes(duration)));
+            List<EventResponse> requiredResponses = new ArrayList<>();
+            for (EventResponse response : responses){
+                if (response.getRequired()) requiredResponses.add(response);
+            }
+        
+            EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responses);
+
+            timeSolver.solve(1);
+
+            if(duration > 4) timeSolver.withDuration(Duration.ofMinutes(duration));
+            if(requiredUsers) timeSolver.withResponses(requiredResponses);
+
+            result.setUniqueResponses(responses.size());
+            result.setDateTimeRanges(timeSolver.getSolution());
             resultDao.update(result);
-            setProperty(event, "results.time", new Gson().toJson(result));
             return result;
         }
         catch(Exception e){
