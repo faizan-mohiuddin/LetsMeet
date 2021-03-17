@@ -98,7 +98,20 @@ public class BusinessDAO implements DAO<Business> {
 
     @Override
     public Boolean delete(Business business) {
-        return null;
+        try(Statement statement = database.con.createStatement()){
+            String query;
+            String businessUUID = business.getUUID().toString();
+
+            query = String.format("DELETE FROM Business where Business.BusinessUUID = '%s'", businessUUID);
+            statement.executeUpdate(query);
+
+            return true;
+
+        }catch(Exception e){
+            System.out.println("Business Dao: delete (business)");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

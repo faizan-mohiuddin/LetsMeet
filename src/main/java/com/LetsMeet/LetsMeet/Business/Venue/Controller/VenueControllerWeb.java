@@ -114,14 +114,6 @@ public class VenueControllerWeb {
             model.addAttribute("user", user);
             model.addAttribute("venueName", name);
 
-            System.out.println("Venue name");
-            System.out.println(name);
-            System.out.println(businessUUID);
-            System.out.println(facilities);
-            System.out.println(venueLocation);
-            System.out.println(venueLatitude);
-            System.out.println(venueLongitude);
-
             List<String> facs = new ArrayList<>(Arrays.asList(facilities.split(",")));
 
             // Get business

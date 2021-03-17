@@ -152,4 +152,26 @@ public class BusinessControllerWeb {
         redirectAttributes.addFlashAttribute("accessDenied", "You don't have permission to carry out this action");
         return "redirect:/Home";
     }
+
+    @PostMapping("/Business/{BusinessID}/delete")
+    public String deleteBusiness(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                                 @PathVariable(value="BusinessID") String businessUUID){
+
+        // Get user and business
+        User user = (User) session.getAttribute("userlogin");
+        Business business = businessService.getBusiness(businessUUID);
+
+        // Check user has permission
+        if(!(user == null) && !(business == null) && businessService.isOwner(user, business)){
+            businessService.deleteBusiness(businessUUID, user.getUUID().toString());
+
+            // Return to user dashboard
+            redirectAttributes.addFlashAttribute("alert alert-success", "Business successfully deleted");
+            return "redirect:/dashboard";
+        }
+
+        redirectAttributes.addFlashAttribute("accessDenied", "You don't have permission to carry out this action");
+        String destination = String.format("redirect:/Business/%s", businessUUID);
+        return destination;
+    }
 }

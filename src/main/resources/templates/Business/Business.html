@@ -45,7 +45,7 @@
                         <div class="row">
                             <a class="btn btn-primary" th:href="@{'/Business/{BusinessID}/edit' (BusinessID=${business.getUUID().toString()})}"
                                role="button">Edit Business</a>
-                            <a class="btn btn-primary" th:href="@{'/Home'}" role="button">Delete Business</a>
+                            <form th:action="@{/Business/{BusinessID}/delete (BusinessID=${business.getUUID().toString()})}" method = "post"><button type="submit" class="btn btn-primary">Delete Business</button></form>
                         </div>
                     </div>
                 </div>
