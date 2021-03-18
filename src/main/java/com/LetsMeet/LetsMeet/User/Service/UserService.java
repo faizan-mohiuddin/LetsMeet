@@ -271,6 +271,14 @@ public class UserService implements UserServiceInterface {
 	    return null;
     }
 
+    public User getUserByEmail(String email){
+        Optional<User> response = dao.get(email);
+	    if(response.isPresent()){
+	        return response.get();
+        }
+	    return null;
+    }
+
     // Function checks if the credentials that are input when creating an account are valid (long password, etc)
     public Boolean isValidRegister(String firstName, String lastName, String email, String password) {
 

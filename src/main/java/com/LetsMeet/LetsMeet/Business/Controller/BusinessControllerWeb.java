@@ -8,6 +8,7 @@ import com.LetsMeet.LetsMeet.Event.Controller.EventControllerWeb;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -29,6 +33,9 @@ public class BusinessControllerWeb {
 
     @Autowired
     VenueBusinessService venueBusinessService;
+
+    @Autowired
+    UserService userService;
 
     @GetMapping({"/createBusiness", "/business/new"})
     public String newBusiness(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -172,6 +179,53 @@ public class BusinessControllerWeb {
 
         redirectAttributes.addFlashAttribute("accessDenied", "You don't have permission to carry out this action");
         String destination = String.format("redirect:/Business/%s", businessUUID);
+        return destination;
+    }
+
+    @PostMapping("/Business/{BusinessID}/addUsers")
+    public String addUserToBusiness(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                                    @PathVariable(value="BusinessID") String businessUUID,
+                                    @RequestParam(value="User") String users){
+        System.out.println("Business Controller : addUserToBusiness");
+        System.out.println(users);
+
+        // Get business
+        Business business = businessService.getBusiness(businessUUID);
+
+        if(business == null){
+            return "redirect:/dashboard";
+        }
+
+        // Get users into a list
+        if(!users.equals("")){
+            List<String> usersToAdd = new ArrayList<>(Arrays.asList(users.split(",")));
+            usersToAdd.removeAll(Collections.singletonList(""));
+            if(usersToAdd.size() > 0){
+                User user;
+                for(String s : usersToAdd){
+                    user = null;
+
+                    // Attempt to get user by uuid
+                    try {
+                        user = userService.getUserByUUID(s);
+                    }catch(Exception e){
+                        // We dont care about this
+                    }
+
+                    if(user == null) {
+                        // If no user, attempts to get by email
+                        user = userService.getUserByEmail(s);
+                    }
+
+                    if(!(user == null)){
+                        // join business
+                        businessService.joinBusiness(business, user);
+                    }
+                }
+            }
+        }
+
+        String destination = String.format("redirect:/Business/%s", business.getUUID().toString());
         return destination;
     }
 }

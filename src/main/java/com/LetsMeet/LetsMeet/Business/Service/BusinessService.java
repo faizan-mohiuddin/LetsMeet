@@ -101,6 +101,10 @@ public class BusinessService {
         return "Error joining Business";
     }
 
+    public String joinBusiness(Business business, User user){
+        return this.joinBusiness(business.getUUID().toString(), user.getUUID().toString());
+    }
+
     public String leaveBusiness(String businessUUID, String userUUID){
         // Remove user from business
         ownerDAO.delete(businessUUID, userUUID);

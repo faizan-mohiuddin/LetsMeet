@@ -219,9 +219,6 @@ public class VenueControllerWeb {
         // Get venue
         Venue venue = venueService.getVenue(venueUUID);
 
-        System.out.println(venueLatitude);
-        System.out.println(venueLongitude);
-
         if(!(venue == null)) {
             // Get user
             User user = (User) session.getAttribute("userlogin");

@@ -41,7 +41,6 @@ public class ValidationService {
         }
     }
 
-
     public Object[] verifyAPItoken(String token){
         // Returns [boolean, String]
         Object[] arr = new Object[2];

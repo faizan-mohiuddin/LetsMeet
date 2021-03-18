@@ -33,7 +33,8 @@
                     <div class="card" style="width: 18rem;">
                         <div class="card-body">
                             <h5 class="card-title">Add users to your Business</h5>
-
+                            <a href="#" class="btn btn-outline-secondary btn-block"
+                               data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
                         </div>
                     </div>
             </div>
@@ -81,7 +82,7 @@
     </div>
 
     <div class="container">
-        <h2>Venues registered to this Business</h2>
+        <h2>Users registered to this Business</h2>
         <table class = "table table">
             <thead>
             <tr>
@@ -105,6 +106,26 @@
     </div>
 
     </div>
+
+    <!-- Fragments -->
+    <!-- INVITE MODAL -->
+    <div class="modal fade" id="inviteUsers" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Invite</h4>
+                </div>
+                <div class="modal-body">
+                    <div th:insert="Business/fragments :: invite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-block" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Fragments -->
 
     <div th:insert = "footer :: footer"></div>
 </body>
