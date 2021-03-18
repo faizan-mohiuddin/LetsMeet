@@ -178,6 +178,42 @@
             infowindow.open(map, marker);
         });
 
+        var geocoder = new google.maps.Geocoder();
+
+        var markerr;
+
+        function placeMarker(location) {
+
+            if (markerr == null)
+            {
+                markerr = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+            else
+            {
+                markerr.setPosition(location);
+            }
+        }
+
+        google.maps.event.addListener(map, 'click', function(event) {
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        document.getElementById("pac-input").value = results[0].formatted_address;
+                        placeMarker(event.latLng);
+                        map.panTo(event.latLng);
+                        document.getElementById('thelat').value = results[0].geometry.location.lat();
+                        document.getElementById('thelong').value = results[0].geometry.location.lng();
+                    }
+                }
+            });
+        });
+
+
         // Sets a listener on a given radio button. The radio buttons specify
         // the countries used to restrict the autocomplete search.
         function setupClickListener(id, countries) {

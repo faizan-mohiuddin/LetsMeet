@@ -128,7 +128,7 @@
         const infowindow = new google.maps.InfoWindow();
         const infowindowContent = document.getElementById("infowindow-content");
         infowindow.setContent(infowindowContent);
-        const marker = new google.maps.Marker({
+        let marker = new google.maps.Marker({
             map,
             position: myLatlng,
             anchorPoint: new google.maps.Point(0, -29),
@@ -178,6 +178,42 @@
             infowindowContent.children["place-name"].textContent = place.name;
             infowindowContent.children["place-address"].textContent = address;
             infowindow.open(map, marker);
+        });
+
+
+        var geocoder = new google.maps.Geocoder();
+
+        var markerr;
+
+        function placeMarker(location) {
+
+            if (marker == null)
+            {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+            else
+            {
+                marker.setPosition(location);
+            }
+        }
+
+        google.maps.event.addListener(map, 'click', function(event) {
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        document.getElementById("pac-input").value = results[0].formatted_address;
+                        placeMarker(event.latLng);
+                        map.panTo(event.latLng);
+                        document.getElementById('thelat').value = results[0].geometry.location.lat();
+                        document.getElementById('thelong').value = results[0].geometry.location.lng();
+                    }
+                }
+            });
         });
 
 // To add the marker to the map, call setMap();
