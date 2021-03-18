@@ -43,8 +43,9 @@
                     <div class="card-body">
                         <h5 class="card-title">Privileges</h5>
                         <div class="row">
-                            <a class="btn btn-primary" th:href="@{'/' + ${business.getUUID().toString()} + '/Venue/new'}" role="button">Edit Business</a>
-                            <a class="btn btn-primary" th:href="@{'/' + ${business.getUUID().toString()} + '/Venue/new'}" role="button">Delete Business</a>
+                            <a class="btn btn-primary" th:href="@{'/Business/{BusinessID}/edit' (BusinessID=${business.getUUID().toString()})}"
+                               role="button">Edit Business</a>
+                            <form th:action="@{/Business/{BusinessID}/delete (BusinessID=${business.getUUID().toString()})}" method = "post"><button type="submit" class="btn btn-primary">Delete Business</button></form>
                         </div>
                     </div>
                 </div>

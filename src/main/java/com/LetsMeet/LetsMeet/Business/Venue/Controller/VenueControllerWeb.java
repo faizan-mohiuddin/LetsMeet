@@ -114,14 +114,6 @@ public class VenueControllerWeb {
             model.addAttribute("user", user);
             model.addAttribute("venueName", name);
 
-            System.out.println("Venue name");
-            System.out.println(name);
-            System.out.println(businessUUID);
-            System.out.println(facilities);
-            System.out.println(venueLocation);
-            System.out.println(venueLatitude);
-            System.out.println(venueLongitude);
-
             List<String> facs = new ArrayList<>(Arrays.asList(facilities.split(",")));
 
             // Get business
@@ -148,10 +140,16 @@ public class VenueControllerWeb {
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
 
+        String printTxt = String.format("\n\nVenueControllerWeb: SearchFacilities: %s", searchFacilities);
+        System.out.println(printTxt);
+
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
-            searchFacilities = "[" + searchFacilities + "]";
+            searchFacilities = "[\"" + searchFacilities + "\"]";
         }
+
+        printTxt = String.format("VenueControllerWeb: SearchFacilities: %s", searchFacilities);
+        System.out.println(printTxt);
 
         // Search for events by what is given
         List<Venue> venues = venueService.search(searchName, searchFacilities);

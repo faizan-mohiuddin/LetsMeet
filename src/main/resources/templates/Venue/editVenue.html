@@ -222,7 +222,7 @@
     <form th:action="@{/Venue/{VenueID}/edit (VenueID=${venue.getUUID().toString()})}" method = "post">
         <div class="form-group">
             <label for="venueName">Venue Name: </label>
-            <input type="text" class="form-control" name="venueName" th:value="${venue.getName()}">
+            <input type="text" class="form-control" name="venueName" th:value="${venue.getName()}" placeholder="Venue Name...">
         </div>
 
         <div class = "form-group">

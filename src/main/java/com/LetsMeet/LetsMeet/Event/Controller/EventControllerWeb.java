@@ -252,7 +252,7 @@ public class EventControllerWeb {
         @PathVariable("eventUUID") String eventuuid,
         @RequestParam(value = "duration", defaultValue = "30") int duration,
         @RequestParam( value = "attendance", defaultValue = "90") int attendance,
-        @RequestParam( value = "requiredUsers", defaultValue = "true") boolean requiredUsers) {
+        @RequestParam( value = "requiredUsers", defaultValue = "false") boolean requiredUsers) {
 
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);

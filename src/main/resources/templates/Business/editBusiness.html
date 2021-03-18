@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+<div th:insert = "header :: navbar"></div>
+
+<div class="jumbotron">
+    <h1>Update <span th:text="${business.getName()}"></span></h1>
+</div>
+
+<div class="container">
+    <form th:action="@{/Business/{BusinessID}/edit (BusinessID=${business.getUUID().toString()})}" method = "post">
+        <div class="form-group">
+            <label for="Name">Business Name: </label>
+            <input type="text" class="form-control" name="Name" th:value="${business.getName()}" placeholder="Business Name...">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Business</button>
+    </form>
+</div>
+
+<div th:insert = "footer :: footer"></div>
+</body>
+</html>
