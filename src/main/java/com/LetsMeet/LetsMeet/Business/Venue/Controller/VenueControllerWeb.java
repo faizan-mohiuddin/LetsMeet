@@ -7,7 +7,10 @@ import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Root.Media.VenueImages.VenueImage;
+import com.LetsMeet.LetsMeet.Root.Media.VenueImages.VenueImageService;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +18,15 @@ import org.springframework.boot.autoconfigure.quartz.QuartzTransactionManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +41,12 @@ public class VenueControllerWeb {
 
     @Autowired
     BusinessService businessService;
+
+    @Autowired
+    VenueImageService imageService;
+
+    @Autowired
+    LetsMeetConfiguration config;
 
     @GetMapping("{BusinessID}/Venue/new")
     public String newVenue(Model model, HttpSession session, RedirectAttributes redirectAttributes,
@@ -92,6 +107,30 @@ public class VenueControllerWeb {
             boolean permission = venueService.checkUserPermission(venue, user);
             model.addAttribute("permission", permission);
         }
+
+        // Get images
+        String directoryPath = String.format("%s\\Venues\\%s", config.getdataFolder(), venueUUID);
+        Path path = Paths.get(directoryPath);
+        if(Files.exists(path)){
+            // Get image names
+            File dir = new File(directoryPath);
+            String[] imageNames = dir.list();
+            List<List<String>> images = new ArrayList<>();
+
+            int counter = 1;
+            int total = imageNames.length;
+            for(String s : imageNames){
+                System.out.println(s);
+                List<String> each = new ArrayList<>();
+                String t = String.format("%d/%d", counter, total);
+                each.add(t);
+                each.add(directoryPath + "\\" + s);
+                images.add(each);
+                counter += 1;
+            }
+            model.addAttribute("images", images);
+        }
+
         return "Venue/Venue";
     }
 
@@ -263,5 +302,57 @@ public class VenueControllerWeb {
         }
         redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to carry out this action.");
         return"redirect:/Home";
+    }
+
+    @GetMapping("/Venue/{VenueID}/Images")
+    public String venueImages(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                              @PathVariable(value="VenueID") String venueUUID){
+        // Get venue
+        Venue venue = venueService.getVenue(venueUUID);
+
+        // Get user
+        User user = (User) session.getAttribute("userlogin");
+
+        if(!(venue == null) && !(user == null)) {
+            // Make sure user has permission
+            if(venueService.checkUserPermission(venue, user)){
+                model.addAttribute("user", user);
+                model.addAttribute("venue", venue);
+                return "Venue/venueImages";
+            }
+            redirectAttributes.addFlashAttribute("accessDenied", "You dont have permission to view this page.");
+            return "redirect:/Home";
+        }
+
+        redirectAttributes.addFlashAttribute("accessDenied", "Something went wrong.");
+        return "redirect:/Home";
+    }
+
+    @PostMapping("/Venue/{VenueID}/Images")
+    public String venueSetImages(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+                                 @PathVariable(value="VenueID") String venueUUID,
+                                 @RequestParam(value="image") MultipartFile[] files){
+
+        List<MultipartFile> images = Arrays.asList(files);
+        boolean errorOccured = false;
+
+        for(MultipartFile i : images){
+            if (i.getSize()>0) {
+                System.out.println("Another one");
+                VenueImage image = new VenueImage(i, venueUUID);
+                try {
+                    imageService.save(image);
+                }catch(Exception e){
+                    errorOccured = true;
+                }
+            }
+        }
+
+        if(errorOccured){
+            redirectAttributes.addFlashAttribute("accessDenied", "There was a problem with all or some of the images!");
+        }
+
+        String destination = String.format("redirect:/Venue/%s", venueUUID);
+        return destination;
     }
 }
