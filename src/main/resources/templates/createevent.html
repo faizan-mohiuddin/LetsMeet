@@ -330,6 +330,10 @@
         $(this).parent().remove();
         });
         });
+            
+        $('.datetimepicker').datetimepicker({
+        format: 'hh:mm:ss',
+        });
         </script>
             
             <label>Event Times:</label>
@@ -341,14 +345,14 @@
                                 <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay0">
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="startTime0">
+                                <input type="time" class="form-control datetimepicker" step="1" id="startTime0">
                             </div>
                             <label>Until:</label>
                             <div class="col">
                                 <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay0">
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="endTime0">
+                                <input type="time" class="form-control datetimepicker" step="1" id="endTime0">
                             </div>
                             <label>Time Zone:</label>
                             <div class="col">
