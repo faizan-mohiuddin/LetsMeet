@@ -198,15 +198,7 @@
 
 <script type="text/javascript"
     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-
-<script>
-    $(function () {
-        $('.datepicker').datepicker({
-            format: 'mm-dd-yyyy'
-        });
-    });
-</script>
-
+    
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -266,28 +258,157 @@
                 <input type="hidden" name="thelong" id="thelong"/>
             </div>
 
-            <div class="form-group">
-                <label for="eventTimes">Event Times:</label>
-                <div class="container" id="timeRangeGroup">
-                    <div class="row align-items-start">
-                        <div class="col">
-                            <input type="datetime" class="form-control datepicker" name="eventlocation"
-                                placeholder="From...">
-                        </div>
-                        <div class="col">
-                            <input type="datetime" class="form-control datepicker" name="eventlocation"
-                                placeholder="Until...">
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Remove</button>
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Add</button>
+            
+        <!-- Scripts for Event Times -->
+        <script>
+        // For the day format
+        // DOES NOT WORK IN JS
+        $(function () {
+        $(".datepicker").datepicker({
+            format: 'yyyy-mm-dd'
+        });
+        });
+
+        // Counter for the rows
+        var dateRowNo = 0;
+        $(document).ready(function(){
+        $('.add').click(function(){
+
+        // Incrementing the counter
+        dateRowNo++;
+        $(".list").append(
+        '<div class="row">' +
+        '<label>From:</label>' +
+        '<div class="col">' +
+        '<input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
+        '</div>' +
+        '<div class="col">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
+        '</div>' +
+        '<label>Until:</label>' +
+        '<div class="col">' +
+        '<input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
+        '</div>' +
+        '<div class="col">' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
+        '</div>' +
+        '<label>Time Zone:</label>' +
+        '<div class="col">' +
+        '<select name="timezone" class="form-control" id="timeZone' + dateRowNo + '">' +
+        '<option value="+00:00">+00:00</option>' +
+        '<option value="+01:00">+01:00</option>' +
+        '<option value="+02:00">+02:00</option>' +
+        '<option value="+03:00">+03:00</option>' +
+        '<option value="+04:00">+04:00</option>' +
+        '<option value="+05:00">+05:00</option>' +
+        '<option value="+06:00">+06:00</option>' +
+        '<option value="+07:00">+07:00</option>' +
+        '<option value="+08:00">+08:00</option>' +
+        '<option value="+09:00">+09:00</option>' +
+        '<option value="+10:00">+10:00</option>' +
+        '<option value="+11:00">+11:00</option>' +
+        '<option value="+12:00">+12:00</option>' +
+        '<option value="-01:00">-01:00</option>' +
+        '<option value="-02:00">-02:00</option>' +
+        '<option value="-03:00">-03:00</option>' +
+        '<option value="-04:00">-04:00</option>' +
+        '<option value="-05:00">-05:00</option>' +
+        '<option value="-06:00">-06:00</option>' +
+        '<option value="-07:00">-07:00</option>' +
+        '<option value="-08:00">-08:00</option>' +
+        '<option value="-09:00">-09:00</option>' +
+        '<option value="-10:00">-10:00</option>' +
+        '<option value="-11:00">-11:00</option>' +
+        '<option value="-12:00">-12:00</option>' +
+        '</select>' +
+        '</div>' +
+        '<p class="btn btn-light remove">Remove</p>' +
+        '</div>');
+        });
+
+        $(".list").on('click', '.remove', function(){
+        $(this).parent().remove();
+        });
+        });
+        </script>
+            
+            <label>Event Times:</label>
+                <div class="row px-3">
+                   <div class="col list">
+                        <div class="row">
+                            <label>From:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay0">
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control" step="1" id="startTime0">
+                            </div>
+                            <label>Until:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay0">
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control" step="1" id="endTime0">
+                            </div>
+                            <label>Time Zone:</label>
+                            <div class="col">
+                                <select name="timezone" class="form-control" id="timeZone0">
+                                    <option value="+00:00">+00:00</option>
+                                    <option value="+01:00">+01:00</option>
+                                    <option value="+02:00">+02:00</option>
+                                    <option value="+03:00">+03:00</option>
+                                    <option value="+04:00">+04:00</option>
+                                    <option value="+05:00">+05:00</option>
+                                    <option value="+06:00">+06:00</option>
+                                    <option value="+07:00">+07:00</option>
+                                    <option value="+08:00">+08:00</option>
+                                    <option value="+09:00">+09:00</option>
+                                    <option value="+10:00">+10:00</option>
+                                    <option value="+11:00">+11:00</option>
+                                    <option value="+12:00">+12:00</option>
+                                    <option value="-01:00">-01:00</option>
+                                    <option value="-02:00">-02:00</option>
+                                    <option value="-03:00">-03:00</option>
+                                    <option value="-04:00">-04:00</option>
+                                    <option value="-05:00">-05:00</option>
+                                    <option value="-06:00">-06:00</option>
+                                    <option value="-07:00">-07:00</option>
+                                    <option value="-08:00">-08:00</option>
+                                    <option value="-09:00">-09:00</option>
+                                    <option value="-10:00">-10:00</option>
+                                    <option value="-11:00">-11:00</option>
+                                    <option value="-12:00">-12:00</option>
+                                </select>
+                            </div>
+                            <p class="btn btn-light remove">Remove</p>
                         </div>
                     </div>
-
                 </div>
-            </div>
+            <p class="btn btn-light add">Add</p>
+
+            <p onclick="JSONFormatting()">TestForJson (Click on me and Look at the Console)</p>
+
+            <script>
+            function JSONFormatting() {
+                var eventDates = [];
+                for (i=0; i<dateRowNo+1; i++) {
+                    if (document.getElementById('startDay'+i) !== null) {
+                        var startDay = document.getElementById('startDay'+i).value;
+                        var startTime = document.getElementById('startTime'+i).value;
+                        var endDay = document.getElementById('endDay'+i).value;
+                        var endTime = document.getElementById('endTime'+i).value;
+                        var timeZone = document.getElementById('timeZone'+i).value;
+                        const startDate = startDay + 'T' + startTime + timeZone;
+                        const endDate = endDay + 'T' + endTime + timeZone;
+                        let dateEntry = new Map()
+                        dateEntry['start'] = startDate;
+                        dateEntry['end'] = endDate;
+                        eventDates.push(dateEntry);
+                        console.log(eventDates);
+                    }
+                }
+            }
+            </script>
 
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
