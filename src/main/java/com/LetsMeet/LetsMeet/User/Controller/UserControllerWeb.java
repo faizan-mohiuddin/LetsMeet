@@ -183,7 +183,7 @@ public class UserControllerWeb {
 
         User user = (User) session.getAttribute("userlogin");
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) { // this user UUID is the admin account's UUID
+        if (user == null || !userServiceInterface.isAdmin(user)) { // checks if logged in user is an admin
 
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
 

@@ -82,8 +82,10 @@
             var markerLongitude = $("#longitudeformarker").val();
             var markerLatitude = $("#latitudeformarker").val();
             const mapOptions = {
-                zoom: 8,
+                zoom: 12,
                 center: { lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude) },
+                streetViewControl: false,
+                mapTypeControl: false,
             };
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
             console.log(markerLongitude);
@@ -131,7 +133,7 @@
             })
         }
     </script>
-    <div id="map" style="clear:both; height:200px;"></div>
+    <div id="map" style="clear:both; height:400px;"></div>
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
     <script
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=&v=weekly"

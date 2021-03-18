@@ -88,8 +88,10 @@
     // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 50.064192, lng: -130.605469 },
-            zoom: 3,
+            center: { lat: 55.3781, lng: -2.4360 },
+            zoom: 5,
+            streetViewControl: false,
+            mapTypeControl: false,
         });
         const card = document.getElementById("pac-card");
         map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
@@ -247,7 +249,7 @@
                 <div id="pac-container">
                     <input name = "eventlocation" id="pac-input" class = "form-control" type="text" placeholder="Enter a location" />
                 </div>
-                <div id="map" style="clear:both; height:200px;"></div>
+                <div id="map" style="clear:both; height:400px;"></div>
                 <div id="infowindow-content">
                     <img src="" width="16" height="16" id="place-icon" />
                     <span id="place-name" class="title"></span><br />

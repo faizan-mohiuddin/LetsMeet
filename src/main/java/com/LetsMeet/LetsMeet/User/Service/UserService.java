@@ -352,4 +352,12 @@ public class UserService implements UserServiceInterface {
         return "Current Password is not correct";
     }
 
+    // Returns true if User is an admin, false otherwise
+    // By default when a new user is created isAdmin = 0. Set isAdmin to 1 through phpMyAdmin to make a User an admin.
+    public Boolean isAdmin(User user) {
+
+        return dao.isAdmin(user) == 1;
+
+    }
+
 }

@@ -10,6 +10,7 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
+import com.LetsMeet.LetsMeet.User.Service.UserServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,9 @@ public class EventControllerWeb {
 
     @Autowired
     EventDao eventDao;
+
+    @Autowired
+    UserService userServiceInterface;
 
     @GetMapping({"/createevent", "/event/new"})
     public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -106,7 +110,7 @@ public class EventControllerWeb {
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation) {
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude, @RequestParam(name = "thelong") String eventLongitude) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -144,7 +148,7 @@ public class EventControllerWeb {
     public String adminviewallevents(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) { // this user UUID is the admin account's UUID
+        if (user == null || !userServiceInterface.isAdmin(user)) { // checks if logged in user is an admin
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
             return "redirect:/Home";
         } 

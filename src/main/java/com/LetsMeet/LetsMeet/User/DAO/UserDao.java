@@ -24,6 +24,8 @@ import com.LetsMeet.Models.Data.TokenData; //TODO This needs to be refactored ca
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.xml.transform.Result;
+
 //-----------------------------------------------------------------
 
 @Component
@@ -211,6 +213,39 @@ public class UserDao implements DAO<User> {
             database.close();
             return false;
         }
+    }
+
+    public Integer isAdmin(User user) {
+
+        database.open();
+
+        try(Statement statement = database.getCon().createStatement();){
+
+            String query = String.format("SELECT isAdmin FROM User WHERE UserUUID = '%s'", user.getUUID().toString());
+
+            ResultSet rs = statement.executeQuery(query);
+
+            int value = 0;
+
+            while (rs.next()) {
+
+                value = rs.getInt(1);
+
+            }
+
+            database.close();
+
+            return value;
+
+        } catch(Exception e) {
+
+            System.out.println("\nUser DAO: isAdmin");
+            System.out.println(e);
+            database.close();
+            return null;
+
+        }
+
     }
 
 }
