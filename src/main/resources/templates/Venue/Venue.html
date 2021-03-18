@@ -144,7 +144,12 @@
 
     <div class="container" th:if="${images}">
         <h2>Images for this Venue</h2>
-        <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                <li data-target="#carouselExampleIndicators" th:each="i : ${Images}" th:data-slide-to="${i[0] -1}"></li>
+            </ol>
+
             <div class="carousel-inner">
                 <div class="carousel-item active">
                     <img class="d-block w-100" th:src="${firstImage[1]}" alt="First slide">
@@ -155,6 +160,16 @@
                 </div>
 
             </div>
+
+            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+
         </div>
     </div>
 
@@ -163,7 +178,7 @@
     <h4>Owner privileges</h4>
     <a class="btn btn-primary" th:href="@{/Venue/{venueID}/edit(venueID = ${venue.getUUID().toString()})}">Edit Venue</a>
     <a class="btn btn-primary" th:href="@{/Venue/{venueID}/delete(venueID = ${venue.getUUID().toString()})}">Delete Venue</a>
-    <a class="btn btn-primary" th:href="@{/Venue/{venueID}/Images( )}">Modify Venue Images</a>
+    <a class="btn btn-primary" th:href="@{/Venue/{venueID}/Images (venueID = ${venue.getUUID().toString()})}">Modify Venue Images</a>
 </div>
 
 <div th:insert = "footer :: footer"></div>
