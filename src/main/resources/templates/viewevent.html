@@ -96,7 +96,7 @@
                             data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
-                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
+                        <a th:href="@{/event/{eventuuid}/results?duration=5&attendance=0(eventuuid = ${event.getUUID()})}"
                             class="btn btn-dark btn-block"><i class="bi bi-calendar-week"></i> Results</a>
                         <a th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}"
                             class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Respond</a>

@@ -26,93 +26,108 @@
         </div>
     </div>
     <div class="container">
-
-        <div class="card w-100">
-            <div class="card-body">
-                <h5 class="card-title">Options</h5>
-                <div class="row">
-                    <label for="customRange3" class="form-label">Minimum Duration</label>
-                    <div class="col-sm-8">
-                        <input type="range" class="form-range" min="5" max="2000" step="15" id="durationRange" th:value="${param.duration}">
-                    </div>
-                    <div class="col-sm-4">
-                        <div id="durationValue" th:text="${param.duration}"></div>
-                    </div>
-                </div>
-                <div class="row">
-                    <label for="customRange3" class="form-label">Attendance Rate</label>
-                    <div class="col-sm-8">
-                        <input type="range" class="form-range" min="0" max="100" step="10" id="attendanceRange" th:value="${param.attendance}">
-                    </div>
-                    <div class="col-sm-4">
-                        <div id="attendanceValue" th:text="${param.attendance}"></div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="card w-100 mt-2">
+                    <div class="card-body">
+                        <h5 class="card-title">Options</h5>
+                        <div class="row">
+                            <label for="customRange3" class="form-label">Minimum Duration</label>
+                            <div class="col-sm-9">
+                                <input type="range" class="form-range" min="5" max="2000" step="5" id="durationRange" th:value="${param.duration}">
+                            </div>
+                            <div class="col-sm-3">
+                                <div id="durationValue" th:text="${param.duration}"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label for="customRange3" class="form-label">Attendance Rate</label>
+                            <div class="col-sm-9">
+                                <input type="range" class="form-range" min="0" max="100" step="10" id="attendanceRange" th:value="${param.attendance}"></input>
+                            </div>
+                            <div class="col-sm-3">
+                                <div id="attendanceValue" th:text="${param.attendance}+'%'"></div>                       
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label for="customRange3" class="form-label"></label>
+                            <div class="col-sm-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${param.requiredUsers}">
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">VIPs Present</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <button class="btn btn-primary" style=" color: white !important;" id="filter_apply">Apply</button>
+                        </div>
                         
                     </div>
                 </div>
-                <div class="row">
-                    <label for="customRange3" class="form-label"></label>
-                    <div class="col-sm-8">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${param.requiredUsers}">
-                            <label class="form-check-label" for="flexSwitchCheckChecked">Required users must be present</label>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                    </div>
-                </div>
-                <a class="btn btn-primary" id="filter_apply">Apply</a>
             </div>
-        </div>
-
-
-
-        <div th:each="range : ${results.dateTimeRanges}">
-            <div class="card w-100 mt-2 bg-light">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-sm-3">
-                            <div class="row">
-                                <div class="span4"><b>From:&nbsp; </b></div>
-                                <div class="span8">
-                                    <p class="card-text"
-                                        th:text="${range.range.start.getDayOfMonth()} +'/'+ ${range.range.start.getMonthValue()} +'/'+ ${range.range.start.getYear()} +' &nbsp; '+ ${range.range.start.getHour()}+':'+ ${range.range.start.getMinute()}">
-                                    </p>
+            <div class="col-sm-8">
+                <div th:each="range : ${results.dateTimeRanges}">
+                    <div class="card w-100 mt-2 bg-light" th:if="${(range.optimality * 100 / results.uniqueResponses)>= #conversions.convert(param.attendance,T(int))}">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-sm-3">
+                                    <div class="row">
+                                        <div class="span4"><b>From:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text"
+                                                th:text="${range.range.start.getDayOfMonth()} +'/'+ ${range.range.start.getMonthValue()} +'/'+ ${range.range.start.getYear()} +' &nbsp; '+ ${range.range.start.getHour()}+':'+ ${range.range.start.getMinute()}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="row">
+                                        <div class="span4"><b>To:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text"
+                                                th:text="${range.range.end.getDayOfMonth()} +'/'+ ${range.range.end.getMonthValue()} +'/'+ ${range.range.end.getYear()} +' @ '+ ${range.range.end.getHour()}+':'+ ${range.range.end.getMinute()}">
+                                            </p>
+                                        </div>
+                                    </div>
+        
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="row">
+                                        <div class="col"><i class="bi bi-stopwatch"></i></div>
+                                        
+                                        <p class="card-text" th:text="${range.range.getDuration().toHours()} + ':' + ${range.range.getDuration().toMinutesPart()}"></p>
+                                    </div>
+                                    
+        
+                                </div>
+                                <div class="col-sm-1">
+                                    <p class="card-text" th:text="${range.optimality * 100 / results.uniqueResponses} +'%'"></p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="#" class="btn btn-primary">Select</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-1">
-                            <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
-                        </div>
-                        <div class="col-sm-3">
-                            <div class="row">
-                                <div class="span4"><b>To:&nbsp; </b></div>
-                                <div class="span8">
-                                    <p class="card-text"
-                                        th:text="${range.range.end.getDayOfMonth()} +'/'+ ${range.range.end.getMonthValue()} +'/'+ ${range.range.end.getYear()} +' @ '+ ${range.range.end.getHour()}+':'+ ${range.range.end.getMinute()}">
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-sm-2">
-                            <div class="row">
-                                <div class="col"><i class="bi bi-stopwatch"></i></div>
-                                
-                                <p class="card-text" th:text="${range.range.getDuration().toHours()} + ':' + ${range.range.getDuration().toMinutesPart()}"></p>
-                            </div>
-                            
-
-                        </div>
-                        <div class="col-sm-1">
-                            <p class="card-text" th:text="${range.optimality * 100 / results.uniqueResponses} +'%'"></p>
-                        </div>
-                        <div class="col-sm-2">
-                            <a href="#" class="btn btn-primary">Select</a>
-                        </div>
                     </div>
                 </div>
+                <div class="card bg-light mt-2 w-100" th:if="${results.dateTimeRanges.isEmpty()}">
+                    <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
+                    <div class="card-body">
+                      <p class="card-text">Widen your search and try again.</p>
+                    </div>
+                  </div>
             </div>
+
+            
         </div>
+        
+
+
+
+
     </div>
 
     <div th:insert="footer :: footer"></div>
@@ -135,9 +150,13 @@
 <script>
     $(document).ready(function () {
         $('#durationRange').on('input', function () {
-            v = $('#durationRange').val();
-            console.log(v);
-            $('#durationValue').text(v);
+            totalMinutes = $('#durationRange').val();
+            var h = Math.floor(totalMinutes / 60);
+            var m = totalMinutes % 60;
+            h = h < 10 ? '0' + h : h;
+            m = m < 10 ? '0' + m : m;
+            console.log(h,m);
+            $('#durationValue').text(h + ':' + m);
         });
     });
 </script>
@@ -147,7 +166,7 @@
         $('#attendanceRange').on('input', function () {
             v = $('#attendanceRange').val();
             console.log(v);
-            $('#attendanceValue').text(v);
+            $('#attendanceValue').text(v+'%');
         });
     });
 </script>
