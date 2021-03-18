@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+*.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -32,4 +34,5 @@ build/
 ### VS Code ###
 .vscode/
 src/test/python/FrontEnd/geckodriver.log
+src/main/resources/application.properties
 src/main/resources/application.properties
