@@ -87,6 +87,7 @@
     function initMap() {
         var markerLongitude = $("#thelong").val();
         var markerLatitude = $("#thelat").val();
+        var myLatlng = new google.maps.LatLng(parseFloat(markerLatitude),parseFloat(markerLongitude));
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude) },
             zoom: 5,
@@ -129,6 +130,7 @@
         infowindow.setContent(infowindowContent);
         const marker = new google.maps.Marker({
             map,
+            position: myLatlng,
             anchorPoint: new google.maps.Point(0, -29),
         });
         autocomplete.addListener("place_changed", () => {
@@ -177,15 +179,8 @@
             infowindowContent.children["place-address"].textContent = address;
             infowindow.open(map, marker);
         });
-        var myLatlng = new google.maps.LatLng(parseFloat(markerLatitude),parseFloat(markerLongitude));
-        var marker2 = new google.maps.Marker({
-            position: myLatlng,
-            title:"Hello World!",
-            fillColor:"green",
-        });
 
 // To add the marker to the map, call setMap();
-        marker2.setMap(map);
         // Sets a listener on a given radio button. The radio buttons specify
         // the countries used to restrict the autocomplete search.
         function setupClickListener(id, countries) {
