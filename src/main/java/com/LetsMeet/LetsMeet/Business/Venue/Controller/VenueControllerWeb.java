@@ -111,11 +111,14 @@ public class VenueControllerWeb {
         // Get images
         String directoryPath = String.format("%s\\Venues\\%s", config.getdataFolder(), venueUUID);
         Path path = Paths.get(directoryPath);
+
         if(Files.exists(path)){
             // Get image names
             File dir = new File(directoryPath);
             String[] imageNames = dir.list();
             List<List<String>> images = new ArrayList<>();
+
+            String displayPath = String.format("\\media\\Venues\\%s", venueUUID);
 
             int counter = 1;
             int total = imageNames.length;
@@ -124,11 +127,14 @@ public class VenueControllerWeb {
                 List<String> each = new ArrayList<>();
                 String t = String.format("%d/%d", counter, total);
                 each.add(t);
-                each.add(directoryPath + "\\" + s);
+                each.add(displayPath + "\\" + s);
                 images.add(each);
                 counter += 1;
             }
-            model.addAttribute("images", images);
+            model.addAttribute("images", true);
+            model.addAttribute("firstImage", images.get(0));
+            images.remove(0);
+            model.addAttribute("Images", images);
         }
 
         return "Venue/Venue";
