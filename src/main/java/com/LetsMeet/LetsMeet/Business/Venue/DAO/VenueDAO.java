@@ -115,11 +115,14 @@ public class VenueDAO implements DAO<Venue> {
     public Boolean update(Venue venue) {
         try{
             PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Venue SET Name = ?, " +
-                    "Facilities = ? WHERE VenueUUID = ?");
+                    "Facilities = ?, Address = ?, Longitude = ?, Latitude = ? WHERE VenueUUID = ?");
             statement.setString(1, venue.getName());
             statement.setString(2, venue.getJsonFacilities());
+            statement.setString(3, venue.getAddress());
+            statement.setDouble(4, venue.getLongitude());
+            statement.setDouble(5, venue.getLatitude());
 
-            statement.setString(3, venue.getUUID().toString());
+            statement.setString(6, venue.getUUID().toString());
 
             if(statement.executeUpdate() > 0){
                 DatabaseInterface.drop();
@@ -163,7 +166,6 @@ public class VenueDAO implements DAO<Venue> {
     }
 
     public Optional<List<Venue>> search(String query){
-        System.out.println(query);
         try(Statement statement = DatabaseInterface.get().createStatement()){
             ResultSet rs = statement.executeQuery(query);
 

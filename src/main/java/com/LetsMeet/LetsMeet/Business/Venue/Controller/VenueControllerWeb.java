@@ -212,7 +212,7 @@ public class VenueControllerWeb {
     public String editVenue(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                             @PathVariable(value="VenueID") String venueUUID,
                             @RequestParam(value="venueName") String name,
-                            @RequestParam(value="facilities") String facilities,
+                            @RequestParam(value="facilities", defaultValue = "") String facilities,
                             @RequestParam(value = "venuelocation", defaultValue = "") String venueLocation,
                             @RequestParam(value = "thelat", defaultValue = "") String venueLatitude,
                             @RequestParam(value = "thelong", defaultValue = "") String venueLongitude){
