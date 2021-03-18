@@ -52,7 +52,7 @@ public class UserDao implements DAO<User> {
 
             rs.next();
             Optional<User> user = Optional.of( new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-            rs.getString(4), rs.getString(5), rs.getString(6)));
+            rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7)));
             database.close();
             return user;
 
@@ -75,7 +75,7 @@ public class UserDao implements DAO<User> {
 
             rs.next();
             User user = new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-                    rs.getString(4), rs.getString(5), rs.getString(6));
+                    rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7));
 
             database.close();
             return Optional.ofNullable(user);
@@ -101,7 +101,7 @@ public class UserDao implements DAO<User> {
             List<User> users = new ArrayList<>();
 
             while(rs.next()){
-                users.add(new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6)));
+                users.add(new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7)));
                 
             }
             database.close();

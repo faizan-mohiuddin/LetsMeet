@@ -10,6 +10,7 @@ public class User {
     String email;
     String passwordHash;
     String salt;
+    Boolean isAdmin = false;
 
     public User(UUID UUID, String fName, String lName, String email, String passwordHash, String salt){
         this.UUID = UUID;
@@ -18,6 +19,16 @@ public class User {
         this.email = email;
         this.salt = salt;
         this.passwordHash = passwordHash;
+    }
+
+    public User(UUID UUID, String fName, String lName, String email, String passwordHash, String salt, Boolean isAdmin){
+        this.UUID = UUID;
+        this.fName = fName;
+        this.lName = lName;
+        this.email = email;
+        this.salt = salt;
+        this.passwordHash = passwordHash;
+        this.isAdmin = isAdmin;
     }
 
     public User(String uuid){
@@ -51,6 +62,10 @@ public class User {
     public UUID getUUID(){
         return this.UUID;
     }
+
+    public Boolean getIsAdmin() { return this.isAdmin; }
+
+    public void setIsAdmin(Boolean b) { this.isAdmin = b; }
 
     public String getStringUUID(){
         return this.UUID.toString();

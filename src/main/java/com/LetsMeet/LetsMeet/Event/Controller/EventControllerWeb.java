@@ -148,7 +148,7 @@ public class EventControllerWeb {
     public String adminviewallevents(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
-        if (user == null || !userServiceInterface.isAdmin(user)) { // checks if logged in user is an admin
+        if (user == null || !user.getIsAdmin()) { // checks if logged in user is an admin
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
             return "redirect:/Home";
         } 
