@@ -10,7 +10,6 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
-import com.LetsMeet.LetsMeet.User.Service.UserServiceInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

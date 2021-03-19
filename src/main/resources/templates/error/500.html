@@ -16,7 +16,9 @@
 <div class = "jumbotron">
     <div class = "container">
         <h1>Error 500</h1>
-        <i>The server encountered a critical error while processing your request.</i>
+        <p></p><i>The server encountered a critical error while processing your request.</i></p>
+        <p><span th:text="${timestamp}"></span></p>
+        <p><b>Information: </b><span th:text="${message}"></span></p>
     </div>
 </div>
 

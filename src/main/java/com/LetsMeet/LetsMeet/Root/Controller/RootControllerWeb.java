@@ -6,8 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpSession;
@@ -38,10 +36,10 @@ public class RootControllerWeb {
         }
         model.addAttribute("results", results);
 
-        if (results.isEmpty())
+        if (results.isEmpty()){
             model.addAttribute("empty", true);
             redirectAttributes.addFlashAttribute("error", "You do not have permission to view this page.");
-
+        }
         return "root/searchResults";
     }
 }
