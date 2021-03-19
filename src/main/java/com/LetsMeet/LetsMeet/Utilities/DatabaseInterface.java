@@ -45,7 +45,6 @@ public class DatabaseInterface{
         try{
             DatabaseInterface.connection = DriverManager.getConnection(config.getDatabaseHost() + "/" + config.getDatabaseName(), config.getDatabaseUser(), config.getDatabasePassword());
             LOGGER.info("Established connection to {} @ {}", config.getDatabaseName(), config.getDatabaseHost());
-            ts = System.currentTimeMillis()/1000;
             return true;
         }
         catch(Exception e){
