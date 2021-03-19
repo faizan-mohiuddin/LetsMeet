@@ -4,14 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-
-    /**
-* Java >= 9
-* @deprecated (when, why, use static singleton method DatabaseInterface.get())
-*/
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 @Service
-@Deprecated(forRemoval = true)
 public class DBConnector {
 
     @Autowired
@@ -25,15 +21,15 @@ public class DBConnector {
     public Connection getCon(){
         return con;
     }
-
+    @Deprecated // use DatabaseInterface .get() instead
     public void open() {
-        this.con = DatabaseInterface.get();
+        //database.openConnection();
+        this.con = database.get();
     }
 
-
-
+    @Deprecated // use DatabaseInterface .drop() instead
     public void close(){
-        DatabaseInterface.drop();
+        database.drop();
     }
 }
 
