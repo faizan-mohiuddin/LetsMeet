@@ -3,7 +3,6 @@ package com.LetsMeet.LetsMeet.Business.Venue.Model;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.google.gson.Gson;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.*;
 
@@ -84,9 +83,12 @@ public class Venue {
         if(!(facilities == null)){
             // Populate facilities
             try {
-                JSONArray obj = new JSONArray(facilities);
-                for (int i = 0; i < obj.length(); i++) {
-                    this.facilities.add(obj.get(i).toString());
+                //JSONArray obj = new JSONArray(facilities);
+                
+                Gson gson = new Gson();
+                String[] obj = gson.fromJson(facilities, String[].class);
+                for (int i = 0; i < obj.length; i++) {
+                    this.facilities.add(obj[i].toString());
                 }
             } catch (Exception e) {
                 System.out.println("Venue : Init(String, String, String)");
