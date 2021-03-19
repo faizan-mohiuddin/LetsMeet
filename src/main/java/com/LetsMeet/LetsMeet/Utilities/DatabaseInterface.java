@@ -35,7 +35,6 @@ public class DatabaseInterface{
 
     // The database connection
     private static Connection connection;
-    private static long ts;
 
     // database users
     private static int users = 0;
@@ -69,7 +68,7 @@ public class DatabaseInterface{
     // Initialises a connection if required and returns reference to it
     public static Connection get(){
         try{
-            if (users < 0 || connection == null || (System.currentTimeMillis()/1000)-ts > 600000 ||connection.isClosed()){openConnection();}
+            if (connection == null || !connection.isValid(5) || connection.isClosed()){openConnection();}
             users++;
             return connection;
         }
