@@ -17,12 +17,10 @@ import java.sql.Statement;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 //-----------------------------------------------------------------
@@ -33,8 +31,6 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
     // Get logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventPermissionDao.class);
 
-    @Autowired
-    DBConnector database;
 
     // Get
     //-----------------------------------------------------------------

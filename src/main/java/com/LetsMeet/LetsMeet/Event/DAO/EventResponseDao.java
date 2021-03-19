@@ -24,12 +24,10 @@ import java.util.UUID;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 //-----------------------------------------------------------------
@@ -39,9 +37,6 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventResponseDao.class);
-
-    @Autowired
-    DBConnector database;
 
     // Get
     //-----------------------------------------------------------------
