@@ -36,3 +36,4 @@ build/
 src/test/python/FrontEnd/geckodriver.log
 src/main/resources/application.properties
 src/main/resources/application.properties
+*.properties
