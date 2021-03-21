@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 
 public class EventResult implements Serializable{
     
@@ -17,6 +18,15 @@ public class EventResult implements Serializable{
 
         public OptimalityRange(DateTimeRange range, Integer optimality){this.range = range; this.optimality = optimality;}
     }
+
+    public static class OptimalityLocation implements Serializable{
+        private static final long serialVersionUID = -222100466555521092L;
+        public Location location;
+        public Integer optimality;
+
+        public OptimalityLocation(Location range, Integer optimality){this.location = range; this.optimality = optimality;}
+    }
+
 
     private UUID eventUUID;
     private List<OptimalityRange> dateTimeRanges;
