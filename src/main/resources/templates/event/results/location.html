@@ -70,7 +70,7 @@
                     <div class="card w-100 mt-2 bg-light">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-sm-6">
+                                <div class="col-sm-5">
                                     <div class="row">
                                         <div class="span4"><b><i class="bi bi-geo"></i> </b></div>
                                         <div class="span8">
@@ -80,7 +80,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-4">
                                     <div class="row">
                                         <div class="span4"><b>Location:&nbsp; </b></div>
                                         <div class="span8">
@@ -90,6 +90,9 @@
                                             <p class="card-text"
                                             th:text="'Longitude: '+${location.location.longitude}">
                                         </p>
+                                        <p class="card-text"
+                                        th:text="'Radius: '+${location.location.radius} + ' meters'">
+                                    </p>
                                         </div>
                                     </div>
         

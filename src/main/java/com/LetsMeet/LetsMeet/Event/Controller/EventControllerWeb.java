@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
@@ -113,7 +114,7 @@ public class EventControllerWeb {
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude, @RequestParam(name = "thelong") String eventLongitude) {
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") Double eventLatitude, @RequestParam(name = "thelong") Double eventLongitude) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -135,8 +136,10 @@ public class EventControllerWeb {
             if (file.getSize()>0){
                 String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
                 eventService.setProperty(event, "header_image", path);
-                eventDao.update(event);
+                
             }
+            eventService.setLocation(event, new Location(eventlocation, eventLatitude, eventLongitude, 50000.0));
+            eventDao.update(event);
 
             return viewEvent(event.getUUID().toString(), model, redirectAttributes, session);
         }

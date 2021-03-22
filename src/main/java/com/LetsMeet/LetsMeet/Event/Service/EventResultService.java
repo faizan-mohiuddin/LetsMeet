@@ -86,6 +86,7 @@ public class EventResultService {
             EventLocationSolver locationSolver = new EventLocationSolver(eventService.getEvent(event.getUUID().toString()).getEventProperties(), responses);
             
             result.setLocations(locationSolver.solve());
+            resultDao.update(result);
             return result;
         }
         catch(Exception e){

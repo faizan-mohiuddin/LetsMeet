@@ -149,8 +149,7 @@
                     <p>Are your sure you want to delete this event?</p>
                 </div>
                 <div class="modal-footer">
-                    <button th:href="@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}"
-                        class="btn btn-danger sm-6">Delete</button>
+                    <a class="btn btn-danger sm-6" th:href=  "@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}" >Delete</a>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>

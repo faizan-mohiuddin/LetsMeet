@@ -333,9 +333,8 @@ public class EventService{
         }
     }
 
-    public boolean setLocations(UUID eventUuid, Location location) {
+    public boolean setLocation(Event event, Location location) {
         try{
-            Event event = eventDao.get(eventUuid).get();
             event.getEventProperties().setLocation(location);
             return true;
         }
