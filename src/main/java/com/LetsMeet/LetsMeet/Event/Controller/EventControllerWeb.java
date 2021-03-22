@@ -6,6 +6,7 @@ import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
+import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
@@ -49,6 +50,9 @@ public class EventControllerWeb {
 
     @Autowired
     UserService userServiceInterface;
+
+    @Autowired
+    EventResultService resultsService;
 
     @GetMapping({"/createevent", "/event/new"})
     public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -265,7 +269,7 @@ public class EventControllerWeb {
             model.addAttribute("event", eventService.getEvent(eventuuid));
 
             
-            model.addAttribute("results",eventService.calculateResults(event, user, duration,requiredUsers));
+            model.addAttribute("results",resultsService.calculateTimes(event, duration,requiredUsers));
             
             return "event/results";
         }

@@ -201,6 +201,8 @@ public class EventService{
         }
     }
 
+
+
     private EventResult newEventResult(Event event){
         try{
         EventResult result = new EventResult(event.getUUID(), null);

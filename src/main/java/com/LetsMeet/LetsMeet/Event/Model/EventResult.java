@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,11 +31,13 @@ public class EventResult implements Serializable{
 
     private UUID eventUUID;
     private List<OptimalityRange> dateTimeRanges;
+    private List<OptimalityLocation> locations;
     private int uniqueResponses;
     
     public EventResult(UUID eventUUID, List<OptimalityRange> dateTimeRanges){
         this.eventUUID = eventUUID;
         this.dateTimeRanges = dateTimeRanges;
+        this.locations = new ArrayList<>();
         uniqueResponses = 0;
     }
 
@@ -64,5 +67,13 @@ public class EventResult implements Serializable{
 
     public float getPercent(int optimality){
         return ((float) optimality /(float)this.uniqueResponses);
+    }
+
+    public List<OptimalityLocation> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<OptimalityLocation> locations) {
+        this.locations = locations;
     }
 }
