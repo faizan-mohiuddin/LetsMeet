@@ -21,7 +21,7 @@
 
     <div class="jumbotron">
         <div class="container">
-            <h1>Results</h1>
+            <h1><i class="bi bi-geo"></i> Location</h1>
             <p><span th:text="${event.name}"></span></p>
         </div>
     </div>
@@ -66,54 +66,45 @@
                 </div>
             </div>
             <div class="col-sm-8">
-                <div th:each="range : ${results.dateTimeRanges}">
-                    <div class="card w-100 mt-2 bg-light" th:if="${(range.optimality * 100 / results.uniqueResponses)>= #conversions.convert(param.attendance,T(int))}">
+                <div th:each="location : ${results.locations}">
+                    <div class="card w-100 mt-2 bg-light">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-sm-3">
+                                <div class="col-sm-6">
                                     <div class="row">
-                                        <div class="span4"><b>From:&nbsp; </b></div>
+                                        <div class="span4"><b><i class="bi bi-geo"></i> </b></div>
                                         <div class="span8">
-                                            <p class="card-text"
-                                                th:text="${range.range.start.getDayOfMonth()} +'/'+ ${range.range.start.getMonthValue()} +'/'+ ${range.range.start.getYear()} +' &nbsp; '+ ${range.range.start.getHour()}+':'+ ${range.range.start.getMinute()}">
-                                            </p>
+                                            <a
+                                                th:text="${location.location.name}">
+                                        </a>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-1">
-                                    <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
-                                </div>
                                 <div class="col-sm-3">
                                     <div class="row">
-                                        <div class="span4"><b>To:&nbsp; </b></div>
+                                        <div class="span4"><b>Location:&nbsp; </b></div>
                                         <div class="span8">
                                             <p class="card-text"
-                                                th:text="${range.range.end.getDayOfMonth()} +'/'+ ${range.range.end.getMonthValue()} +'/'+ ${range.range.end.getYear()} +' @ '+ ${range.range.end.getHour()}+':'+ ${range.range.end.getMinute()}">
+                                                th:text="'Latitude: '+${location.location.latitude}">
                                             </p>
+                                            <p class="card-text"
+                                            th:text="'Longitude: '+${location.location.longitude}">
+                                        </p>
                                         </div>
                                     </div>
         
                                 </div>
-                                <div class="col-sm-2">
-                                    <div class="row">
-                                        <div class="col"><i class="bi bi-stopwatch"></i></div>
-                                        
-                                        <p class="card-text" th:text="${range.range.getDuration().toHours()} + ':' + ${range.range.getDuration().toMinutesPart()}"></p>
-                                    </div>
-                                    
-        
-                                </div>
                                 <div class="col-sm-1">
-                                    <p class="card-text" th:text="${range.optimality * 100 / results.uniqueResponses} +'%'"></p>
+                                    <p class="card-text" th:text="${location.optimality}"></p>
                                 </div>
                                 <div class="col-sm-2">
-                                    <a  th:href="@{/event/{eventuuid}/results/location(eventuuid = ${event.getUUID()})}" class="btn btn-primary">Select</a>
+                                    <a href="#" class="btn btn-primary">Select</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card bg-light mt-2 w-100" th:if="${results.dateTimeRanges.isEmpty()}">
+                <div class="card bg-light mt-2 w-100">
                     <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
                     <div class="card-body">
                       <p class="card-text">Widen your search and try again.</p>
@@ -142,7 +133,7 @@
             var attendance = $('#attendanceRange').val();
             var requiredUsers = $('#requiredUsersCheck').prop('checked');
             //alert(eventUUID+"\n"+duration + "\n" + attendance + "\n" + requiredUsers);
-            window.open(`/event/${eventUUID}/results/time?duration=${duration}&attendance=${attendance}&requiredUsers=${requiredUsers}`, "_self");
+            window.open(`/event/${eventUUID}/results?duration=${duration}&attendance=${attendance}&requiredUsers=${requiredUsers}`, "_self");
         });
     });
 </script>

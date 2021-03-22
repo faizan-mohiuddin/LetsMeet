@@ -250,7 +250,7 @@ public class EventControllerWeb {
         return "redirect:/event/{eventUUID}";
     }
 
-    @GetMapping("/event/{eventUUID}/results")
+    @GetMapping("/event/{eventUUID}/results/time")
     public String eventResults(Model model, RedirectAttributes redirectAttributes, HttpSession session,
         @PathVariable("eventUUID") String eventuuid,
         @RequestParam(value = "duration", defaultValue = "30") int duration,
@@ -278,9 +278,33 @@ public class EventControllerWeb {
             redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
             return "redirect:/event/{eventUUID}";
         }
+    }
 
-
-
+    @GetMapping("/event/{eventUUID}/results/location")
+    public String eventResultsLocation(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "duration", defaultValue = "30") int duration,
+        @RequestParam( value = "attendance", defaultValue = "90") int attendance,
+        @RequestParam( value = "requiredUsers", defaultValue = "false") boolean requiredUsers) {
+        
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }  
+        
+        try{
+            model.addAttribute("user", user);
+            model.addAttribute("event", eventService.getEvent(eventuuid));
+            model.addAttribute("results",resultsService.calculateLocation(event, duration,requiredUsers));
+            return "event/results/location";
+        }
+        catch(Exception e){
+            LOGGER.error("Could not view results User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+            return "redirect:/event/{eventUUID}";
+        }
     }
 
     @GetMapping("/event/{eventuuid}/respond")

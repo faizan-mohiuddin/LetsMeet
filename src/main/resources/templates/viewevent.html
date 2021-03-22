@@ -96,7 +96,7 @@
                             data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
-                        <a th:href="@{/event/{eventuuid}/results?duration=5&attendance=0(eventuuid = ${event.getUUID()})}"
+                        <a th:href="@{/event/{eventuuid}/results/time?duration=10&attendance=10(eventuuid = ${event.getUUID()})}"
                             class="btn btn-dark btn-block"><i class="bi bi-calendar-week"></i> Results</a>
                         <a th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}"
                             class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Respond</a>
@@ -189,7 +189,7 @@
             
             value = $(this).prop('checked');
             $.ajax({
-                url: `http://localhost:8080/api/Event/${eventID}/Response/${userID}?Token=${apiToken}&required=${value}`,
+                url: `/api/Event/${eventID}/Response/${userID}?Token=${apiToken}&required=${value}`,
                 type: 'PUT',
                 success: function(response){
                     console.log(response);
