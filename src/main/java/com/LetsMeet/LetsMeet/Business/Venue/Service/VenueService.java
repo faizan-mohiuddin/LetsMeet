@@ -230,6 +230,14 @@ public class VenueService {
         return null;
     }
 
+    public List<Venue> searchByRadius(double longitude, double latitude, double kilometers){
+        Optional<List<Venue>> response = DAO.searchByRadius(longitude, latitude, kilometers);
+        if(response.isPresent()){
+            return response.get();
+        }
+        return null;
+    }
+
     public void removeFacility(Venue venue, String facility){
         // Remove facility from venue if its there
         int len1 = venue.numFacilities();
