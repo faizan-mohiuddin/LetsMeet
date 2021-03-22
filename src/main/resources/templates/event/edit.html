@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<div th:include="fragments/js :: letsmeet"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<script src="/js/letsmeet.js"></script>
+
+<script>
+    $(function () {
+        $('.datepicker').datepicker({
+            format: 'mm-dd-yyyy'
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#btn_upload').click(function () {
+            let token = getToken();
+            let url = `http://localhost:8080/api/media?Token=${token}`
+            var fd = new FormData();
+            var files = $('#file')[0].files[0];
+            fd.append('file', files);
+            // AJAX request
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response != 0) {
+                        // Show image preview
+                        alert(response);
+                        $('#preview').append(`<img src="http://localhost:8080/${response}" width="150" class="img-thumbnail" alt="Responsive image">`);
+                        setEventImage('c8c32808-54df-3694-9daa-4045ed0f722b',response);
+                    } else {
+                        alert('file not uploaded');
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    function setEventImage(event, imageURL) {
+        alert("hello!")
+        let token = getToken();
+        let url = `http://localhost:8080/api/Event/${event}/Properties?key=event_image&value=${imageURL}`;
+        $.ajax({
+            url: url,
+            type: 'put',
+            contentType: false,
+            processData: false,
+            success: alert("updated")   
+        })
+    }
+</script>
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+    <div th:insert="header :: navbar"></div>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Edit Event</h1>
+            <a class="btn btn-danger" onclick="getToken()">Delete</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <form method='post' action='' enctype="multipart/form-data">
+            Select file : <input type='file' name='file' id='file' class='form-control'><br>
+            <input type='button' class='btn btn-info' value='Upload' id='btn_upload' onUpload="setEventImage()">
+        </form>
+        
+        <div id="preview"></div>
+        <button id= 'btn_set' onclick="setEventImage('c8c32808-54df-3694-9daa-4045ed0f722b','yes')" type="button" class="btn btn-primary">Primary</button>
+
+
+    </div>
+    <div th:insert="footer :: footer"></div>
+</body>
+
+</html>

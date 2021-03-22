@@ -1,14 +1,240 @@
 <!DOCTYPE html>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<style type="text/css">
+    /* Always set the map height explicitly to define the size of the div
+     * element that contains the map. */
+    #map {
+        height: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #description {
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+    }
+
+    #infowindow-content .title {
+        font-weight: bold;
+    }
+
+    #infowindow-content {
+        display: none;
+    }
+
+    #map #infowindow-content {
+        display: inline;
+    }
+
+    .pac-card {
+        margin: 10px 10px 0 0;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        background-color: #fff;
+        font-family: Roboto;
+    }
+
+    #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+    }
+
+    .pac-controls {
+        display: inline-block;
+        padding: 5px 11px;
+    }
+
+    .pac-controls label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+    }
+
+
+    #pac-input:focus {
+        border-color: #4d90fe;
+    }
+
+    #title {
+        color: #fff;
+        background-color: #4d90fe;
+        font-size: 25px;
+        font-weight: 500;
+        padding: 6px 12px;
+    }
+
+    #target {
+        width: 345px;
+    }
+</style>
+
+<script>
+    // This example requires the Places library. Include the libraries=places
+    // parameter when you first load the API. For example:
+    // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 55.3781, lng: -2.4360 },
+            zoom: 5,
+            streetViewControl: false,
+            mapTypeControl: false,
+        });
+        const card = document.getElementById("pac-card");
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+        const center = { lat: 50.064192, lng: -130.605469 };
+        // Create a bounding box with sides ~10km away from the center point
+        const defaultBounds = {
+            north: center.lat + 0.1,
+            south: center.lat - 0.1,
+            east: center.lng + 0.1,
+            west: center.lng - 0.1,
+        };
+        const input = document.getElementById("pac-input");
+        const options = {
+            bounds: defaultBounds,
+            componentRestrictions: { country: "uk" },
+            fields: ["address_components", "geometry", "icon", "name"],
+            origin: center,
+            strictBounds: false,
+            types: ["establishment"],
+        };
+        const autocomplete = new google.maps.places.Autocomplete(
+            input,
+            options
+        );
+        // Set initial restriction to the greater list of countries.
+        autocomplete.setComponentRestrictions({
+            country: ["uk", "pr", "vi", "gu", "mp"],
+        });
+        const southwest = { lat: 5.6108, lng: 136.589326 };
+        const northeast = { lat: 61.179287, lng: 2.64325 };
+        const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+        autocomplete.setBounds(newBounds);
+        const infowindow = new google.maps.InfoWindow();
+        const infowindowContent = document.getElementById("infowindow-content");
+        infowindow.setContent(infowindowContent);
+        const marker = new google.maps.Marker({
+            map,
+            anchorPoint: new google.maps.Point(0, -29),
+        });
+        autocomplete.addListener("place_changed", () => {
+            infowindow.close();
+            marker.setVisible(false);
+            const place = autocomplete.getPlace();
+
+            document.getElementById('thelat').value = place.geometry.location.lat();
+            document.getElementById('thelong').value = place.geometry.location.lng();
+
+            if (!place.geometry || !place.geometry.location) {
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                window.alert(
+                    "No details available for input: '" + place.name + "'"
+                );
+                return;
+            }
+
+            // If the place has a geometry, then present it on a map.
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(17); // Why 17? Because it looks good.
+            }
+            marker.setPosition(place.geometry.location);
+            marker.setVisible(true);
+            let address = "";
+
+            if (place.address_components) {
+                address = [
+                    (place.address_components[0] &&
+                        place.address_components[0].short_name) ||
+                    "",
+                    (place.address_components[1] &&
+                        place.address_components[1].short_name) ||
+                    "",
+                    (place.address_components[2] &&
+                        place.address_components[2].short_name) ||
+                    "",
+                ].join(" ");
+            }
+            infowindowContent.children["place-icon"].src = place.icon;
+            infowindowContent.children["place-name"].textContent = place.name;
+            infowindowContent.children["place-address"].textContent = address;
+            infowindow.open(map, marker);
+        });
+
+        var geocoder = new google.maps.Geocoder();
+
+        var markerr;
+
+        function placeMarker(location) {
+
+            if (markerr == null)
+            {
+                markerr = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+            else
+            {
+                markerr.setPosition(location);
+            }
+        }
+
+        google.maps.event.addListener(map, 'click', function(event) {
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        document.getElementById("pac-input").value = results[0].formatted_address;
+                        placeMarker(event.latLng);
+                        map.panTo(event.latLng);
+                        document.getElementById('thelat').value = results[0].geometry.location.lat();
+                        document.getElementById('thelong').value = results[0].geometry.location.lng();
+                    }
+                }
+            });
+        });
+
+
+        // Sets a listener on a given radio button. The radio buttons specify
+        // the countries used to restrict the autocomplete search.
+        function setupClickListener(id, countries) {
+            const radioButton = document.getElementById(id);
+            radioButton.addEventListener("click", () => {
+                autocomplete.setComponentRestrictions({ country: countries });
+            });
+        }
+        setupClickListener("changecountry-usa", "uk");
+        setupClickListener("changecountry-usa-and-uot", [
+            "uk",
+            "pr",
+            "vi",
+            "gu",
+            "mp",
+        ]);}
+</script>
+
+<script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -16,32 +242,222 @@
 
 <body>
 
-    <div th:insert = "header :: navbar"></div>
+    <div th:insert="header :: navbar"></div>
 
-    <div class = "jumbotron">
-        <div class = "container">
+    <div class="jumbotron">
+        <div class="container">
             <h1>Create an Event</h1>
         </div>
     </div>
 
-    <div class = "container">
-        <form th:action = "@{/saveevent}">
+    <div class="container">
+        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT">
+
             <div class="form-group">
-              <label for="eventname">Event Name: </label>
-              <input type="text" class="form-control" name="eventname" th:value = "*{eventname}" placeholder="Enter event name...">
+                <label for="eventname">Event Name: </label>
+                <input type="text" class="form-control" name="eventname" th:value="*{eventname}"
+                    placeholder="Enter event name...">
             </div>
+
             <div class="form-group">
-              <label for="eventdesc">Event Description: </label>
-              <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
+                <label for="eventdesc">Image: </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="file">
+                    <label class="custom-file-label" for="customFile">Choose file</label>
+                </div>
             </div>
-            <div class = "form-group">
-                <label for = "eventlocation">Event Location:</label>
-                <input type = "text" class = "form-control" name = "eventlocation" placeholder="Location...">
+
+            <div class="form-group">
+                <label for="eventdesc">Event Description: </label>
+                <input type="text" class="form-control" name="eventdesc" placeholder="Description...">
             </div>
+
+            <div class="form-group">
+                <label for="eventlocation">Event Location:</label>
+                <div id="pac-container">
+                    <input name = "eventlocation" id="pac-input" class = "form-control" type="text" placeholder="Enter a location" />
+                </div>
+                <div id="map" style="clear:both; height:400px;"></div>
+                <div id="infowindow-content">
+                    <img src="" width="16" height="16" id="place-icon" />
+                    <span id="place-name" class="title"></span><br />
+                    <span id="place-address"></span>
+                </div>
+
+                <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+                <script
+                        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=places&v=weekly"
+                        async
+                ></script>
+
+                <input type="hidden" name="thelat" id="thelat"/>
+                <input type="hidden" name="thelong" id="thelong"/>
+            </div>
+
+            
+        <!-- Scripts for Event Times -->
+        <script>
+        // Counter for the rows
+        var dateRowNo = 0;
+        $(document).ready(function(){
+        $('.add').click(function(){
+            
+        // Day formatting for the generated HTML
+        $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+
+        // Incrementing the counter
+        dateRowNo++;
+        $(".list").append(
+        '<div class="row">' +
+        '<label>From:</label>' +
+        '<div class="col">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
+        '</div>' +
+        '<div class="col">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
+        '</div>' +
+        '<label>Until:</label>' +
+        '<div class="col">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
+        '</div>' +
+        '<div class="col">' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
+        '</div>' +
+        '<label>Time Zone:</label>' +
+        '<div class="col">' +
+        '<select name="timezone" class="form-control" id="timeZone' + dateRowNo + '">' +
+        '<option value="+00:00">+00:00</option>' +
+        '<option value="+01:00">+01:00</option>' +
+        '<option value="+02:00">+02:00</option>' +
+        '<option value="+03:00">+03:00</option>' +
+        '<option value="+04:00">+04:00</option>' +
+        '<option value="+05:00">+05:00</option>' +
+        '<option value="+06:00">+06:00</option>' +
+        '<option value="+07:00">+07:00</option>' +
+        '<option value="+08:00">+08:00</option>' +
+        '<option value="+09:00">+09:00</option>' +
+        '<option value="+10:00">+10:00</option>' +
+        '<option value="+11:00">+11:00</option>' +
+        '<option value="+12:00">+12:00</option>' +
+        '<option value="-01:00">-01:00</option>' +
+        '<option value="-02:00">-02:00</option>' +
+        '<option value="-03:00">-03:00</option>' +
+        '<option value="-04:00">-04:00</option>' +
+        '<option value="-05:00">-05:00</option>' +
+        '<option value="-06:00">-06:00</option>' +
+        '<option value="-07:00">-07:00</option>' +
+        '<option value="-08:00">-08:00</option>' +
+        '<option value="-09:00">-09:00</option>' +
+        '<option value="-10:00">-10:00</option>' +
+        '<option value="-11:00">-11:00</option>' +
+        '<option value="-12:00">-12:00</option>' +
+        '</select>' +
+        '</div>' +
+        '<p class="btn btn-light remove">Remove</p>' +
+        '</div>');
+        });
+
+        $(".list").on('click', '.remove', function(){
+        $(this).parent().remove();
+        });
+        });
+            
+        // Day formatting for pre-included HTML
+        $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+        // NOT SURE IF THE LINE BELLOW FUNCTIONS
+        $(function() {$(".datetimepicker").datetimepicker({ format: 'hh:mm:ss'})});
+        </script>
+            
+            <label>Event Times:</label>
+                <div class="row px-3">
+                   <div class="col list">
+                        <div class="row">
+                            <label>From:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0">
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control datetimepicker" step="1" id="startTime0">
+                            </div>
+                            <label>Until:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0">
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control datetimepicker" step="1" id="endTime0">
+                            </div>
+                            <label>Time Zone:</label>
+                            <div class="col">
+                                <select name="timezone" class="form-control" id="timeZone0">
+                                    <option value="+00:00">+00:00</option>
+                                    <option value="+01:00">+01:00</option>
+                                    <option value="+02:00">+02:00</option>
+                                    <option value="+03:00">+03:00</option>
+                                    <option value="+04:00">+04:00</option>
+                                    <option value="+05:00">+05:00</option>
+                                    <option value="+06:00">+06:00</option>
+                                    <option value="+07:00">+07:00</option>
+                                    <option value="+08:00">+08:00</option>
+                                    <option value="+09:00">+09:00</option>
+                                    <option value="+10:00">+10:00</option>
+                                    <option value="+11:00">+11:00</option>
+                                    <option value="+12:00">+12:00</option>
+                                    <option value="-01:00">-01:00</option>
+                                    <option value="-02:00">-02:00</option>
+                                    <option value="-03:00">-03:00</option>
+                                    <option value="-04:00">-04:00</option>
+                                    <option value="-05:00">-05:00</option>
+                                    <option value="-06:00">-06:00</option>
+                                    <option value="-07:00">-07:00</option>
+                                    <option value="-08:00">-08:00</option>
+                                    <option value="-09:00">-09:00</option>
+                                    <option value="-10:00">-10:00</option>
+                                    <option value="-11:00">-11:00</option>
+                                    <option value="-12:00">-12:00</option>
+                                </select>
+                            </div>
+                            <p class="btn btn-light remove">Remove</p>
+                        </div>
+                    </div>
+                </div>
+            <p class="btn btn-light add">Add</p>
+
+            <p onclick="JSONFormatting()">TestForJson (Click on me and Look at the Console)</p>
+
+            <script>
+            function JSONFormatting() {
+                var eventDates = [];
+                for (i=0; i<dateRowNo+1; i++) {
+                    if (document.getElementById('startDay'+i) !== null) {
+                        var startDay = document.getElementById('startDay'+i).value;
+                        var startTime = document.getElementById('startTime'+i).value;
+                        var endDay = document.getElementById('endDay'+i).value;
+                        var endTime = document.getElementById('endTime'+i).value;
+                        var timeZone = document.getElementById('timeZone'+i).value;
+                        const startDate = startDay + 'T' + startTime + timeZone;
+                        const endDate = endDay + 'T' + endTime + timeZone;
+                        let dateEntry = new Map()
+                        dateEntry['start'] = startDate;
+                        dateEntry['end'] = endDate;
+                        eventDates.push(dateEntry);
+                        console.log(eventDates);
+                    }
+                }
+            }
+            </script>
+
             <button type="submit" class="btn btn-primary">Create</button>
-          </form>
+        </form>
     </div>
-    <div th:insert = "footer :: footer"></div>
-</body>
+    <div th:insert="footer :: footer"></div>
+
+    <script>
+        $(".custom-file-input").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
 
 </html>

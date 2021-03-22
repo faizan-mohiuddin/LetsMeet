@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+<div th:insert = "header :: navbar"></div>
+
+<div class = "jumbotron">
+    <div class = "container">
+        <h1>Editing User</h1>
+    </div>
+</div>
+
+<div class = "container">
+    <div class = "alert alert-danger" th:text = "${registerFailed}" th:if = "${registerFailed}"></div>
+    <form th:action = "@{/updateuser/{useruuid}(useruuid = ${editingUser.getUUID().toString()})}" method = "post">
+        <div class="form-group">
+            <label for="userfirstname">First Name: </label>
+            <input type="text" class="form-control" name="userfirstname" th:value = "*{userfirstname}" th:placeholder="${editingUser.fName}">
+            <small class="form-text text-muted">Required</small>
+        </div>
+        <div class="form-group">
+            <label for="userlastname">Last Name: </label>
+            <input type="text" class="form-control" name="userlastname" th:placeholder="${editingUser.lName}">
+            <small class="form-text text-muted">Required</small>
+        </div>
+        <div class = "form-group">
+            <label for = "useremail">E-mail: </label>
+            <input type = "text" class = "form-control" name = "useremail" th:placeholder="${editingUser.email}">
+            <small class="form-text text-muted">Required - must contain an "<i>@</i>" and "<i>.</i>"</small>
+        </div>
+        <div class = "form-group">
+            <label for = "userpassword">Password: </label>
+            <input type = "password" class = "form-control" name = "userpassword" placeholder="Password...">
+            <small class="form-text text-muted">Required - must be 6 characters or longer.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<div th:insert = "footer :: footer"></div>
+</body>
+
+</html>

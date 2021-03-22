@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+    <div th:insert = "header :: navbar"></div>
+
+    <div class = "jumbotron">
+        <div class = "container">
+            <h1>Search Results</h1>
+        </div>
+    </div>
+
+    <div class = "container">
+        <div class="alert alert-warning" th:text="${'No events found'}" th:if="${empty}"></div>
+        
+        <tr th:each = "result : ${results}">
+            <p></p>
+            <a class = "btn btn-text" th:text = "${result.key}" th:href = "@{/event/{eventUUID}(eventUUID = ${result.value})}"></a>
+        </tr>
+    </div>
+
+
+
+    <div th:insert = "footer :: footer"></div>
+
+</body>
+
+</html>

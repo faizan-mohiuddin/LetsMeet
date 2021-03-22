@@ -24,6 +24,8 @@ import com.LetsMeet.Models.Data.TokenData; //TODO This needs to be refactored ca
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.xml.transform.Result;
+
 //-----------------------------------------------------------------
 
 @Component
@@ -50,7 +52,7 @@ public class UserDao implements DAO<User> {
 
             rs.next();
             Optional<User> user = Optional.of( new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-            rs.getString(4), rs.getString(5), rs.getString(6)));
+            rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7)));
             database.close();
             return user;
 
@@ -73,7 +75,7 @@ public class UserDao implements DAO<User> {
 
             rs.next();
             User user = new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-                    rs.getString(4), rs.getString(5), rs.getString(6));
+                    rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7));
 
             database.close();
             return Optional.ofNullable(user);
@@ -99,7 +101,7 @@ public class UserDao implements DAO<User> {
             List<User> users = new ArrayList<>();
 
             while(rs.next()){
-                users.add(new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6)));
+                users.add(new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7)));
                 
             }
             database.close();
@@ -147,8 +149,23 @@ public class UserDao implements DAO<User> {
 
     @Override
     public Boolean update(User t) {
-        // TODO Auto-generated method stub
-        return false;
+        database.open();
+        try(Statement statement = database.getCon().createStatement();){
+
+            String query = String.format("UPDATE User SET fName = '%s', lName = '%s', email = '%s', PasswordHash = '%s', salt = '%s' WHERE UserUUID = '%s'", t.getfName(), t.getlName(), t.getEmail(), t.getPasswordHash(), t.getSalt(), t.getUUID().toString());
+            statement.executeUpdate(query);
+
+            database.close();
+
+            return true;
+
+        } catch(Exception e) {
+
+            System.out.println("\nUser DAO: updateuser");
+            System.out.println(e);
+            database.close();
+            return false;
+        }
     }
 
     // Delete
@@ -175,4 +192,60 @@ public class UserDao implements DAO<User> {
         return false;
 
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public Boolean updatePassword(User user, String passwordHash){
+        database.open();
+        try(Statement statement = database.getCon().createStatement();){
+
+            String query = String.format("UPDATE User SET PasswordHash = '%s' WHERE UserUUID = '%s'", passwordHash,
+                    user.getUUID().toString());
+            statement.executeUpdate(query);
+
+            database.close();
+
+            return true;
+
+        } catch(Exception e) {
+
+            System.out.println("\nUser DAO: updatePassword");
+            System.out.println(e);
+            database.close();
+            return false;
+        }
+    }
+
+    public Integer isAdmin(User user) {
+
+        database.open();
+
+        try(Statement statement = database.getCon().createStatement();){
+
+            String query = String.format("SELECT isAdmin FROM User WHERE UserUUID = '%s'", user.getUUID().toString());
+
+            ResultSet rs = statement.executeQuery(query);
+
+            int value = 0;
+
+            while (rs.next()) {
+
+                value = rs.getInt(1);
+
+            }
+
+            database.close();
+
+            return value;
+
+        } catch(Exception e) {
+
+            System.out.println("\nUser DAO: isAdmin");
+            System.out.println(e);
+            database.close();
+            return null;
+
+        }
+
+    }
+
 }

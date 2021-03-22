@@ -2,7 +2,7 @@
 // LetsMeetConfiguration.java
 // Let's Meet 2021
 //
-// Responsible for loading and storing confirguration variables
+// Responsible for loading and storing configuration variables
 
 package com.LetsMeet.LetsMeet.Utilities;
 
@@ -17,10 +17,12 @@ import org.springframework.stereotype.*;
 @Component
 public class LetsMeetConfiguration {
     
-    private static String databaseHost;
-    private static String databaseName;
-    private static String databaseUser;
-    private static String databasePassword;
+    private String databaseHost;
+    private String databaseName;
+    private String databaseUser;
+    private String databasePassword;
+
+    private String dataFolder;
 
     //-----------------------------------------------------------------
 
@@ -35,6 +37,11 @@ public class LetsMeetConfiguration {
 
     public void setDatabasePassword(String x){ databasePassword = x;}
     public String getDatabasePassword(){return databasePassword;}
+    
+
+    public void setdataFolder(String x){ dataFolder = x;}
+    public String getdataFolder(){return dataFolder;}
+
 
 
 

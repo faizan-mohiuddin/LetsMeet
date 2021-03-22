@@ -6,8 +6,12 @@
 
 package com.LetsMeet.LetsMeet.Event.DAO;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -19,9 +23,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
+import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
+import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
+import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,8 +40,7 @@ public class EventDao implements DAO<Event> {
 
     // Components
     //-----------------------------------------------------------------
-    @Autowired
-    DBConnector database;
+
 
     @Autowired
     EventPermissionDao hasUsers;
@@ -43,64 +49,58 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Optional<Event> get(UUID uuid) {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
-            String query = String.format("select * from Event where Event.EventUUID = '%s'", uuid);
-
-            ResultSet rs = statement.executeQuery(query);
-            rs.next();
-            database.close();
-            return Optional.ofNullable(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
-
-        }catch(Exception e){
-            database.close();
-            System.out.println("Event Dao: get (UUID)");
-            e.printStackTrace();
-            return Optional.empty();
-        }  
+    public Optional<Event> get(UUID uuid) throws IOException {
+        return get(uuid.toString());
     }
 
-    public Optional<Event> get(String uuid) {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
+    public Optional<Event> get(String uuid) throws IOException {
+        try(Statement statement = DatabaseInterface.get().createStatement()) {
             String query = String.format("select * from Event where Event.EventUUID = '%s'", uuid);
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
 
-            Optional<Event> response = Optional.ofNullable(new Event(rs.getString(1), rs.getString(2),
-                    rs.getString(3), rs.getString(4)));
-            database.close();
-            return response;
+            Optional<Event> event = Optional.ofNullable(new Event(
+                UUID.fromString(rs.getString("EventUUID")),
+                rs.getString("Name"),
+                rs.getString("Description"),
+                rs.getString("Location"),
+                new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
+                readSerialised(rs.getBytes("EventProperties")),
+                new Gson().fromJson(rs.getString("Poll"), Poll.class)));
 
-        }catch(Exception e){
-            database.close();
-            System.out.println("\nEvent Dao: get (String)");
-            //e.printStackTrace();
-            System.out.println(e);
-            return Optional.empty();
+            DatabaseInterface.drop();
+            return event;
+
+        }catch(SQLException e){
+            DatabaseInterface.drop();
+            throw new IOException(e.getMessage());
         }
     }
 
     @Override
-    public Optional<Collection<Event>> getAll() {
-        database.open();
-        try(Statement statement = database.getCon().createStatement()){
-            ResultSet rs = statement.executeQuery("select * from User");
+    public Optional<Collection<Event>> getAll() throws IOException{
+        try(Statement statement = DatabaseInterface.get().createStatement()){
+            ResultSet rs = statement.executeQuery("select * from Event");
             List<Event> events = new ArrayList<>();
 
             while (rs.next()){
-                events.add(new Event(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
+                events.add(new Event(
+                    UUID.fromString(rs.getString("EventUUID")),
+                    rs.getString("Name"),
+                    rs.getString("Description"),
+                    rs.getString("Location"),
+                    new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
+                    readSerialised(rs.getBytes("EventProperties")),
+                    new Gson().fromJson(rs.getString("Poll"), Poll.class)));
             }
-            database.close();
+
+            DatabaseInterface.drop();
             return Optional.ofNullable(events);
 
-        }catch(Exception e){
-            System.out.println("\nEvent Dao: getALL");
-            database.close();
-            e.printStackTrace();
-            return Optional.empty();
+        }catch(SQLException e){
+            DatabaseInterface.drop();
+            throw new IOException(e.getMessage());
         }  
     }
 
@@ -109,30 +109,24 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Boolean save(Event t) {
-        database.open();
-
+    public Boolean save(Event t) throws IOException {
 
         // Save the event
-        try(PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location) VALUES (?,?,?,?)")){
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, EventProperties, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
 
             statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getName());
             statement.setString(3, t.getDescription());
             statement.setString(4, t.getLocation());
+            statement.setObject(5, t.getEventProperties());
+            statement.setString(6, new Gson().toJson(t.getPoll()));
+            statement.setString(7, new Gson().toJson(t.getProperties()));
 
-            if(statement.executeUpdate() > 0){
-                database.close();
-                return true;
-            }else{
-                throw new Exception("Nothing added to DB");
-            }
+            if(statement.executeUpdate() > 0){return true;}
+            else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
 
-        }catch(Exception e){
-            System.out.println("Event Dao : save");
-            database.close();
-            e.printStackTrace();
-            return false;
+        }catch(SQLException e){
+            throw new IOException(e.getMessage());
         }
 
     }
@@ -141,83 +135,75 @@ public class EventDao implements DAO<Event> {
     //-----------------------------------------------------------------
 
     @Override
-    public Boolean update(Event t) {
-        // TODO Auto-generated method stub
-        return false;
+    public Boolean update(Event t) throws IOException{
+        // Save the event
+        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Event SET Name = ?, " +
+                "Description = ?, Location = ?, EventProperties = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
+
+            statement.setString(1, t.getName());
+            statement.setString(2, t.getDescription());
+            statement.setString(3, t.getLocation());
+            statement.setObject(4, t.getEventProperties());
+            statement.setString(5, new Gson().toJson(t.getPoll()));
+            statement.setString(6, new Gson().toJson(t.getProperties()));
+            statement.setString(7, t.getUUID().toString());
+
+            if(statement.executeUpdate() > 0) return true;      
+            else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
+
+        }catch(Exception e){
+            throw new IOException(e.getMessage());
+        }
     }
 
     // Delete
     //-----------------------------------------------------------------
 
     @Override
-    public Boolean delete(Event t) {
-        // TODO Auto-generated method stub
-        return false;
+    public Boolean delete(Event event) throws IOException {
+        return delete(event.getUUID());
     }
 
     @Override
-    public Boolean delete(UUID uuid) {
-        database.open();
-        try{
-            Statement statement = database.con.createStatement();
-
+    public Boolean delete(UUID uuid) throws IOException{
+        try(Statement statement = DatabaseInterface.get().createStatement()){
+        
             String query;
             String eventUUID = uuid.toString();
-
-            query = String.format("DELETE FROM HasUsers where HasUsers.eventUUID = '%s'", eventUUID);
-            statement.executeUpdate(query);
 
             query = String.format("DELETE FROM Event where Event.EventUUID = '%s'", eventUUID);
             statement.executeUpdate(query);
 
+            query = String.format("DELETE FROM HasUsers where HasUsers.eventUUID = '%s'", eventUUID);
+            statement.executeUpdate(query);
+
             return true;
 
-        }catch(Exception e){
-            System.out.println("Event Dao: delete (UUID)");
-            database.close();
-            System.out.println("\nEvent Dao: delete (UUID)");
-            e.printStackTrace();
-            return false;
+        }catch(SQLException e){
+            throw new IOException(e.getMessage());
         }
     }
 
-    // Has Users Table Helpers
-    //-----------------------------------------------------------------
+    private EventProperties readSerialised(byte[] buf){
+        try{
+            ObjectInputStream objectIn = null;
 
+            // If bytes are present, try to deserialize
+            if (buf != null){
 
-    // Other methods
-    //-----------------------------------------------------------------
+                objectIn = new ObjectInputStream(new ByteArrayInputStream(buf));
+                Object object = objectIn.readObject();
 
-    //TODO EventResponse should be be loaded by BL to find which events a user is registered to.
-    public Optional<Collection<Event>> getUserEvents(String uuid){
-        database.open();
-        try(Statement statement = database.con.createStatement()){
-            List<EventPermission> records = hasUsers.getByUser(uuid).get();
-
-            database.open();
-
-            List<Event> events = new ArrayList<>();
-
-            for(EventPermission record: records){
-                String query = String.format("select Event.EventUUID, Event.Name, Event.Description, Event.Location" +
-                        " from Event where Event.EventUUID = '%s'", record.getEvent().toString());
-
-                ResultSet rs = statement.executeQuery(query);
-                rs.next();
-                Event event = new Event(rs.getString(1), rs.getString(2),
-                        rs.getString(3), rs.getString(4));
-                events.add(event);
+                // Attempt to cast object to ConditionSet - is there a better way to do this?
+                if (object instanceof EventProperties){
+                    return (EventProperties) object;  
+                }
+                
             }
-
-            Optional<Collection<Event>> response = Optional.ofNullable(events);
-            database.close();
-             return response;
-
-        }catch(Exception e){
-            System.out.println("\nEvent Dao : get user events");
-            e.printStackTrace();
-            database.close();
-            return Optional.empty();
+            return EventProperties.getEmpty();
+        }
+        catch(Exception e){
+            return EventProperties.getEmpty();
         }
     }
 }

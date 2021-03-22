@@ -1,5 +1,7 @@
 package com.LetsMeet.LetsMeet.TestingTools;
 
+import java.util.UUID;
+
 public class TestingEvents {
     public String UUID;
     public String name;

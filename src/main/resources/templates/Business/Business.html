@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <div th:insert = "header :: navbar"></div>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span th:text="${business.getName()}"></span></h1>
+        </div>
+    </div>
+
+    <!-- Controls to create venue, and add users to the business -->
+    <div class="container">
+        <div class="row">
+            <div class = "col-sm">
+                <div class="card" style="width: 24rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Add a Venue to your Business</h5>
+                        <a class="btn btn-primary" th:href="@{'/' + ${business.getUUID().toString()} + '/Venue/new'}" role="button">Create a Venue</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class = "col-sm">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Add users to your Business</h5>
+                            <a href="#" class="btn btn-outline-secondary btn-block"
+                               data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
+                        </div>
+                    </div>
+            </div>
+
+            <div class = "col-sm">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Privileges</h5>
+                        <div class="row">
+                            <a class="btn btn-primary" th:href="@{'/Business/{BusinessID}/edit' (BusinessID=${business.getUUID().toString()})}"
+                               role="button">Edit Business</a>
+                            <form th:action="@{/Business/{BusinessID}/delete (BusinessID=${business.getUUID().toString()})}" method = "post"><button type="submit" class="btn btn-primary">Delete Business</button></form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Venues registered to this Business</h2>
+        <div th:if="${venuesRegistered}">
+            <table class = "table table">
+                <thead>
+                <tr>
+                    <th scope = "col">Venue Name</th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each = "v : ${venues}" id="businessRow">
+                    <div th:if ="${v}">
+                        <td th:text = "${v.getName()}"></td>
+                        <td></td>
+                        <td><a class = "btn btn-primary" th:href = "@{/Venue/{venueID}(venueID = ${v.getUUID()})}">View</a></td>
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-warning" th:unless="${venuesRegistered}">This Business has no registered Venues.</div>
+    </div>
+
+    <div class="container">
+        <h2>Users registered to this Business</h2>
+        <table class = "table table">
+            <thead>
+            <tr>
+                <th scope = "col">User First Name</th>
+                <th scope = "col">User Last Name</th>
+                <th scope = "col">User Email</th>
+                <th scope = "col"></th>
+                <th scope = "col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each = "u : ${BusinessUsers}" id="userRow">
+                <div th:if ="${u}">
+                    <td th:text = "${u.getfName()}"></td>
+                    <td th:text = "${u.getlName()}"></td>
+                    <td th:text = "${u.getEmail()}"></td>
+                </div>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    </div>
+
+    <!-- Fragments -->
+    <!-- INVITE MODAL -->
+    <div class="modal fade" id="inviteUsers" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Invite</h4>
+                </div>
+                <div class="modal-body">
+                    <div th:insert="Business/fragments :: invite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-block" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Fragments -->
+
+    <div th:insert = "footer :: footer"></div>
+</body>
+</html>

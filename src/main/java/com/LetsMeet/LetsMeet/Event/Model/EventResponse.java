@@ -2,9 +2,11 @@
 // EventResponse.java
 // Let's Meet 2021
 //
-// Models a Users's response to an Event.
+// Models a User's response to an Event.
 
 package com.LetsMeet.LetsMeet.Event.Model;
+
+import java.util.ArrayList;
 
 //-----------------------------------------------------------------
 
@@ -18,13 +20,20 @@ public class EventResponse {
     private UUID user;
 
     //Member data
-    private UUID conditionSet;
+    private EventProperties properties;
+	private ArrayList<PollResponse> poll;
+	private Boolean required;
 
-    public EventResponse(UUID event, UUID user, UUID conditionSet){
-        this.event = event;
-        this.user = user;
-        this.conditionSet = conditionSet;
+    public EventResponse(UUID event, UUID user, EventProperties properties){
+		this(event, user, properties, false);
     }
+
+	public EventResponse(UUID event, UUID user, EventProperties properties, Boolean required){
+		this.event = event;
+        this.user = user;
+        this.properties = properties;
+		this.required = required;
+	}
 
 	public UUID getEvent() {
 		return event;
@@ -42,12 +51,32 @@ public class EventResponse {
 		this.user = user;
 	}
 
-	public UUID getConditionSet() {
-		return conditionSet;
+	public EventProperties getEventProperties() {
+		return properties;
 	}
 
-	public void setConditionSet(UUID conditionSet) {
-		this.conditionSet = conditionSet;
+	public void setEventProperties(EventProperties properties) {
+		this.properties = properties;
+	}
+
+	public ArrayList<PollResponse> getPoll() {
+		return poll;
+	}
+
+	public void setPoll(ArrayList<PollResponse> poll) {
+		this.poll = poll;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
+	}
+
+	public boolean hasResponded(){
+		return !this.properties.getTimes().isEmpty();
 	}
 
 }

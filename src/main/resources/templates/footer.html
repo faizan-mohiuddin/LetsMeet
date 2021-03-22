@@ -2,12 +2,33 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <body>
-    <footer th:fragment = "footer">
-        <hr>
-        <div class = "container">
-            <p>LetsMeet. Developed by Team Delta.</p>
-        </div>
-    </footer>
+        <footer th:fragment = "footer" class="pt-4 my-md-5 pt-md-5 border-top">
+            <div class = "container">
+            <div class="row">
+                <div class="col-12 col-md">
+                    <h3>LetsMeet</h3>
+                    <small class="d-block mb-3 text-muted">Developed by Team Delta for Software Engineering and Professional Practice CS3528.</small>
+                </div>
+                <div class="col-6 col-md">
+                    <h5>About Us</h5>
+                    <ul class="list-unstyled text-small">
+                        <li><a class="text-muted" href="https://github.com/signal32">Hamish Weir</a><i> - Team Leader</i></li>
+                        <li><a class="text-muted" href="https://github.com/C-Milne">Cael Milne</a><i> - Deputy Team Leader</i></li>
+                        <li><a class="text-muted" href="https://github.com/faizan-mohiuddin">Faizan Mohiuddin</a></li>
+                        <li><a class="text-muted" href="https://github.com/ellietheginger">Ellie Hutchinson</a></li>
+                        <li><a class="text-muted" href="https://github.com/WojtekWilk">Wojciech Wilk</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md">
+                    <h5>Technologies Used</h5>
+                    <ul class="list-unstyled text-small">
+                        <li><a class="text-muted" href="https://spring.io/">Spring Boot</a></li>
+                        <li><a class = "text-muted" href = "https://www.oracle.com/uk/java/">Java</a></li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </footer>
 </body>
 
 </html>

@@ -1,13 +1,9 @@
 <!DOCTYPE HTML>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -15,52 +11,116 @@
 
 <body>
 
-    <div th:insert = "header :: navbar"></div>
+    <div th:insert="header :: navbar"></div>
 
-    <div class = "jumbotron">
-        <div class = "container">
-            <h1>Welcome to LetsMeet</h1>
-                <i>A brand new scheduling application created by Team Delta.</i>
-            <h2></h2>
+    <div class="jumbotron" th:style="'background:url('+ @{/images/home_banner.png} +');border-radius: 0%;'">
+        <div class="container">
+            <img src="../static/images/Home_banner_text.svg" th:src="@{images/Home_banner_text.svg}" width="400"
+                class="img-responsive" />
+
         </div>
     </div>
 
-    <div class = "container">
-        <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
-        <div class = "alert alert-warning" th:text = "${loggedout}" th:if = "${loggedout}"></div>
-        <div class = "alert alert-warning" th:text = "${alreadyLoggedIn}" th:if = "${alreadyLoggedIn}"></div>
-        <div class = "alert alert-danger" th:text = "${accessDenied}" th:if = "${accessDenied}"></div>
-        <div class = "row">
-            <div class = "col-sm">
-                <a class="btn btn-primary" href="/createevent" role="button">Create an Event</a>
+    <div class="container">
+        <div class="alert alert-success" th:text="${success}" th:if="${success}"></div>
+        <div class="alert alert-warning" th:text="${loggedout}" th:if="${loggedout}"></div>
+        <div class="alert alert-warning" th:text="${alreadyLoggedIn}" th:if="${alreadyLoggedIn}"></div>
+        <div class="alert alert-danger" th:text="${accessDenied}" th:if="${accessDenied}"></div>
+
+        <div class="row align-items-start">
+            <div class="col-md-4">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Create your event</h5>
+                        <p class="card-text"> Create your event! Go on. It's free. We totally won't sell your data to third parties 😏</p>
+                        <a class="btn btn-primary" th:if="${user}" href="/createevent" role="button">Create an Event</a>
+                        <div th:unless="${user}">
+                            <!-- Trigger the modal with a button -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Create an Event</button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="myModal" role="dialog">
+                              <div class="modal-dialog">
+                    
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h4 class="modal-title">Login</h4>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div th:insert="fragments/auth :: login"></div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                  </div>
+                                </div>
+                    
+                              </div>
+                            </div>
+                          </div>
+                    </div>
+                </div>
             </div>
-            <div class = "col-sm">
-                <a class = "btn btn-primary" href = "/createuser" role = "button">Create a User</a>
+
+            <div class="col-md-4">
+                <div class="card" th:unless="${user}" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Get Started</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                            the card's content.</p>
+                        <div class="row mt-2">
+                            <div class="col-sm"><a class="btn btn-primary" href="/login" role="button">Login</a></div>
+                            <div class="col-sm"><a class="btn btn-outline-primary" href="/createuser"
+                                    role="button">Register</a></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" th:if="${user}" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Got a business to list?</h5>
+                        <p class="card-text">List your business on Let's Meet for people to see!</p>
+                        <div class="col-sm"><a class="btn btn-primary" href="/business/new" role="button">Create a Business</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class = "col-sm">
-                <a th:unless = "${user}" class = "btn btn-success" href = "/login" role = "button">Login</a>
+
+            <div class="col-md-4">
+                <div class="card" th:if="${user}" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Dashboard</h5>
+                        <p class="card-text">Manage and respond to events from your dashboard.</p>
+                        <div class="col-sm"><a class="btn btn-primary" href="/dashboard" role="button">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
-        
+
+
+
+
         <h1>&nbsp;</h1>
 
-        <div class = "card border-warning mb-3" style="max-width: 18rem;">
-            <div class="card-header">admin stuff</div>
-            <div class = "card-body">
-                <div class = "row">
-                    <div class = "col-sm">
-                        <a class = "btn btn-primary" href = "/adminviewallevents" role = "button">View Events</a>
+        <div class="card border-warning mb-3" style="max-width: 18rem;">
+            <div class="card-header">Debug Tools</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm">
+                        <a class="btn btn-primary" href="/adminviewallevents" role="button">View Events</a>
                     </div>
-                    <div class = "col-sm">
-                        <a class = "btn btn-primary" href = "/adminviewallusers" role = "button">View Users</a>
+                    <div class="col-sm">
+                        <a class="btn btn-primary" href="/adminviewallusers" role="button">View Users</a>
                     </div>
                 </div>
             </div>
         </div>
 
+    </div>
+
 
     </div>
-    <div th:insert = "footer :: footer"></div>
+    <div th:insert="footer :: footer"></div>
 
 </body>
 

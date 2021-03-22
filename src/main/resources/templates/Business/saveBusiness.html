@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Lets Meet</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+
+    <body>
+        <div th:insert = "header :: navbar"></div>
+
+        <div class = "jumbotron">
+            <div class = "container">
+                <h1>Successfully created an Event!</h1>
+            </div>
+        </div>
+
+        <div class = "container">
+            <p><b>Event name: </b><span th:text="${eventname}"></span></p>
+            <p><b>Event description: </b><span th:text="${eventdesc}"></span></p>
+            <p><b>Event location: </b><span th:text="${eventlocation}"></span></p>
+        </div>
+
+        <div th:insert="footer :: footer"></div>
+    </body>
+</html>

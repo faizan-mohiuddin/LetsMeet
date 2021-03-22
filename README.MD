@@ -24,7 +24,17 @@ The `User` package implements the user management system. It has the following k
 
  - `Event` An event. Contained all event specific metadata.
  - `Permission` Links a user to an event with a set of permissions. Currently this simply tracks whether they are the owner or not.
- - `Response` Links a User to an Event through a response. This contains a `ConditionSet` - however these are currently not implemented
+ - `Response` Links a User to an Event through a response. This contains a `ConditionSet` and a set of 'PollResponse' objects - however these are currently not implemented
+
+**ConditionSet**
+ - `ConditionSet` Has a set of `Variable`s and `Constraint`s. 
+ - `Variable` Defines the range of values around the named domain.
+ - `Constraints` Defines a relationship between two `variable`s of the same domain data type.
+
+ **Poll**
+ - `Poll` defines the options in a poll
+ - `PollResponse` The users response to each option in a poll
+ 
 
  Note that the `Event` itself is completely decoupled from any `User`. This is intentional and should remain that way.
 
@@ -35,3 +45,6 @@ The `User` package implements the user management system. It has the following k
  
  - Each tier should only communicate with that directly above and below it. From top to bottom that is Controller --> Service --> DAO
  - The DAO (Data Access Object) should only implement CRUD operations. If you find yourself needing to write a non-crud op in the DAO then take a step back and rethink your approach. Generally the DAO should instantiate a `Model` object to be manipulated in the Service layer. While it is okay to provide additional DAO methods than those in the DAO interface consider splitting into multiple DAO objects if you are writing many of them.
+
+
+ ### Last updated: 12 Feb (added details for Event package)

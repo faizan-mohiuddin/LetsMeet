@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <div th:fragment="edit">
+
+        <form th:action="@{/event/{eventUUID}/edit(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data"
+            method="post">
+
+            <div class="form-group">
+                <label for="eventname">Event Name: </label>
+                <input type="text" class="form-control" name="eventname" th:value="${event.getName()}">
+            </div>
+
+            <div class="form-group">
+                <label for="eventdesc">Image: </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="file">
+                    <label class="custom-file-label" for="customFile">Choose new file</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="eventdesc">Event Description: </label>
+                <textarea type="text" class="form-control" name="eventdesc" placeholder="Description..."
+                    th:text="${event.getDescription()}"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="eventlocation">Event Location:</label>
+                <input type="text" class="form-control" name="eventlocation" placeholder="Location..."
+                    th:value="${event.getLocation()}">
+            </div>
+
+            <div class="form-group">
+                <label for="eventTimes">Event Times:</label>
+                <div class="container" id="timeRangeGroup">
+                    <div class="row align-items-start">
+                        <div class="col">
+                            <input type="datetime" class="form-control datepicker" name="eventlocation"
+                                placeholder="From...">
+                        </div>
+                        <div class="col">
+                            <input type="datetime" class="form-control datepicker" name="eventlocation"
+                                placeholder="Until...">
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-light" onclick="msg()">Remove</button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-light" onclick="msg()">Add</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+
+    </div>
+
+
+    <div th:fragment="invite">
+        <form th:action="@{/event/{eventUUID}/users(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST">
+            <div class="form-group">
+                <div class="container">
+                    <row>
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">Caution</h4>
+                            Enter the required users UUID string (e.g. 244ab0d3-332c-4aeb-83d8-962e21bff7c1) exactly. Email search and CSV import in progress.
+                          </div>
+                    </row>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="container" id="usersRequired">
+                <div class="input-group mb-3">  
+                    <input type="text" class="form-control" id="myInput" name="usersRequired" placeholder="Recipient's UUID"
+                           aria-label="Recipient's UUID" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" id="but_add" type="button"><i class="bi bi-plus"></i></button>
+                    </div>
+                </div>
+                    
+                </div>
+            </div>
+            <div class="container">
+                <button type="submit" class="btn btn-primary">Confirm</button>
+            </div>
+        </form>
+
+        
+        <script>
+            $(document).ready(function () {
+        
+                $('#but_add').click(function () {
+                    var html = '<div class="input-group mb-3"><input type="text" class="form-control" id="myInput" name="usersRequired" ' +
+                        'placeholder="Recipient\'s UUID" aria-label="Recipient\'s UUID" aria-describedby="basic-addon2">' +
+                        '<div class="input-group-append"> <button class="btn btn-outline-secondary" id="but_add" type="button" onclick="remove(this)">' +
+                        '<i class="bi bi-dash"></i></button></div></div>';
+                    var b = document.getElementById("but_add").parentElement.parentElement;
+                    $(html).insertAfter(b);
+                });
+        
+            });
+        </script>
+
+        <script>
+            function remove(el){
+                var myobj = el.parentElement.parentElement;
+                myobj.remove();
+            }
+        </script>
+    </div>
+
+</body>
+

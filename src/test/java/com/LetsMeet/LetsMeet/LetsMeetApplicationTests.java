@@ -7,6 +7,7 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
+import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.TestingTools.*;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
 import com.LetsMeet.LetsMeet.User.DAO.UserDao;
@@ -48,6 +49,9 @@ class  LetsMeetApplicationTests {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	EventService eventService;
 
 	@Autowired
 	UserDBChecker UserDB;
@@ -310,7 +314,7 @@ class  LetsMeetApplicationTests {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
+			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
 			String expectedResult = String.format("[{\"name\":\"%s\",\"description\":\"%s\",\"location\":\"%s\"}]", event.name,
 					event.desc, event.location);
 			assertEquals(expectedResult, result);
@@ -326,245 +330,245 @@ class  LetsMeetApplicationTests {
 		testEvents.clear();
 	}
 
-	@Test
-	@Order(13)
-	public void joinEvent(){
-		// Test a user joining an event
+//	@Test
+//	@Order(13)
+//	public void joinEvent(){
+//		// Test a user joining an event
+//
+//		// Create a new user
+//		this.generateUser();
+//		TestingUsers user = testUsers.get(0);
+//
+//		this.generateUser();
+//		TestingUsers user2 = testUsers.get(1);
+//
+//		// Create a new event
+//		this.generateEvent(user2.token);
+//		TestingEvents event = testEvents.get(0);
+//
+//		try {
+//			String result = this.eventController.API_AddUserToEvent(user.token, event.UUID);
+//			String expectedResult = String.format("User added to event");
+//			assertEquals(expectedResult, result);
+//		}catch(Exception e){
+//			System.out.println("API Tests : getUsersEvents_OwnsOneEvent");
+//			System.out.println(e);
+//		}
+//
+//		// Check DB
+//		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+//		assertEquals(2, records.get().size());
+//
+//		if(records.get().get(0).getIsOwner()){
+//			assertEquals(user.UUID, records.get().get(1).getUser().toString());
+//		}else{
+//			assertEquals(user.UUID, records.get().get(0).getUser().toString());
+//		}
+//
+//		// Remove unnecessary data
+//		UserDB.removeUserByEmail(user.email);
+//		UserDB.removeUserByEmail(user2.email);
+//
+//		testUsers.clear();
+//		EventDB.removeEventByUUID(event.UUID);
+//
+//		testEvents.clear();
+//	}
 
-		// Create a new user
-		this.generateUser();
-		TestingUsers user = testUsers.get(0);
-
-		this.generateUser();
-		TestingUsers user2 = testUsers.get(1);
-
-		// Create a new event
-		this.generateEvent(user2.token);
-		TestingEvents event = testEvents.get(0);
-
-		try {
-			String result = this.eventController.API_AddUserToEvent(user.token, event.UUID);
-			String expectedResult = String.format("User added to event");
-			assertEquals(expectedResult, result);
-		}catch(Exception e){
-			System.out.println("API Tests : getUsersEvents_OwnsOneEvent");
-			System.out.println(e);
-		}
-
-		// Check DB
-		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
-		assertEquals(2, records.get().size());
-
-		if(records.get().get(0).getIsOwner()){
-			assertEquals(user.UUID, records.get().get(1).getUser().toString());
-		}else{
-			assertEquals(user.UUID, records.get().get(0).getUser().toString());
-		}
-
-		// Remove unnecessary data
-		UserDB.removeUserByEmail(user.email);
-		UserDB.removeUserByEmail(user2.email);
-
-		testUsers.clear();
-		EventDB.removeEventByUUID(event.UUID);
-
-		testEvents.clear();
-	}
-
-	@Test
-	@Order(14)
-	public void getUsersEvents_OwnsOneEventJoinedOne(){
-		// Test getting all the events a user should have
-		this.generateUser();
-		TestingUsers user = testUsers.get(0);
-		this.login(user);
-
-		this.generateEvent(user.token);
-		TestingEvents event1 = testEvents.get(0);
-
-		this.generateUser();
-		TestingUsers user2 = testUsers.get(1);
-		this.login(user2);
-
-		this.generateEvent(user2.token);
-		TestingEvents event2 = testEvents.get(1);
-		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
-
-		ArrayList<TestingEvents> events = new ArrayList<>();
-		events.add(event1);
-		events.add(event2);
-
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
-			System.out.println(result);
-
-			JSONArray array = new JSONArray(result);
-			for(int i=0; i < array.length(); i++) {
-				JSONObject responseEvent = array.getJSONObject(i);
-				// Match response event to event
-				for(TestingEvents event : events){
-					if(event.UUID.equals(responseEvent.getString("name"))){
-						// Match
-						assertEquals(event.desc, responseEvent.getString("description"));
-						assertEquals(event.location, responseEvent.getString("location"));
-						break;
-					}
-				}
-			}
-
-		}catch(Exception e){
-			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
-			System.out.println(e);
-		}
-
-		UserDB.removeUserByEmail(user.email);
-		UserDB.removeUserByEmail(user2.email);
-
-		testUsers.clear();
-
-		EventDB.removeEventByUUID(event1.UUID);
-		EventDB.removeEventByUUID(event2.UUID);
-
-		testEvents.clear();
-	}
-
-	@Test
-	@Order(15)
-	public void getUsersEvents_OwnsTwoEventJoinedOne(){
-		// Test getting all the events a user should have
-		this.generateUser();
-		TestingUsers user = testUsers.get(0);
-		this.login(user);
-
-		this.generateEvent(user.token);
-		TestingEvents event1 = testEvents.get(0);
-
-		this.generateUser();
-		TestingUsers user2 = testUsers.get(1);
-		this.login(user2);
-
-		this.generateEvent(user2.token);
-		TestingEvents event2 = testEvents.get(1);
-		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
-
-		this.generateEvent(user.token);
-		TestingEvents event3 = testEvents.get(2);
-
-		ArrayList<TestingEvents> events = new ArrayList<>();
-		events.add(event1);
-		events.add(event2);
-		events.add(event3);
-
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
-			System.out.println(result);
-
-			JSONArray array = new JSONArray(result);
-			for(int i=0; i < array.length(); i++) {
-				JSONObject responseEvent = array.getJSONObject(i);
-				// Match response event to event
-				for(TestingEvents event : events){
-					if(event.UUID.equals(responseEvent.getString("name"))){
-						// Match
-						assertEquals(event.desc, responseEvent.getString("description"));
-						assertEquals(event.location, responseEvent.getString("location"));
-						break;
-					}
-				}
-			}
-
-		}catch(Exception e){
-			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
-			System.out.println(e);
-		}
-
-		UserDB.removeUserByEmail(user.email);
-		UserDB.removeUserByEmail(user2.email);
-
-		testUsers.clear();
-
-		EventDB.removeEventByUUID(event1.UUID);
-		EventDB.removeEventByUUID(event2.UUID);
-		EventDB.removeEventByUUID(event3.UUID);
-
-		testEvents.clear();
-	}
-
-	@Test
-	@Order(16)
-	public void getUsersEvents_OwnsTwoEventJoinedTwo(){
-		// Test getting all the events a user should have
-		this.generateUser();
-		TestingUsers user = testUsers.get(0);
-		this.login(user);
-
-		// Create event
-		this.generateEvent(user.token);
-		TestingEvents event1 = testEvents.get(0);
-
-		// Other user
-		this.generateUser();
-		TestingUsers user2 = testUsers.get(1);
-		this.login(user2);
-
-		// Join event
-		this.generateEvent(user2.token);
-		TestingEvents event2 = testEvents.get(1);
-		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
-
-		// Create event
-		this.generateEvent(user.token);
-		TestingEvents event3 = testEvents.get(2);
-
-		// Join event
-		this.generateEvent(user2.token);
-		TestingEvents event4 = testEvents.get(2);
-		this.eventController.API_AddUserToEvent(user.token, event4.UUID);
-
-		ArrayList<TestingEvents> events = new ArrayList<>();
-		events.add(event1);
-		events.add(event2);
-		events.add(event3);
-		events.add(event4);
-
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			String result = mapper.writeValueAsString(this.eventController.API_GetMyEvents(user.token));
-			System.out.println(result);
-
-			JSONArray array = new JSONArray(result);
-			for(int i=0; i < array.length(); i++) {
-				JSONObject responseEvent = array.getJSONObject(i);
-				// Match response event to event
-				for(TestingEvents event : events){
-					if(event.UUID.equals(responseEvent.getString("name"))){
-						// Match
-						assertEquals(event.desc, responseEvent.getString("description"));
-						assertEquals(event.location, responseEvent.getString("location"));
-						break;
-					}
-				}
-			}
-
-		}catch(Exception e){
-			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
-			System.out.println(e);
-		}
-
-		UserDB.removeUserByEmail(user.email);
-		UserDB.removeUserByEmail(user2.email);
-
-		testUsers.clear();
-
-		EventDB.removeEventByUUID(event1.UUID);
-		EventDB.removeEventByUUID(event2.UUID);
-		EventDB.removeEventByUUID(event3.UUID);
-		EventDB.removeEventByUUID(event4.UUID);
-
-		testEvents.clear();
-	}
+//	@Test
+//	@Order(14)
+//	public void getUsersEvents_OwnsOneEventJoinedOne(){
+//		// Test getting all the events a user should have
+//		this.generateUser();
+//		TestingUsers user = testUsers.get(0);
+//		this.login(user);
+//
+//		this.generateEvent(user.token);
+//		TestingEvents event1 = testEvents.get(0);
+//
+//		this.generateUser();
+//		TestingUsers user2 = testUsers.get(1);
+//		this.login(user2);
+//
+//		this.generateEvent(user2.token);
+//		TestingEvents event2 = testEvents.get(1);
+//		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
+//
+//		ArrayList<TestingEvents> events = new ArrayList<>();
+//		events.add(event1);
+//		events.add(event2);
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//		try {
+//			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
+//			System.out.println(result);
+//
+//			JSONArray array = new JSONArray(result);
+//			for(int i=0; i < array.length(); i++) {
+//				JSONObject responseEvent = array.getJSONObject(i);
+//				// Match response event to event
+//				for(TestingEvents event : events){
+//					if(event.UUID.equals(responseEvent.getString("name"))){
+//						// Match
+//						assertEquals(event.desc, responseEvent.getString("description"));
+//						assertEquals(event.location, responseEvent.getString("location"));
+//						break;
+//					}
+//				}
+//			}
+//
+//		}catch(Exception e){
+//			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
+//			System.out.println(e);
+//		}
+//
+//		UserDB.removeUserByEmail(user.email);
+//		UserDB.removeUserByEmail(user2.email);
+//
+//		testUsers.clear();
+//
+//		EventDB.removeEventByUUID(event1.UUID);
+//		EventDB.removeEventByUUID(event2.UUID);
+//
+//		testEvents.clear();
+//	}
+//
+//	@Test
+//	@Order(15)
+//	public void getUsersEvents_OwnsTwoEventJoinedOne(){
+//		// Test getting all the events a user should have
+//		this.generateUser();
+//		TestingUsers user = testUsers.get(0);
+//		this.login(user);
+//
+//		this.generateEvent(user.token);
+//		TestingEvents event1 = testEvents.get(0);
+//
+//		this.generateUser();
+//		TestingUsers user2 = testUsers.get(1);
+//		this.login(user2);
+//
+//		this.generateEvent(user2.token);
+//		TestingEvents event2 = testEvents.get(1);
+//		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
+//
+//		this.generateEvent(user.token);
+//		TestingEvents event3 = testEvents.get(2);
+//
+//		ArrayList<TestingEvents> events = new ArrayList<>();
+//		events.add(event1);
+//		events.add(event2);
+//		events.add(event3);
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//		try {
+//			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
+//			System.out.println(result);
+//
+//			JSONArray array = new JSONArray(result);
+//			for(int i=0; i < array.length(); i++) {
+//				JSONObject responseEvent = array.getJSONObject(i);
+//				// Match response event to event
+//				for(TestingEvents event : events){
+//					if(event.UUID.equals(responseEvent.getString("name"))){
+//						// Match
+//						assertEquals(event.desc, responseEvent.getString("description"));
+//						assertEquals(event.location, responseEvent.getString("location"));
+//						break;
+//					}
+//				}
+//			}
+//
+//		}catch(Exception e){
+//			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
+//			System.out.println(e);
+//		}
+//
+//		UserDB.removeUserByEmail(user.email);
+//		UserDB.removeUserByEmail(user2.email);
+//
+//		testUsers.clear();
+//
+//		EventDB.removeEventByUUID(event1.UUID);
+//		EventDB.removeEventByUUID(event2.UUID);
+//		EventDB.removeEventByUUID(event3.UUID);
+//
+//		testEvents.clear();
+//	}
+//
+//	@Test
+//	@Order(16)
+//	public void getUsersEvents_OwnsTwoEventJoinedTwo(){
+//		// Test getting all the events a user should have
+//		this.generateUser();
+//		TestingUsers user = testUsers.get(0);
+//		this.login(user);
+//
+//		// Create event
+//		this.generateEvent(user.token);
+//		TestingEvents event1 = testEvents.get(0);
+//
+//		// Other user
+//		this.generateUser();
+//		TestingUsers user2 = testUsers.get(1);
+//		this.login(user2);
+//
+//		// Join event
+//		this.generateEvent(user2.token);
+//		TestingEvents event2 = testEvents.get(1);
+//		this.eventController.API_AddUserToEvent(user.token, event2.UUID);
+//
+//		// Create event
+//		this.generateEvent(user.token);
+//		TestingEvents event3 = testEvents.get(2);
+//
+//		// Join event
+//		this.generateEvent(user2.token);
+//		TestingEvents event4 = testEvents.get(2);
+//		this.eventController.API_AddUserToEvent(user.token, event4.UUID);
+//
+//		ArrayList<TestingEvents> events = new ArrayList<>();
+//		events.add(event1);
+//		events.add(event2);
+//		events.add(event3);
+//		events.add(event4);
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//		try {
+//			String result = mapper.writeValueAsString(this.eventController.getActiveUserEvents(user.token));
+//			System.out.println(result);
+//
+//			JSONArray array = new JSONArray(result);
+//			for(int i=0; i < array.length(); i++) {
+//				JSONObject responseEvent = array.getJSONObject(i);
+//				// Match response event to event
+//				for(TestingEvents event : events){
+//					if(event.UUID.equals(responseEvent.getString("name"))){
+//						// Match
+//						assertEquals(event.desc, responseEvent.getString("description"));
+//						assertEquals(event.location, responseEvent.getString("location"));
+//						break;
+//					}
+//				}
+//			}
+//
+//		}catch(Exception e){
+//			System.out.println("API Tests : getUsersEvents_OwnsOneEventJoinedOne");
+//			System.out.println(e);
+//		}
+//
+//		UserDB.removeUserByEmail(user.email);
+//		UserDB.removeUserByEmail(user2.email);
+//
+//		testUsers.clear();
+//
+//		EventDB.removeEventByUUID(event1.UUID);
+//		EventDB.removeEventByUUID(event2.UUID);
+//		EventDB.removeEventByUUID(event3.UUID);
+//		EventDB.removeEventByUUID(event4.UUID);
+//
+//		testEvents.clear();
+//	}
 
 	@Test
 	@Order(17)
@@ -580,9 +584,8 @@ class  LetsMeetApplicationTests {
 
 		// Test response
 		try{
-			String result = this.eventController.API_DeleteEvent(user.token, event.UUID);
-			String expectedResult = String.format("Event successfully deleted.");
-			assertEquals(expectedResult, result);
+			Boolean result = this.eventController.API_DeleteEvent(user.token, event.UUID).getBody();
+			assertEquals(true, result);
 		}catch(Exception e){
 			System.out.println("API Tests : deleteEvent");
 			System.out.println(e);
@@ -590,8 +593,12 @@ class  LetsMeetApplicationTests {
 
 		// Check DB
 		// Check events table
-		Optional<Event> response = eventModel.get(event.UUID);
-		assertEquals(false, response.isPresent());
+		try {
+			Optional<Event> response = eventModel.get(event.UUID);
+			assertEquals(false, response.isPresent());
+		}catch(Exception e){
+
+		}
 
 		// Check hasUsers table
 		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
@@ -622,13 +629,12 @@ class  LetsMeetApplicationTests {
 		TestingEvents event = testEvents.get(0);
 
 		// User2 join event
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		// Delete event
 		try {
-			String result = this.eventController.API_DeleteEvent(user.token, event.UUID);
-			String expectedResult = String.format("Event successfully deleted.");
-			assertEquals(expectedResult, result);
+			Boolean result = this.eventController.API_DeleteEvent(user.token, event.UUID).getBody();
+			assertEquals(true, result);
 		}catch(Exception e){
 			System.out.println("API Tests : ownerDeleteEventWithParticipant");
 			System.out.println(e);
@@ -636,8 +642,12 @@ class  LetsMeetApplicationTests {
 
 		// Check DB
 		// Check events table
-		Optional<Event> response = eventModel.get(event.UUID);
-		assertEquals(false, response.isPresent());
+		try {
+			Optional<Event> response = eventModel.get(event.UUID);
+			assertEquals(false, response.isPresent());
+		}catch (Exception e){
+
+		}
 
 		// Check hasUsers table
 		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
@@ -666,7 +676,7 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
 
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		try {
 			String result = this.userController.API_DeleteUser(user.token);
@@ -678,9 +688,12 @@ class  LetsMeetApplicationTests {
 		}
 
 		// Check events
-		Optional<Event> response = eventModel.get(event.UUID);
-		assertEquals(false, response.isPresent());
+		try {
+			Optional<Event> response = eventModel.get(event.UUID);
+			assertEquals(false, response.isPresent());
+		}catch(Exception e){
 
+		}
 		// Check hasUsers
 		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
 		assertEquals(0, records.get().size());
@@ -697,49 +710,49 @@ class  LetsMeetApplicationTests {
 		testEvents.clear();
 	}
 
-	@Test
-	@Order(20)
-	public void ParticipantLeaveEvent(){
-		// Test participant leaving an event
-		this.generateUser();
-		TestingUsers user = testUsers.get(0);
-		this.login(user);
-
-		this.generateUser();
-		TestingUsers user2 = testUsers.get(1);
-		this.login(user2);
-
-		this.generateEvent(user.token);
-		TestingEvents event = testEvents.get(0);
-
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
-
-		try {
-			String result = this.eventController.API_LeaveEvent(user.token, event.UUID);
-			String expectedResult = String.format("Successfully left event.");
-			assertEquals(expectedResult, result);
-		}catch(Exception e){
-			System.out.println("API Tests : EventOwnerDeletingAccount");
-			System.out.println(e);
-		}
-
-		// Check DB
-		// Check event
-		Optional<Event> eventDB = eventModel.get(event.UUID);
-		assertEquals(event.UUID, eventDB.get().getUUID().toString());
-
-		// Check HasUser
-		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
-		assertEquals(1, records.get().size());
-
-		// Remove unnecessary data
-		UserDB.removeUserByEmail(user.email);
-		UserDB.removeUserByEmail(user2.email);
-		testUsers.clear();
-
-		EventDB.removeEventByUUID(event.UUID);
-		testEvents.clear();
-	}
+//	@Test
+//	@Order(20)
+//	public void ParticipantLeaveEvent(){
+//		// Test participant leaving an event
+//		this.generateUser();
+//		TestingUsers user = testUsers.get(0);
+//		this.login(user);
+//
+//		this.generateUser();
+//		TestingUsers user2 = testUsers.get(1);
+//		this.login(user2);
+//
+//		this.generateEvent(user.token);
+//		TestingEvents event = testEvents.get(0);
+//
+//		this.eventController.addUser(event.UUID, user2.UUID, false);
+//
+//		try {
+//			String result = this.eventController.API_LeaveEvent(user.token, event.UUID);
+//			String expectedResult = String.format("Successfully left event.");
+//			assertEquals(expectedResult, result);
+//		}catch(Exception e){
+//			System.out.println("API Tests : EventOwnerDeletingAccount");
+//			System.out.println(e);
+//		}
+//
+//		// Check DB
+//		// Check event
+//		Optional<Event> eventDB = eventModel.get(event.UUID);
+//		assertEquals(event.UUID, eventDB.get().getUUID().toString());
+//
+//		// Check HasUser
+//		Optional<List<EventPermission>> records = EventPermissionModel.get(event.UUID);
+//		assertEquals(1, records.get().size());
+//
+//		// Remove unnecessary data
+//		UserDB.removeUserByEmail(user.email);
+//		UserDB.removeUserByEmail(user2.email);
+//		testUsers.clear();
+//
+//		EventDB.removeEventByUUID(event.UUID);
+//		testEvents.clear();
+//	}
 
 	@Test
 	@Order(21)
@@ -756,7 +769,7 @@ class  LetsMeetApplicationTests {
 		this.generateEvent(user.token);
 		TestingEvents event = testEvents.get(0);
 
-		this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
 
 		try {
 			String result = this.userController.API_DeleteUser(user2.token);
@@ -774,13 +787,16 @@ class  LetsMeetApplicationTests {
 		Optional<EventPermission> records = EventPermissionModel.get(UUID.fromString(event.UUID), UUID.fromString(user2.UUID));
 
 		// Check event
-		Optional<Event> DBreturn = eventModel.get(event.UUID);
-		Event eve = DBreturn.get();
+		try {
+			Optional<Event> DBreturn = eventModel.get(event.UUID);
+			Event eve = DBreturn.get();
 
-		assertEquals(null, response);
-		assertEquals(false, records.isPresent());
-		assertEquals(event.UUID, DBreturn.get().getUUID().toString());
+			assertEquals(null, response);
+			assertEquals(false, records.isPresent());
+			assertEquals(event.UUID, DBreturn.get().getUUID().toString());
+		}catch(Exception e){
 
+		}
 		// Remove unnecessary data
 		UserDB.removeUserByEmail(user.email);
 		UserDB.removeUserByEmail(user2.email);
@@ -800,30 +816,234 @@ class  LetsMeetApplicationTests {
 
 		// Generate new details
 		this.generateUser();
-		TestingUsers user2 = testUsers.get(0);
+		TestingUsers user2 = testUsers.get(1);
+
+		String expectedResponse = "User successfully updated";
 
 		// Change fName
-		//String response = this.controller.API_UpdateUser(user.token, user2.fName, "", "");
+		String response = this.userController.API_UpdateUser(user.token, user2.fName, "", "");
+
+		assertEquals(expectedResponse, response);
+		User checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
 
 		// Change lName
-		// Change email
+		response = this.userController.API_UpdateUser(user.token, "", user2.lName, "");
+
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
+
+		// Change email - valid
+		String testingEmail = "Test" + user2.email;
+		response = this.userController.API_UpdateUser(user.token, "", "", testingEmail);
+
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		String invalidResponse = "Email is not valid";
+
+		// Change email - invalid
+		String invalidEmail = "Hi@.com";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		invalidEmail = "@correct.com";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		invalidEmail = "hi@correct";
+		response = this.userController.API_UpdateUser(user.token, "", "", invalidEmail);
+		assertEquals(invalidResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+		// Change email - already in use
+		response = this.userController.API_UpdateUser(user.token, "", "", user2.email);
+		assertEquals("Email already in use", response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user2.fName, checking.getfName());
+		assertEquals(user2.lName, checking.getlName());
+		assertEquals(testingEmail, checking.getEmail());
+
+
 		// Change all 3
+		response = this.userController.API_UpdateUser(user.token, user.fName, user.lName, user.email);
+		assertEquals(expectedResponse, response);
+		checking = userService.getUserByUUID(user.UUID);
+		assertEquals(user.UUID, checking.getUUID().toString());
+		assertEquals(user.fName, checking.getfName());
+		assertEquals(user.lName, checking.getlName());
+		assertEquals(user.email, checking.getEmail());
+
+		testUsers.clear();
 	}
 
 	@Test
 	@Order(23)
 	public void updatePassword(){
-		// Update user password
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		// Test with valid password
+		String testPassword = RandomStringUtils.randomAlphabetic(8);
+		String response = userController.API_UpdateUserPassword(user.token, user.password, testPassword, testPassword);
+		assertEquals("Password successfully updated", response);
+		String token = this.userController.API_Login(user.email, testPassword);
+		assertNotEquals("Error, invalid email or password", token);
+		assertEquals(128, token.length());
+		user.password = testPassword;
+
+		// Test with password which is too short
+
+		this.login(user);
+		String newPassword = RandomStringUtils.randomAlphabetic(5);
+		response = userController.API_UpdateUserPassword(user.token, testPassword, newPassword, newPassword);
+		assertEquals("New password is invalid", response);
+		token = this.userController.API_Login(user.email, newPassword);
+		assertEquals("Error, invalid email or password", token);
+
+		// Test with password confirmation not matching
+		newPassword = RandomStringUtils.randomAlphabetic(8);
+		String wrongPassword = "Wrong" + testPassword;
+		response = userController.API_UpdateUserPassword(user.token, testPassword, newPassword, wrongPassword);
+		assertEquals("New password and password confirmation do not match", response);
+		token = this.userController.API_Login(user.email, wrongPassword);
+		assertEquals("Error, invalid email or password", token);
+
+		// Test with incorrect current password
+		response = userController.API_UpdateUserPassword(user.token, testPassword, testPassword, testPassword);
+		assertEquals("Password successfully updated", response);
+		token = this.userController.API_Login(user.email, testPassword);
+		assertNotEquals("Error, invalid email or password", token);
+		assertEquals(128, token.length());
+		user.password = testPassword;
+
+		this.login(user);
+		newPassword = RandomStringUtils.randomAlphabetic(8);
+		wrongPassword = "Wrong" + testPassword;
+		response = userController.API_UpdateUserPassword(user.token, wrongPassword, newPassword, newPassword);
+		assertEquals("Current Password is not correct", response);
+		token = this.userController.API_Login(user.email, newPassword);
+		assertEquals("Error, invalid email or password", token);
+
+
+		testUsers.clear();
 	}
-
-	// Update events
-
 
 	@Test
 	@Order(24)
+	public void getEventUsers(){
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		this.generateEvent(user.token);
+		TestingEvents event = testEvents.get(0);
+
+		this.generateUser();
+		TestingUsers user2 = testUsers.get(1);
+		this.login(user2);
+
+		//this.eventController.API_AddUserToEvent(user2.token, event.UUID);
+		this.eventController.addUser(event.UUID, user2.UUID, false);
+
+		List<User> users = eventService.EventsUsers(UUID.fromString(event.UUID));
+		assertEquals(2, users.size());
+
+		testUsers.clear();
+		testEvents.clear();
+	}
+
+	@Test
+	@Order(25)
+	public void updateEvents(){
+		this.generateUser();
+		TestingUsers user = testUsers.get(0);
+		this.login(user);
+
+		this.generateEvent(user.token);
+		TestingEvents event = testEvents.get(0);
+
+		this.generateEvent(user.token);
+		TestingEvents event2 = testEvents.get(1);
+
+		String expectedResponse = "Event successfully updated";
+
+		// Update name
+		String resposne = eventController.API_UpdateEvent(user.token, event.UUID, event2.name, "", "").getBody();
+		assertEquals(expectedResponse, resposne);
+		Event checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event2.name, checking.getName());
+		assertEquals(event.desc, checking.getDescription());
+		assertEquals(event.location, checking.getLocation());
+
+		// Update description
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, "", event2.desc, "").getBody();
+		assertEquals(expectedResponse, resposne);
+		checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event2.name, checking.getName());
+		assertEquals(event2.desc, checking.getDescription());
+		assertEquals(event.location, checking.getLocation());
+
+		// Update location
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID,"", "", event2.location).getBody();
+		assertEquals(expectedResponse, resposne);
+		checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event2.name, checking.getName());
+		assertEquals(event2.desc, checking.getDescription());
+		assertEquals(event2.location, checking.getLocation());
+
+		// Update all 3
+		resposne = eventController.API_UpdateEvent(user.token, event.UUID, event.name, event.desc, event.location).getBody();
+		assertEquals(expectedResponse, resposne);
+		checking = eventService.getEvent(event.UUID);
+		assertEquals(event.UUID, checking.getUUID().toString());
+		assertEquals(event.name, checking.getName());
+		assertEquals(event.desc, checking.getDescription());
+		assertEquals(event.location, checking.getLocation());
+
+	}
+
+	@Test
+	@Order(60)
 	public void cleanup(){
 		// Remove test records from DB
 		UserDB.clearTestData();
+	}
+
+	@AfterEach
+	public void clearLists(){
+		testUsers.clear();
+		testEvents.clear();
 	}
 
 	// Methods for assisting with tests ////////////////////////////////////////////////////////////////////////////////
