@@ -297,14 +297,6 @@
             
         <!-- Scripts for Event Times -->
         <script>
-        // For the day format
-        // DOES NOT WORK IN JS
-        $(function () {
-        $(".datepicker").datepicker({
-            format: 'yyyy-mm-dd'
-        });
-        });
-
         // Counter for the rows
         var dateRowNo = 0;
         $(document).ready(function(){
@@ -316,14 +308,14 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
         '</div>' +
         '<div class="col">' +
         '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
         '</div>' +
         '<div class="col">' +
         '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
@@ -378,14 +370,14 @@
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay0">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0">
                             </div>
                             <div class="col">
                                 <input type="time" class="form-control datetimepicker" step="1" id="startTime0">
                             </div>
                             <label>Until:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay0">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0">
                             </div>
                             <div class="col">
                                 <input type="time" class="form-control datetimepicker" step="1" id="endTime0">
