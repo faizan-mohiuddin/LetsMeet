@@ -80,6 +80,10 @@
     #target {
         width: 345px;
     }
+    
+    input.form-control:read-only {
+        background-color: #fff;
+    }
 </style>
 
 <script>
@@ -312,14 +316,14 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
         '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
         '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
@@ -376,14 +380,14 @@
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
                                 <input type="time" class="form-control datetimepicker" step="1" id="startTime0">
                             </div>
                             <label>Until:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
                                 <input type="time" class="form-control datetimepicker" step="1" id="endTime0">
