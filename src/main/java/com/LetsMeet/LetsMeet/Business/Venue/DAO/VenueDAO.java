@@ -16,9 +16,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
+import java.lang.Math;
 
 @Component
 public class VenueDAO implements DAO<Venue> {
+
+    private final double p = Math.PI/180;  // Used for calculating distance between 2 sets or longitude and latitude
 
     @Autowired
     DBConnector database;
@@ -182,7 +185,32 @@ public class VenueDAO implements DAO<Venue> {
             System.out.println("\nVenue Dao: Search");
             System.out.println(e);
             return Optional.empty();
+        }
+    }
 
+    public Optional<List<Venue>> searchByRadius(double longitude, double latitude, double kilometers){
+        String query = String.format("SELECT * FROM Venue WHERE" +
+                " 12742 * ASIN(SQRT(" +
+                "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
+                " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
+                latitude, this.p, latitude, this.p, this.p, longitude, this.p, kilometers);
+        System.out.println(query);
+
+        try{
+            Statement statement = DatabaseInterface.get().createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            List<Venue> venues = new ArrayList<>();
+            while(rs.next()){
+                venues.add(new Venue(rs.getString(1), rs.getString(2),
+                        rs.getString(3)));
+            }
+            return Optional.of(venues);
+
+        }catch(Exception e){
+            System.out.println("\nVenue Dao: searchByRadius");
+            System.out.println(e);
+            return Optional.empty();
         }
     }
 }

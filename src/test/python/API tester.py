@@ -56,6 +56,13 @@ class LetsMeetAPITesting:
         r = requests.delete(self.address + "User", params=payload)
         print(r.text)
 
+    def searchByRadius(self):
+        latitude = 57.691
+        longitude = -2.010
+        payload = {"Longitude": longitude, "Latitude": latitude, "Radius": 1}
+        r = requests.get(self.address + "Venue/Search/Radius", params=payload)
+        print(r.text)
+
 
 ########################################################################################################################
 NoUser = LetsMeetAPITesting()
@@ -102,3 +109,6 @@ UserTwo = LetsMeetAPITesting("caelmilne@gmail.com", "testing 2")
 # UserOne.joinEvent("99e3f78d-7246-3010-a808-4ee4543cc928")
 # UserOne.getMyEvents()
 #################################################################################
+# Test 5 ########################################################################
+# Searching by radius
+NoUser.searchByRadius()

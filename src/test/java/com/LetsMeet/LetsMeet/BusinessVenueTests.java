@@ -684,6 +684,12 @@ public class BusinessVenueTests {
     }
 
     @Test
+    @Order(20)
+    public void searchByRadius(){
+
+    }
+
+    @Test
     @Order(50)
     public void cleanup(){
         // Remove test records from DB

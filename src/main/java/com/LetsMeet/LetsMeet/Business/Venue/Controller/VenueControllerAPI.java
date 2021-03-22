@@ -94,7 +94,7 @@ public class VenueControllerAPI {
         }
     }
 
-    @PutMapping
+    @PutMapping("api/Venue/facility")
     public String API_addFacility(@RequestParam(value="Token") String token, @RequestParam(value="VenueID") String venueUUID,
                                   @RequestParam(value="facilityTag") String facility){
         // validate token
@@ -119,9 +119,19 @@ public class VenueControllerAPI {
         }
     }
 
-    @GetMapping
+    @GetMapping("api/Venue/Search")
     public List<Venue> API_SearchVenue(@RequestParam(value="Name", defaultValue = "") String name,
                                        @RequestParam(value = "Facilities", defaultValue = "") String unparsedFacilitiesList){
         return venueService.search(name, unparsedFacilitiesList);
+    }
+
+    @GetMapping ("api/Venue/Search/Radius")
+    public List<Venue> API_SearchVenueByRadius(@RequestParam(value="Longitude") String longitude,
+                                                    @RequestParam(value="Latitude") String latitude,
+                                                    @RequestParam(value="Radius") String radius){
+        double dlong = Double.parseDouble(longitude);
+        double dlat = Double.parseDouble(latitude);
+        double dradius = Double.parseDouble(radius);
+        return venueService.searchByRadius(dlong, dlat, dradius);
     }
 }
