@@ -20,6 +20,8 @@ import java.util.*;
 @Component
 public class VenueService {
 
+    private final double p = Math.PI/180;  // Used for calculating distance between 2 sets or longitude and latitude
+
     @Autowired
     VenueDAO DAO;
 
@@ -187,6 +189,7 @@ public class VenueService {
 
         boolean nameSearch = false;
         boolean facilitySearch = false;
+        boolean locationSearch = false;
 
         if(name.length() > 0){
             //query = query + String.format("Venue.Name = '%s'", name);
@@ -232,6 +235,7 @@ public class VenueService {
             // Iterate over sections of string
             int len = parts.size();
             for(int i = 0; i < len; i++) {
+                locationSearch = true;
                 query = query + "Venue.Address LIKE '%" + String.format("%s", parts.get(i)) + "%'";
                 if(i + 1 < len){
                     query = query + String.format(" AND ");
@@ -240,6 +244,30 @@ public class VenueService {
         }
 
         // Check for location search
+        if(!longitude.equals("") && !latitude.equals("") && !radius.equals("")){
+            // Convert parameters to double
+            try{
+                double dlong = Double.parseDouble(longitude);
+                double dlat = Double.parseDouble(latitude);
+                double dradius = Double.parseDouble(radius);
+
+                if(nameSearch || facilitySearch || locationSearch){
+                    query = query + String.format(" AND ");
+                }
+
+                query = query + String.format(" 12742 * ASIN(SQRT(" +
+                                "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
+                                " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
+                        dlat, this.p, dlat, this.p, this.p, dlong, this.p, dradius);
+            }catch (Exception e){
+                // We dont care, carry on with the rest of the search
+                if(!(locationSearch || nameSearch || facilitySearch)){
+                    Collection<Venue> venues = DAO.getAll().get();
+                    List<Venue> v = new ArrayList<>(venues);
+                    return v;
+                }
+            }
+        }
 
         // Check ending of query
         if(query.endsWith(" AND ")){
