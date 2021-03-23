@@ -121,8 +121,12 @@ public class VenueControllerAPI {
 
     @GetMapping("api/Venue/Search")
     public List<Venue> API_SearchVenue(@RequestParam(value="Name", defaultValue = "") String name,
-                                       @RequestParam(value = "Facilities", defaultValue = "") String unparsedFacilitiesList){
-        return venueService.search(name, unparsedFacilitiesList);
+                                       @RequestParam(value = "Facilities", defaultValue = "") String unparsedFacilitiesList,
+                                       @RequestParam(value="location", defaultValue = "") String location,
+                                       @RequestParam(value="longitdue", defaultValue = "") String longitude,
+                                       @RequestParam(value="latitude", defaultValue = "") String latitude,
+                                       @RequestParam(value="radius", defaultValue = "") String radius){
+        return venueService.search(name, unparsedFacilitiesList, location, longitude, latitude, radius);
     }
 
     @GetMapping ("api/Venue/Search/Radius")

@@ -20,6 +20,8 @@ import java.util.*;
 @Component
 public class VenueService {
 
+    private final double p = Math.PI/180;  // Used for calculating distance between 2 sets or longitude and latitude
+
     @Autowired
     VenueDAO DAO;
 
@@ -174,9 +176,9 @@ public class VenueService {
         }
     }
 
-    public List<Venue> search(String name, String unparsedFacilitiesList){
+    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude, String radius){
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
-        if(name.length() == 0 && unparsedFacilitiesList.equals("")){
+        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") && latitude.equals("")){
             Collection<Venue> venues = DAO.getAll().get();
             List<Venue> v = new ArrayList<>(venues);
             return v;
@@ -186,6 +188,9 @@ public class VenueService {
         String query = String.format("SELECT * FROM Venue WHERE ");
 
         boolean nameSearch = false;
+        boolean facilitySearch = false;
+        boolean locationSearch = false;
+
         if(name.length() > 0){
             //query = query + String.format("Venue.Name = '%s'", name);
             query = query + "Venue.Name LIKE '%" + String.format("%s", name) + "%'";
@@ -205,6 +210,7 @@ public class VenueService {
                 int len = parsedFacilitiesList.length();
 
                 for (int i = 0; i < len; i++) {
+                    facilitySearch = true;
                     query = query + "Venue.Facilities LIKE '%" + String.format("%s", parsedFacilitiesList.get(i)) + "%'";
 
                     if(i + 1 < len){
@@ -214,6 +220,52 @@ public class VenueService {
             } catch (Exception e) {
                 System.out.println("VenueService.Search");
                 System.out.println(e);
+            }
+        }
+
+        // Check address
+        if(!location.equals("")){
+            // Split on spaces
+            List<String> parts = Arrays.asList(location.split(" "));
+
+            if(nameSearch || facilitySearch){
+                query = query + String.format(" AND ");
+            }
+
+            // Iterate over sections of string
+            int len = parts.size();
+            for(int i = 0; i < len; i++) {
+                locationSearch = true;
+                query = query + "Venue.Address LIKE '%" + String.format("%s", parts.get(i)) + "%'";
+                if(i + 1 < len){
+                    query = query + String.format(" AND ");
+                }
+            }
+        }
+
+        // Check for location search
+        if(!longitude.equals("") && !latitude.equals("") && !radius.equals("")){
+            // Convert parameters to double
+            try{
+                double dlong = Double.parseDouble(longitude);
+                double dlat = Double.parseDouble(latitude);
+                double dradius = Double.parseDouble(radius);
+
+                if(nameSearch || facilitySearch || locationSearch){
+                    query = query + String.format(" AND ");
+                }
+
+                query = query + String.format(" 12742 * ASIN(SQRT(" +
+                                "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
+                                " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
+                        dlat, this.p, dlat, this.p, this.p, dlong, this.p, dradius);
+            }catch (Exception e){
+                // We dont care, carry on with the rest of the search
+                if(!(locationSearch || nameSearch || facilitySearch)){
+                    Collection<Venue> venues = DAO.getAll().get();
+                    List<Venue> v = new ArrayList<>(venues);
+                    return v;
+                }
             }
         }
 
