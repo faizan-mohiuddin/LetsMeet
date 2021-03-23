@@ -175,7 +175,10 @@ public class VenueControllerWeb {
     public String getAllVenues(HttpSession session, Model model, RedirectAttributes redirectAttributes,
                                @RequestParam(value="VenueName", defaultValue = "") String searchName,
                                @RequestParam(value="Facilities", defaultValue = "") String searchFacilities,
-                               @RequestParam(value="location", defaultValue = "") String searchLocation){
+                               @RequestParam(value="location", defaultValue = "") String searchLocation,
+                               @RequestParam(value="longitdue", defaultValue = "") String longitude,
+                               @RequestParam(value="latitude", defaultValue = "") String latitude,
+                               @RequestParam(value="radius", defaultValue = "") String radius){
 
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
@@ -186,7 +189,7 @@ public class VenueControllerWeb {
         }
 
         // Search for events by what is given
-        List<Venue> venues = venueService.search(searchName, searchFacilities);
+        List<Venue> venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius);
         model.addAttribute("venues", venues);
 
         return "Venue/allVenues";

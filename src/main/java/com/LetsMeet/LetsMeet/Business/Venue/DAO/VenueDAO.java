@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Business.Venue.DAO;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerWeb;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.Poll;
@@ -9,6 +10,8 @@ import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +25,7 @@ import java.lang.Math;
 public class VenueDAO implements DAO<Venue> {
 
     private final double p = Math.PI/180;  // Used for calculating distance between 2 sets or longitude and latitude
+    private static final Logger LOGGER= LoggerFactory.getLogger(VenueDAO.class);
 
     @Autowired
     DBConnector database;
@@ -169,6 +173,7 @@ public class VenueDAO implements DAO<Venue> {
     }
 
     public Optional<List<Venue>> search(String query){
+        LOGGER.info("Venue Search: " + query);
         try(Statement statement = DatabaseInterface.get().createStatement()){
             ResultSet rs = statement.executeQuery(query);
 
@@ -176,7 +181,8 @@ public class VenueDAO implements DAO<Venue> {
 
             while (rs.next()) {
                 venues.add(new Venue(rs.getString(1), rs.getString(2),
-                        rs.getString(3)));
+                        rs.getString(3), rs.getString(4), rs.getString(5),
+                        rs.getString(6)));
             }
             return Optional.of(venues);
 
@@ -203,7 +209,8 @@ public class VenueDAO implements DAO<Venue> {
             List<Venue> venues = new ArrayList<>();
             while(rs.next()){
                 venues.add(new Venue(rs.getString(1), rs.getString(2),
-                        rs.getString(3)));
+                        rs.getString(3), rs.getString(4), rs.getString(5),
+                        rs.getString(6)));
             }
             return Optional.of(venues);
 
