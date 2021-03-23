@@ -370,6 +370,26 @@
         // Day formatting for pre-included HTML
         $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
         $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+            
+        // Finding user's time zone
+        var offset = new Date().getTimezoneOffset();
+
+        var plusMinusTimeZone = "";
+        if (offset > 0){
+        plusMinusTimeZone = "-";
+        }else{
+        plusMinusTimeZone = "+";
+        }
+
+        HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
+        if (HoursTimeZone.length < 2){
+        HoursTimeZone = "0" + HoursTimeZone;
+        }
+
+        MinutesTimeZone = Math.abs(offset%60).toString();
+        if (MinutesTimeZone.length < 2){
+        MinutesTimeZone = "0" + MinutesTimeZone;
+        }
         </script>
             
             <label>Event Times:</label>
@@ -438,8 +458,8 @@
                         var endDay = document.getElementById('endDay'+i).value;
                         var endTime = document.getElementById('endTime'+i).value;
                         var timeZone = document.getElementById('timeZone'+i).value;
-                        const startDate = startDay + 'T' + startTime + timeZone;
-                        const endDate = endDay + 'T' + endTime + timeZone;
+                        const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+                        const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
                         let dateEntry = new Map()
                         dateEntry['start'] = startDate;
                         dateEntry['end'] = endDate;
