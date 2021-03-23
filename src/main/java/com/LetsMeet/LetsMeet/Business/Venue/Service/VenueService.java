@@ -255,7 +255,7 @@ public class VenueService {
                     query = query + String.format(" AND ");
                 }
 
-                query = query + String.format(" 12742 * ASIN(SQRT(" +
+                query = query + String.format("12742 * ASIN(SQRT(" +
                                 "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
                                 " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
                         dlat, this.p, dlat, this.p, this.p, dlong, this.p, dradius);
