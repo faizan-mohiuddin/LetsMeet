@@ -282,6 +282,19 @@ public class VenueService {
         return null;
     }
 
+    public List<Venue> search(String term){
+        String likeTerm = "'%" + String.format("%s", term) + "%'";
+        String query = String.format("SELECT * FROM Venue WHERE Venue.VenueUUID = '%s' OR " +
+                "Venue.Name LIKE %s OR Venue.Facilities LIKE %s OR Venue.Address LIKE %s",
+                term, likeTerm, likeTerm, likeTerm);
+
+        Optional<List<Venue>> venues = DAO.search(query);
+        if(venues.isPresent()){
+            return venues.get();
+        }
+        return null;
+    }
+
     public List<Venue> searchByRadius(double longitude, double latitude, double kilometers){
         Optional<List<Venue>> response = DAO.searchByRadius(longitude, latitude, kilometers);
         if(response.isPresent()){

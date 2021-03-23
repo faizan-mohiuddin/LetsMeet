@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
+import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.Poll;
@@ -30,6 +32,8 @@ import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
 import com.google.gson.Gson;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +44,7 @@ public class EventDao implements DAO<Event> {
 
     // Components
     //-----------------------------------------------------------------
-
+    private static final Logger LOGGER= LoggerFactory.getLogger(EventDao.class);
 
     @Autowired
     EventPermissionDao hasUsers;
@@ -102,6 +106,32 @@ public class EventDao implements DAO<Event> {
             DatabaseInterface.drop();
             throw new IOException(e.getMessage());
         }  
+    }
+
+    public Optional<List<Event>> search(String query){
+        LOGGER.info("Event Search: " + query);
+        try(Statement statement = DatabaseInterface.get().createStatement()){
+            ResultSet rs = statement.executeQuery(query);
+
+            List<Event> events = new ArrayList<>();
+
+            while (rs.next()) {
+                events.add(new Event(
+                        UUID.fromString(rs.getString("EventUUID")),
+                        rs.getString("Name"),
+                        rs.getString("Description"),
+                        rs.getString("Location"),
+                        new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
+                        readSerialised(rs.getBytes("EventProperties")),
+                        new Gson().fromJson(rs.getString("Poll"), Poll.class)));
+            }
+            return Optional.of(events);
+
+        }catch(Exception e){
+            System.out.println("\nEvent Dao: Search");
+            System.out.println(e);
+            return Optional.empty();
+        }
     }
 
 

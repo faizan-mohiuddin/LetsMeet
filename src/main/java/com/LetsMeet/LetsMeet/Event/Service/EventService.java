@@ -144,7 +144,18 @@ public class EventService{
         }
     }
 
-
+    // Returns general search results
+    public List<Event> search(String term){
+        String likeTerm = "'%" + String.format("%s", term) + "%'";
+        String query = String.format("SELECT * FROM Event WHERE Event.EventUUID = '%s' OR " +
+                        "Event.Name LIKE %s OR Event.Description LIKE %s OR Event.Location LIKE %s",
+                term, likeTerm, likeTerm, likeTerm);
+        Optional<List<Event>> events = eventDao.search(query);
+        if(events.isPresent()){
+            return events.get();
+        }
+        return null;
+    }
 
     // Returns a single event as specified
     public Event getEvent(String eventUUID) throws IllegalArgumentException {
