@@ -8,7 +8,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 
-public class DateTimeRange implements Serializable {
+public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
 
 
     private static final long serialVersionUID = 1685466673494860983L;
@@ -83,6 +83,12 @@ public class DateTimeRange implements Serializable {
 
     public Duration getDuration(){
         return Duration.between(this.start, this.end);
+    }
+
+    @Override
+    public int compareTo(DateTimeRange o) {
+        // TODO Auto-generated method stub
+        return 0;
     }
     
 

@@ -6,10 +6,9 @@
 
 package com.LetsMeet.LetsMeet.Event.Service;
 
-import java.io.IOException;
-import java.time.Duration;
-
 //-----------------------------------------------------------------
+
+import java.io.IOException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,8 +28,6 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventResultDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventResult;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -171,48 +168,6 @@ public class EventService{
         return event.getProperties().get(key);
     }
 
-    public EventResult calculateResults(Event event, User user, int duration, boolean requiredUsers) throws IllegalArgumentException{
-        try{
-            if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
-
-            EventResult result;
-            List<EventResponse> responses = responseService.getResponses(event);
-            result = resultDao.get(event.getUUID()).orElseGet(() -> newEventResult(event));
-
-            List<EventResponse> requiredResponses = new ArrayList<>();
-            for (EventResponse response : responses){
-                if (response.getRequired()) requiredResponses.add(response);
-            }
-        
-            EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responses);
-
-            timeSolver.solve(1);
-
-            if(duration > 4) timeSolver.withDuration(Duration.ofMinutes(duration));
-            if(requiredUsers) timeSolver.withResponses(requiredResponses);
-
-            result.setUniqueResponses(responses.size());
-            result.setDateTimeRanges(timeSolver.getSolution());
-            resultDao.update(result);
-            return result;
-        }
-        catch(Exception e){
-            throw new IllegalArgumentException("Could not calculate results: " + e.getMessage());
-        }
-    }
-
-
-
-    private EventResult newEventResult(Event event){
-        try{
-        EventResult result = new EventResult(event.getUUID(), null);
-        resultDao.save(result);
-        return result;
-        }
-        catch (Exception e){
-            return null;
-        }
-    }
 
     //-----------------------------------------------------------------
     /* -- User related operations --

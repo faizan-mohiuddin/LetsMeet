@@ -103,7 +103,7 @@ public class EventControllerAPI {
             User user = userValidation.getAuthenticatedUser(token);
             Event event = eventService.getEvent(eventUUID);
 
-            eventService.calculateResults(event, user, 5, true);
+            //eventService.calculateResults(event, user, 5, true);
             return new ResponseEntity<>(eventService.getProperty(event, "results.time"),HttpStatus.OK);
         }
         catch (Exception e){

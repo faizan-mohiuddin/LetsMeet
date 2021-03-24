@@ -38,7 +38,8 @@ public class EventResultDao implements DAO<EventResult> {
 
         }catch(SQLException e){
             DatabaseInterface.drop();
-            throw new IOException(e.getMessage());
+            //throw new IOException(e.getMessage());
+            return Optional.empty();
         }
     }
 

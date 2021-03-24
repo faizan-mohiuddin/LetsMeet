@@ -29,14 +29,14 @@ public class EventResultService {
     EventResponseService responseService;
 
 
-    public EventResult newEventResult(Event event){
+    public EventResult newEventResult(Event event) throws IllegalArgumentException{
         try{
-        EventResult result = new EventResult(event.getUUID(), null);
+        EventResult result = new EventResult(event.getUUID());
         resultDao.save(result);
         return result;
         }
         catch (Exception e){
-            return null;
+            throw new IllegalArgumentException("Event Result already exists");
         }
     }
 
@@ -44,6 +44,7 @@ public class EventResultService {
         try{
             calculateTimes(event, duration, requiredUsers);
             calculateLocation(event,1,true);
+            
             return resultDao.get(event.getUUID()).orElseGet(() -> newEventResult(event));
         }
         catch(Exception e){
@@ -69,12 +70,12 @@ public class EventResultService {
             if(requiredUsers) timeSolver.withResponses(requiredResponses);
 
             result.setUniqueResponses(responses.size());
-            result.setDateTimeRanges(timeSolver.getSolution());
+            result.getDates().setGradedProperties(timeSolver.getSolution());
             resultDao.update(result);
             return result;
         }
         catch(Exception e){
-            throw new IllegalArgumentException("Could not calculate times: " + e.getMessage());
+            throw new IllegalArgumentException("Could not calculate times: " + e.getMessage() + " Note: Possible deserialisation failure");
         }
         
     }
@@ -85,7 +86,7 @@ public class EventResultService {
             List<EventResponse> responses = responseService.getResponses(event);
             EventLocationSolver locationSolver = new EventLocationSolver(eventService.getEvent(event.getUUID().toString()).getEventProperties(), responses);
             
-            result.setLocations(locationSolver.solve());
+            result.getLocations().setGradedProperties(locationSolver.solve());
             resultDao.update(result);
             return result;
         }

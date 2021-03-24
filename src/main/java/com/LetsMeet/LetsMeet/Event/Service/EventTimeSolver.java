@@ -7,15 +7,15 @@ import java.util.List;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventResult.OptimalityRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.GradedProperty;
 
 
 public class EventTimeSolver {
 
 
     
-    private ArrayList<OptimalityRange> solution;
+    private List<GradedProperty<DateTimeRange>> solution;
     private List<EventResponse> responses;
 
     public EventTimeSolver(Event event, List<EventResponse> responses){
@@ -24,15 +24,15 @@ public class EventTimeSolver {
 
         // Prepare base solution. Take the event times and set optimality to 0 (no users can attend)
         for (DateTimeRange o : event.getEventProperties().getTimes()){
-            solution.add(new OptimalityRange(o,0));
+            solution.add(new GradedProperty<DateTimeRange>(o, 0));
         }
     }
 
-    public ArrayList<OptimalityRange> getSolution(){
+    public List<GradedProperty<DateTimeRange>> getSolution(){
         return this.solution;
     }
 
-    public List<OptimalityRange> solve(long minDurationMins){
+    public List<GradedProperty<DateTimeRange>> solve(long minDurationMins){
         Duration minDuration = Duration.ofMinutes(minDurationMins);
         //TODO sort solution list first from early to late
 
@@ -45,8 +45,8 @@ public class EventTimeSolver {
                 int end = splitRange(range.getEnd(),false);   // Attempt split at end
                 
                 for (int i = start; i < end; i++){          // Increment optimality of each OptimalityRange until end of range
-                    if (solution.get(i).range.getDuration().compareTo(minDuration) < 0) continue; //TODO remove element
-                    solution.get(i).optimality++;
+                    if (solution.get(i).getProperty().getDuration().compareTo(minDuration) < 0) continue; //TODO remove element
+                    solution.get(i).grade++;
                 }
             }
         }
@@ -60,59 +60,59 @@ public class EventTimeSolver {
         if (rangeIndex == -1)
             rangeIndex = (forward) ? getFirst(time) : getLast(time);
 
-        solution.add(rangeIndex + 1, new OptimalityRange(new DateTimeRange(time, solution.get(rangeIndex).range.getEnd()), solution.get(rangeIndex).optimality));     // New range
-        solution.get(rangeIndex).range.setEnd(time);                                                                                                                    // Shrink old range
+        solution.add(rangeIndex + 1, new GradedProperty<>(new DateTimeRange(time, solution.get(rangeIndex).getProperty().getEnd()), solution.get(rangeIndex).grade));     // New range
+        solution.get(rangeIndex).getProperty().setEnd(time);                                                                                                               // Shrink old range
         return rangeIndex + 1;
     }
 
     // Returns OptimalityRange of the given time (if it exists)
     private int getDateTime(ZonedDateTime time){
         for (int i = 0; i<solution.size(); i++){
-            if (!solution.get(i).range.getStart().isAfter(time) && !solution.get(i).range.getEnd().isBefore(time)) return i;
+            if (!solution.get(i).getProperty().getStart().isAfter(time) && !solution.get(i).getProperty().getEnd().isBefore(time)) return i;
         }
         return -1;
     }
 
     private int getFirst(ZonedDateTime time){
         for (int i = 0; i<solution.size(); i++){
-            if (!solution.get(i).range.getStart().isBefore(time)) return i;
+            if (!solution.get(i).getProperty().getStart().isBefore(time)) return i;
         }
         return -1;
     }
 
     private int getLast(ZonedDateTime time){
         for (int i = solution.size() - 1; i > 0; i--){
-            if (!solution.get(i).range.getStart().isAfter(time)) return i;
+            if (!solution.get(i).getProperty().getStart().isAfter(time)) return i;
         }
         return -1;
     }
 
     // return only those ranges which have the duration given or greater
-    public List<OptimalityRange> withDuration(Duration duration){
-        List<OptimalityRange> withDuration = new ArrayList<>();
+    public List<GradedProperty<DateTimeRange>> withDuration(Duration duration){
+        List<GradedProperty<DateTimeRange>> withDuration = new ArrayList<>();
 
-        for (OptimalityRange or : this.solution)
-            if (or.range.getDuration().compareTo(duration) >= 0) withDuration.add(or);
+        for (var or : this.solution)
+            if (or.getProperty().getDuration().compareTo(duration) >= 0) withDuration.add(or);
         
-        this.solution = (ArrayList<OptimalityRange>) withDuration;
+        this.solution = withDuration;
         return withDuration;
     }
 
     // return only those ranges which fit within the responses
-    public List<OptimalityRange> withResponses(List<EventResponse> responses){
-        List<OptimalityRange> withResponses = new ArrayList<>();
+    public List<GradedProperty<DateTimeRange>> withResponses(List<EventResponse> responses){
+        List<GradedProperty<DateTimeRange>> withResponses = new ArrayList<>();
 
         // This pains me
         for (EventResponse er : responses){
             for (DateTimeRange dtr : er.getEventProperties().getTimes()){
-                for (OptimalityRange or : this.solution){
-                    if (!dtr.getEnd().isAfter(or.range.getEnd()) && !dtr.getStart().isBefore(or.range.getStart())){
+                for (var or : this.solution){
+                    if (!dtr.getEnd().isAfter(or.getProperty().getEnd()) && !dtr.getStart().isBefore(or.getProperty().getStart())){
                         withResponses.add(or);
                     }
                 }
             }
         }
-        this.solution = (ArrayList<OptimalityRange>) withResponses;
+        this.solution = withResponses;
         return withResponses;
     }
 

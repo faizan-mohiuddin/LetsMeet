@@ -278,6 +278,7 @@ public class EventControllerWeb {
         }
         catch(Exception e){
             LOGGER.error("Could not view results User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
             return "redirect:/event/{eventUUID}";
         }

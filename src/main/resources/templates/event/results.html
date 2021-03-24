@@ -21,8 +21,9 @@
 
     <div class="jumbotron">
         <div class="container">
-            <h1>Results</h1>
-            <p><span th:text="${event.name}"></span></p>
+            <h3><span th:text="${event.name}"></span></h3>
+            <h1><i class="bi bi-calendar-range"></i> Date and Time</h1>
+            
         </div>
     </div>
     <div class="container">
@@ -66,8 +67,8 @@
                 </div>
             </div>
             <div class="col-sm-8">
-                <div th:each="range : ${results.dateTimeRanges}">
-                    <div class="card w-100 mt-2 bg-light" th:if="${(range.optimality * 100 / results.uniqueResponses)>= #conversions.convert(param.attendance,T(int))}">
+                <div th:each="date : ${results.dates.gradedProperties}">
+                    <div class="card w-100 mt-2 bg-light" th:if="${(date.grade * 100 / results.uniqueResponses)>= #conversions.convert(param.attendance,T(int))}">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-sm-3">
@@ -75,7 +76,7 @@
                                         <div class="span4"><b>From:&nbsp; </b></div>
                                         <div class="span8">
                                             <p class="card-text"
-                                                th:text="${range.range.start.getDayOfMonth()} +'/'+ ${range.range.start.getMonthValue()} +'/'+ ${range.range.start.getYear()} +' &nbsp; '+ ${range.range.start.getHour()}+':'+ ${range.range.start.getMinute()}">
+                                                th:text="${date.property.start.getDayOfMonth()} +'/'+ ${date.property.start.getMonthValue()} +'/'+ ${date.property.start.getYear()} +' &nbsp; '+ ${date.property.start.getHour()}+':'+ ${date.property.start.getMinute()}">
                                             </p>
                                         </div>
                                     </div>
@@ -88,7 +89,7 @@
                                         <div class="span4"><b>To:&nbsp; </b></div>
                                         <div class="span8">
                                             <p class="card-text"
-                                                th:text="${range.range.end.getDayOfMonth()} +'/'+ ${range.range.end.getMonthValue()} +'/'+ ${range.range.end.getYear()} +' @ '+ ${range.range.end.getHour()}+':'+ ${range.range.end.getMinute()}">
+                                                th:text="${date.property.end.getDayOfMonth()} +'/'+ ${date.property.end.getMonthValue()} +'/'+ ${date.property.end.getYear()} +' @ '+ ${date.property.end.getHour()}+':'+ ${date.property.end.getMinute()}">
                                             </p>
                                         </div>
                                     </div>
@@ -98,13 +99,13 @@
                                     <div class="row">
                                         <div class="col"><i class="bi bi-stopwatch"></i></div>
                                         
-                                        <p class="card-text" th:text="${range.range.getDuration().toHours()} + ':' + ${range.range.getDuration().toMinutesPart()}"></p>
+                                        <p class="card-text" th:text="${date.property.getDuration().toHours()} + ':' + ${date.property.getDuration().toMinutesPart()}"></p>
                                     </div>
                                     
         
                                 </div>
                                 <div class="col-sm-1">
-                                    <p class="card-text" th:text="${range.optimality * 100 / results.uniqueResponses} +'%'"></p>
+                                    <p class="card-text" th:text="${date.grade * 100 / results.uniqueResponses} +'%'"></p>
                                 </div>
                                 <div class="col-sm-2">
                                     <a  th:href="@{/event/{eventuuid}/results/location(eventuuid = ${event.getUUID()})}" class="btn btn-primary">Select</a>
@@ -113,7 +114,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card bg-light mt-2 w-100" th:if="${results.dateTimeRanges.isEmpty()}">
+                <div class="card bg-light mt-2 w-100" th:if="${results.dates.gradedProperties.isEmpty()}">
                     <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
                     <div class="card-body">
                       <p class="card-text">Widen your search and try again.</p>
