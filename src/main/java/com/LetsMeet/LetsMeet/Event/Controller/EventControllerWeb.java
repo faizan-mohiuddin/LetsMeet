@@ -365,7 +365,7 @@ public class EventControllerWeb {
             resultsService.selectLocation(event, locationIndex);
             redirectAttributes.addFlashAttribute("success", "Location confirmed!");
 
-            if (skipVenue) {return "redirect:/event/{eventUUID}";}
+            if (skipVenue) {return "redirect:/event/{eventUUID}/results";}
 
             redirectAttributes.addFlashAttribute("info", "Venue has not yet been confirmed. Select your preferred venue from below");
             return "redirect:/event/{eventUUID}/results/venue";
@@ -422,7 +422,7 @@ public class EventControllerWeb {
             resultsService.setVenue(event, UUID.fromString(venueUUID));
             redirectAttributes.addFlashAttribute("success", "Venue confirmed!");
 
-             return "redirect:/event/{eventUUID}";
+             return "redirect:/event/{eventUUID}/results";
             
         }
         catch(Exception e){
@@ -430,7 +430,34 @@ public class EventControllerWeb {
             redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
             return "redirect:/event/{eventUUID}";
         }
-  
+    }
+
+    @GetMapping("/event/{eventUUID}/results")
+    public String resultsVenueSelect(Model model, RedirectAttributes redirectAttributes, HttpSession session, @PathVariable("eventUUID") String eventuuid){
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }
+
+        try{
+            var result = resultsService.getResult(event);
+            if (result.getDates().getSelected().isEmpty()){
+                redirectAttributes.addFlashAttribute("info", "Date and times have not been confirmed. Select your preference from the suggestions below");
+                return "redirect:/event/{eventUUID}/results/time?duration=10&attendance=10";
+            }
+
+            model.addAttribute("result", result);
+            model.addAttribute("venue", venueService.getVenue(result.getVenueUUID().toString()));
+            model.addAttribute("event", event);
+            return "event/results/overview";
+        }
+        catch(Exception e){
+            LOGGER.error("Could not view results User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+            return "redirect:/event/{eventUUID}/results/time?duration=10&attendance=10";
+        }
     }
 
     @GetMapping("/event/{eventuuid}/respond")
