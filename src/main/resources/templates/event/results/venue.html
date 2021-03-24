@@ -22,7 +22,7 @@
     <div class="jumbotron">
         <div class="container">
             <h3><span th:text="${event.name}"></span></h3>
-            <h1><i class="bi bi-geo"></i> Location</h1>
+            <h1><i class="bi bi-building"></i> Venue</h1>
         </div>
     </div>
     <div class="container">
@@ -35,38 +35,23 @@
                     <div class="card-body">
                         <h5 class="card-title">Options</h5>
                         <div class="row">
-                            <label for="customRange3" class="form-label">Minimum Duration</label>
-                            <div class="col-sm-9">
-                                <input type="range" class="form-range" min="5" max="2000" step="5" id="durationRange" th:value="${param.duration}">
-                            </div>
-                            <div class="col-sm-3">
-                                <div id="durationValue" th:text="${param.duration}"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <label for="customRange3" class="form-label">Attendance Rate</label>
-                            <div class="col-sm-9">
-                                <input type="range" class="form-range" min="0" max="100" step="10" id="attendanceRange" th:value="${param.attendance}"></input>
-                            </div>
-                            <div class="col-sm-3">
-                                <div id="attendanceValue" th:text="${param.attendance}+'%'"></div>                       
-                            </div>
-                        </div>
-                        <div class="row">
                             <label for="customRange3" class="form-label"></label>
                             <div class="col-sm-12">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${#conversions.convert(param.requiredUsers,T(boolean))}">
-                                    <label class="form-check-label" for="flexSwitchCheckChecked">VIPs Present</label>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Services</label>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <label for="customRange3" class="form-label"></label>
-                            <div class="col-sm-12">
-                                <div class="form-check form-switch">
+                                <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${#conversions.convert(param.requiredUsers,T(boolean))}">
-                                    <label class="form-check-label" for="flexSwitchCheckChecked">Triangulate</label>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Service 1</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${#conversions.convert(param.requiredUsers,T(boolean))}">
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Service 2</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${#conversions.convert(param.requiredUsers,T(boolean))}">
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Service 3</label>
                                 </div>
                             </div>
                         </div>
@@ -78,55 +63,31 @@
                 </div>
             </div>
             <div class="col-sm-8">
-                <div th:each="location, iter : ${results.locations.gradedProperties}">
+                <div th:each="venue, iter : ${venues}">
                     <div class="card w-100 mt-2 bg-light">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-sm-4">
+                                <div class="col-sm-8">
                                     <div class="row">
-                                        <div class="span4"><b><i class="bi bi-geo"></i> </b></div>
-                                        <div class="span8">
-                                            <a
-                                                th:text="${location.property.name}">
-                                        </a>
-                                        </div>
+                                        <div class="span8"><h3 th:text="${venue.name}"></h3></div>
+                                        <p class="card-text" th:text="${venue.address}"></p>
+                                        <p class="card-text" th:text="${venue.getUUID()}"></p>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
-                                    <div class="row">
-                                        <div class="span4"><b>Location:&nbsp; </b></div>
-                                        <div class="span8">
-                                            <p class="card-text"
-                                                th:text="'Latitude: '+${location.property.latitude}">
-                                            </p>
-                                            <p class="card-text"
-                                            th:text="'Longitude: '+${location.property.longitude}">
-                                        </p>
-                                        <p class="card-text"
-                                        th:text="'Radius: '+${location.property.radius} + ' meters'">
-                                    </p>
-                                        </div>
-                                    </div>
-        
-                                </div>
-                                <div class="col-sm-1">
-                                    <p class="card-text" th:text="${location.grade}"></p>
-                                </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     <div class="d-grid gap-2">
-                                    <form method="post" th:action="@{/event/{eventuuid}/results/location?locationIndex={index}&skipVenue=false(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
-                                        <input class="btn btn-primary btn-block" type="submit" value="Find venue">
+                                    <form method="post" th:action="@{/event/{eventuuid}/results/venue?venueIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
+                                        <input class="btn btn-primary btn-block" type="submit" value="Select">
                                     </form>
-                                    <form method="post" th:action="@{/event/{eventuuid}/results/location?locationIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
-                                        <input class="btn btn-outline-primary btn-block" type="submit" value="Skip">
-                                    </form>
+                                    <a class="btn btn-primary btn-block" type="button" value="More information" th:href = "@{/Venue/{id}(id = ${venue.getUUID()})}">More Information</a>
+                                    
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card bg-light mt-2 w-100">
+                <div class="card bg-light mt-2 w-100" th:if="${venues.isEmpty()}">
                     <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
                     <div class="card-body">
                       <p class="card-text">Widen your search and try again.</p>

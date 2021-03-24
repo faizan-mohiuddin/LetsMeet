@@ -40,6 +40,15 @@ public class EventResultService {
         }
     }
 
+    public EventResult getResult(Event event) throws IllegalArgumentException{
+        try{
+            return resultDao.get(event.getUUID()).orElseThrow();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Unable to load event result");
+        }
+    }
+
     public EventResult calculateResults(Event event, User user, int duration, boolean requiredUsers) throws IllegalArgumentException{
         try{
             calculateTimes(event, duration, requiredUsers);
@@ -85,6 +94,7 @@ public class EventResultService {
             EventResult result = resultDao.get(event.getUUID()).orElseThrow();
             var selected = result.getDates().getGradedProperties().get(timeIndex);
             result.getDates().setSelected(selected);
+            resultDao.update(result);
         }
         catch(IndexOutOfBoundsException e){
             throw new IllegalArgumentException("Could not select times: Selected time is out of range");
@@ -114,6 +124,7 @@ public class EventResultService {
             EventResult result = resultDao.get(event.getUUID()).orElseThrow();
             var selected = result.getLocations().getGradedProperties().get(locationIndex);
             result.getLocations().setSelected(selected);
+            resultDao.update(result);
         }
         catch(IndexOutOfBoundsException e){
             throw new IllegalArgumentException("Could not select location: Selected time is out of range");

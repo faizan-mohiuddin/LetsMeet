@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
@@ -54,6 +55,9 @@ public class EventControllerWeb {
 
     @Autowired
     EventResultService resultsService;
+
+    @Autowired
+    VenueService venueService;
 
     @GetMapping({"/createevent", "/event/new"})
     public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -347,7 +351,7 @@ public class EventControllerWeb {
     public String resultsLocationSelect(Model model, RedirectAttributes redirectAttributes, HttpSession session,
         @PathVariable("eventUUID") String eventuuid,
         @RequestParam(value = "locationIndex") int locationIndex,
-        @RequestParam(value = "skipVenue", defaultValue="false") boolean skipVenue){
+        @RequestParam(value = "skipVenue", defaultValue="true") boolean skipVenue){
         
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
@@ -360,7 +364,11 @@ public class EventControllerWeb {
             resultsService.selectLocation(event, locationIndex);
             redirectAttributes.addFlashAttribute("success", "Location confirmed!");
 
-            return "redirect:/event/{eventUUID}";
+            if (skipVenue) {return "redirect:/event/{eventUUID}";}
+
+            redirectAttributes.addFlashAttribute("info", "Venue has not yet been confirmed. Select your preferred venue from below");
+            return "redirect:/event/{eventUUID}/results/venue";
+            
         }
         catch(Exception e){
             LOGGER.error("Could not set times User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
@@ -372,8 +380,56 @@ public class EventControllerWeb {
 
     @GetMapping("/event/{eventUUID}/results/venue")
     public String eventResultsLocation(Model model, RedirectAttributes redirectAttributes, HttpSession session, @PathVariable("eventUUID") String eventuuid){
+
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }
         
-        return "redirect:/event/{eventUUID}";
+        try{
+            var results = resultsService.getResult(event);
+            var venues = venueService.searchByRadius(results.getLocations().getSelected().get().getProperty().getLongitude(), results.getLocations().getSelected().get().getProperty().getLatitude(), results.getLocations().getSelected().get().getProperty().getRadius());
+            LOGGER.debug(venues.toString());
+
+            model.addAttribute("user", user);
+            model.addAttribute("event", eventService.getEvent(eventuuid));
+            model.addAttribute("venues", venues);
+            return "event/results/venue";
+        }
+        catch(Exception e){
+            LOGGER.error("Could not set times User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+            return "redirect:/event/{eventUUID}";
+        }
+    }
+
+    @PostMapping("/event/{eventUUID}/results/venue")
+    public String resultsVenueSelect(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "venueIndex") int locationIndex){
+        
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }
+
+        try{
+            resultsService.selectLocation(event, locationIndex);
+            redirectAttributes.addFlashAttribute("warning", "Not implemented");
+
+             return "redirect:/event/{eventUUID}";
+            
+        }
+        catch(Exception e){
+            LOGGER.error("Could not set venue User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+            return "redirect:/event/{eventUUID}";
+        }
+  
     }
 
     @GetMapping("/event/{eventuuid}/respond")
