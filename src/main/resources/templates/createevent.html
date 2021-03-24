@@ -80,6 +80,10 @@
     #target {
         width: 345px;
     }
+    
+    input.form-control:read-only {
+        background-color: #fff;
+    }
 </style>
 
 <script>
@@ -297,18 +301,14 @@
             
         <!-- Scripts for Event Times -->
         <script>
-        // For the day format
-        // DOES NOT WORK IN JS
-        $(function () {
-        $(".datepicker").datepicker({
-            format: 'yyyy-mm-dd'
-        });
-        });
-
         // Counter for the rows
         var dateRowNo = 0;
         $(document).ready(function(){
         $('.add').click(function(){
+            
+        // Day formatting for the generated HTML
+        $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
 
         // Incrementing the counter
         dateRowNo++;
@@ -316,47 +316,17 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
         '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
         '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
-        '</div>' +
-        '<label>Time Zone:</label>' +
-        '<div class="col">' +
-        '<select name="timezone" class="form-control" id="timeZone' + dateRowNo + '">' +
-        '<option value="+00:00">+00:00</option>' +
-        '<option value="+01:00">+01:00</option>' +
-        '<option value="+02:00">+02:00</option>' +
-        '<option value="+03:00">+03:00</option>' +
-        '<option value="+04:00">+04:00</option>' +
-        '<option value="+05:00">+05:00</option>' +
-        '<option value="+06:00">+06:00</option>' +
-        '<option value="+07:00">+07:00</option>' +
-        '<option value="+08:00">+08:00</option>' +
-        '<option value="+09:00">+09:00</option>' +
-        '<option value="+10:00">+10:00</option>' +
-        '<option value="+11:00">+11:00</option>' +
-        '<option value="+12:00">+12:00</option>' +
-        '<option value="-01:00">-01:00</option>' +
-        '<option value="-02:00">-02:00</option>' +
-        '<option value="-03:00">-03:00</option>' +
-        '<option value="-04:00">-04:00</option>' +
-        '<option value="-05:00">-05:00</option>' +
-        '<option value="-06:00">-06:00</option>' +
-        '<option value="-07:00">-07:00</option>' +
-        '<option value="-08:00">-08:00</option>' +
-        '<option value="-09:00">-09:00</option>' +
-        '<option value="-10:00">-10:00</option>' +
-        '<option value="-11:00">-11:00</option>' +
-        '<option value="-12:00">-12:00</option>' +
-        '</select>' +
         '</div>' +
         '<p class="btn btn-light remove">Remove</p>' +
         '</div>');
@@ -367,9 +337,29 @@
         });
         });
             
-        $('.datetimepicker').datetimepicker({
-        format: 'hh:mm:ss',
-        });
+        // Day formatting for pre-included HTML
+        $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+            
+        // Finding user's time zone
+        var offset = new Date().getTimezoneOffset();
+
+        var plusMinusTimeZone = "";
+        if (offset > 0){
+        plusMinusTimeZone = "-";
+        }else{
+        plusMinusTimeZone = "+";
+        }
+
+        HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
+        if (HoursTimeZone.length < 2){
+        HoursTimeZone = "0" + HoursTimeZone;
+        }
+
+        MinutesTimeZone = Math.abs(offset%60).toString();
+        if (MinutesTimeZone.length < 2){
+        MinutesTimeZone = "0" + MinutesTimeZone;
+        }
         </script>
             
             <label>Event Times:</label>
@@ -378,47 +368,17 @@
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="startDay0">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control datetimepicker" step="1" id="startTime0">
+                                <input type="time" class="form-control" step="1" id="startTime0">
                             </div>
                             <label>Until:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control datepicker" placeholder="dd-mm-yyyy" id="endDay0">
+                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control datetimepicker" step="1" id="endTime0">
-                            </div>
-                            <label>Time Zone:</label>
-                            <div class="col">
-                                <select name="timezone" class="form-control" id="timeZone0">
-                                    <option value="+00:00">+00:00</option>
-                                    <option value="+01:00">+01:00</option>
-                                    <option value="+02:00">+02:00</option>
-                                    <option value="+03:00">+03:00</option>
-                                    <option value="+04:00">+04:00</option>
-                                    <option value="+05:00">+05:00</option>
-                                    <option value="+06:00">+06:00</option>
-                                    <option value="+07:00">+07:00</option>
-                                    <option value="+08:00">+08:00</option>
-                                    <option value="+09:00">+09:00</option>
-                                    <option value="+10:00">+10:00</option>
-                                    <option value="+11:00">+11:00</option>
-                                    <option value="+12:00">+12:00</option>
-                                    <option value="-01:00">-01:00</option>
-                                    <option value="-02:00">-02:00</option>
-                                    <option value="-03:00">-03:00</option>
-                                    <option value="-04:00">-04:00</option>
-                                    <option value="-05:00">-05:00</option>
-                                    <option value="-06:00">-06:00</option>
-                                    <option value="-07:00">-07:00</option>
-                                    <option value="-08:00">-08:00</option>
-                                    <option value="-09:00">-09:00</option>
-                                    <option value="-10:00">-10:00</option>
-                                    <option value="-11:00">-11:00</option>
-                                    <option value="-12:00">-12:00</option>
-                                </select>
+                                <input type="time" class="form-control" step="1" id="endTime0">
                             </div>
                             <p class="btn btn-light remove">Remove</p>
                         </div>
@@ -437,9 +397,8 @@
                         var startTime = document.getElementById('startTime'+i).value;
                         var endDay = document.getElementById('endDay'+i).value;
                         var endTime = document.getElementById('endTime'+i).value;
-                        var timeZone = document.getElementById('timeZone'+i).value;
-                        const startDate = startDay + 'T' + startTime + timeZone;
-                        const endDate = endDay + 'T' + endTime + timeZone;
+                        const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+                        const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
                         let dateEntry = new Map()
                         dateEntry['start'] = startDate;
                         dateEntry['end'] = endDate;

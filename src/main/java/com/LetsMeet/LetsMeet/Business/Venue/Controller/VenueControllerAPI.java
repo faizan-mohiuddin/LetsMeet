@@ -94,7 +94,7 @@ public class VenueControllerAPI {
         }
     }
 
-    @PutMapping
+    @PutMapping("api/Venue/facility")
     public String API_addFacility(@RequestParam(value="Token") String token, @RequestParam(value="VenueID") String venueUUID,
                                   @RequestParam(value="facilityTag") String facility){
         // validate token
@@ -119,9 +119,23 @@ public class VenueControllerAPI {
         }
     }
 
-    @GetMapping
+    @GetMapping("api/Venue/Search")
     public List<Venue> API_SearchVenue(@RequestParam(value="Name", defaultValue = "") String name,
-                                       @RequestParam(value = "Facilities", defaultValue = "") String unparsedFacilitiesList){
-        return venueService.search(name, unparsedFacilitiesList);
+                                       @RequestParam(value = "Facilities", defaultValue = "") String unparsedFacilitiesList,
+                                       @RequestParam(value="location", defaultValue = "") String location,
+                                       @RequestParam(value="longitdue", defaultValue = "") String longitude,
+                                       @RequestParam(value="latitude", defaultValue = "") String latitude,
+                                       @RequestParam(value="radius", defaultValue = "") String radius){
+        return venueService.search(name, unparsedFacilitiesList, location, longitude, latitude, radius);
+    }
+
+    @GetMapping ("api/Venue/Search/Radius")
+    public List<Venue> API_SearchVenueByRadius(@RequestParam(value="Longitude") String longitude,
+                                                    @RequestParam(value="Latitude") String latitude,
+                                                    @RequestParam(value="Radius") String radius){
+        double dlong = Double.parseDouble(longitude);
+        double dlat = Double.parseDouble(latitude);
+        double dradius = Double.parseDouble(radius);
+        return venueService.searchByRadius(dlong, dlat, dradius);
     }
 }
