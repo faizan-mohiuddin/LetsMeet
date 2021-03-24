@@ -27,6 +27,9 @@
         </div>
     </div>
     <div class="container">
+
+        <div th:include="fragments/common :: alerts"></div>
+        
         <div class="row">
             <div class="col-sm-4">
                 <div class="card w-100 mt-2">
@@ -67,7 +70,7 @@
                 </div>
             </div>
             <div class="col-sm-8">
-                <div th:each="date : ${results.dates.gradedProperties}">
+                <div th:each="date, iter : ${results.dates.gradedProperties}">
                     <div class="card w-100 mt-2 bg-light" th:if="${(date.grade * 100 / results.uniqueResponses)>= #conversions.convert(param.attendance,T(int))}">
                         <div class="card-body">
                             <div class="row align-items-center">
@@ -108,7 +111,9 @@
                                     <p class="card-text" th:text="${date.grade * 100 / results.uniqueResponses} +'%'"></p>
                                 </div>
                                 <div class="col-sm-2">
-                                    <a  th:href="@{/event/{eventuuid}/results/location(eventuuid = ${event.getUUID()})}" class="btn btn-primary">Select</a>
+                                <form method="post" th:action="@{/event/{eventuuid}/results/time?timeIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
+                                    <input class="btn btn-primary" type="submit" value="Select">
+                                </form>
                                 </div>
                             </div>
                         </div>

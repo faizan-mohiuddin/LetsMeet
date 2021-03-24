@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Model.Properties;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ResultProperty<T extends Serializable & Comparable<T>> implements Serializable{
 
@@ -10,27 +11,31 @@ public class ResultProperty<T extends Serializable & Comparable<T>> implements S
     private static final long serialVersionUID = 1L;
     
     private List<GradedProperty<T>> gradedProperties;
-    private int chosen;
-    public ResultProperty(List<GradedProperty<T>> gradedProperties, int chosen) {
+    private GradedProperty<T> selected;
+
+    public ResultProperty(List<GradedProperty<T>> gradedProperties, GradedProperty<T> selected) {
         this.gradedProperties = gradedProperties;
-        this.chosen = chosen;
+        this.selected = selected;
     }
 
     public ResultProperty() {
-        this(new ArrayList<>(),-1);
+        this(new ArrayList<>(),null);
     }
 
     public List<GradedProperty<T>> getGradedProperties() {
         return gradedProperties;
     }
+
     public void setGradedProperties(List<GradedProperty<T>> gradedProperties) {
         this.gradedProperties = gradedProperties;
     }
-    public int getChosen() {
-        return chosen;
+
+    public Optional<GradedProperty<T>> getSelected(){
+        return Optional.ofNullable(this.selected);
     }
-    public void setChosen(int chosen) {
-        this.chosen = chosen;
+    
+    public void setSelected(GradedProperty<T> selected) {
+        this.selected = selected;
     }
 
     

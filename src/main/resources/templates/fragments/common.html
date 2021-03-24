@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+
+
+<body>
+    <div th:fragment="alerts">
+        <div class = "alert alert-success"  th:if = "${success}"><i class="bi bi-check-circle-fill"></i><a th:text = "' ' + ${success}"></a></div>
+        <div class = "alert alert-warning"  th:if = "${warning}"><i class="bi bi-exclamation-triangle-fill"></i><a th:text = "' ' + ${warning}"></a></div>
+        <div class = "alert alert-danger"  th:if = "${danger}"><i class="bi bi-x-circle-fill"></i><a th:text = "' ' + ${danger}"></a></div>
+        <div class = "alert alert-light"  th:if = "${info}"><i class="bi bi-info-circle-fill"></i><a th:text = "' ' + ${info}"></a></div>
+    </div>
+</body>

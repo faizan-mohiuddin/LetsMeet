@@ -284,6 +284,38 @@ public class EventControllerWeb {
         }
     }
 
+    @PostMapping("/event/{eventUUID}/results/time")
+    public String resultsTimeSelect(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "timeIndex") int timeIndex){
+        
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }
+
+        try{
+            resultsService.selectTimes(event, timeIndex);
+            redirectAttributes.addFlashAttribute("success", "Date and time confirmed!");
+
+            if (true){
+                redirectAttributes.addFlashAttribute("info", "Location has not been confirmed. Select your location from below");
+                return "redirect:/event/{eventUUID}/results/location";
+            }
+
+            else
+                return "redirect:/event/{eventUUID}/results";
+        }
+        catch(Exception e){
+            LOGGER.error("Could not set times User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+            return "redirect:/event/{eventUUID}";
+        }
+  
+    }
+
     @GetMapping("/event/{eventUUID}/results/location")
     public String eventResultsLocation(Model model, RedirectAttributes redirectAttributes, HttpSession session,
         @PathVariable("eventUUID") String eventuuid,

@@ -80,6 +80,20 @@ public class EventResultService {
         
     }
 
+    public void selectTimes(Event event, int timeIndex) throws IllegalArgumentException{
+        try{
+            EventResult result = resultDao.get(event.getUUID()).orElseThrow();
+            var selected = result.getDates().getGradedProperties().get(timeIndex);
+            result.getDates().setSelected(selected);
+        }
+        catch(IndexOutOfBoundsException e){
+            throw new IllegalArgumentException("Could not select times: Selected time is out of range");
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Could not select times: " + e.getMessage());
+        }
+    }
+
     public EventResult calculateLocation(Event event, int minOpt, boolean requiredUsers) throws IllegalArgumentException{
         try{
             EventResult result = resultDao.get(event.getUUID()).orElseGet(() -> newEventResult(event));

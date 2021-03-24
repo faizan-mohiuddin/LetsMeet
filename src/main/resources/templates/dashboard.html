@@ -40,8 +40,7 @@
 <div class = "container">
     <h2>Your Events</h2>
     <div class = "alert alert-warning" th:if = "${noEvents}">You are not currently in any events.</div>
-    <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
-    <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
+    <div th:include="fragments/common :: alerts"></div>
     <div th:unless = "${noEvents}">
         <table class = "table table">
             <thead>

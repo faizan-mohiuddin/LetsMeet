@@ -225,11 +225,9 @@
     </div>
   </div>
 
-  <div class="container">
-    
-  </div>
 
   <div class="container">
+    <div th:include="fragments/common :: alerts"></div>
     <form th:action="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}">
 
       <div class="form-group">

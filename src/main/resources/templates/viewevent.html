@@ -40,8 +40,7 @@
 
     <div class="container">
 
-        <div class="alert alert-success" th:text="${success}" th:if="${success}"></div>
-        <div class="alert alert-danger" th:text="${danger}" th:if="${danger}"></div>
+        <div th:include="fragments/common :: alerts"></div>
 
         <div class="row">
 
