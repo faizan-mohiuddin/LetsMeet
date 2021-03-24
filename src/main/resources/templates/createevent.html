@@ -90,12 +90,43 @@
     // This example requires the Places library. Include the libraries=places
     // parameter when you first load the API. For example:
     // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
+
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 55.3781, lng: -2.4360 },
             zoom: 5,
             streetViewControl: false,
             mapTypeControl: false,
+        });
+        infoWindow = new google.maps.InfoWindow();
+        const locationButton = document.createElement("button");
+        locationButton.type = 'button';
+        locationButton.setAttribute('class', 'btn btn-light');
+        locationButton.setAttribute('style', 'margin: 10px;');
+        locationButton.textContent = "Current Location";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setZoom(14);
+                        infoWindow.setPosition(pos);
+                        map.setCenter(pos);
+                    },
+                    () => {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                    }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
         });
         const card = document.getElementById("pac-card");
         map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);

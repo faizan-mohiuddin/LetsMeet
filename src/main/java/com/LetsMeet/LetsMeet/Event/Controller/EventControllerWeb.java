@@ -120,7 +120,6 @@ public class EventControllerWeb {
 
         try{
 
-            System.out.println(eventRadius);
             model.addAttribute("user", user);
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
