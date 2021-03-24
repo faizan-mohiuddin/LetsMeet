@@ -139,9 +139,28 @@
             infowindow.close();
             marker.setVisible(false);
             const place = autocomplete.getPlace();
+            document.getElementById("myRange").disabled = false;
 
             document.getElementById('thelat').value = place.geometry.location.lat();
             document.getElementById('thelong').value = place.geometry.location.lng();
+
+            var circle = new google.maps.Circle({
+                map: map,
+                radius: 0,
+                fillColor: '#AA0000',
+                fillOpacity: 0.17,
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+            });
+
+            $('#myRange').change(function() {
+                var new_rad = $(this).val();
+                var rad = new_rad * 1000;
+
+                circle.setRadius(rad);
+            });
+
+            circle.bindTo('center', marker, 'position');
 
             if (!place.geometry || !place.geometry.location) {
                 // User entered the name of a Place that was not suggested and
@@ -184,21 +203,29 @@
 
         var geocoder = new google.maps.Geocoder();
 
-        var markerr;
-
         function placeMarker(location) {
 
-            if (markerr == null)
+            if (marker == null)
             {
-                markerr = new google.maps.Marker({
-                    position: location,
-                    map: map
-                });
+                // placeholder
             }
             else
             {
-                markerr.setPosition(location);
+                marker.setPosition(location);
             }
+
+            // Add circle overlay and bind to marker
+            $('#myRange').change(function() {
+                var new_rad = $(this).val();
+                var rad = new_rad * 1000;
+
+                circle.setRadius(rad);
+            });
+
+            infowindow.close();
+            circle.bindTo('center', marker, 'position');
+            document.getElementById("myRange").disabled = false;
+
         }
 
         google.maps.event.addListener(map, 'click', function(event) {
@@ -216,7 +243,6 @@
                 }
             });
         });
-
 
         // Sets a listener on a given radio button. The radio buttons specify
         // the countries used to restrict the autocomplete search.
@@ -298,6 +324,24 @@
                 <input type="hidden" name="thelong" id="thelong"/>
             </div>
 
+            <div class = "form-group">
+                <label for = "myRange">Radius (km): </label>
+                <input type = "range" id = "myRange" name = "radius" value = "0" disabled = "true">
+                <span id = "demo"></span>
+            </div>
+
+            <script>
+
+                var slider = document.getElementById("myRange");
+                var output = document.getElementById("demo");
+                output.innerHTML = slider.value;
+
+
+                slider.oninput = function() {
+                    output.innerHTML = this.value;
+                }
+
+            </script>
             
         <!-- Scripts for Event Times -->
         <script>

@@ -109,7 +109,7 @@ public class EventControllerWeb {
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude, @RequestParam(name = "thelong") String eventLongitude) {
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude, @RequestParam(name = "thelong") String eventLongitude, @RequestParam(name = "radius") String eventRadius) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -120,6 +120,7 @@ public class EventControllerWeb {
 
         try{
 
+            System.out.println(eventRadius);
             model.addAttribute("user", user);
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
