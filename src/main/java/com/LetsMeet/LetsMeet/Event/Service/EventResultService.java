@@ -108,4 +108,18 @@ public class EventResultService {
             throw new IllegalArgumentException("Could not calculate location: " + e.getMessage());
         }
     }
+
+    public void selectLocation(Event event, int locationIndex) throws IllegalArgumentException{
+        try{
+            EventResult result = resultDao.get(event.getUUID()).orElseThrow();
+            var selected = result.getLocations().getGradedProperties().get(locationIndex);
+            result.getLocations().setSelected(selected);
+        }
+        catch(IndexOutOfBoundsException e){
+            throw new IllegalArgumentException("Could not select location: Selected time is out of range");
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Could not select location: " + e.getMessage());
+        }
+    }
 }

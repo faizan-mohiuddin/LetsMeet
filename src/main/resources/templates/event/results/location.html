@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="container">
-        
+
         <div th:include="fragments/common :: alerts"></div>
         
         <div class="row">
@@ -62,6 +62,15 @@
                             </div>
                         </div>
                         <div class="row">
+                            <label for="customRange3" class="form-label"></label>
+                            <div class="col-sm-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="requiredUsersCheck" th:checked="${#conversions.convert(param.requiredUsers,T(boolean))}">
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Triangulate</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
                             <button class="btn btn-primary" style=" color: white !important;" id="filter_apply">Apply</button>
                         </div>
                         
@@ -69,7 +78,7 @@
                 </div>
             </div>
             <div class="col-sm-8">
-                <div th:each="location : ${results.locations.gradedProperties}">
+                <div th:each="location, iter : ${results.locations.gradedProperties}">
                     <div class="card w-100 mt-2 bg-light">
                         <div class="card-body">
                             <div class="row align-items-center">
@@ -104,7 +113,14 @@
                                     <p class="card-text" th:text="${location.grade}"></p>
                                 </div>
                                 <div class="col-sm-2">
-                                    <a href="#" class="btn btn-primary">Select</a>
+                                    <div class="d-grid gap-2">
+                                    <form method="post" th:action="@{/event/{eventuuid}/results/location?locationIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
+                                        <input class="btn btn-primary btn-block" type="submit" value="Find venue">
+                                    </form>
+                                    <form method="post" th:action="@{/event/{eventuuid}/results/location?locationIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
+                                        <input class="btn btn-outline-primary btn-block" type="submit" value="Skip venue selection">
+                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
