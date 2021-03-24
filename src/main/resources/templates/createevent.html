@@ -131,7 +131,7 @@
         const infowindow = new google.maps.InfoWindow();
         const infowindowContent = document.getElementById("infowindow-content");
         infowindow.setContent(infowindowContent);
-        const marker = new google.maps.Marker({
+        let marker = new google.maps.Marker({
             map,
             anchorPoint: new google.maps.Point(0, -29),
         });
@@ -202,18 +202,30 @@
         });
 
         var geocoder = new google.maps.Geocoder();
+        var counter = 0;
 
         function placeMarker(location) {
 
+            infowindow.close();
+
             if (marker == null)
             {
-                // placeholder
+
             }
             else
             {
                 marker.setPosition(location);
             }
 
+            if (counter === 0){
+            var circle = new google.maps.Circle({
+                map: map,
+                radius: 0,
+                fillColor: '#AA0000',
+                fillOpacity: 0.17,
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+            });}
             // Add circle overlay and bind to marker
             $('#myRange').change(function() {
                 var new_rad = $(this).val();
@@ -222,9 +234,9 @@
                 circle.setRadius(rad);
             });
 
-            infowindow.close();
-            circle.bindTo('center', marker, 'position');
             document.getElementById("myRange").disabled = false;
+            circle.bindTo('center', marker, 'position');
+            counter = counter + 1
 
         }
 
