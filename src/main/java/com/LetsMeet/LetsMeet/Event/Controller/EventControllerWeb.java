@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
@@ -408,7 +409,7 @@ public class EventControllerWeb {
     @PostMapping("/event/{eventUUID}/results/venue")
     public String resultsVenueSelect(Model model, RedirectAttributes redirectAttributes, HttpSession session,
         @PathVariable("eventUUID") String eventuuid,
-        @RequestParam(value = "venueIndex") int locationIndex){
+        @RequestParam(value = "venueUUID") String venueUUID){
         
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
@@ -418,8 +419,8 @@ public class EventControllerWeb {
         }
 
         try{
-            resultsService.selectLocation(event, locationIndex);
-            redirectAttributes.addFlashAttribute("warning", "Not implemented");
+            resultsService.setVenue(event, UUID.fromString(venueUUID));
+            redirectAttributes.addFlashAttribute("success", "Venue confirmed!");
 
              return "redirect:/event/{eventUUID}";
             

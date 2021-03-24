@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Service;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.DAO.*;
 import com.LetsMeet.LetsMeet.Event.Model.*;
@@ -124,6 +125,20 @@ public class EventResultService {
             EventResult result = resultDao.get(event.getUUID()).orElseThrow();
             var selected = result.getLocations().getGradedProperties().get(locationIndex);
             result.getLocations().setSelected(selected);
+            resultDao.update(result);
+        }
+        catch(IndexOutOfBoundsException e){
+            throw new IllegalArgumentException("Could not select location: Selected time is out of range");
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException("Could not select location: " + e.getMessage());
+        }
+    }
+
+    public void setVenue(Event event, UUID venueUUID)throws IllegalArgumentException{
+        try{
+            EventResult result = resultDao.get(event.getUUID()).orElseThrow();
+            result.setVenueUUID(venueUUID);
             resultDao.update(result);
         }
         catch(IndexOutOfBoundsException e){

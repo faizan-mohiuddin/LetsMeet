@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="col-sm-2">
                                     <div class="d-grid gap-2">
-                                    <form method="post" th:action="@{/event/{eventuuid}/results/venue?venueIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
+                                    <form method="post" th:action="@{/event/{eventuuid}/results/venue?venueUUID={index}(eventuuid = ${event.getUUID()}, index = ${venue.getUUID()})}">
                                         <input class="btn btn-primary btn-block" type="submit" value="Select">
                                     </form>
                                     <a class="btn btn-primary btn-block" type="button" value="More information" th:href = "@{/Venue/{id}(id = ${venue.getUUID()})}">More Information</a>

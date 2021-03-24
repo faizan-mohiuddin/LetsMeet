@@ -15,16 +15,22 @@ public class EventResult implements Serializable{
 
     private ResultProperty<DateTimeRange> dates;
     private ResultProperty<Location> locations;
+    private UUID venueUUID;
     private UUID eventUUID;
     private int uniqueResponses;
 
 
 
-    public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations, int uniqueResponses) {
+    public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations, int uniqueResponses, UUID venueUUID) {
     this.dates = dates;
     this.locations = locations;
     this.eventUUID = eventUUID;
     this.uniqueResponses = uniqueResponses;
+    this.venueUUID = venueUUID;
+    }
+
+    public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations, int uniqueResponses){
+        this(eventUUID, dates, locations, uniqueResponses, UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
 
     public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations) {
@@ -74,5 +80,13 @@ public class EventResult implements Serializable{
 
     public void setLocations(ResultProperty<Location> locations) {
         this.locations = locations;
+    }
+
+    public UUID getVenueUUID() {
+        return venueUUID;
+    }
+
+    public void setVenueUUID(UUID venueUUID) {
+        this.venueUUID = venueUUID;
     }
 }
