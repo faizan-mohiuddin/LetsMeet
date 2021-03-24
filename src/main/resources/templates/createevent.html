@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
@@ -403,17 +403,17 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '" readonly>' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '" readonly>' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
         '</div>' +
         '<p class="btn btn-light remove">Remove</p>' +
         '</div>');
@@ -455,17 +455,17 @@
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0" readonly>
+                                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="startTime0">
+                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes">
                             </div>
                             <label>Until:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0" readonly>
+                                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="endTime0">
+                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
                             </div>
                             <p class="btn btn-light remove">Remove</p>
                         </div>

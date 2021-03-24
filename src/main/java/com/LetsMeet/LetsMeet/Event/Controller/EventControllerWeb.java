@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
@@ -10,6 +11,7 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
+import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.*;
+import java.util.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -109,7 +110,10 @@ public class EventControllerWeb {
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude, @RequestParam(name = "thelong") String eventLongitude, @RequestParam(name = "radius") String eventRadius) {
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude,
+                            @RequestParam(name = "thelong") String eventLongitude, @RequestParam(name = "radius") String eventRadius,
+                            @RequestParam(name = "startDays") String startDays, @RequestParam(name="startTimes") String startTimes,
+                            @RequestParam(name="endDays") String endDays, @RequestParam(name="endTimes") String endTimes) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -124,8 +128,47 @@ public class EventControllerWeb {
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
-            
+
+            // Handle date and times
+            List<String> startDay = Arrays.asList(startDays.split(","));
+            List<String> startTime = Arrays.asList(startTimes.split(","));
+            List<String> endDay = Arrays.asList(endDays.split(","));
+            List<String> endTime = Arrays.asList(endTimes.split(","));
+
+            List<DateTimeRange> ranges = new ArrayList<>();
+            List<String> sd;
+            List<String> st;
+            List<String> ed;
+            List<String> et;
+            try {
+                for (int i = 0; i > startDay.size(); i++) {
+                    sd = Arrays.asList(startDay.get(i).split("-"));
+                    st = Arrays.asList(startTime.get(i).split(":"));
+                    ZonedDateTime start = ZonedDateTime.of(LocalDateTime.of(LocalDate.of(Integer.parseInt(sd.get(0)),
+                            Integer.parseInt(sd.get(1)), Integer.parseInt(sd.get(2))),
+                            LocalTime.of(Integer.parseInt(st.get(0)), Integer.parseInt(st.get(1)), Integer.parseInt(st.get(2)))),
+                            ZoneId.of("Europe/London"));
+
+                    ed = Arrays.asList(endDay.get(i).split("-"));
+                    et = Arrays.asList(endTime.get(i).split(":"));
+                    ZonedDateTime end = ZonedDateTime.of(LocalDateTime.of(LocalDate.of(Integer.parseInt(ed.get(0)),
+                            Integer.parseInt(ed.get(1)), Integer.parseInt(ed.get(2))),
+                            LocalTime.of(Integer.parseInt(et.get(0)), Integer.parseInt(et.get(1)), Integer.parseInt(et.get(2)))),
+                            ZoneId.of("Europe/London"));
+
+                    ranges.add(new DateTimeRange(start, end));
+                }
+            }catch(Exception e){
+                System.out.println("Event controller Web: Save event");
+                e.printStackTrace();
+            }
+
             Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+
+            if(!(event == null)){
+                // Save time ranges
+                eventService.setTimeRange(event.getUUID(), ranges);
+            }
 
             // Store and set header image file if present
             if (file.getSize()>0){
