@@ -150,7 +150,7 @@ public class EventControllerWeb {
             List<String> ed;
             List<String> et;
             try {
-                for (int i = 0; i > startDay.size(); i++) {
+                for (int i = 0; i < startDay.size(); i++) {
                     sd = Arrays.asList(startDay.get(i).split("-"));
                     st = Arrays.asList(startTime.get(i).split(":"));
                     ZonedDateTime start = ZonedDateTime.of(LocalDateTime.of(LocalDate.of(Integer.parseInt(sd.get(0)),
