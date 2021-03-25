@@ -119,8 +119,8 @@ public class EventControllerWeb {
         @RequestParam("file") MultipartFile file, 
         @RequestParam(name = "eventname") String eventname, 
         @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") String eventlatitude,
-                            @RequestParam(name = "thelong") String eventLongitude, @RequestParam(name = "radius") String eventRadius,
+        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") double eventLatitude,
+                            @RequestParam(name = "thelong") double eventLongitude, @RequestParam(name = "radius") String eventRadius,
                             @RequestParam(name = "startDays") String startDays, @RequestParam(name="startTimes") String startTimes,
                             @RequestParam(name="endDays") String endDays, @RequestParam(name="endTimes") String endTimes) {
 
