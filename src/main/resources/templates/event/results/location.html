@@ -3,6 +3,210 @@
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<style type="text/css">
+    /* Always set the map height explicitly to define the size of the div
+     * element that contains the map. */
+    #map {
+        height: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #description {
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+    }
+
+    #infowindow-content .title {
+        font-weight: bold;
+    }
+
+    #infowindow-content {
+        display: none;
+    }
+
+    #map #infowindow-content {
+        display: inline;
+    }
+
+    .pac-card {
+        margin: 10px 10px 0 0;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        background-color: #fff;
+        font-family: Roboto;
+    }
+
+    #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+    }
+
+    .pac-controls {
+        display: inline-block;
+        padding: 5px 11px;
+    }
+
+    .pac-controls label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+    }
+
+
+    #pac-input:focus {
+        border-color: #4d90fe;
+    }
+
+    #title {
+        color: #fff;
+        background-color: #4d90fe;
+        font-size: 25px;
+        font-weight: 500;
+        padding: 6px 12px;
+    }
+
+    #target {
+        width: 345px;
+    }
+
+    input.form-control:read-only {
+        background-color: #fff;
+    }
+</style>
+<script>
+
+    var maparray = [];
+    var array = [];
+    var latt;
+    var lngg;
+    var radiuss;
+
+    function setCoords(latt,lngg,radiuss){
+        this.latt = latt;
+        this.lngg = lngg;
+        this.radiuss = radiuss;
+        array.push([latt, lngg, radiuss])
+        console.log(array);
+    }
+
+    function initMap() {
+        var i;
+        for (i = 0; i < array.length; i++) { // makes an arbitrary large amount of maps
+            const map = new google.maps.Map(document.getElementById("map" + i), {
+                center: {lat: array[i][0], lng: array[i][1]},
+                zoom: 5,
+                streetViewControl: false,
+                mapTypeControl: false,
+            });
+            const myLatLng = { lat: latt, lng: lngg };
+            const marker = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+                title: "Hello World!",
+            });
+            var circle = new google.maps.Circle({
+                map: document.getElementById("map" + i),
+                radius: array[i][2] * 1000,
+                fillColor: '#AA0000'
+            });
+            circle.bindTo('center', marker, 'position');
+        }
+        infoWindow = new google.maps.InfoWindow();
+        const locationButton = document.createElement("button");
+        locationButton.type = 'button';
+        locationButton.setAttribute('class', 'btn btn-light');
+        locationButton.setAttribute('style', 'margin: 10px;');
+        locationButton.textContent = "Current Location";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setZoom(14);
+                        infoWindow.setPosition(pos);
+                        map.setCenter(pos);
+                    },
+                    () => {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                    }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
+        });
+        const card = document.getElementById("pac-card");
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+        const center = {lat: 50.064192, lng: -130.605469};
+        // Create a bounding box with sides ~10km away from the center point
+        const defaultBounds = {
+            north: center.lat + 0.1,
+            south: center.lat - 0.1,
+            east: center.lng + 0.1,
+            west: center.lng - 0.1,
+        };
+        const input = document.getElementById("pac-input");
+        const options = {
+            bounds: defaultBounds,
+            componentRestrictions: {country: "uk"},
+            fields: ["address_components", "geometry", "icon", "name"],
+            origin: center,
+            strictBounds: false,
+            types: ["establishment"],
+        };
+        const autocomplete = new google.maps.places.Autocomplete(
+            input,
+            options
+        );
+        // Set initial restriction to the greater list of countries.
+        autocomplete.setComponentRestrictions({
+            country: ["uk", "pr", "vi", "gu", "mp"],
+        });
+        const southwest = {lat: 5.6108, lng: 136.589326};
+        const northeast = {lat: 61.179287, lng: 2.64325};
+        const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+        autocomplete.setBounds(newBounds);
+        const infowindow = new google.maps.InfoWindow();
+        const infowindowContent = document.getElementById("infowindow-content");
+        infowindow.setContent(infowindowContent);
+        const myLatLng = { lat: -25.363, lng: 131.044 };
+        google.maps.event.addListener(map, 'click', function (event) {
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        document.getElementById("pac-input").value = results[0].formatted_address;
+                        placeMarker(event.latLng);
+                        map.panTo(event.latLng);
+                        document.getElementById('thelat').value = results[0].geometry.location.lat();
+                        document.getElementById('thelong').value = results[0].geometry.location.lng();
+                    }
+                }
+            });
+        });
+
+    }
+
+</script>
 <!-- CSS only -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
@@ -124,6 +328,31 @@
                                 </div>
                             </div>
                         </div>
+                        <div class = "col-sm-4">
+                            <center><button th:id = "'showMapButton' + ${iter.index}" class = "btn btn-primary" type = "button" style = "margin-bottom:10px;" th:onclick="|showMap(${iter.index}, ${location.property.latitude}, ${location.property.longitude}, ${location.property.radius})|">Show Map</button></center>
+                        </div>
+                        <div class = "mapView" th:id = "'mapView' + ${iter.index}" style = "display:none;" >
+                            <div th:id = "'map' + ${iter.index}" style="clear:both; height:200px;"></div>
+                            <script
+                                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap"
+                                    async
+                            ></script>
+                            <script th:inline="javascript">
+                                /*<![CDATA[*/
+
+                                var thelat = /*[[${location.property.latitude}]]*/ 'default';
+                                var thelong = /*[[${location.property.longitude}]]*/ 'default';
+                                var theradius = /*[[${location.property.radius}]]*/ 'default';
+
+                                setCoords(thelat, thelong, theradius);
+
+                                console.log("After lat: " + latt);
+                                console.log("After long: " + lngg);
+                                console.log("After rad: " + radiuss);
+
+                                /*]]>*/
+                            </script>
+                        </div>
                     </div>
                 </div>
                 <div class="card bg-light mt-2 w-100">
@@ -184,6 +413,31 @@
     });
 </script>
 
+<script>
+    function showMap(id, latitude, longitude, radius) {
+
+        console.log("ID: " + id);
+        console.log("Lat: " + latitude);
+        console.log("Long: " + longitude);
+        console.log("Rad: " + radius);
+
+        var theDiv = document.getElementById('mapView' + id);
+        var theButton = document.getElementById('showMapButton' + id);
+
+        if (theDiv.style.display === "none") {
+
+            theDiv.style.display = "block";
+            theButton.innerHTML = "Hide Map"
+
+        } else {
+
+            theDiv.style.display = "none";
+            theButton.innerHTML = "Show Map"
+
+        }
+    }
+
+</script>
 
 
 </html>
