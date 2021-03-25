@@ -88,7 +88,11 @@ public class UserControllerWeb {
     }
 
     @GetMapping("/saveuser")
-    public String saveuser(@RequestParam(name = "userfirstname") String userfirstname, @RequestParam(name = "userlastname") String userlastname, @RequestParam(name = "useremail") String useremail, @RequestParam(name = "userpassword") String userpassword, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String saveuser(@RequestParam(name = "userfirstname") String userfirstname,
+                           @RequestParam(name = "userlastname") String userlastname,
+                           @RequestParam(name = "useremail") String useremail,
+                           @RequestParam(name = "userpassword") String userpassword,
+                           Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
 
@@ -108,8 +112,9 @@ public class UserControllerWeb {
 
                 userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
 
-                return "saveuser";
+                this.loginToSession(useremail, userpassword, model, session);
 
+                return "saveuser";
             }
         } else {
 
@@ -121,7 +126,7 @@ public class UserControllerWeb {
     }
 
     @PostMapping("/User")
-    public void CreateUser(@RequestParam(value = "email") String email) {
+    public void CreateUser(@RequestParam(value = "email") String email, HttpSession session) {
         // Why is this method empty? How does this still work? #include PureMagic? Probably
     }
 
@@ -163,7 +168,8 @@ public class UserControllerWeb {
     }
 
     @PostMapping("/login")
-    public String attemptlogin(@RequestParam(name = "loginemail") String email, @RequestParam(name = "loginpassword") String password, RedirectAttributes redirectAttributes, Model model, HttpSession session) {
+    public String attemptlogin(@RequestParam(name = "loginemail") String email, @RequestParam(name = "loginpassword") String password,
+                               RedirectAttributes redirectAttributes, Model model, HttpSession session) {
 
         User user = userValidation.validate(email, password);
         if(user != null) {
@@ -176,6 +182,14 @@ public class UserControllerWeb {
             return "redirect:/login";
         }
 
+    }
+
+    private void loginToSession(String email, String password, Model model, HttpSession session){
+        User user = userValidation.validate(email, password);
+        if(user != null) {
+            model.addAttribute("userlogin", user);
+            session.setAttribute("apiToken", userServiceInterface.getUserToken(user));
+        }
     }
 
     @GetMapping("/adminviewallusers")
