@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
@@ -90,12 +90,43 @@
     // This example requires the Places library. Include the libraries=places
     // parameter when you first load the API. For example:
     // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
+
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 55.3781, lng: -2.4360 },
             zoom: 5,
             streetViewControl: false,
             mapTypeControl: false,
+        });
+        infoWindow = new google.maps.InfoWindow();
+        const locationButton = document.createElement("button");
+        locationButton.type = 'button';
+        locationButton.setAttribute('class', 'btn btn-light');
+        locationButton.setAttribute('style', 'margin: 10px;');
+        locationButton.textContent = "Current Location";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setZoom(14);
+                        infoWindow.setPosition(pos);
+                        map.setCenter(pos);
+                    },
+                    () => {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                    }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
         });
         const card = document.getElementById("pac-card");
         map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
@@ -131,7 +162,7 @@
         const infowindow = new google.maps.InfoWindow();
         const infowindowContent = document.getElementById("infowindow-content");
         infowindow.setContent(infowindowContent);
-        const marker = new google.maps.Marker({
+        let marker = new google.maps.Marker({
             map,
             anchorPoint: new google.maps.Point(0, -29),
         });
@@ -139,9 +170,28 @@
             infowindow.close();
             marker.setVisible(false);
             const place = autocomplete.getPlace();
+            document.getElementById("myRange").disabled = false;
 
             document.getElementById('thelat').value = place.geometry.location.lat();
             document.getElementById('thelong').value = place.geometry.location.lng();
+
+            var circle = new google.maps.Circle({
+                map: map,
+                radius: 0,
+                fillColor: '#AA0000',
+                fillOpacity: 0.17,
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+            });
+
+            $('#myRange').change(function() {
+                var new_rad = $(this).val();
+                var rad = new_rad * 1000;
+
+                circle.setRadius(rad);
+            });
+
+            circle.bindTo('center', marker, 'position');
 
             if (!place.geometry || !place.geometry.location) {
                 // User entered the name of a Place that was not suggested and
@@ -183,22 +233,42 @@
         });
 
         var geocoder = new google.maps.Geocoder();
-
-        var markerr;
+        var counter = 0;
 
         function placeMarker(location) {
 
-            if (markerr == null)
+            infowindow.close();
+
+            if (marker == null)
             {
-                markerr = new google.maps.Marker({
-                    position: location,
-                    map: map
-                });
+
             }
             else
             {
-                markerr.setPosition(location);
+                marker.setPosition(location);
             }
+
+            if (counter === 0){
+            var circle = new google.maps.Circle({
+                map: map,
+                radius: 0,
+                fillColor: '#AA0000',
+                fillOpacity: 0.17,
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+            });}
+            // Add circle overlay and bind to marker
+            $('#myRange').change(function() {
+                var new_rad = $(this).val();
+                var rad = new_rad * 1000;
+
+                circle.setRadius(rad);
+            });
+
+            document.getElementById("myRange").disabled = false;
+            circle.bindTo('center', marker, 'position');
+            counter = counter + 1
+
         }
 
         google.maps.event.addListener(map, 'click', function(event) {
@@ -216,7 +286,6 @@
                 }
             });
         });
-
 
         // Sets a listener on a given radio button. The radio buttons specify
         // the countries used to restrict the autocomplete search.
@@ -243,8 +312,6 @@
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
-
-<body>
 
     <div th:insert="header :: navbar"></div>
 
@@ -298,6 +365,24 @@
                 <input type="hidden" name="thelong" id="thelong"/>
             </div>
 
+            <div class = "form-group">
+                <label for = "myRange">Radius (km): </label>
+                <input type = "range" id = "myRange" name = "radius" value = "0" disabled = "true">
+                <span id = "demo"></span>
+            </div>
+
+            <script>
+
+                var slider = document.getElementById("myRange");
+                var output = document.getElementById("demo");
+                output.innerHTML = slider.value;
+
+
+                slider.oninput = function() {
+                    output.innerHTML = this.value;
+                }
+
+            </script>
             
         <!-- Scripts for Event Times -->
         <script>
@@ -316,17 +401,17 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '" readonly>' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '" readonly>' +
+        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
         '</div>' +
         '<p class="btn btn-light remove">Remove</p>' +
         '</div>');
@@ -368,17 +453,17 @@
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0" readonly>
+                                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="startTime0">
+                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes">
                             </div>
                             <label>Until:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0" readonly>
+                                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="endTime0">
+                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
                             </div>
                             <p class="btn btn-light remove">Remove</p>
                         </div>
