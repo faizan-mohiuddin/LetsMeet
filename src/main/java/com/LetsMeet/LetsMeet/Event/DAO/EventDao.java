@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.Poll;
@@ -109,7 +107,7 @@ public class EventDao implements DAO<Event> {
     }
 
     public Optional<List<Event>> search(String query){
-        LOGGER.info("Event Search: " + query);
+        LOGGER.debug("Event Search: {}", query);
         try(Statement statement = DatabaseInterface.get().createStatement()){
             ResultSet rs = statement.executeQuery(query);
 
@@ -128,8 +126,6 @@ public class EventDao implements DAO<Event> {
             return Optional.of(events);
 
         }catch(Exception e){
-            System.out.println("\nEvent Dao: Search");
-            System.out.println(e);
             return Optional.empty();
         }
     }

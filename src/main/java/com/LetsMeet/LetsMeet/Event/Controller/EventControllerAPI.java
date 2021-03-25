@@ -100,10 +100,10 @@ public class EventControllerAPI {
         @RequestParam(value = "Token", defaultValue = "") String token){
 
         try{
-            User user = userValidation.getAuthenticatedUser(token);
+            userValidation.getAuthenticatedUser(token);
             Event event = eventService.getEvent(eventUUID);
 
-            //eventService.calculateResults(event, user, 5, true);
+            
             return new ResponseEntity<>(eventService.getProperty(event, "results.time"),HttpStatus.OK);
         }
         catch (Exception e){

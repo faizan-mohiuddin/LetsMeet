@@ -14,7 +14,6 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,7 +171,7 @@ public class EventControllerWeb {
 
             // Update event to persist changes
             eventDao.update(event);
-            
+
             eventService.setTimeRange(event.getUUID(), ranges); //bodged see todo above
 
             return viewEvent(event.getUUID().toString(), model, redirectAttributes, session);
@@ -333,7 +332,7 @@ public class EventControllerWeb {
             resultsService.selectTimes(event, timeIndex);
             redirectAttributes.addFlashAttribute("success", "Date and time confirmed!");
 
-            if (true){
+            if (!resultsService.getResult(event).getLocations().getSelected().isPresent()){
                 redirectAttributes.addFlashAttribute("info", "Location has not been confirmed. Select your location from below");
                 return "redirect:/event/{eventUUID}/results/location";
             }
@@ -420,7 +419,6 @@ public class EventControllerWeb {
         try{
             var results = resultsService.getResult(event);
             var venues = venueService.searchByRadius(results.getLocations().getSelected().get().getProperty().getLongitude(), results.getLocations().getSelected().get().getProperty().getLatitude(), results.getLocations().getSelected().get().getProperty().getRadius());
-            LOGGER.debug(venues.toString());
 
             model.addAttribute("user", user);
             model.addAttribute("event", eventService.getEvent(eventuuid));

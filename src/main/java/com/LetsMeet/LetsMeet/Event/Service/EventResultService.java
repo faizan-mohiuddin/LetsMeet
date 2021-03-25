@@ -9,16 +9,12 @@ import com.LetsMeet.LetsMeet.Event.DAO.*;
 import com.LetsMeet.LetsMeet.Event.Model.*;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventResultService {
 
-    // Logger
-    private static final Logger LOGGER=LoggerFactory.getLogger(EventResultService.class);
     
     @Autowired
     EventResultDao resultDao;
