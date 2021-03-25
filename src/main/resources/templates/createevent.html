@@ -322,6 +322,7 @@
     </div>
 
     <div class="container">
+        <div th:include="fragments/common :: alerts"></div>
         <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT">
 
             <div class="form-group">

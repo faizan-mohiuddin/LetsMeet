@@ -32,7 +32,7 @@
 
         <div class="card mt-2">
             <div class="card-header"><i class="bi bi-calendar-range"></i> Date and Time </div>
-            <div class="card-body">
+            <div class="card-body" th:if="${result.dates.selected.get()}" >
                 <h5 class="card-title"
                     th:text="${result.dates.selected.get().getProperty().start} + ' -> ' + ${result.dates.selected.get().getProperty().end}"></h5>
                 <p class="card-text" th:text="${result.dates.selected.get().grade} + ' people attending'"></p>
@@ -42,7 +42,7 @@
 
         <div class="card mt-2">
             <div class="card-header"><i class="bi bi-geo"></i>  Location </div>
-            <div class="card-body">
+            <div class="card-body" th:if="${result.locations.selected.get()}" >
                 <h5 class="card-title"
                     th:text="${result.locations.selected.get().getProperty().name}"></h5>
                 <p class="card-text" th:text="'Longitude: '+${result.locations.selected.get().getProperty().longitude} + ' Latitude: ' + ${result.locations.selected.get().getProperty().latitude}"></p>
@@ -52,7 +52,7 @@
 
         <div class="card mt-2">
             <div class="card-header"><i class="bi bi-building"></i> Venue </div>
-            <div class="card-body">
+            <div class="card-body" th:if="${venue}">
                 <h5 class="card-title"
                     th:text="${venue.name}"></h5>
                 <p class="card-text" th:text="${venue.address}"></p>

@@ -121,8 +121,8 @@ public class EventControllerWeb {
         @RequestParam(name = "eventdesc") String eventdesc, 
         @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") double eventLatitude,
                             @RequestParam(name = "thelong") double eventLongitude, @RequestParam(name = "radius") String eventRadius,
-                            @RequestParam(name = "startDays") String startDays, @RequestParam(name="startTimes") String startTimes,
-                            @RequestParam(name="endDays") String endDays, @RequestParam(name="endTimes") String endTimes) {
+                            @RequestParam(name = "startDays") List<String> startDay, @RequestParam(name="startTimes") List<String> startTime,
+                            @RequestParam(name="endDays") List<String> endDay, @RequestParam(name="endTimes") List<String> endTime) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -132,52 +132,33 @@ public class EventControllerWeb {
         }
 
         try{
-
+            
             model.addAttribute("user", user);
             model.addAttribute("eventname", eventname);
             model.addAttribute("eventdesc", eventdesc);
             model.addAttribute("eventlocation", eventlocation);
 
-            // Handle date and times
-            List<String> startDay = Arrays.asList(startDays.split(","));
-            List<String> startTime = Arrays.asList(startTimes.split(","));
-            List<String> endDay = Arrays.asList(endDays.split(","));
-            List<String> endTime = Arrays.asList(endTimes.split(","));
-
-            List<DateTimeRange> ranges = new ArrayList<>();
-            List<String> sd;
-            List<String> st;
-            List<String> ed;
-            List<String> et;
-            try {
-                for (int i = 0; i < startDay.size(); i++) {
-                    sd = Arrays.asList(startDay.get(i).split("-"));
-                    st = Arrays.asList(startTime.get(i).split(":"));
-                    ZonedDateTime start = ZonedDateTime.of(LocalDateTime.of(LocalDate.of(Integer.parseInt(sd.get(0)),
-                            Integer.parseInt(sd.get(1)), Integer.parseInt(sd.get(2))),
-                            LocalTime.of(Integer.parseInt(st.get(0)), Integer.parseInt(st.get(1)), Integer.parseInt(st.get(2)))),
-                            ZoneId.of("Europe/London"));
-
-                    ed = Arrays.asList(endDay.get(i).split("-"));
-                    et = Arrays.asList(endTime.get(i).split(":"));
-                    ZonedDateTime end = ZonedDateTime.of(LocalDateTime.of(LocalDate.of(Integer.parseInt(ed.get(0)),
-                            Integer.parseInt(ed.get(1)), Integer.parseInt(ed.get(2))),
-                            LocalTime.of(Integer.parseInt(et.get(0)), Integer.parseInt(et.get(1)), Integer.parseInt(et.get(2)))),
-                            ZoneId.of("Europe/London"));
-
-                    ranges.add(new DateTimeRange(start, end));
-                }
-            }catch(Exception e){
-                System.out.println("Event controller Web: Save event");
-                e.printStackTrace();
-            }
-
+            // Create new Event object and persist it
             Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
 
-            if(!(event == null)){
-                // Save time ranges
-                eventService.setTimeRange(event.getUUID(), ranges);
+            /* Setup and add Event Times */
+
+            // Check input data
+            if (startDay.isEmpty() || startTime.isEmpty()) {
+                redirectAttributes.addFlashAttribute("warning","Specify one or more event times.");
+                return  "redirect:/event/new";
             }
+            // Format input data to DateTimeRange objects
+            List<DateTimeRange> ranges = new ArrayList<>();
+            for (int i = 0; i < startDay.size(); i++) {
+                var start = ZonedDateTime.parse(startDay.get(i) + "T" + startTime.get(i) + "+00:00");
+                var end = ZonedDateTime.parse(endDay.get(i) + "T" + endTime.get(i) + "+00:00");
+                ranges.add(new DateTimeRange(start, end));
+            }
+            // Add time ranges to Event
+            //TODO moved after eventDAO.update() as this subsequent update overwrites the time range addition. Need tor efactor set location to use event reference rather than load new one
+
+            /* Setup and add Image */
 
             // Store and set header image file if present
             if (file.getSize()>0){
@@ -185,12 +166,17 @@ public class EventControllerWeb {
                 eventService.setProperty(event, "header_image", path);
                 
             }
+
+            /* Setup and add Location */
             eventService.setLocation(event, new Location(eventlocation, eventLatitude, eventLongitude, 50000.0));
+
+            // Update event to persist changes
             eventDao.update(event);
+            
+            eventService.setTimeRange(event.getUUID(), ranges); //bodged see todo above
 
             return viewEvent(event.getUUID().toString(), model, redirectAttributes, session);
         }
-
         catch(Exception e){
             redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
             return "redirect:/Home";
