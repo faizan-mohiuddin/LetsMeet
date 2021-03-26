@@ -109,6 +109,7 @@
                             eventWebsite.value = window.location.href;
                             eventWebsite.focus();
                             eventWebsite.select();
+                            eventWebsite.setSelectionRange(0, 99999);
                             document.execCommand('copy');
                             eventWebsite.parentNode.removeChild(eventWebsite);
                             alert("Link copied to Your Clipboard");
