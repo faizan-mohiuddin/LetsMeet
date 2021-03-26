@@ -102,7 +102,14 @@
 
                         <div class="alert alert-dark" th:unless="${hasUserRespondedToEvent}"> You have not responded to
                             this event. Let the organiser know your preferences!</div>
-                        <a href="#" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
+                        
+                        <script>
+                        function copy() {
+                            alert("Link copied to Your Clipboard");
+                        }    
+                        </script>
+                        
+                        <a onclick="copy()" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
 
