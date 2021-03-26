@@ -105,6 +105,12 @@
                         
                         <script>
                         function copy() {
+                            var eventWebsite = document.body.appendChild(document.createElement("input"));
+                            eventWebsite.value = window.location.href;
+                            eventWebsite.focus();
+                            eventWebsite.select();
+                            document.execCommand('copy');
+                            eventWebsite.parentNode.removeChild(eventWebsite);
                             alert("Link copied to Your Clipboard");
                         }    
                         </script>
