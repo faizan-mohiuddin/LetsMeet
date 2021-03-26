@@ -30,6 +30,7 @@ public class Venue {
         this.venueUUID = uuid;
         this.name = name;
         this.facilities = facilities;
+        this.facilities.removeAll(Collections.singleton(""));
     }
 
     public Venue(String uuid, String name, String facilities){
@@ -40,9 +41,13 @@ public class Venue {
         if(!(facilities == null)){
             // Populate facilities
             try {
-                JSONArray obj = new JSONArray(facilities);
-                for (int i = 0; i < obj.length(); i++) {
-                    this.facilities.add(obj.get(i).toString());
+                Gson gson = new Gson();
+                String[] obj = gson.fromJson(facilities, String[].class);
+                for (int i = 0; i < obj.length; i++) {
+                    String fac = obj[i].toString();
+                    if(!fac.equals("")) {
+                        this.facilities.add(fac);
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("Venue : Init(String, String, String)");
@@ -56,6 +61,7 @@ public class Venue {
         this.venueUUID = uuid;
         this.name = name;
         this.facilities = facilities;
+        this.facilities.removeAll(Collections.singleton(""));
         this.address = address;
 
         if(longitude == null || latitude == null) {
@@ -83,12 +89,13 @@ public class Venue {
         if(!(facilities == null)){
             // Populate facilities
             try {
-                //JSONArray obj = new JSONArray(facilities);
-                
                 Gson gson = new Gson();
                 String[] obj = gson.fromJson(facilities, String[].class);
                 for (int i = 0; i < obj.length; i++) {
-                    this.facilities.add(obj[i].toString());
+                    String fac = obj[i].toString();
+                    if(!fac.equals("")) {
+                        this.facilities.add(fac);
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("Venue : Init(String, String, String)");

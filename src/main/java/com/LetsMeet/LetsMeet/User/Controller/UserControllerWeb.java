@@ -188,6 +188,7 @@ public class UserControllerWeb {
         User user = userValidation.validate(email, password);
         if(user != null) {
             model.addAttribute("userlogin", user);
+            model.addAttribute("user", user);
             session.setAttribute("apiToken", userServiceInterface.getUserToken(user));
         }
     }
