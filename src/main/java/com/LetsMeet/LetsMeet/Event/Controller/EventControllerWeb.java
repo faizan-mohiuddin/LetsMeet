@@ -14,6 +14,9 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,7 +124,7 @@ public class EventControllerWeb {
         @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") double eventLatitude,
                             @RequestParam(name = "thelong") double eventLongitude, @RequestParam(name = "radius") String eventRadius,
                             @RequestParam(name = "startDays") List<String> startDay, @RequestParam(name="startTimes") List<String> startTime,
-                            @RequestParam(name="endDays") List<String> endDay, @RequestParam(name="endTimes") List<String> endTime) {
+                            @RequestParam(name="jsonTimes") String Tranges) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -147,15 +150,21 @@ public class EventControllerWeb {
                 redirectAttributes.addFlashAttribute("warning","Specify one or more event times.");
                 return  "redirect:/event/new";
             }
+
             // Format input data to DateTimeRange objects
             List<DateTimeRange> ranges = new ArrayList<>();
-            for (int i = 0; i < startDay.size(); i++) {
-                var start = ZonedDateTime.parse(startDay.get(i) + "T" + startTime.get(i) + "+00:00");
-                var end = ZonedDateTime.parse(endDay.get(i) + "T" + endTime.get(i) + "+00:00");
+            Gson g = new Gson();
+            JsonObject[] obj = g.fromJson(Tranges, JsonObject[].class);
+            for (int i = 0; i < obj.length; i++) {
+                String s = obj[i].get("start").getAsString();
+                String e = obj[i].get("end").getAsString();
+                var start = ZonedDateTime.parse(s);
+                var end = ZonedDateTime.parse(e);
                 ranges.add(new DateTimeRange(start, end));
             }
+
             // Add time ranges to Event
-            //TODO moved after eventDAO.update() as this subsequent update overwrites the time range addition. Need tor efactor set location to use event reference rather than load new one
+            //TODO moved after eventDAO.update() as this subsequent update overwrites the time range addition. Need to refactor set location to use event reference rather than load new one
 
             /* Setup and add Image */
 

@@ -323,7 +323,7 @@
 
     <div class="container">
         <div th:include="fragments/common :: alerts"></div>
-        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT">
+        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT" id="createForm" name="createForm">
 
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
@@ -473,6 +473,7 @@
             <p class="btn btn-light add">Add</p>
 
             <p onclick="JSONFormatting()">TestForJson (Click on me and Look at the Console)</p>
+            <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
 
             <script>
             function JSONFormatting() {
@@ -492,10 +493,12 @@
                         console.log(eventDates);
                     }
                 }
+                document.createForm.jsonTimes.value = JSON.stringify(eventDates);
+                document.forms["createForm"].submit();
             }
             </script>
 
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button onclick="JSONFormatting()" class="btn btn-primary">Create</button>
         </form>
     </div>
     <div th:insert="footer :: footer"></div>
