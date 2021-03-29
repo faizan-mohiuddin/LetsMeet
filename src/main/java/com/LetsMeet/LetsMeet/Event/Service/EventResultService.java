@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.DAO.*;
 import com.LetsMeet.LetsMeet.Event.Model.*;
-import com.LetsMeet.LetsMeet.User.Model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class EventResultService {
         }
     }
 
-    public EventResult calculateResults(Event event, User user, int duration, boolean requiredUsers) throws IllegalArgumentException{
+    public EventResult calculateResults(Event event, int duration, boolean requiredUsers) throws IllegalArgumentException{
         try{
             calculateTimes(event, duration, requiredUsers);
             calculateLocation(event,1,true);

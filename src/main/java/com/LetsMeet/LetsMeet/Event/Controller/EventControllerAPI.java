@@ -190,7 +190,7 @@ public class EventControllerAPI {
                 timeRanges.add(new DateTimeRange(ZonedDateTime.parse(o.get("start")), ZonedDateTime.parse(o.get("end"))));
             }
 
-            return (eventService.setTimeRange(UUID.fromString(eventUUID), timeRanges)) ? "Event times set" : "Event TImes not set";         
+            return (eventService.setTimeRange(eventService.getEvent(eventUUID), timeRanges)) ? "Event times set" : "Event TImes not set";         
         }
         else{
             // return the user validation error

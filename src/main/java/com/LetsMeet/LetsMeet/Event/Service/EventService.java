@@ -256,9 +256,8 @@ public class EventService{
 
 
     // Will add a new period to the time range constraint - use to set the periods that the event could take place.
-    public boolean setTimeRange(UUID eventUuid, List<DateTimeRange> times) {
+    public boolean setTimeRange(Event event, List<DateTimeRange> times) {
         try{
-            Event event = eventDao.get(eventUuid).get();
             event.getEventProperties().setTimes(times);
             return eventDao.update(event);
         }
@@ -278,9 +277,8 @@ public class EventService{
         }
     }
 
-    public boolean setFacilities(UUID eventUUID, List<String> facilities) {
+    public boolean setFacilities(Event event, List<String> facilities) {
         try{
-            Event event = eventDao.get(eventUUID).get();
             event.getEventProperties().setFacilities(facilities);
             return true;
         }

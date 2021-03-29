@@ -15,7 +15,6 @@ import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +123,7 @@ public class EventControllerWeb {
         @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") double eventLatitude,
                             @RequestParam(name = "thelong") double eventLongitude, @RequestParam(name = "radius") String eventRadius,
                             @RequestParam(name = "startDays") List<String> startDay, @RequestParam(name="startTimes") List<String> startTime,
-                            @RequestParam(name="jsonTimes") String Tranges) {
+                            @RequestParam(name="jsonTimes") String tRanges) {
 
         // Validate user
         User user = (User) session.getAttribute("userlogin");
@@ -154,7 +153,7 @@ public class EventControllerWeb {
             // Format input data to DateTimeRange objects
             List<DateTimeRange> ranges = new ArrayList<>();
             Gson g = new Gson();
-            JsonObject[] obj = g.fromJson(Tranges, JsonObject[].class);
+            JsonObject[] obj = g.fromJson(tRanges, JsonObject[].class);
             for (int i = 0; i < obj.length; i++) {
                 String s = obj[i].get("start").getAsString();
                 String e = obj[i].get("end").getAsString();
@@ -164,25 +163,21 @@ public class EventControllerWeb {
             }
 
             // Add time ranges to Event
-            //TODO moved after eventDAO.update() as this subsequent update overwrites the time range addition. Need to refactor set location to use event reference rather than load new one
+            eventService.setTimeRange(event, ranges); 
 
             /* Setup and add Image */
 
             // Store and set header image file if present
             if (file.getSize()>0){
                 String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
-                eventService.setProperty(event, "header_image", path);
-                
+                eventService.setProperty(event, "header_image", path);        
             }
 
             /* Setup and add Location */
             eventService.setLocation(event, new Location(eventlocation, eventLatitude, eventLongitude, 50000.0));
 
-            // Update event to persist changes
+            /* Update event to persist changes */
             eventDao.update(event);
-
-            eventService.setTimeRange(event.getUUID(), ranges); //bodged see todo above
-
             return viewEvent(event.getUUID().toString(), model, redirectAttributes, session);
         }
         catch(Exception e){
