@@ -4,8 +4,7 @@ import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
-import com.LetsMeet.LetsMeet.Root.Media.VenueImages.VenueImage;
-import com.LetsMeet.LetsMeet.Root.Media.VenueImages.VenueImageService;
+import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 
@@ -39,7 +38,7 @@ public class VenueControllerWeb {
     BusinessService businessService;
 
     @Autowired
-    VenueImageService imageService;
+    MediaService mediaService;
 
     @Autowired
     LetsMeetConfiguration config;
@@ -336,13 +335,7 @@ public class VenueControllerWeb {
 
         for(MultipartFile i : images){
             if (i.getSize()>0) {
-                System.out.println("Another one");
-                VenueImage image = new VenueImage(i, venueUUID);
-                try {
-                    imageService.save(image);
-                }catch(Exception e){
-                    errorOccured = true;
-                }
+                mediaService.newMedia(i, "venue", venueUUID);
             }
         }
 
