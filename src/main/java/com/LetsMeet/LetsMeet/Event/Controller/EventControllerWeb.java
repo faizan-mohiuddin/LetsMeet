@@ -11,7 +11,6 @@ import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
-import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 
 import com.google.gson.Gson;
@@ -98,8 +97,8 @@ public class EventControllerWeb {
             event.setLocation(eventlocation);
 
             if (file.getSize()>0){
-                String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
-                eventService.setProperty(event, "header_image", path);
+                var path= mediaService.newMedia(file, "event", "banner").orElseThrow();
+                eventService.setProperty(event, "header_image", mediaService.generateURL(path));
             }
 
             eventDao.update(event);
@@ -169,8 +168,8 @@ public class EventControllerWeb {
 
             // Store and set header image file if present
             if (file.getSize()>0){
-                String path= mediaService.saveMedia(new Media(file, user.getUUID())).orElseThrow();
-                eventService.setProperty(event, "header_image", path);        
+                var path= mediaService.newMedia(file, "event", "banner").orElseThrow();
+                eventService.setProperty(event, "header_image", "media/" + mediaService.generateURL(path));    
             }
 
             /* Setup and add Location */
