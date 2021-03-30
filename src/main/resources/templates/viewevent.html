@@ -18,9 +18,9 @@
     <div th:insert="header :: navbar"></div>
 
     <div class="jumbotron" th:if="${event.properties.properties.get('header_image')}"
-        th:style="'background:url('+ ${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
+        th:style="'background:url('+'/' +${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
         <div class="container">
-            <div class="shadow p-3 mb-5 bg-primary text-white rounded">
+            <div class="shadow p-3 mb-5 bg-light text-dark rounded">
                 <h5>Event:</span></h5>
                 <h1><span th:text="${event.getName()}"></span></h1>
             </div>
@@ -88,7 +88,7 @@
 
             <div class="col-4">
                 <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" th:src="${event.properties.properties.get('header_image')}"
+                    <img class="card-img-top" th:src="'/'+${event.properties.properties.get('header_image')}"
                         th:if="${event.properties.properties.get('header_image')}" alt="Card image cap">
                     <div class="card-body">
                         <div th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"

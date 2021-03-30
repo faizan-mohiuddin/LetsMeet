@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.Root.Controller;
+package com.LetsMeet.LetsMeet.Root.Media;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,15 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import com.LetsMeet.LetsMeet.Root.Media.Media;
-import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 
 @RestController
-public class MediaManagerAPI {
+public class MediaController {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(MediaManagerAPI.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(MediaController.class);
 
 
     @Autowired
@@ -28,7 +26,7 @@ public class MediaManagerAPI {
     ValidationService validationService;
 
     @PostMapping("api/media")
-    public ResponseEntity<String> uploadFile(
+    public ResponseEntity<String> restUploadFile(
         @RequestParam(value="Token", defaultValue = "none") String token, 
         @RequestParam(value = "file") MultipartFile file){
 
@@ -37,8 +35,8 @@ public class MediaManagerAPI {
         if (user == null){return new ResponseEntity<>(HttpStatus.FORBIDDEN);}
 
         try{
-            String fileURL = mediaService.saveMedia(new Media(file,user.getUUID())).orElseThrow(IOException::new);
-            return new ResponseEntity<>(fileURL, HttpStatus.OK);
+            var x = mediaService.newMedia(file);  
+            return new ResponseEntity<>(x.get().getPath().toString(), HttpStatus.OK);
         }
         catch (Exception e){
             LOGGER.error("Could not save file {}", e.getMessage());

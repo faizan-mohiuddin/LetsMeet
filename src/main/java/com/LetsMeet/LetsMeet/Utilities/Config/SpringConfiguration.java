@@ -34,6 +34,6 @@ public class SpringConfiguration implements WebMvcConfigurer {
         String uploadPath = uploadDir.toFile().getAbsolutePath();
          
         if (dirName.startsWith("../")) dirName = dirName.replace("../", "");
-        registry.addResourceHandler("/" + "media" + "/**").addResourceLocations("file:/"+ uploadPath + "/");
+        registry.addResourceHandler("/" + "media" + "/**").addResourceLocations("/" + uploadPath +"/","file:///"+ uploadPath + "/");
     }
 }
