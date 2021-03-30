@@ -1,19 +1,17 @@
-package com.LetsMeet.LetsMeet.Errors.Controllers;
-
-import com.LetsMeet.LetsMeet.User.Model.User;
-import org.springframework.boot.web.servlet.error.ErrorController;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.NoHandlerFoundException;
+package com.LetsMeet.LetsMeet.Root.Controller;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import com.LetsMeet.LetsMeet.User.Model.User;
+
+import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
 @SessionAttributes("userlogin")
@@ -54,3 +52,4 @@ public class ErrorControllerWeb implements ErrorController {
         return "/error";
     }
 }
+
