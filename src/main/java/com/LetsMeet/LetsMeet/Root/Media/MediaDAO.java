@@ -32,13 +32,13 @@ public class MediaDAO implements DAO<Media> {
     @Override
     public Optional<Media> get(UUID uuid) {
         // TODO Auto-generated method stub
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public Optional<Collection<Media>> getAll() {
         // TODO Auto-generated method stub
-        return null;
+        return Optional.empty();
     }
 
     public Boolean save(Media t, InputStream data) throws IOException {
@@ -55,7 +55,8 @@ public class MediaDAO implements DAO<Media> {
         try {
             Files.copy(data, path, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
+            return false;
         }
         return true;
     }

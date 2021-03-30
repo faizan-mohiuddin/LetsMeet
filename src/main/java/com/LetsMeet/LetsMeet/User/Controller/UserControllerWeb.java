@@ -1,34 +1,32 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
-import com.LetsMeet.LetsMeet.Business.Model.Business;
-import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
-import com.LetsMeet.LetsMeet.Event.Service.EventService;
-import com.LetsMeet.LetsMeet.Event.Service.EventServiceInterface;
-import com.LetsMeet.LetsMeet.User.Model.User;
-import com.LetsMeet.LetsMeet.User.Service.UserService;
-import com.LetsMeet.LetsMeet.User.Service.UserServiceInterface;
-import com.LetsMeet.LetsMeet.User.Service.ValidationService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpSession;
-import javax.swing.event.HyperlinkEvent;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+
+import javax.servlet.http.HttpSession;
+
+import com.LetsMeet.LetsMeet.Business.Model.Business;
+import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
+import com.LetsMeet.LetsMeet.Event.Service.EventService;
+import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.User.Service.UserService;
+import com.LetsMeet.LetsMeet.User.Service.ValidationService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @SessionAttributes("userlogin")
@@ -125,10 +123,6 @@ public class UserControllerWeb {
         }
     }
 
-    @PostMapping("/User")
-    public void CreateUser(@RequestParam(value = "email") String email, HttpSession session) {
-        // Why is this method empty? How does this still work? #include PureMagic? Probably
-    }
 
     @GetMapping("/login")
     public String login(HttpSession session, RedirectAttributes redirectAttributes) {
@@ -355,8 +349,6 @@ public class UserControllerWeb {
                 return "redirect:/edituser/" + useruuid;
 
             }else{
-
-                byte[] newSalt = UserService.generateSalt();
 
                 User userToUpdate = userServiceInterface.getUserByUUID(useruuid);
 

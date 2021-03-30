@@ -2,13 +2,14 @@
 // UserDAOjava
 // Let's Meet 2021
 //
-// Responsible for perfoming CRUD operations on User objects/records
+// Responsible for performing CRUD operations on User objects/records
 
 package com.LetsMeet.LetsMeet.User.DAO;
 
 //-----------------------------------------------------------------
-
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,12 +20,9 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
-import com.LetsMeet.Models.Data.TokenData; //TODO This needs to be refactored can't use this import from external package
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.xml.transform.Result;
 
 //-----------------------------------------------------------------
 

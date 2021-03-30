@@ -4,9 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
+/**
+ * @deprecated (Replaced with Utilities.DatabaseInterface. Please switch to this new class at nearest convenience)
+ */
+@Deprecated(forRemoval = true)
 @Service
 public class DBConnector {
 
@@ -23,13 +24,12 @@ public class DBConnector {
     }
     @Deprecated // use DatabaseInterface .get() instead
     public void open() {
-        //database.openConnection();
-        this.con = database.get();
+        this.con = DatabaseInterface.get();
     }
 
     @Deprecated // use DatabaseInterface .drop() instead
     public void close(){
-        database.drop();
+        DatabaseInterface.drop();
     }
 }
 

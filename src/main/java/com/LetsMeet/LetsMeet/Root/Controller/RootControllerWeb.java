@@ -8,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -30,7 +29,6 @@ public class RootControllerWeb {
 
     @GetMapping("/search")
     public String siteSearch(Model model, HttpSession session, RedirectAttributes redirectAttributes, @RequestParam(name = "term")String searchTerm){
-        HashMap<String,String> results = new HashMap<>();
         
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
