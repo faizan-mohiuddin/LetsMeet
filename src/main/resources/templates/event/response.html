@@ -285,7 +285,24 @@
 
       <div class="form-group">
         <label for="eventdesc">What facilities should the venue have? </label>
-        <input type="text" class="form-control" name="responsefacilities" placeholder="Search for facilities...">
+        <div class="container" id="facilities">
+
+          <div class="row align-items-start">
+            <div class="col">
+              <input type="text" class="form-control" name="facilities"
+                     placeholder="Facility Tag...">
+            </div>
+
+            <div class="col">
+              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+            </div>
+          </div>
+
+          <div class="col">
+            <button type="button" class="append" id="append">Add More Facilities</button>
+          </div>
+
+        </div>
       </div>
 
       <script>
@@ -370,6 +387,29 @@
         MinutesTimeZone = Math.abs(offset%60).toString();
         if (MinutesTimeZone.length < 2){
           MinutesTimeZone = "0" + MinutesTimeZone;
+        }
+      </script>
+
+      <script>
+        $(document).on('click', '.append', function(){
+          var html = '<div class="row align-items-start">\n' +
+                  '                    <div class="col">\n' +
+                  '                        <input type="text" class="form-control" name="facilities"\n' +
+                  '                               placeholder="Facility Tag...">\n' +
+                  '                    </div>\n' +
+                  '\n' +
+                  '                    <div class="col">\n' +
+                  '                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>\n' +
+                  '                    </div>\n' +
+                  '                </div>';
+          $(html).insertBefore(".append");
+
+        });
+      </script>
+      <script>
+        function remove(el){
+          var myobj = el.parentElement.parentElement;
+          myobj.remove();
         }
       </script>
 

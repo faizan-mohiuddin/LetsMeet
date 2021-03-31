@@ -42,6 +42,8 @@ public class ErrorControllerWeb implements ErrorController {
                 // handle HTTP 500 Internal Server error
                 return "error/500";
 
+            }else{
+                return "error/405";
             }
         }
         return "/error/404";
