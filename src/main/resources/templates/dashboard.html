@@ -81,7 +81,9 @@
                         <td th:text = "${response.event.getName()}" ></td>
                         <td th:text = "${response.response.required}"></td>
                         <td th:text = "${response.response.hasResponded()}"></td>
-                        <td><a class = "btn btn-danger" style=" color: white !important;" th:id = "${response.event.UUID}" onclick="deleteResponse()" th:attr="onclick=|deleteResponse('${user.UUID}','${response.event.UUID}')|">Delete</a></td>
+                        <td><a class = "btn btn-primary" th:href = "@{/event/{eventuuid}(eventuuid = ${response.event.getUUID()})}">View</a></td>
+                        <td><a class = "btn btn-danger" style=" color: white !important;" th:id = "${response.event.UUID}" onclick="deleteResponse()"
+                               th:attr="onclick=|deleteResponse('${user.UUID}','${response.event.UUID}')|">Delete</a></td>
                     </div>
                     <div th:unless = "${response}">
                         <td th:text = "${response} +''">Null entity</td>

@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -521,8 +523,79 @@ public class EventControllerWeb {
 
         redirectAttributes.addFlashAttribute("success", "You have joined the event.");
         return "redirect:/event/{eventuuid}";
+    }
+
+    @PostMapping("/event/{eventUUID}/response")
+    public String saveResponse(@PathVariable("eventUUID") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session,
+                               @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
+                               @RequestParam(value="thelat", defaultValue="") String lat,
+                               @RequestParam(value="thelong", defaultValue="") String longitude, @RequestParam(value="responsefacilities") String facilities){
+        // Get user
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+
+        String destination = String.format("redirect:/event/%s", eventuuid);
+
+        // Check user is invited to event
+        Optional<EventResponse> record = responseService.getResponse(user, event);
+        if(record.isPresent()) {
+            EventResponse response = record.get();
+            EventProperties properties = response.getEventProperties();
+
+            // Check user has not already responded
+            if(!(response.hasResponded())) {
+                // Process time ranges
+                List<DateTimeRange> ranges = new ArrayList<>();
+                Gson g = new Gson();
+                JsonObject[] obj = g.fromJson(jsonTimeRanges, JsonObject[].class);
+                for (int i = 0; i < obj.length; i++) {
+                    String s = obj[i].get("start").getAsString();
+                    String e = obj[i].get("end").getAsString();
+                    var start = ZonedDateTime.parse(s);
+                    var end = ZonedDateTime.parse(e);
+                    ranges.add(new DateTimeRange(start, end));
+                }
+
+                properties.setTimes(ranges);
+
+                // Process location
+                // Check all values are in order
+                try {
+                    Location location = properties.getLocation();
+                    Double dlat = Double.parseDouble(lat);
+                    Double dlong = Double.parseDouble(longitude);
+
+                    if(!address.equals("")) {
+                        location.setName(address);
+                        location.setLatitude(dlat);
+                        location.setLongitude(dlong);
+                        properties.setLocation(location);
+                    }
+                }catch(Exception e){
+                    // Ignore
+                }
+
+                // Process facilities
+                if(!facilities.equals("")) {
+                    try {
+                        List<String> facilityList = Arrays.asList(facilities.split(","));
+                        properties.setFacilities(facilityList);
+                    } catch (Exception e) {
+                        System.out.println("VenueService.Search");
+                        System.out.println(e);
+                    }
+                }
 
 
+                // Save response
+                response.setEventProperties(properties);
+                responseService.saveResponse(response);
+
+                // Redirect to event page
+                redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
+            }
+        }
+        return destination;
     }
 
     @GetMapping("/event/{eventuuid}/respond2")
