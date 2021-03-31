@@ -121,5 +121,21 @@
         </script>
     </div>
 
+    <div th:fragment="confirm">
+        <a th:href="@{/event/{eventuuid}/results/confirm(eventuuid = ${event.getUUID()})}"
+            class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Confirm Now</a>
+
+            <form th:action="@{/event/{eventUUID}/results/confirm(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" method="post">
+
+            <div class="form-group">
+                <label for="message">Message </label>
+                <input type="text" class="form-control" name="message">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+
+    </div>
+
 </body>
 

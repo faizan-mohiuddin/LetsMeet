@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Root.Notification;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import com.LetsMeet.LetsMeet.Root.Notification.Model.Notification;
@@ -47,11 +48,12 @@ public class NotificationService {
             return new AsyncResult<>(true);
         }
         catch(Exception e){
+            e.printStackTrace();
             return new AsyncResult<>(false);
         }
     }
 
-    private Boolean email(Notification notification, User... users) throws Exception{
+    private Boolean email(Notification notification, User... users) throws MessagingException{
 
         for (User user : users){
             MimeMessage mail = emailSender.createMimeMessage();
@@ -61,9 +63,14 @@ public class NotificationService {
             Context context = new Context();
             context.setVariables(notification.getModel());
             String html = templateEngine.process(notification.getTemplate(), context);
-
-            // Set values
             helper.setText(html, true);
+
+            // Process attachments
+            for (Notification.File f : notification.getFiles()){
+                helper.addAttachment(f.filename, f.data);
+            }
+            
+            // Set values  
             helper.setTo(user.getEmail());
             helper.setSubject(notification.getTitle());
             helper.setFrom("no-reply@letsmeet.com");

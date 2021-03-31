@@ -12,7 +12,6 @@ import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -459,6 +458,20 @@ public class EventControllerWeb {
             redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
             return "redirect:/event/{eventUUID}";
         }
+    }
+
+    @PostMapping("/event/{eventUUID}/results/confirm")
+    public String httpResultsConfirm(Model model, RedirectAttributes redirectAttributes, HttpSession session, @PathVariable("eventUUID") String eventuuid, @RequestParam(name = "message") String message ){
+        User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
+        if (user == null || event == null){
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
+            return "redirect:/event/{eventUUID}";
+        }
+
+        resultsService.sendConfirmation(event, user, message);
+        return "redirect:/event/{eventUUID}/results";
+            
     }
 
     @GetMapping("/event/{eventUUID}/results")

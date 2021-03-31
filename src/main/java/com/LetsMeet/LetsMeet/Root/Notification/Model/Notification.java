@@ -1,8 +1,12 @@
 package com.LetsMeet.LetsMeet.Root.Notification.Model;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.mail.util.ByteArrayDataSource;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 /**
@@ -17,26 +21,35 @@ public class Notification {
         ALERT_ONLY,
         MAIL_ONLY
     }
+
+    public static class File{
+        public String filename;
+        public ByteArrayDataSource data;
+
+        public File(String filename, ByteArrayDataSource data){this.filename = filename; this.data = data;}
+    }
     
     private UUID uuid;
     private String title;
     private Map<String,Object> model;
+    private List<File> files;
     private String template;
     private Type type;
     private ZonedDateTime created;
 
 
-    public Notification(UUID uuid, String title, Map<String,Object> model, String template, Type type, ZonedDateTime created) {
+    public Notification(UUID uuid, String title, Map<String,Object> model, List<File> files, String template, Type type, ZonedDateTime created) {
         this.uuid = uuid;
         this.title = title;
         this.model = model;
+        this.files = files;
         this.template = template;
         this.type = type;
         this.created = created;
     }
 
     public Notification(String title, Map<String,Object> model, String template, Type type){
-        this(UUID.randomUUID(), title, model, template, type, ZonedDateTime.now());
+        this(UUID.randomUUID(), title, model,new ArrayList<>(), template, type, ZonedDateTime.now());
     }
 
 
@@ -97,6 +110,14 @@ public class Notification {
 
     public void setCreated(ZonedDateTime created) {
         this.created = created;
+    }
+
+    public List<File> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<File> files) {
+        this.files = files;
     }
 
     

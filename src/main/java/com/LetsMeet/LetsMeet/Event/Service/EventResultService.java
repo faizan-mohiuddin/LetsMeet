@@ -7,10 +7,13 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.DAO.*;
 import com.LetsMeet.LetsMeet.Event.Model.*;
+import com.LetsMeet.LetsMeet.Root.Notification.NotificationService;
+import com.LetsMeet.LetsMeet.Root.Notification.Notifications;
+import com.LetsMeet.LetsMeet.Root.Notification.Model.Notification;
+import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,7 +30,10 @@ public class EventResultService {
     EventResponseService responseService;
 
     @Autowired
-    private JavaMailSender emailSender;
+    UserService userService;
+
+    @Autowired
+    NotificationService notificationService;
 
 
     public EventResult newEventResult(Event event) throws IllegalArgumentException{
@@ -149,11 +155,54 @@ public class EventResultService {
         }
     }
 
-    /* public void sendConfirmation(Event event)throws IllegalArgumentException{
+     public void sendConfirmation(Event event, User organiser, String message)throws IllegalArgumentException{
         try{
-            EventResult result = resultDao.get(event.getUUID()).orElseThrow();
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@letsmeet.com");
-            emailSender.send(arg0);
-    } */
+            List<EventResponse> responses = responseService.getResponses(event);
+
+            EventResult results = resultDao.get(event.getUUID()).orElseThrow();
+            
+            for (var response : responses){
+                User user = userService.getUserByUUID(response.getUser().toString());
+
+                StringBuffer sb = new StringBuffer();
+
+                StringBuffer buffer = sb.append("BEGIN:VCALENDAR\n" +
+                        "PRODID:-//Microsoft Corporation//Outlook 9.0 MIMEDIR//EN\n" +
+                        "VERSION:2.0\n" +
+                        "METHOD:REQUEST\n" +
+                        "BEGIN:VEVENT\n" +
+                        "ATTENDEE;ROLE=REQ-PARTICIPANT;RSVP=TRUE:MAILTO:"+user.getEmail()+"\n" +
+                        "ORGANIZER:MAILTO:"+organiser.getEmail()+"\n" +
+                        "DTSTART:"+results.getDates().getSelected().get().getProperty().getStart().toEpochSecond()+"\n" +
+                        "DTEND:"+ results.getDates().getSelected().get().getProperty().getEnd().toEpochSecond()+"\n" +
+                        "LOCATION:"+ results.getLocations().getSelected().get().getProperty().getName()+"\n" +
+                        "TRANSP:OPAQUE\n" +
+                        "SEQUENCE:0\n" +
+                        "UID:040000008200E00074C5B7101A82E00800000000002FF466CE3AC5010000000000000000100\n" +
+                        " 000004377FE5C37984842BF9440448399EB02\n" +
+                        "DTSTAMP:20051206T120102Z\n" +
+                        "CATEGORIES:Meeting\n" +
+                        "DESCRIPTION:"+event.getDescription()+"\n\n" +
+                        "SUMMARY:Meet request\n" +
+                        "PRIORITY:5\n" +
+                        "CLASS:PUBLIC\n" +
+                        "BEGIN:VALARM\n" +
+                        "TRIGGER:PT1440M\n" +
+                        "ACTION:DISPLAY\n" +
+                        "DESCRIPTION:Reminder\n" +
+                        "END:VALARM\n" +
+                        "END:VEVENT\n" +
+                        "END:VCALENDAR");
+    
+                //Notification notification = Notifications.simpleMail("testing", "helloworld", "google.com");
+                Notification notification = Notifications.withFile("You have been invited to: "+ event.getName(), "Message from Organiser:\n"+message +"\nEvent Description:\n"+event.getDescription(), "invite.ics", String.valueOf(buffer).getBytes(), true, "action");
+                notificationService.send(notification, user);
+            }
+        }
+        catch(Exception e){
+            return;
+        }
+
+
+    }
 }
