@@ -4,6 +4,7 @@ import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @SessionAttributes("userlogin")
@@ -104,7 +106,7 @@ public class VenueControllerWeb {
         }
 
         // Get images
-        String directoryPath = String.format("%s\\Venues\\%s", config.getdataFolder(), venueUUID);
+        String directoryPath = String.format("%s\\files\\venue\\%s", config.getdataFolder(), venueUUID);
         Path path = Paths.get(directoryPath);
 
         if(Files.exists(path)){
@@ -113,7 +115,7 @@ public class VenueControllerWeb {
             String[] imageNames = dir.list();
             List<List<String>> images = new ArrayList<>();
 
-            String displayPath = String.format("\\media\\Venues\\%s", venueUUID);
+            String displayPath = String.format("\\media\\files\\venue\\%s", venueUUID);
 
             int counter = 1;
             int total = imageNames.length;
@@ -334,8 +336,10 @@ public class VenueControllerWeb {
         boolean errorOccured = false;
 
         for(MultipartFile i : images){
+
             if (i.getSize()>0) {
-                mediaService.newMedia(i, "venue", venueUUID);
+                Optional<Media> image = mediaService.newMedia(i, "venue", venueUUID);
+                System.out.println(mediaService.generateURL(image.get()));
             }
         }
 
