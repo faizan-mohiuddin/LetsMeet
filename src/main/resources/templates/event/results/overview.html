@@ -29,6 +29,10 @@
 
         <div th:include="fragments/common :: alerts"></div>
 
+        
+        
+        <a th:href="@{/event/{eventuuid}/results/confirm(eventuuid = ${event.getUUID()})}"
+        class="btn btn-dark btn-block" data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-check-circle"></i> Confirm Now</a>
 
         <div class="card mt-2">
             <div class="card-header"><i class="bi bi-calendar-range"></i> Date and Time </div>
@@ -61,9 +65,25 @@
             </div>
         </div>
 
+    </div>
 
+    <div class="modal fade" id="deleteConfirmation" role="dialog">
+        <div class="modal-dialog">
 
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Confirm Event</h4>
+                </div>
+                <div class="modal-body">
+                    <div th:include="event/fragments :: confirm"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-block" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
 
+        </div>
     </div>
 
     <div th:insert="footer :: footer"></div>

@@ -220,5 +220,19 @@
         </script>
     </div>
 
+    <div th:fragment="confirm">
+
+            <form th:action="@{/event/{eventUUID}/results/confirm(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" method="post">
+
+            <div class="form-group">
+                <label for="message">Message (optional) </label>
+                <input type="text" class="form-control" name="message">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Send Confirmation</button>
+        </form>
+
+    </div>
+
 </body>
 

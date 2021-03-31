@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <style>
+        body {
+            background-color: #33383A;
+        }
+        .centeredBox {
+            background-color: #191B1C;
+            width: 50%;
+            border: 0.1pc solid #586063;
+            padding: 10px;
+            margin: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 0.4pc;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.31)
+        }
+
+        .header {
+            
+            background-color: #0D6EFD;
+            padding: 20px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.31)
+        }
+
+        .footer {
+            
+            background-color: #191B1C;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.31)
+        }
+
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+        }
+
+        .middle{
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .button {
+            background-color: black; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+}
+    </style>
+</head>
+
+
+<body style="background-color:#33383A;">
+
+    <div class="header">
+        <span>
+        <img src="http://localhost:8080/images/logo_64.png" alt="letsmeetLogo">
+        <h1 style="display: inline-block;vertical-align:top;">Let's Meet</h1>
+        </span> 
+    </div>
+
+    <div class="centeredBox">
+        <div class = "middle">
+            <h1 th:text = "${title}">Title</h1>
+        </div>
+    </div>
+
+    <div class="centeredBox">
+        <h3>Message</h3>
+        <p th:text = "${body}">text</p>
+    </div>
+
+    <div class="centeredBox">
+        <h3>Description</h3>
+        <p th:text = "${body}">text</p>
+    </div>
+
+    <div class="centeredBox">
+        <h3>Actions</h3>
+        <button class="button">Button</button>
+        <button class="button">Button</button>
+        <button class="button">Button</button>
+        <button class="button">Button</button>
+    </div>
+
+    <div class="footer">
+        <span>
+        <hp style="display: inline-block;vertical-align:top;">letsmeet.com</p>
+        </span> 
+    </div>
+
+    
+
+
+</body>
+
+</html>
