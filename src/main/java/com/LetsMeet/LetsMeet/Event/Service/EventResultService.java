@@ -9,6 +9,8 @@ import com.LetsMeet.LetsMeet.Event.DAO.*;
 import com.LetsMeet.LetsMeet.Event.Model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +25,9 @@ public class EventResultService {
 
     @Autowired
     EventResponseService responseService;
+
+    @Autowired
+    private JavaMailSender emailSender;
 
 
     public EventResult newEventResult(Event event) throws IllegalArgumentException{
@@ -143,4 +148,12 @@ public class EventResultService {
             throw new IllegalArgumentException("Could not select location: " + e.getMessage());
         }
     }
+
+    /* public void sendConfirmation(Event event)throws IllegalArgumentException{
+        try{
+            EventResult result = resultDao.get(event.getUUID()).orElseThrow();
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("noreply@letsmeet.com");
+            emailSender.send(arg0);
+    } */
 }
