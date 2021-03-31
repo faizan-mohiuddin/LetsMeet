@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+
+    <div class = "jumbotron">
+        <div class = "container">
+            <h1 th:text = "${title}"></h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <p th:text = "${body}"></p>
+    </div>
+
+
+</body>
+
+</html>
