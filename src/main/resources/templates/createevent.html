@@ -387,6 +387,13 @@
             
         <!-- Scripts for Event Times -->
         <script>
+        // Today's Date
+        var Today = new Date();
+        var DD = String(Today.getDate()).padStart(2, '0');
+        var MM = String(Today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var YYYY = Today.getFullYear();
+        Today = YYYY + '-' + MM + '-' + DD;
+         
         // Counter for the rows
         var dateRowNo = 0;
         $(document).ready(function(){
@@ -402,17 +409,17 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
+        '<input type="datetime" value=' + Today + ' class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes" value="09:00:00">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
+        '<input type="datetime" value=' + Today + ' class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes" value="17:00:00">' +
         '</div>' +
         '<p class="btn btn-light remove">Remove</p>' +
         '</div>');
@@ -457,14 +464,14 @@
                                 <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes">
+                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes" value="09:00:00">
                             </div>
                             <label>Until:</label>
                             <div class="col">
                                 <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
+                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes" value="17:00:00">
                             </div>
                             <p class="btn btn-light remove">Remove</p>
                         </div>
@@ -475,6 +482,10 @@
             <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
 
             <script>
+            // Today's Date
+            document.getElementById("startDay0").value = Today;
+            document.getElementById("endDay0").value = Today;
+             
             function JSONFormatting() {
                 var eventDates = [];
                 for (i=0; i<dateRowNo+1; i++) {
