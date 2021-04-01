@@ -108,23 +108,25 @@
                 </script>
 
                 <div class="container" id="timeRangeGroup">
-                    <div class="row align-items-start" th:each="t : ${event.getEventProperties().getTimes()}">
+                    <div class="row align-items-start" th:each="t : ${times}">
                         <label>From:</label>
                         <div class="col">
                             <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0"
-                                   th:value="${t.getStart().getYear() + '-' + t.getStart.getMonthValue() + '-' + t.getStart.getDayOfMonth}" readonly>
+                                   th:value="${t[0]}" readonly>
                         </div>
                         <div class="col">
                             <input type="time" class="form-control" step="1" th:id="${'startTime0'}" name="startTimes"
-                            th:default="${t.getStart().getHour() + ':' + t.getStart().getMinute()}">
+                            th:value="${t[1]}">
                         </div>
 
                         <label>Until:</label>
                         <div class="col">
-                            <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
+                            <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0"
+                                   th:value="${t[2]}" readonly>
                         </div>
                         <div class="col">
-                            <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
+                            <input type="time" class="form-control" step="1" id="endTime0" name="endTimes"
+                            th:value="${t[3]}">
                         </div>
                         <div class="row"></div>
                         <div class="col">

@@ -13,6 +13,8 @@ import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
+import static com.LetsMeet.LetsMeet.Utilities.MethodService.deepCopyStringList;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ import java.time.*;
 import java.util.*;
 
 import javax.servlet.http.HttpSession;
+
 
 @Controller
 @SessionAttributes("userlogin")
@@ -163,7 +166,7 @@ public class EventControllerWeb {
             }
 
             // Add time ranges to Event
-            eventService.setTimeRange(event, ranges); 
+            eventService.setTimeRange(event, ranges);
 
             /* Setup and add Image */
 
@@ -256,6 +259,74 @@ public class EventControllerWeb {
     
                 model.addAttribute("responses", responses);
             }
+
+            // Get event times
+            List<List<String>> times = new ArrayList<>();
+            List<String> arr = new ArrayList<>();
+            for(DateTimeRange t : event.getEventProperties().getTimes()){
+                arr.clear();
+                // Start date
+                ZonedDateTime s = t.getStart();
+                arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
+
+                // Start time
+                int hour = s.getHour();
+                String h;
+                if(hour < 10){
+                    h = String.format("0%s", hour);
+                }else{
+                    h = Integer.toString(hour);
+                }
+
+                int minute = s.getMinute();
+                String m;
+                if(minute < 10){
+                    m = String.format("0%s", minute);
+                }else{
+                    m = Integer.toString(minute);
+                }
+
+                int second = s.getSecond();
+                String sec;
+                if(second < 10){
+                    sec = String.format("0%s", second);
+                }else{
+                    sec = Integer.toString(second);
+                }
+
+                arr.add(String.format("%s:%s:%s", h, m, sec));
+
+                // End date
+                ZonedDateTime e = t.getEnd();
+                arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
+
+                // End time
+                hour = e.getHour();
+                if(hour < 10){
+                    h = String.format("0%s", hour);
+                }else{
+                    h = Integer.toString(hour);
+                }
+
+                minute = e.getMinute();
+                if(minute < 10){
+                    m = String.format("0%s", minute);
+                }else{
+                    m = Integer.toString(minute);
+                }
+
+                second = e.getSecond();
+                if(second < 10){
+                    sec = String.format("0%s", second);
+                }else{
+                    sec = Integer.toString(second);
+                }
+
+                arr.add(String.format("%s:%s:%s", h, m, sec));
+
+                times.add(deepCopyStringList(arr));
+            }
+            model.addAttribute("times", times);
 
             return "viewevent";
         }else {

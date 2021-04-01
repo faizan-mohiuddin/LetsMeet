@@ -118,7 +118,6 @@ public class VenueControllerWeb {
             String displayPath = String.format("\\media\\files\\venue\\%s", venueUUID);
 
             int counter = 1;
-            int total = imageNames.length;
             for(String s : imageNames){
                 List<String> each = new ArrayList<>();
                 String t = String.format("%d", counter);
