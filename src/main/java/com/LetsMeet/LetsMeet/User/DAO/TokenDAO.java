@@ -7,8 +7,6 @@
 package com.LetsMeet.LetsMeet.User.DAO;
 
 //-----------------------------------------------------------------
-
-import java.sql.ResultSet;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Utilities.DAO;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
+import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
+import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
@@ -33,14 +32,15 @@ public class TokenDAO implements DAO<Token> {
     //-----------------------------------------------------------------
 
     @Autowired
-    DBConnector database;
+    ConnectionService connectionService;
 
     // Get
     //-----------------------------------------------------------------
     @Override
     public Optional<Token> get(UUID uuid) {
-        database.open();
-        try (Statement statement = database.getCon().createStatement();) {
+        
+        try (DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();) {
             String query = String.format("SELECT * FROM Token WHERE Token.TokenUUID = '%s'", uuid);
             ResultSet rs = statement.executeQuery(query);
 
@@ -50,10 +50,10 @@ public class TokenDAO implements DAO<Token> {
                 new Token(rs.getString(2), UUID.fromString(rs.getString(1)), rs.getInt(3)));
 
             if (count > 0) {
-                database.close();
+                
                 return token;
             } else {
-                database.close();
+                
                 return Optional.empty();
             }
 
@@ -70,8 +70,9 @@ public class TokenDAO implements DAO<Token> {
 
     // Returns all Token objects belonging to a user
     public Optional<Collection<Token>> getAll(User user){
-        database.open();
-        try (Statement statement = database.getCon().createStatement();) {
+        
+        try (DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();) {
             // Create query
             String query = String.format("SELECT * FROM Token WHERE Token.UserUUID = '%s'", user.getUUID().toString());
 
@@ -86,12 +87,12 @@ public class TokenDAO implements DAO<Token> {
             }
 
             Optional<Collection<Token>> response = Optional.ofNullable(tokens);
-            database.close();
+            
             return response;
         } 
         catch (Exception e) {
             e.printStackTrace();
-            database.close();
+            
             return Optional.empty();
         }
     }
@@ -101,20 +102,21 @@ public class TokenDAO implements DAO<Token> {
 
     @Override
     public Boolean save(Token t) {
-        database.open();
-        try (PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
+        
+        try (DatabaseConnector connector = connectionService.get();
+            PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO Token (UserUUID, TokenUUID, Expires) VALUES (?, ?, ?)");){
 
             statement.setString(1, t.getUserUUID().toString());
             statement.setString(2, t.getToken());
             statement.setLong(3, t.getExpires());
             int rows = statement.executeUpdate();
 
-            database.close();
+            
 
             if (rows > 0) {
                 return true;
             } else {
-                throw new Exception("Error creating token");
+                throw new SQLException("Error creating token");
             }
 
         } catch (Exception e) {
@@ -138,12 +140,13 @@ public class TokenDAO implements DAO<Token> {
     // Delete from a Token Object
     @Override
     public Boolean delete(Token t) {
-        database.open();
+        
 
-        try(Statement statement = database.getCon().createStatement();) {
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();) {
             String query = String.format("DELETE FROM Token WHERE Token.TokenUUID = '%s'", t.getToken());
             statement.executeUpdate(query);
-            database.close();
+            
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,14 +163,15 @@ public class TokenDAO implements DAO<Token> {
     // Other methods
     // In use
     public TokenData getTokenRecord(String token){
-        database.open();
-        try (Statement statement = database.getCon().createStatement();){
+        
+        try (DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             String query = String.format("select * from Token where Token.TokenUUID = '%s'", token);
             ResultSet rs = statement.executeQuery(query);
             if(rs.next()){
                 TokenData data = new TokenData();
                 data.populate(rs.getString(1), rs.getString(2), rs.getInt(3));
-                database.close();
+                
                 return data;
             }else{
                 // Incorrect token
@@ -175,26 +179,25 @@ public class TokenDAO implements DAO<Token> {
             }
 
         } catch (Exception e) {
-            System.out.println("\nUser DAO: getTokenRecord");
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
     // In use
     public String getUserUUIDByToken(String token){
-        database.open();
-        try (Statement statement = database.getCon().createStatement();) {
+        
+        try (DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();) {
             String query = String.format("select UserUUID from Token where Token.TokenUUID = '%s'", token);
 
             ResultSet rs = statement.executeQuery(query);
             rs.next();
             String r = rs.getString(1);
-            database.close();
+            
             return r;
 
         } catch (Exception e) {
-            System.out.println("\nUser DAO: getUserByToken");
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
