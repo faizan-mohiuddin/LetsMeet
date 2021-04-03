@@ -39,27 +39,24 @@ public class DatabaseConnectionPool {
     private Queue<Connection> returnConnectionPool;
 
     // Thread asynchronously checks each connection object and replaces those which are no longer valid
-    Thread connectionValidator = new Thread(new Runnable(){
-        public void run(){
-            while (POOL_SIZE > 0){
-                Instant start = Instant.now();
-                try{
-                    Iterator<Connection> it = returnConnectionPool.iterator();
-                    while (it.hasNext()){
-                        Connection c = it.next();
-                        it.remove();
-                        LOGGER.info("Processing {}", c.getMetaData().getURL());
-                        if (c.isValid(1)){idleConnectionPool.add(c);}
-                        else {idleConnectionPool.add(openConnection());}
-                    }
-                    
-                    long time = VALIDATOR_FREQUENCY - Duration.between(start, Instant.now()).toMillis();
-                    if (time > 0){Thread.sleep(time);}
-                    else
-                        LOGGER.warn("connection validation backlog - Consider reducing the number of concurrent connections. [time overflow ={}ms]", -time);
-                }catch(Exception e){
-                    LOGGER.warn("Connection Validator worker thread encountered an issue: {}", e.getMessage());
+    Thread validator = new Thread(() -> {
+        while (POOL_SIZE > 0){
+            Instant start = Instant.now();
+            try{
+                Iterator<Connection> it = returnConnectionPool.iterator();
+                while (it.hasNext()){
+                    Connection c = it.next();
+                    it.remove();
+                    if (c.isValid(1)){idleConnectionPool.add(c);}
+                    else {idleConnectionPool.add(openConnection());}
                 }
+                
+                long time = VALIDATOR_FREQUENCY - Duration.between(start, Instant.now()).toMillis();
+                if (time > 0){Thread.sleep(time);}
+                else
+                    LOGGER.warn("connection validation backlog - Consider reducing the number of concurrent connections. [time overflow ={}ms]", -time);
+            }catch(Exception e){
+                LOGGER.warn("Connection Validator worker thread encountered an issue: {}", e.getMessage());
             }
         }
     });
@@ -84,7 +81,7 @@ public class DatabaseConnectionPool {
             LOGGER.error("Database Service did not start correctly: {}", e.getMessage());
         }
 
-        connectionValidator.start();
+        validator.start();
 
     }
     /**
