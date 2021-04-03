@@ -54,7 +54,6 @@ public class DatabaseConnectionPool {
                     }
                     
                     long time = VALIDATOR_FREQUENCY - Duration.between(start, Instant.now()).toMillis();
-                    LOGGER.debug("time since last check: {}",time);
                     if (time > 0){Thread.sleep(time);}
                     else
                         LOGGER.warn("connection validation backlog - Consider reducing the number of concurrent connections. [time overflow ={}ms]", -time);
@@ -93,7 +92,20 @@ public class DatabaseConnectionPool {
      * @return a connection object from the connection pool
      */
     public Connection get() {
+        try{
+        
         return idleConnectionPool.remove();
+        }
+        catch (Exception e){
+            if (idleConnectionPool.peek() == null){try {
+                return openConnection();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+                return null;
+            }}
+            return null;
+        }
     }
 
     /**

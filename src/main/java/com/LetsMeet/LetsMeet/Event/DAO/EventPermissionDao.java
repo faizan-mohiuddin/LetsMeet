@@ -16,9 +16,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
+import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
+import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
-import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +34,14 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
     private static final Logger LOGGER=LoggerFactory.getLogger(EventPermissionDao.class);
 
     @Autowired
-    DBConnector database;
-
+    ConnectionService connectionService;
     // Get
     //-----------------------------------------------------------------
 
     @Override
     public Optional<EventPermission> get(UUID event, UUID user) {
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s' and HasUsers.UserUUID = '%s'", event.toString(),user.toString());
 
             ResultSet rs = statement.executeQuery(query);
@@ -58,7 +58,8 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     // Get EventPermission accepts either EventUUID or UserUUID (as either *should* be unique)
     public Optional<List<EventPermission>> get(String uuid) {
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             String query = String.format("select * from HasUsers where HasUsers.EventUUID = '%s' OR HasUsers.UserUUID = '%s'", uuid, uuid);
 
             ResultSet rs = statement.executeQuery(query);
@@ -87,7 +88,8 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
     @Override
     public Boolean save(EventPermission t) {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?,?,?)")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO HasUsers (EventUUID, UserUUID, IsOwner) VALUES (?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setBoolean(3, t.getIsOwner());
@@ -109,7 +111,8 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
     @Override
     public Boolean update(EventPermission t) {
 
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE HasUsers SET EventUUID = ?, UserUUID = ?, IsOwner = ? WHERE EventUUID = ? AND UserUUID = ?")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("UPDATE HasUsers SET EventUUID = ?, UserUUID = ?, IsOwner = ? WHERE EventUUID = ? AND UserUUID = ?")){
 
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
@@ -142,7 +145,8 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
     @Override
     public Boolean delete(String EventUUID, String UserUUID) {
 
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             String query = String.format("DELETE FROM HasUsers WHERE HasUsers.EventUUID = '%s' AND HasUsers.UserUUID = '%s'",
                     EventUUID, UserUUID);
             int rows = statement.executeUpdate(query);

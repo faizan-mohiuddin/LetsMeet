@@ -19,7 +19,6 @@ public class DatabaseConnector implements AutoCloseable{
 
     @Override
     public void close() {
-        System.out.println("closing!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         databaseService.give(connection);      
     }
 

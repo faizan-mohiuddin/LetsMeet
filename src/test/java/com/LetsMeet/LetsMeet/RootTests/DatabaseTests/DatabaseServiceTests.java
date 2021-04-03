@@ -3,7 +3,6 @@ package com.LetsMeet.LetsMeet.RootTests.DatabaseTests;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
 import com.LetsMeet.LetsMeet.Root.Database.DatabaseConnectionPool;
-import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.Assert.*;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 @SpringBootTest
