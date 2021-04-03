@@ -46,7 +46,7 @@ public class ErrorControllerWeb implements ErrorController {
                 return "error/405";
             }
         }
-        return "/error/404";
+        return "error/404";
     }
 
     @Override

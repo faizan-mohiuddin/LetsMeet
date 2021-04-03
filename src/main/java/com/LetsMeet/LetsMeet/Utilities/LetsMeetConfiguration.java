@@ -21,6 +21,7 @@ public class LetsMeetConfiguration {
     private String databaseName;
     private String databaseUser;
     private String databasePassword;
+    private int connectionLimit;
 
     private String dataFolder;
 
@@ -37,6 +38,9 @@ public class LetsMeetConfiguration {
 
     public void setDatabasePassword(String x){ databasePassword = x;}
     public String getDatabasePassword(){return databasePassword;}
+
+    public void setconnectionLimit(int x){ connectionLimit = x;}
+    public int getconnectionLimit(){return connectionLimit;}
     
 
     public void setdataFolder(String x){ dataFolder = x;}
