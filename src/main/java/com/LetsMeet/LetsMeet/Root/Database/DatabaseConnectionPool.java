@@ -43,19 +43,43 @@ public class DatabaseConnectionPool {
         while (POOL_SIZE > 0){
             Instant start = Instant.now();
             try{
-                Iterator<Connection> it = returnConnectionPool.iterator();
-                while (it.hasNext()){
-                    Connection c = it.next();
-                    it.remove();
+
+                // Check return queue
+                Iterator<Connection> itr = returnConnectionPool.iterator();
+                while (itr.hasNext()){
+                    Connection c = itr.next();
+                    itr.remove();
                     if (c.isValid(1)){idleConnectionPool.add(c);}
-                    else {idleConnectionPool.add(openConnection());}
+                    else {idleConnectionPool.add(openConnection(0));}
                 }
+
+                // Check ready queue
+                int failed = 0;
+                Iterator<Connection> iti = idleConnectionPool.iterator();
+                while (iti.hasNext()){
+                    Connection c = iti.next();
+                    
+                    if (!c.isValid(1)){
+                        failed++;
+                        iti.remove();
+                        idleConnectionPool.add(openConnection(0));
+
+                    }
+                }
+
+                // Report high failure rate
+                double failedPercentage = failed/((double) idleConnectionPool.size()+0.001);
+                if (failedPercentage > 0.25)
+                    LOGGER.warn("High proportion of failed connections detected  ({}%)", failedPercentage);
                 
+                // Sleep if possible
                 long time = VALIDATOR_FREQUENCY - Duration.between(start, Instant.now()).toMillis();
-                if (time > 0){Thread.sleep(time);}
+                if (time > 0)
+                    Thread.sleep(time);
                 else
                     LOGGER.warn("connection validation backlog - Consider reducing the number of concurrent connections. [time overflow ={}ms]", -time);
-            }catch(Exception e){
+            }
+            catch(Exception e){
                 LOGGER.warn("Connection Validator worker thread encountered an issue: {}", e.getMessage());
             }
         }
@@ -75,7 +99,7 @@ public class DatabaseConnectionPool {
 
         try {
             for (int i = 0; i < connectionLimit; i++) {
-                idleConnectionPool.add(openConnection());
+                idleConnectionPool.add(openConnection(0));
             }
         } catch (Exception e) {
             LOGGER.error("Database Service did not start correctly: {}", e.getMessage());
@@ -95,8 +119,8 @@ public class DatabaseConnectionPool {
         }
         catch (Exception e){
             if (idleConnectionPool.peek() == null){try {
-                return openConnection();
-            } catch (IOException e1) {
+                return openConnection(0);
+            } catch (Exception e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
                 return null;
@@ -113,12 +137,20 @@ public class DatabaseConnectionPool {
         returnConnectionPool.add(connection);
     }
 
-    private Connection openConnection() throws IOException {
+    private Connection openConnection(int attempt) throws IOException, InterruptedException {
         try {
-            return DriverManager.getConnection(config.getDatabaseHost() + "/" + config.getDatabaseName(),
-                    config.getDatabaseUser(), config.getDatabasePassword());
-        } catch (SQLException e) {
-            throw new IOException("Connection was not established: " + e.getSQLState());
+            return DriverManager.getConnection(config.getDatabaseHost() + "/" + config.getDatabaseName(), config.getDatabaseUser(), config.getDatabasePassword());
+        } 
+        catch (SQLException e) {
+            if (attempt >= 10){
+                throw new IOException("Connection was not established after "+ attempt + "attempts: " + e.getSQLState());
+            }
+            else{
+                LOGGER.warn("Connection failed - Trying again: Attempt {}/10", attempt);
+                Thread.sleep(1000 * attempt);
+                return openConnection(++attempt);
+            }
+            
         }
     }
 }
