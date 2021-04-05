@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Root.Core.Model.LetsMeetEntity;
 
-public class DemoEntity implements LetsMeetEntity {
+public class DemoEntity extends LetsMeetEntity {
 
     UUID uuid;
 
