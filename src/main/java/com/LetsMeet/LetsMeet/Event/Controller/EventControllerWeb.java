@@ -82,14 +82,16 @@ public class EventControllerWeb {
 
     @PostMapping("/event/{EventUUID}/edit")
     public String updateEvent (HttpSession session, Model model, RedirectAttributes redirectAttributes,
-        @PathVariable("EventUUID") String eventUUID,
-        @RequestParam("file") MultipartFile file, 
-        @RequestParam(name = "eventname") String eventname, 
-        @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation){
+                               @PathVariable("EventUUID") String eventUUID,
+                               @RequestParam("file") MultipartFile file,
+                               @RequestParam(name = "eventname") String eventname,
+                               @RequestParam(name = "eventdesc") String eventdesc,
+                               @RequestParam(name = "eventlocation") String eventlocation,
+                               @RequestParam(name="jsonTimes") String tRanges){
 
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventUUID);
+
         if (user == null || event == null) {
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when editing the event.");
             return "redirect:/Home";
@@ -105,10 +107,18 @@ public class EventControllerWeb {
                 eventService.setProperty(event, "header_image", mediaService.generateURL(path));
             }
 
+            // Update time Ranges
+            // Format input data to DateTimeRange objects
+            List<DateTimeRange> ranges = EventService.processJsonRanges(tRanges);
+
+            // Add time ranges to Event
+            eventService.setTimeRange(event, ranges);
+
             eventDao.update(event);
         }
         catch(Exception e){
             redirectAttributes.addFlashAttribute("accessDenied", "Could not update event. Please try again later.");
+            e.printStackTrace();
             return "redirect:/Home";
         }
 
@@ -154,16 +164,7 @@ public class EventControllerWeb {
             }
 
             // Format input data to DateTimeRange objects
-            List<DateTimeRange> ranges = new ArrayList<>();
-            Gson g = new Gson();
-            JsonObject[] obj = g.fromJson(tRanges, JsonObject[].class);
-            for (int i = 0; i < obj.length; i++) {
-                String s = obj[i].get("start").getAsString();
-                String e = obj[i].get("end").getAsString();
-                var start = ZonedDateTime.parse(s);
-                var end = ZonedDateTime.parse(e);
-                ranges.add(new DateTimeRange(start, end));
-            }
+            List<DateTimeRange> ranges = EventService.processJsonRanges(tRanges);
 
             // Add time ranges to Event
             eventService.setTimeRange(event, ranges);
@@ -263,7 +264,9 @@ public class EventControllerWeb {
             // Get event times
             List<List<String>> times = new ArrayList<>();
             List<String> arr = new ArrayList<>();
+            int rows = -1;
             for(DateTimeRange t : event.getEventProperties().getTimes()){
+                rows += 1;
                 arr.clear();
                 // Start date
                 ZonedDateTime s = t.getStart();
@@ -324,9 +327,16 @@ public class EventControllerWeb {
 
                 arr.add(String.format("%s:%s:%s", h, m, sec));
 
+                // Add input ID's
+                arr.add(String.format("startDay%d", rows));
+                arr.add(String.format("startTime%d", rows));
+                arr.add(String.format("endDay%d", rows));
+                arr.add(String.format("endTime%d", rows));
+
                 times.add(deepCopyStringList(arr));
             }
             model.addAttribute("times", times);
+            model.addAttribute("rows", rows);
 
             return "viewevent";
         }else {

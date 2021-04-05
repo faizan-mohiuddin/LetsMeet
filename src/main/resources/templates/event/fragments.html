@@ -12,7 +12,7 @@
     <div th:fragment="edit">
 
         <form th:action="@{/event/{eventUUID}/edit(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data"
-            method="post">
+            method="post" id="updateForm" name="updateForm">
 
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
@@ -48,8 +48,14 @@
                 <script>
                     // Counter for the rows
                     var dateRowNo = 0;
+
                     $(document).ready(function(){
                         $('.add').click(function(){
+                            // Read dateRowNo
+                            dateRowNo = document.updateForm.rows.value;
+
+                            console.log("Testing here");
+                            console.log(dateRowNo);
 
                             // Day formatting for the generated HTML
                             $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
@@ -73,12 +79,18 @@
                                 '<div class="col">' +
                                 '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
                                 '</div>' +
+                                '<div class="row"></div>' +
+                                '<div class="col">' +
                                 '<p class="btn btn-light remove">Remove</p>' +
+                                '</div>' +
                                 '</div>');
+
+                            // Write dateRowNo
+                            document.updateForm.rows.value = dateRowNo;
                         });
 
                         $(".list").on('click', '.remove', function(){
-                            $(this).parent().remove();
+                            $(this).parent().parent().remove();
                         });
                     });
 
@@ -108,41 +120,48 @@
                 </script>
 
                 <div class="container" id="timeRangeGroup">
-                    <div class="row align-items-start" th:each="t : ${times}">
-                        <label>From:</label>
-                        <div class="col">
-                            <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0"
-                                   th:value="${t[0]}" readonly>
-                        </div>
-                        <div class="col">
-                            <input type="time" class="form-control" step="1" th:id="${'startTime0'}" name="startTimes"
-                            th:value="${t[1]}">
-                        </div>
+                    <div class="col list">
+                        <div class="row align-items-start" th:each="t : ${times}">
+                            <label>From:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" th:id="${t[4]}"
+                                       th:value="${t[0]}" readonly>
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control" step="1" th:id="${t[5]}" name="startTimes"
+                                th:value="${t[1]}">
+                            </div>
 
-                        <label>Until:</label>
-                        <div class="col">
-                            <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0"
-                                   th:value="${t[2]}" readonly>
-                        </div>
-                        <div class="col">
-                            <input type="time" class="form-control" step="1" id="endTime0" name="endTimes"
-                            th:value="${t[3]}">
-                        </div>
-                        <div class="row"></div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Remove</button>
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Add</button>
+                            <label>Until:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" th:id="${t[6]}"
+                                       th:value="${t[2]}" readonly>
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control" step="1" th:id="${t[7]}" name="endTimes"
+                                th:value="${t[3]}">
+                            </div>
+                            <div class="row"></div>
+                            <div class="col">
+                                <p class="btn btn-light remove">Remove</p>
+                            </div>
                         </div>
                     </div>
 
+                    <div class="col">
+                        <p class="btn btn-light add" id="add">Add</p>
+                    </div>
+
+                    <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
+                    <input type="hidden" name="rows" id="rows" th:value="${rows}">
                 </div>
             </div>
 
             <script>
                 function JSONFormatting() {
                     var eventDates = [];
+                    console.log(dateRowNo)
+                    dateRowNo = document.updateForm.rows.value;
                     for (i=0; i<dateRowNo+1; i++) {
                         if (document.getElementById('startDay'+i) !== null) {
                             var startDay = document.getElementById('startDay'+i).value;
@@ -158,8 +177,8 @@
                             console.log(eventDates);
                         }
                     }
-                    document.createForm.jsonTimes.value = JSON.stringify(eventDates);
-                    document.forms["createForm"].submit();
+                    document.updateForm.jsonTimes.value = JSON.stringify(eventDates);
+                    document.forms["updateForm"].submit();
                 }
             </script>
 

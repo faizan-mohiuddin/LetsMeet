@@ -11,6 +11,7 @@ package com.LetsMeet.LetsMeet.Event.Service;
 import java.io.IOException;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +21,8 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
@@ -277,6 +280,24 @@ public class EventService{
         }
     }
 
+    public static List<DateTimeRange> processJsonRanges(String tRanges){
+        List<DateTimeRange> ranges = new ArrayList<>();
+        Gson g = new Gson();
+        JsonObject[] obj = g.fromJson(tRanges, JsonObject[].class);
+        for (int i = 0; i < obj.length; i++) {
+            String s = obj[i].get("start").getAsString();
+            String e = obj[i].get("end").getAsString();
+
+            s = checkTimeRangeForParsing(s);
+            e = checkTimeRangeForParsing(e);
+
+            var start = ZonedDateTime.parse(s);
+            var end = ZonedDateTime.parse(e);
+            ranges.add(new DateTimeRange(start, end));
+        }
+        return ranges;
+    }
+
     public boolean setFacilities(Event event, List<String> facilities) {
         try{
             event.getEventProperties().setFacilities(facilities);
@@ -316,6 +337,30 @@ public class EventService{
         catch(Exception e){
             throw new IllegalArgumentException();
         }
+    }
+
+    private static String checkTimeRangeForParsing(String t){
+        // Check parse-ability of string
+        // Split on T
+        String[] parts = t.split("T");
+        String[] Date = parts[0].split("-");
+        int counter = 0;
+        for(String d : Date){
+            if(d.length() < 2){
+                Date[counter] = "0" + Date[counter];
+            }
+            counter += 1;
+        }
+        // Reconstruct String
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(Date[0]);
+        stringBuilder.append("-");
+        stringBuilder.append(Date[1]);
+        stringBuilder.append("-");
+        stringBuilder.append(Date[2]);
+        stringBuilder.append("T");
+        stringBuilder.append(parts[1]);
+        return stringBuilder.toString();
     }
 }
 
