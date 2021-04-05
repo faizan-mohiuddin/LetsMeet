@@ -233,7 +233,9 @@
       <div class="form-group">
         <label for="eventdesc">When are you available?</label>
         <div class="row px-3">
-          <div class="col list">
+
+
+          <div class="col list" th:if="${response == null}">
             <div class="row">
               <label>From:</label>
               <div class="col">
@@ -252,9 +254,35 @@
               <p class="btn btn-light remove">Remove</p>
             </div>
           </div>
+
+          <div class="col list" th:unless="${response == null}">
+            <div class="row" th:each="t : ${times}">
+              <label>From:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" th:id="${t[4]}"
+                       th:value="${t[0]}" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" th:id="${t[5]}" name="startTimes" th:value="${t[1]}">
+              </div>
+
+              <label>Until:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" th:id="${t[6]}"
+                       th:value="${t[2]}" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" th:id="${t[7]}" name="endTimes" th:value="${t[3]}">
+              </div>
+              <p class="btn btn-light remove">Remove</p>
+            </div>
+          </div>
+
         </div>
-        <p class="btn btn-light add">Add</p>
+
+        <p class="btn btn-light add" id="add">Add</p>
         <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
+        <input type="hidden" name="rows" id="rows" th:value="${numtimes}">
       </div>
 
       <div class="form-group">
@@ -287,9 +315,10 @@
         <label for="eventdesc">What facilities should the venue have? </label>
         <div class="container" id="facilities">
 
-          <div class="row align-items-start">
+          <div class="row align-items-start" th:if="${facilities == null}">
+
             <div class="col">
-              <input type="text" class="form-control" name="facilities"
+              <input type="text" class="form-control" name="responsefacilities"
                      placeholder="Facility Tag...">
             </div>
 
@@ -297,6 +326,20 @@
               <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
             </div>
           </div>
+
+          <div class="row align-items-start" th:unless="${facilities == null}" th:each="f : ${facilities}">
+
+            <div class="col">
+              <input type="text" class="form-control" name="responsefacilities"
+                     placeholder="Facility Tag..." th:value="${f}">
+            </div>
+
+            <div class="col">
+              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+            </div>
+          </div>
+
+
 
           <div class="col">
             <button type="button" class="append" id="append">Add More Facilities</button>
@@ -308,6 +351,7 @@
       <script>
         function JSONFormatting() {
           var eventDates = [];
+          dateRowNo = document.createForm.rows.value;
           for (i=0; i<dateRowNo+1; i++) {
             if (document.getElementById('startDay'+i) !== null) {
               var startDay = document.getElementById('startDay'+i).value;
@@ -333,6 +377,8 @@
         var dateRowNo = 0;
         $(document).ready(function(){
           $('.add').click(function(){
+            // Read dateRowNo
+            dateRowNo = document.createForm.rows.value;
 
             // Day formatting for the generated HTML
             $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
@@ -358,6 +404,9 @@
                     '</div>' +
                     '<p class="btn btn-light remove">Remove</p>' +
                     '</div>');
+
+            // Write dateRowNo
+            document.createForm.rows.value = dateRowNo;
           });
 
           $(".list").on('click', '.remove', function(){
@@ -394,7 +443,7 @@
         $(document).on('click', '.append', function(){
           var html = '<div class="row align-items-start">\n' +
                   '                    <div class="col">\n' +
-                  '                        <input type="text" class="form-control" name="facilities"\n' +
+                  '                        <input type="text" class="form-control" name="responsefacilities"\n' +
                   '                               placeholder="Facility Tag...">\n' +
                   '                    </div>\n' +
                   '\n' +
@@ -406,6 +455,7 @@
 
         });
       </script>
+
       <script>
         function remove(el){
           var myobj = el.parentElement.parentElement;
