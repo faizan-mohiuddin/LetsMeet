@@ -82,14 +82,16 @@ public class EventControllerWeb {
 
     @PostMapping("/event/{EventUUID}/edit")
     public String updateEvent (HttpSession session, Model model, RedirectAttributes redirectAttributes,
-        @PathVariable("EventUUID") String eventUUID,
-        @RequestParam("file") MultipartFile file, 
-        @RequestParam(name = "eventname") String eventname, 
-        @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation){
+                               @PathVariable("EventUUID") String eventUUID,
+                               @RequestParam("file") MultipartFile file,
+                               @RequestParam(name = "eventname") String eventname,
+                               @RequestParam(name = "eventdesc") String eventdesc,
+                               @RequestParam(name = "eventlocation") String eventlocation,
+                               @RequestParam(name="jsonTimes") String tRanges){
 
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventUUID);
+
         if (user == null || event == null) {
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when editing the event.");
             return "redirect:/Home";
@@ -105,10 +107,18 @@ public class EventControllerWeb {
                 eventService.setProperty(event, "header_image", mediaService.generateURL(path));
             }
 
+            // Update time Ranges
+            // Format input data to DateTimeRange objects
+            List<DateTimeRange> ranges = EventService.processJsonRanges(tRanges);
+
+            // Add time ranges to Event
+            eventService.setTimeRange(event, ranges);
+
             eventDao.update(event);
         }
         catch(Exception e){
             redirectAttributes.addFlashAttribute("accessDenied", "Could not update event. Please try again later.");
+            e.printStackTrace();
             return "redirect:/Home";
         }
 
@@ -154,16 +164,7 @@ public class EventControllerWeb {
             }
 
             // Format input data to DateTimeRange objects
-            List<DateTimeRange> ranges = new ArrayList<>();
-            Gson g = new Gson();
-            JsonObject[] obj = g.fromJson(tRanges, JsonObject[].class);
-            for (int i = 0; i < obj.length; i++) {
-                String s = obj[i].get("start").getAsString();
-                String e = obj[i].get("end").getAsString();
-                var start = ZonedDateTime.parse(s);
-                var end = ZonedDateTime.parse(e);
-                ranges.add(new DateTimeRange(start, end));
-            }
+            List<DateTimeRange> ranges = EventService.processJsonRanges(tRanges);
 
             // Add time ranges to Event
             eventService.setTimeRange(event, ranges);
@@ -263,7 +264,9 @@ public class EventControllerWeb {
             // Get event times
             List<List<String>> times = new ArrayList<>();
             List<String> arr = new ArrayList<>();
+            int rows = -1;
             for(DateTimeRange t : event.getEventProperties().getTimes()){
+                rows += 1;
                 arr.clear();
                 // Start date
                 ZonedDateTime s = t.getStart();
@@ -324,9 +327,16 @@ public class EventControllerWeb {
 
                 arr.add(String.format("%s:%s:%s", h, m, sec));
 
+                // Add input ID's
+                arr.add(String.format("startDay%d", rows));
+                arr.add(String.format("startTime%d", rows));
+                arr.add(String.format("endDay%d", rows));
+                arr.add(String.format("endTime%d", rows));
+
                 times.add(deepCopyStringList(arr));
             }
             model.addAttribute("times", times);
+            model.addAttribute("rows", rows);
 
             return "viewevent";
         }else {
@@ -600,7 +610,8 @@ public class EventControllerWeb {
     public String saveResponse(@PathVariable("eventUUID") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session,
                                @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
                                @RequestParam(value="thelat", defaultValue="") String lat,
-                               @RequestParam(value="thelong", defaultValue="") String longitude, @RequestParam(value="responsefacilities") String facilities){
+                               @RequestParam(value="thelong", defaultValue="") String longitude,
+                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities){
         // Get user
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
@@ -613,58 +624,48 @@ public class EventControllerWeb {
             EventResponse response = record.get();
             EventProperties properties = response.getEventProperties();
 
-            // Check user has not already responded
-            if(!(response.hasResponded())) {
-                // Process time ranges
-                List<DateTimeRange> ranges = new ArrayList<>();
-                Gson g = new Gson();
-                JsonObject[] obj = g.fromJson(jsonTimeRanges, JsonObject[].class);
-                for (int i = 0; i < obj.length; i++) {
-                    String s = obj[i].get("start").getAsString();
-                    String e = obj[i].get("end").getAsString();
-                    var start = ZonedDateTime.parse(s);
-                    var end = ZonedDateTime.parse(e);
-                    ranges.add(new DateTimeRange(start, end));
+            // Process time ranges
+            System.out.println("jsonTimeRanges:");
+            System.out.println(jsonTimeRanges);
+            List<DateTimeRange> ranges = EventService.processJsonRanges(jsonTimeRanges);
+
+            properties.setTimes(ranges);
+
+            // Process location
+            // Check all values are in order
+            try {
+                Location location = properties.getLocation();
+                Double dlat = Double.parseDouble(lat);
+                Double dlong = Double.parseDouble(longitude);
+
+                if(!address.equals("")) {
+                    location.setName(address);
+                    location.setLatitude(dlat);
+                    location.setLongitude(dlong);
+                    properties.setLocation(location);
                 }
-
-                properties.setTimes(ranges);
-
-                // Process location
-                // Check all values are in order
-                try {
-                    Location location = properties.getLocation();
-                    Double dlat = Double.parseDouble(lat);
-                    Double dlong = Double.parseDouble(longitude);
-
-                    if(!address.equals("")) {
-                        location.setName(address);
-                        location.setLatitude(dlat);
-                        location.setLongitude(dlong);
-                        properties.setLocation(location);
-                    }
-                }catch(Exception e){
-                    // Ignore
-                }
-
-                // Process facilities
-                if(!facilities.equals("")) {
-                    try {
-                        List<String> facilityList = Arrays.asList(facilities.split(","));
-                        properties.setFacilities(facilityList);
-                    } catch (Exception e) {
-                        System.out.println("VenueService.Search");
-                        System.out.println(e);
-                    }
-                }
-
-
-                // Save response
-                response.setEventProperties(properties);
-                responseService.saveResponse(response);
-
-                // Redirect to event page
-                redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
+            }catch(Exception e){
+                // Ignore
             }
+
+            // Process facilities
+            if(!facilities.equals("")) {
+                try {
+                    List<String> facilityList = Arrays.asList(facilities.split(","));
+                    properties.setFacilities(facilityList);
+                } catch (Exception e) {
+                    System.out.println("VenueService.Search");
+                    System.out.println(e);
+                }
+            }
+
+            // Save response
+            response.setEventProperties(properties);
+            responseService.saveResponse(response);
+
+            // Redirect to event page
+            redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
+
         }
         return destination;
     }
@@ -673,16 +674,116 @@ public class EventControllerWeb {
     public String respondEvent2(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 
         User user = (User) session.getAttribute("userlogin");
+        Event event = eventService.getEvent(eventuuid);
 
         if (user != null){
             model.addAttribute("user", user);
-            model.addAttribute("event", eventService.getEvent(eventuuid));
+            model.addAttribute("event", event);
         }
 
         else { 
             LOGGER.error("Response error");
-            redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
+            redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";
+        }
 
+        // Check if user has already responded (they can edit previous responses)
+        Optional<EventResponse> response = responseService.getResponse(user, event);
+        if(response.isPresent()){
+            if(response.get().hasResponded()){
+                model.addAttribute("response", response.get());
+                EventProperties eventProperties = response.get().getEventProperties();
+                List<DateTimeRange> times = eventProperties.getTimes();
+
+                List<List<String>> strtimes = new ArrayList<>();
+                List<String> arr = new ArrayList<>();
+                int rows = -1;
+                for(DateTimeRange t : event.getEventProperties().getTimes()){
+                    rows += 1;
+                    arr.clear();
+                    // Start date
+                    ZonedDateTime s = t.getStart();
+                    arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
+
+                    // Start time
+                    int hour = s.getHour();
+                    String h;
+                    if(hour < 10){
+                        h = String.format("0%s", hour);
+                    }else{
+                        h = Integer.toString(hour);
+                    }
+
+                    int minute = s.getMinute();
+                    String m;
+                    if(minute < 10){
+                        m = String.format("0%s", minute);
+                    }else{
+                        m = Integer.toString(minute);
+                    }
+
+                    int second = s.getSecond();
+                    String sec;
+                    if(second < 10){
+                        sec = String.format("0%s", second);
+                    }else{
+                        sec = Integer.toString(second);
+                    }
+
+                    arr.add(String.format("%s:%s:%s", h, m, sec));
+
+                    // End date
+                    ZonedDateTime e = t.getEnd();
+                    arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
+
+                    // End time
+                    hour = e.getHour();
+                    if(hour < 10){
+                        h = String.format("0%s", hour);
+                    }else{
+                        h = Integer.toString(hour);
+                    }
+
+                    minute = e.getMinute();
+                    if(minute < 10){
+                        m = String.format("0%s", minute);
+                    }else{
+                        m = Integer.toString(minute);
+                    }
+
+                    second = e.getSecond();
+                    if(second < 10){
+                        sec = String.format("0%s", second);
+                    }else{
+                        sec = Integer.toString(second);
+                    }
+
+                    arr.add(String.format("%s:%s:%s", h, m, sec));
+
+                    // Add input ID's
+                    arr.add(String.format("startDay%d", rows));
+                    arr.add(String.format("startTime%d", rows));
+                    arr.add(String.format("endDay%d", rows));
+                    arr.add(String.format("endTime%d", rows));
+
+                    strtimes.add(deepCopyStringList(arr));
+                }
+
+                model.addAttribute("times", strtimes);
+                model.addAttribute("numtimes", rows);
+
+                // facilities
+                List<String> facilities = eventProperties.getFacilities();
+                if(facilities.size() > 0){
+                    model.addAttribute("facilities", facilities);
+                }else{
+                    model.addAttribute("facilities", null);
+                }
+            }else{
+                model.addAttribute("response", null);
+            }
+        }else{
+            model.addAttribute("response", null);
+        }
 
         return "event/response";
     }
@@ -701,5 +802,11 @@ public class EventControllerWeb {
 
 
         return "event/edit";
+    }
+
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
     }
 }
