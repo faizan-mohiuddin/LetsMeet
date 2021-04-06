@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+    <meta http-equiv='x-ua-compatible' content='ie=edge'>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <div th:insert="header :: navbar"></div>
+
+    <!-- TITLE BAR -->
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Create an Event</h1>
+        </div>
+    </div>
+
+    <!-- DATE PICKER -->
+    <div id='app'>
+        <template>
+            <div class="section text-center">
+                <h4>Time Selection & Timezones</h4>
+                <div class="flex flex-col items-center mb-6">
+                    <v-date-picker mode="dateTime" v-model="range2" is-range :attributes="attrs"></v-date-picker>
+                    <button type="button" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </template>
+
+
+    </div>
+
+
+
+    <!-- 1. Link Vue Javascript -->
+    <script src='https://unpkg.com/vue/dist/vue.js'></script>
+
+    <!-- 2. Link VCalendar Javascript (Plugin automatically installed) -->
+    <script src='https://unpkg.com/v-calendar'></script>
+
+    <!--3. Create the Vue instance-->
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                return {
+                    attrs: [
+                        {
+                            highlight: {
+                                start: { fillMode: 'light' },
+                                base: { fillMode: 'light' },
+                                end: { fillMode: 'light' },
+                            },
+                            dates: { start: new Date(year, month, 21), end: new Date(year, month, 17) },
+                        },
+                        {
+                            key: 'today',
+                            highlight: {
+                                color: 'blue',
+                                fillMode: 'light',
+                                contentClass: 'italic',
+                            },
+                            dates: new Date(year, month, 4),
+                        },
+                        {
+                            highlight: {
+                                color: 'blue',
+                                fillMode: 'light',
+                            },
+                            dates: new Date(year, month, 12),
+                        },
+                        {
+                            highlight: {
+                                color: 'blue',
+                                fillMode: 'light',
+                            },
+                            dates: new Date(year, month, 13),
+                        },
+                    ],
+                };
+            },
+        })
+
+    </script>
+
+
+
+
+
+
+
+</body>

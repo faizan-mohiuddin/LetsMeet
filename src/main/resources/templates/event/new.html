@@ -24,24 +24,117 @@
         </div>
     </div>
 
-    <!-- DATE PICKER -->
-    <div id='app'>
-        <template>
-            <div class="section text-center">
-                <h4>Time Selection & Timezones</h4>
-                <div class="flex flex-col items-center mb-6">
-                    <v-date-picker mode="dateTime" v-model="range2" is-range :attributes="attrs"></v-date-picker>
-                    <button type="button" class="btn btn-primary">Add</button>
+     <!-- MAIN BODY -->
+     <div class="container">
+
+         <!-- ALERTS -->
+        <div th:include="fragments/common :: alerts"></div>
+
+         <!-- EVENT FORM -->
+         <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="@{/v2/event/new}" th:method="PUT">
+            <div class="form-group">
+                <label for="eventname">Event Name: </label>
+                <input type="text" class="form-control form-control-lg" name="name"/><br/>
+                <label for="eventdesc">Image: </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="image">
+                    <label class="custom-file-label" for="customFile">Choose file</label><br/><br/>
                 </div>
+                <label for="eventname">Description </label>
+                <textarea type="text" class="form-control" name="description"></textarea><br/>
+                <input type="hidden" name="location" value="Everywhere"/><br/>
+                <input type="hidden" name="latitude" value="0.0"/>
+                <input type="hidden" name="longitude"value="0.0"/>
+                <input type="hidden" name="radius"value="9.0"/>
+
+                <div class="row">
+                    <div class="col">
+                                      <!-- DATE PICKER -->
+            <div id='app'>
+                <template>
+                    <div class="section text-center">
+                        <div class="flex flex-col items-center mb-6">
+                            <v-date-picker mode="dateTime" v-model="dateRange" is-range is-expanded :attributes="attrs"></v-date-picker>
+                            <!--<span>{{ dateRange.start }}->{{ dateRange.end }}</span>-->
+                            <button
+                            type="button"
+                            class="btn btn-primary btn-block"
+                            :class="date ? 'bg-red-500' : 'bg-red-300'"
+                            :disabled="!date"
+                            @click="addToList()">
+                            Add
+                          </button>
+                        </div>
+                    </div>
+                </template>
             </div>
-        </template>
+                    </div>
+                    <div class="col">
+                        <div class="card w-100 mt-2 bg-light">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-sm-5">
+                                        <div class="row">
+                                            <div class="span4"><b>From:&nbsp; </b></div>
+                                            <div class="span8">
+                                                <p class="card-text">hiya</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <div class="row">
+                                            <div class="span4"><b>To:&nbsp; </b></div>
+                                            <div class="span8">
+                                                <p class="card-text">hiya</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+  
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+            </div>
+        
+            <input type="text" name="times[0]"/><br/><br/>
+            <input type="submit" value="Submit" id="btnSubmit"/>
+
+                <!-- DATE PICKER -->
+            <div id='app'>
+                <template>
+                    <div class="section text-center">
+                        <h4>Time Selection & Timezone</h4>
+                        <div class="flex flex-col items-center mb-6">
+                            <v-date-picker mode="dateTime" v-model="dateRange" is-range :attributes="attrs"></v-date-picker>
+                            <span>{{ date.toISOString() }}</span>
+                            <button
+                            type="button"
+                            class="btn btn-primary"
+                            :class="date ? 'bg-red-500' : 'bg-red-300'"
+                            :disabled="!date"
+                            @click="addToList()">
+                            Add
+                          </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <template class="dateRange" id=basic>
+                <h1 id=start>Hello</h1>
+                <h1 id=end>Hello</h1>
+            </template>
+
+        </form>
+     </div>
 
 
-    </div>
-
-
-
-    <!-- 1. Link Vue Javascript -->
+         <!-- 1. Link Vue Javascript -->
     <script src='https://unpkg.com/vue/dist/vue.js'></script>
 
     <!-- 2. Link VCalendar Javascript (Plugin automatically installed) -->
@@ -55,7 +148,16 @@
                 const date = new Date();
                 const year = date.getFullYear();
                 const month = date.getMonth();
+                const start = new Date();
+                const end = new Date();
+                const dateMarkup = "hi";
                 return {
+                    date: new Date(),
+                    timezone: '',
+                    dateRange: {
+                        start,
+                        end,
+                    },
                     attrs: [
                         {
                             highlight: {
@@ -91,14 +193,22 @@
                     ],
                 };
             },
+            methods: {
+                addToList() {
+                    var vm = this;
+                    var start = this.$data.dateRange.start.toISOString();
+                    var end = this.$data.dateRange.end.toISOString();
+                    console.log('start:\t'+ start + '\nend:\t' + end);
+                    var temp = document.getElementById("basic");
+                    temp.innerHTML = start + '---->' + end;
+                    var clone = temp.content.cloneNode(true);
+                    document.body.appendChild(clone);
+                    
+                    //this.$data.attrs.append();
+                }
+            },
         })
 
     </script>
-
-
-
-
-
-
 
 </body>
