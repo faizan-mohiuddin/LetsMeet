@@ -6,9 +6,11 @@ import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueTimesDAO;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,9 @@ public class VenueService {
 
     @Autowired
     VenueBusinessDAO venueBusinessDAO;
+
+    @Autowired
+    VenueTimesDAO venueTimesDAO;
 
     @Autowired
     BusinessDAO businessDAO;
@@ -133,7 +138,14 @@ public class VenueService {
     public Venue getVenue(String venueUUID){
         Optional<Venue> venue = DAO.get(UUID.fromString(venueUUID));
         if(venue.isPresent()){
-            return venue.get();
+            Venue v = venue.get();
+            try {
+                Optional<VenueOpenTimes> times = venueTimesDAO.get(v.getUUID());
+                times.ifPresent(v::setOpenTimes);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return v;
         }
         return null;
     }
@@ -309,6 +321,14 @@ public class VenueService {
         int len2 = venue.numFacilities();
         if(len2 < len1){
             updateVenue(venue);
+        }
+    }
+
+    public void saveVenueTimes(Venue venue){
+        try {
+            venueTimesDAO.save(venue.getOpenTimes());
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 

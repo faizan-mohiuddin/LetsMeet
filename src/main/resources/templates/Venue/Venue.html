@@ -21,6 +21,7 @@
 
 <div class="container">
     <h2>Facilities within this Venue</h2>
+    <hr class="featurette-divider">
     <div th:if="${facilities}">
         <table class = "table table">
             <thead>
@@ -49,7 +50,7 @@
 
     <div class="alert alert-warning" th:unless="${facilities}">This Venue has no registered facilities.</div>
 
-    <div class="alert alert-warning" th:unless="${venue.getLongitude()}">A location has not been set for this Venue.</div>
+    <div class="alert alert-warning" th:unless="${venue.getLongitude()}">No location has been set for this Venue.</div>
     <div class th:if = "${venue.getLongitude()}">
 
     <input type = "hidden" id = "longitudeformarker" th:value = "${venue.getLongitude()}"/>
@@ -140,6 +141,16 @@
             async
     ></script>
 
+    </div>
+
+    <div class="container">
+        <h2>Venue Opening times</h2>
+        <hr class="featurette-divider">
+        <div class="alert alert-warning" th:if="${openTimes == null}">This Venue has no registered Opening Times.</div>
+
+        <div class="row" th:each="t : ${openTimes}">
+            <p th:text="${t[0] + ':  ' + t[1] + ' -> ' + t[2]}"></p>
+        </div>
     </div>
 
     <div class="container" th:if="${images}">

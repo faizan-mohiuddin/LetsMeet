@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Venue.Controller;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
@@ -91,6 +92,14 @@ public class VenueControllerWeb {
             model.addAttribute("facilities", true);
         }
 
+        VenueOpenTimes openTimes = venue.getOpenTimes();
+        if(openTimes.numTimes() == 0){
+            model.addAttribute("openTimes", null);
+        }else{
+            List<List<String>> times = openTimes.getTimesWithDays();
+            model.addAttribute("openTimes", times);
+        }
+
         LOGGER.info("Venue loading coordinates: " + venue.getLatitude() + ", " + venue.getLongitude());
 
         // Get user
@@ -141,7 +150,8 @@ public class VenueControllerWeb {
                             @RequestParam(value="facilities") String facilities,
                             @RequestParam(value = "venuelocation") String venueLocation,
                             @RequestParam(value = "thelat") String venueLatitude,
-                            @RequestParam(value = "thelong") String venueLongitude){
+                            @RequestParam(value = "thelong") String venueLongitude,
+                            @RequestParam(value="TimeRanges") String timeRanges){
         // Validate user
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
@@ -161,12 +171,20 @@ public class VenueControllerWeb {
 
             Object[] response = venueService.createVenue(user, name, b.getUUID().toString(), facs, venueLocation, venueLatitude, venueLongitude);
             Venue v = (Venue) response[1];
+
+            // Set venue Times ranges
+            VenueOpenTimes times = v.getOpenTimes();
+            times.setTimes(timeRanges);
+            v.setOpenTimes(times);
+            venueService.saveVenueTimes(v);
+
             String redirectAddress = String.format("redirect:/Venue/%s", v.getUUID().toString());
             return redirectAddress;
         }
 
         catch(Exception e){
             redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
+            e.printStackTrace();
             return "redirect:/Home";
         }
     }

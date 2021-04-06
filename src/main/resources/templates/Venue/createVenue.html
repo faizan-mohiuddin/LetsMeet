@@ -308,16 +308,16 @@
             <label for="openingTimes">Venue Opening Times</label>
             <div class="container" id="openingTimes">
 
-                <div class="row">
-                    <select class="DaySelect0">
+                <div class="row my-4">
+                    <select class="DaySelect0" id="DaySelect0">
                         <option selected>Choose Day</option>
-                        <option value="1">Monday</option>
-                        <option value="2">Tuesday</option>
-                        <option value="3">Wednesday</option>
-                        <option value="4">Thursday</option>
-                        <option value="5">Friday</option>
-                        <option value="6">Saturday</option>
-                        <option value="7">Sunday</option>
+                        <option value="2">Monday</option>
+                        <option value="3">Tuesday</option>
+                        <option value="4">Wednesday</option>
+                        <option value="5">Thursday</option>
+                        <option value="6">Friday</option>
+                        <option value="7">Saturday</option>
+                        <option value="1">Sunday</option>
                     </select>
 
                     <div class="col">
@@ -329,6 +329,9 @@
                         <input type="time" class="form-control" step="1" id="ClosingTime0" name="startTimes">
                     </div>
 
+                    <div class="col">
+                        <button type="button" class="btn btn-light" onclick="remove(this)">Remove</button>
+                    </div>
                 </div>
 
                 <div class="col">
@@ -336,15 +339,39 @@
                 </div>
 
                 <input type="hidden" name="rows" id="rows" value="0">
+                <input type="hidden" name="TimeRanges" id="TimeRanges" value="0">
 
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
+        <button onclick="prepSubmission()" class="btn btn-primary">Create</button>
     </form>
 </div>
 <div th:insert = "footer :: footer"></div>
 </body>
+
+<script>
+    function prepSubmission(){
+        var numTimes = document.createForm.rows.value;
+        console.log(numTimes);
+        var records = [];
+        for(i=0; i<numTimes+1; i++){
+            if(document.getElementById('OpeningTime'+i) !== null){
+                var openTime = document.getElementById('OpeningTime'+i).value;
+                var closeTime = document.getElementById('ClosingTime'+i).value;
+                var Day = document.getElementById('DaySelect'+i).value;
+                let record = new Map();
+                record['open'] = openTime;
+                record['close'] = closeTime;
+                record['day'] = Day;
+                records.push(record);
+            }
+            console.log(records);
+            document.createForm.TimeRanges.value = JSON.stringify(records);
+            document.forms["createForm"].submit();
+        }
+    }
+</script>
 
 <script>
     $(document).on('click', '.append', function(){
@@ -363,21 +390,24 @@
     });
 </script>
 
-<script>
+<script >
     $(document).on('click', '.appendDays', function(){
         var RowNo = document.createForm.rows.value;
-        RowNo++;
+        console.log("Getting value:", RowNo);
 
-        var html = '<div class="row"> ' +
-            '<select class="DaySelect0"> ' +
+        RowNo++;
+        console.log("After incrementing:", RowNo);
+
+        var html = '<div class="row my-4"> ' +
+            '<select class="DaySelect'+ RowNo +'" id="DaySelect'+ RowNo +'"> ' +
             '<option selected>Choose Day</option> ' +
-            '<option value="1">Monday</option> ' +
-            '<option value="2">Tuesday</option> ' +
-            '<option value="3">Wednesday</option> ' +
-            '<option value="4">Thursday</option> ' +
-            '<option value="5">Friday</option> ' +
-            '<option value="6">Saturday</option> ' +
-            '<option value="7">Sunday</option> ' +
+            '<option value="2">Monday</option> ' +
+            '<option value="3">Tuesday</option> ' +
+            '<option value="4">Wednesday</option> ' +
+            '<option value="5">Thursday</option> ' +
+            '<option value="6">Friday</option> ' +
+            '<option value="7">Saturday</option> ' +
+            '<option value="1">Sunday</option> ' +
             '</select> ' +
             '<div class="col"> ' +
             '<input type="time" class="form-control" step="1" id="OpeningTime'+ RowNo +'" name="startTimes"> ' +
@@ -388,7 +418,9 @@
 
         $(html).insertBefore(".appendDays").parent().parent();
 
-        document.updateForm.rows.value = RowNo;
+        console.log("Before Writing:", RowNo);
+        document.createForm.rows.value = RowNo;
+        console.log("After writing:", RowNo);
     });
 </script>
 
