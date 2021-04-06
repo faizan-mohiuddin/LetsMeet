@@ -691,82 +691,10 @@ public class EventControllerWeb {
                 EventProperties eventProperties = response.get().getEventProperties();
                 List<DateTimeRange> times = eventProperties.getTimes();
 
-                List<List<String>> strtimes = new ArrayList<>();
-                List<String> arr = new ArrayList<>();
-                int rows = -1;
-                for(DateTimeRange t : event.getEventProperties().getTimes()){
-                    rows += 1;
-                    arr.clear();
-                    // Start date
-                    ZonedDateTime s = t.getStart();
-                    arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
-
-                    // Start time
-                    int hour = s.getHour();
-                    String h;
-                    if(hour < 10){
-                        h = String.format("0%s", hour);
-                    }else{
-                        h = Integer.toString(hour);
-                    }
-
-                    int minute = s.getMinute();
-                    String m;
-                    if(minute < 10){
-                        m = String.format("0%s", minute);
-                    }else{
-                        m = Integer.toString(minute);
-                    }
-
-                    int second = s.getSecond();
-                    String sec;
-                    if(second < 10){
-                        sec = String.format("0%s", second);
-                    }else{
-                        sec = Integer.toString(second);
-                    }
-
-                    arr.add(String.format("%s:%s:%s", h, m, sec));
-
-                    // End date
-                    ZonedDateTime e = t.getEnd();
-                    arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
-
-                    // End time
-                    hour = e.getHour();
-                    if(hour < 10){
-                        h = String.format("0%s", hour);
-                    }else{
-                        h = Integer.toString(hour);
-                    }
-
-                    minute = e.getMinute();
-                    if(minute < 10){
-                        m = String.format("0%s", minute);
-                    }else{
-                        m = Integer.toString(minute);
-                    }
-
-                    second = e.getSecond();
-                    if(second < 10){
-                        sec = String.format("0%s", second);
-                    }else{
-                        sec = Integer.toString(second);
-                    }
-
-                    arr.add(String.format("%s:%s:%s", h, m, sec));
-
-                    // Add input ID's
-                    arr.add(String.format("startDay%d", rows));
-                    arr.add(String.format("startTime%d", rows));
-                    arr.add(String.format("endDay%d", rows));
-                    arr.add(String.format("endTime%d", rows));
-
-                    strtimes.add(deepCopyStringList(arr));
-                }
+                List<List<String>> strtimes = eventService.processTimeRanges(event);
 
                 model.addAttribute("times", strtimes);
-                model.addAttribute("numtimes", rows);
+                model.addAttribute("numtimes", strtimes.size()-1);
 
                 // facilities
                 List<String> facilities = eventProperties.getFacilities();
