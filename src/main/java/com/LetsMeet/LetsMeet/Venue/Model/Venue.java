@@ -209,4 +209,11 @@ public class Venue {
     public void setOpenTimes(VenueOpenTimes t){
         this.openTimes = t;
     }
+
+    public static Boolean CompareDay(String a, String b){
+        if(a.equals(b)){
+            return true;
+        }
+        return false;
+    }
 }

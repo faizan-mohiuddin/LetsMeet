@@ -250,7 +250,8 @@
 </div>
 
 <div class="container">
-    <form th:action="@{/Venue/{VenueID}/edit (VenueID=${venue.getUUID().toString()})}" method = "post">
+    <form th:action="@{/Venue/{VenueID}/edit (VenueID=${venue.getUUID().toString()})}" method = "post" name="updateForm"
+    id="updateForm">
         <div class="form-group">
             <label for="venueName">Venue Name: </label>
             <input type="text" class="form-control" name="venueName" th:value="${venue.getName()}" placeholder="Venue Name...">
@@ -302,12 +303,75 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Update Venue</button>
+
+        <div class="form-group">
+            <label for="openingTimes">Venue Opening Times</label>
+            <div class="container" id="openingTimes">
+
+                <div class="row my-4" th:each="t : ${times}">
+                    <select th:class="${'DaySelect' + t[3]}" th:id="${'DaySelect' + t[3]}">
+                        <option value="2" th:selected="${venue.CompareDay(t[0], '2')}">Monday</option>
+                        <option value="3" th:selected="${venue.CompareDay(t[0], '3')}">Tuesday</option>
+                        <option value="4" th:selected="${venue.CompareDay(t[0], '4')}">Wednesday</option>
+                        <option value="5" th:selected="${venue.CompareDay(t[0], '5')}">Thursday</option>
+                        <option value="6" th:selected="${venue.CompareDay(t[0], '6')}">Friday</option>
+                        <option value="7" th:selected="${venue.CompareDay(t[0], '7')}">Saturday</option>
+                        <option value="1" th:selected="${venue.CompareDay(t[0], '1')}">Sunday</option>
+                    </select>
+
+                    <div class="col">
+                        <label>Opening Time:</label>
+                        <input type="time" class="form-control" step="1" th:id="${'OpeningTime' + t[3]}" name="startTimes" th:value="${t[1]}">
+                    </div>
+                    <div class="col">
+                        <label>Closing Time:</label>
+                        <input type="time" class="form-control" step="1" th:id="${'ClosingTime' + t[3]}" name="startTimes" th:value="${t[2]}">
+                    </div>
+
+                    <div class="col">
+                        <button type="button" class="btn btn-light" onclick="remove(this)">Remove</button>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button type="button" class="appendDays" id="appendDays">Add More Opening Times</button>
+                </div>
+
+                <input type="hidden" name="rows" id="rows" th:value="${numTimes}">
+                <input type="hidden" name="TimeRanges" id="TimeRanges">
+
+            </div>
+        </div>
+
+        <button onclick="prepSubmission()" class="btn btn-primary">Update Venue</button>
     </form>
 </div>
 
 <div th:insert = "footer :: footer"></div>
 </body>
+
+<script>
+    function prepSubmission(){
+        var numTimes = document.updateForm.rows.value;
+        console.log(numTimes);
+        var records = [];
+        for(i=0; i<numTimes+1; i++){
+            if(document.getElementById('OpeningTime'+i) !== null){
+                var openTime = document.getElementById('OpeningTime'+i).value;
+                var closeTime = document.getElementById('ClosingTime'+i).value;
+                var Day = document.getElementById('DaySelect'+i).value;
+                let record = new Map();
+                record['open'] = openTime;
+                record['close'] = closeTime;
+                record['day'] = Day;
+                records.push(record);
+            }
+            console.log(records);
+            document.updateForm.TimeRanges.value = JSON.stringify(records);
+            document.forms["updateForm"].submit();
+        }
+    }
+</script>
 
 <script>
     $(document).on('click', '.append', function(){
@@ -322,6 +386,40 @@
             '                    </div>\n' +
             '                </div>';
         $(html).insertBefore(".append");
+    });
+</script>
+
+<script >
+    $(document).on('click', '.appendDays', function(){
+        var RowNo = document.updateForm.rows.value;
+        console.log("Getting value:", RowNo);
+
+        RowNo++;
+        console.log("After incrementing:", RowNo);
+
+        var html = '<div class="row my-4"> ' +
+            '<select class="DaySelect'+ RowNo +'" id="DaySelect'+ RowNo +'"> ' +
+            '<option selected>Choose Day</option> ' +
+            '<option value="2">Monday</option> ' +
+            '<option value="3">Tuesday</option> ' +
+            '<option value="4">Wednesday</option> ' +
+            '<option value="5">Thursday</option> ' +
+            '<option value="6">Friday</option> ' +
+            '<option value="7">Saturday</option> ' +
+            '<option value="1">Sunday</option> ' +
+            '</select> ' +
+            '<div class="col"> ' +
+            '<input type="time" class="form-control" step="1" id="OpeningTime'+ RowNo +'" name="startTimes"> ' +
+            '</div> ' +
+            '<div class="col"> ' +
+            '<input type="time" class="form-control" step="1" id="ClosingTime'+ RowNo +'" name="startTimes"> ' +
+            '</div> </div>'
+
+        $(html).insertBefore(".appendDays").parent().parent();
+
+        console.log("Before Writing:", RowNo);
+        document.updateForm.rows.value = RowNo;
+        console.log("After writing:", RowNo);
     });
 </script>
 

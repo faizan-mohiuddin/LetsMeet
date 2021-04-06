@@ -256,6 +256,9 @@ public class VenueControllerWeb {
 
             if(venueService.checkUserPermission(venue, user)) {
                 model.addAttribute("venue", venue);
+                List<List<String>> response = venue.getOpenTimes().getTimesWithIndex();
+                model.addAttribute("times", response);
+                model.addAttribute("numTimes", response.size());
                 return "Venue/editVenue";
             }
         }
@@ -270,7 +273,8 @@ public class VenueControllerWeb {
                             @RequestParam(value="facilities", defaultValue = "") String facilities,
                             @RequestParam(value = "venuelocation", defaultValue = "") String venueLocation,
                             @RequestParam(value = "thelat", defaultValue = "") String venueLatitude,
-                            @RequestParam(value = "thelong", defaultValue = "") String venueLongitude){
+                            @RequestParam(value = "thelong", defaultValue = "") String venueLongitude,
+                            @RequestParam(value="TimeRanges") String OpenTimes){
         // Get venue
         Venue venue = venueService.getVenue(venueUUID);
 
@@ -282,6 +286,14 @@ public class VenueControllerWeb {
             if(venueService.checkUserPermission(venue, user)) {
                 // Update venue
                 venueService.updateVenue(venue, name, facilities, venueLocation, venueLatitude, venueLongitude);
+
+                //Update venueTimes
+                VenueOpenTimes times = venue.getOpenTimes();
+                times.setTimes(OpenTimes);
+                venue.setOpenTimes(times);
+                venueService.saveVenueTimes(venue);
+
+                // Redirect to venue page
                 String destination = String.format("redirect:/Venue/%s", venueUUID);
                 return destination;
             }

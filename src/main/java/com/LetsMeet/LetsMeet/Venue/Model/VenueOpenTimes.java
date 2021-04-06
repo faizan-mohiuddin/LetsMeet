@@ -50,11 +50,13 @@ public class VenueOpenTimes {
         }else{
             int index = 0;
             Boolean added = false;
+
             for(List<String> t : this.times){
                 int tday = Integer.parseInt(t.get(0));
                 if(d < tday){
                     this.times.add(index, l);
                     added = true;
+                    break;
                 }
             }
 
@@ -107,5 +109,16 @@ public class VenueOpenTimes {
             timesDays.add(t);
         }
         return timesDays;
+    }
+
+    public List<List<String>> getTimesWithIndex(){
+        List<List<String>> timesIndex = new ArrayList<>();
+        int index = 0;
+        for(List<String> t : this.times){
+            t.add(String.valueOf(index));
+            index += 1;
+            timesIndex.add(t);
+        }
+        return timesIndex;
     }
 }
