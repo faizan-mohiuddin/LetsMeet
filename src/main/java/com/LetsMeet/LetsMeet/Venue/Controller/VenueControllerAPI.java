@@ -1,11 +1,11 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Controller;
+package com.LetsMeet.LetsMeet.Venue.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueSanitised;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueSanitised;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueBusinessService;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package com.LetsMeet.LetsMeet.Business.Model;
 
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,7 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Model;
+package com.LetsMeet.LetsMeet.Venue.Model;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.google.gson.Gson;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.util.*;
 

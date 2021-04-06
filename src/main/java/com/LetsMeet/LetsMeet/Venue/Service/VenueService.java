@@ -1,14 +1,13 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Service;
+package com.LetsMeet.LetsMeet.Venue.Service;
 
 
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
-import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueBusinessDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;

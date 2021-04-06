@@ -249,7 +249,8 @@
 </div>
 
 <div class="container">
-    <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST">
+    <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST"
+          id="createForm" name="createForm">
 
         <div class="form-group">
             <label for="venueName">Venue Name: </label>
@@ -303,6 +304,42 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label for="openingTimes">Venue Opening Times</label>
+            <div class="container" id="openingTimes">
+
+                <div class="row">
+                    <select class="DaySelect0">
+                        <option selected>Choose Day</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                        <option value="7">Sunday</option>
+                    </select>
+
+                    <div class="col">
+                        <label>Opening Time:</label>
+                        <input type="time" class="form-control" step="1" id="OpeningTime0" name="startTimes">
+                    </div>
+                    <div class="col">
+                        <label>Closing Time:</label>
+                        <input type="time" class="form-control" step="1" id="ClosingTime0" name="startTimes">
+                    </div>
+
+                </div>
+
+                <div class="col">
+                    <button type="button" class="appendDays" id="appendDays">Add More Opening Times</button>
+                </div>
+
+                <input type="hidden" name="rows" id="rows" value="0">
+
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
 </div>
@@ -325,6 +362,36 @@
 
     });
 </script>
+
+<script>
+    $(document).on('click', '.appendDays', function(){
+        var RowNo = document.createForm.rows.value;
+        RowNo++;
+
+        var html = '<div class="row"> ' +
+            '<select class="DaySelect0"> ' +
+            '<option selected>Choose Day</option> ' +
+            '<option value="1">Monday</option> ' +
+            '<option value="2">Tuesday</option> ' +
+            '<option value="3">Wednesday</option> ' +
+            '<option value="4">Thursday</option> ' +
+            '<option value="5">Friday</option> ' +
+            '<option value="6">Saturday</option> ' +
+            '<option value="7">Sunday</option> ' +
+            '</select> ' +
+            '<div class="col"> ' +
+            '<input type="time" class="form-control" step="1" id="OpeningTime'+ RowNo +'" name="startTimes"> ' +
+            '</div> ' +
+            '<div class="col"> ' +
+            '<input type="time" class="form-control" step="1" id="ClosingTime'+ RowNo +'" name="startTimes"> ' +
+            '</div> </div>'
+
+        $(html).insertBefore(".appendDays").parent().parent();
+
+        document.updateForm.rows.value = RowNo;
+    });
+</script>
+
 <script>
     function remove(el){
         var myobj = el.parentElement.parentElement;

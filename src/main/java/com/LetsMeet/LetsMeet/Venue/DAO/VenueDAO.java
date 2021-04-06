@@ -1,15 +1,9 @@
-package com.LetsMeet.LetsMeet.Business.Venue.DAO;
+package com.LetsMeet.LetsMeet.Venue.DAO;
 
-import com.LetsMeet.LetsMeet.Business.Model.Business;
-import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerWeb;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.Poll;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
-import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,14 +79,6 @@ public class VenueDAO implements DAO<Venue> {
 
         // Save the event
         try{
-//            PreparedStatement statement;
-//            if(venue.numFacilities() < 1) {
-//                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name) VALUES (?,?)");
-//            }else{
-//                statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, Facilities) VALUES (?,?,?)");
-//                statement.setString(3, venue.getJsonFacilities());
-//            }
-
             PreparedStatement statement = database.getCon().prepareStatement("INSERT INTO Venue (VenueUUID, Name, " +
                             "Facilities, Address, Longitude, Latitude) VALUES (?,?,?,?,?,?)");
 
