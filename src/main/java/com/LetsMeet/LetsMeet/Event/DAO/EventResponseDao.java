@@ -23,9 +23,9 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
+import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
-import com.LetsMeet.LetsMeet.Utilities.DBConnector;
-import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +40,17 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventResponseDao.class);
 
+
     @Autowired
-    DBConnector database;
+    ConnectionService connectionService;
 
     // Get
     //-----------------------------------------------------------------
 
     @Override
     public Optional<EventResponse> get(UUID eventUUID, UUID userUUID) throws IOException {
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             String query = String.format("select * from EventResponse where EventResponse.EventUUID = '%s' and EventResponse.UserUUID = '%s'", eventUUID.toString(),userUUID.toString());
 
             ResultSet rs = statement.executeQuery(query);
@@ -68,7 +70,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
     }
 
     public Optional<List<EventResponse>> get(UUID anyUUID) throws IOException {
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
 
             String query = String.format("select * from EventResponse where EventResponse.EventUUID = '%s' OR EventResponse.UserUUID = '%s'", anyUUID, anyUUID);
 
@@ -101,7 +104,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean save(EventResponse t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, EventProperties, PollResponseUUID, Required) VALUES (?,?,?,?,?)")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO EventResponse (EventUUID, UserUUID, EventProperties, PollResponseUUID, Required) VALUES (?,?,?,?,?)")){
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
             statement.setObject(3, t.getEventProperties());
@@ -122,7 +126,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean update(EventResponse t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, EventProperties = ?, Required = ? WHERE EventUUID = ? AND UserUUID = ?")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("UPDATE EventResponse SET EventUUID = ?, UserUUID = ?, EventProperties = ?, Required = ? WHERE EventUUID = ? AND UserUUID = ?")){
 
             statement.setString(1, t.getEvent().toString());
             statement.setString(2, t.getUser().toString());
@@ -144,7 +149,8 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
     @Override
     public Boolean delete(EventResponse t) throws IOException {
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             String query = String.format("DELETE FROM EventResponse WHERE EventResponse.EventUUID = '%s' AND EventResponse.UserUUID = '%s'",
                     t.getEvent().toString(),t.getUser().toString());
             int rows = statement.executeUpdate(query);

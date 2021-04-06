@@ -25,8 +25,9 @@ import java.util.UUID;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.Poll;
+import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
+import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
-import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
 import com.google.gson.Gson;
 
@@ -47,6 +48,9 @@ public class EventDao implements DAO<Event> {
     @Autowired
     EventPermissionDao hasUsers;
 
+    @Autowired
+    ConnectionService connectionService;
+
     // Get
     //-----------------------------------------------------------------
 
@@ -56,7 +60,8 @@ public class EventDao implements DAO<Event> {
     }
 
     public Optional<Event> get(String uuid) throws IOException {
-        try(Statement statement = DatabaseInterface.get().createStatement()) {
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();) {
             String query = String.format("select * from Event where Event.EventUUID = '%s'", uuid);
 
             ResultSet rs = statement.executeQuery(query);
@@ -71,18 +76,19 @@ public class EventDao implements DAO<Event> {
                 readSerialised(rs.getBytes("EventProperties")),
                 new Gson().fromJson(rs.getString("Poll"), Poll.class)));
 
-            DatabaseInterface.drop();
+            
             return event;
 
         }catch(SQLException e){
-            DatabaseInterface.drop();
+            
             throw new IOException(e.getMessage());
         }
     }
 
     @Override
     public Optional<Collection<Event>> getAll() throws IOException{
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             ResultSet rs = statement.executeQuery("select * from Event");
             List<Event> events = new ArrayList<>();
 
@@ -97,18 +103,19 @@ public class EventDao implements DAO<Event> {
                     new Gson().fromJson(rs.getString("Poll"), Poll.class)));
             }
 
-            DatabaseInterface.drop();
+            
             return Optional.ofNullable(events);
 
         }catch(SQLException e){
-            DatabaseInterface.drop();
+            
             throw new IOException(e.getMessage());
         }  
     }
 
     public Optional<List<Event>> search(String query){
         LOGGER.debug("Event Search: {}", query);
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
             ResultSet rs = statement.executeQuery(query);
 
             List<Event> events = new ArrayList<>();
@@ -138,7 +145,8 @@ public class EventDao implements DAO<Event> {
     public Boolean save(Event t) throws IOException {
 
         // Save the event
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, EventProperties, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO Event (EventUUID, Name, Description, Location, EventProperties, Poll, EntityProperties) VALUES (?,?,?,?,?,?,?)")){
 
             statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getName());
@@ -163,7 +171,8 @@ public class EventDao implements DAO<Event> {
     @Override
     public Boolean update(Event t) throws IOException{
         // Save the event
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE Event SET Name = ?, " +
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("UPDATE Event SET Name = ?, " +
                 "Description = ?, Location = ?, EventProperties = ?, Poll = ?, EntityProperties = ? WHERE EventUUID = ?")){
 
             statement.setString(1, t.getName());
@@ -192,7 +201,8 @@ public class EventDao implements DAO<Event> {
 
     @Override
     public Boolean delete(UUID uuid) throws IOException{
-        try(Statement statement = DatabaseInterface.get().createStatement()){
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();){
         
             String query;
             String eventUUID = uuid.toString();

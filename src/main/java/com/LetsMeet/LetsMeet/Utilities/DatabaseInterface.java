@@ -17,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //-----------------------------------------------------------------
-
+/**
+ * @deprecated Use the new ConnectionService to retrieve a connection object from a shared connection pool
+ */
+@Deprecated(forRemoval = true)
 @Service
 public class DatabaseInterface{
 
