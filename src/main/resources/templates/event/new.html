@@ -37,8 +37,15 @@
                 <input type="text" class="form-control form-control-lg" name="name"/><br/>
                 <label for="eventdesc">Image: </label>
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFile" name="image">
-                    <label class="custom-file-label" for="customFile">Choose file</label><br/><br/>
+                    <div class="row">
+                        <div class="col">
+  
+                        </div>
+                        <div class="col">
+                            <input type="file" class="custom-file-input" id="customFile" name="image">
+                            <label class="custom-file-label" for="customFile">Choose file</label><br/><br/>
+                        </div>
+                    </div>
                 </div>
                 <label for="eventname">Description </label>
                 <textarea type="text" class="form-control" name="description"></textarea><br/>
@@ -46,6 +53,34 @@
                 <input type="hidden" name="latitude" value="0.0"/>
                 <input type="hidden" name="longitude"value="0.0"/>
                 <input type="hidden" name="radius"value="9.0"/>
+                <!-- LOCATION PICKER -->
+                <div class="card">
+                    <div class="card-header">
+                      Location
+                      <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">Enabled</label>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">Where are you?</h5>
+                      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    </div>
+                  </div><br/>
+
+                <div class="card">
+                    <div class="card-header" style="vertical-align: top;">
+                      Dates and Times
+                      <div class="custom-control custom-checkbox" style="vertical-align: auto; float: right;">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">Enabled</label>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">When are you available?</h5>
+                      <p class="card-text">Double click on a date to select it. Click and drag to select multiple.</p>
+                    </div>
+                  </div><br/>
 
                 <div class="row">
                     <div class="col">
@@ -69,39 +104,13 @@
                 </template>
             </div>
                     </div>
-                    <div class="col">
-                        <div class="card w-100 mt-2 bg-light">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-sm-5">
-                                        <div class="row">
-                                            <div class="span4"><b>From:&nbsp; </b></div>
-                                            <div class="span8">
-                                                <p class="card-text">hiya</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-1">
-                                        <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
-                                    </div>
-                                    <div class="col-sm-5">
-                                        <div class="row">
-                                            <div class="span4"><b>To:&nbsp; </b></div>
-                                            <div class="span8">
-                                                <p class="card-text">hiya</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="col" id="timeRangeList">
 
-  
-                                </div>
-                            </div>
-                        </div>
                     </div>
                   </div>
             </div>
         
-            <input type="text" name="times[0]"/><br/><br/>
+            <input type="text" name="times"/><br/><br/>
             <input type="submit" value="Submit" id="btnSubmit"/>
 
                 <!-- DATE PICKER -->
@@ -150,7 +159,6 @@
                 const month = date.getMonth();
                 const start = new Date();
                 const end = new Date();
-                const dateMarkup = "hi";
                 return {
                     date: new Date(),
                     timezone: '',
@@ -197,12 +205,43 @@
                 addToList() {
                     var vm = this;
                     var start = this.$data.dateRange.start.toISOString();
+                    var startLocal = this.$data.dateRange.start.toLocaleString();
                     var end = this.$data.dateRange.end.toISOString();
+                    var endLocal = this.$data.dateRange.end.toLocaleString();
                     console.log('start:\t'+ start + '\nend:\t' + end);
                     var temp = document.getElementById("basic");
                     temp.innerHTML = start + '---->' + end;
                     var clone = temp.content.cloneNode(true);
                     document.body.appendChild(clone);
+                    var dateMarkup = `
+                    <div class="card w-100 mt-2 bg-light">
+                        <div class="card-body">
+                            <input type="hidden" name="times"value="${start}#${end}"/>
+                            <div class="row align-items-center">
+                                <div class="col-sm-5">
+                                    <div class="row">
+                                        <div class="span4"><b>From:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text">${startLocal}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                </div>
+                                <div class="col-sm-5">
+                                    <div class="row">
+                                        <div class="span4"><b>To:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text">${endLocal}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    $("#timeRangeList").append(dateMarkup);
                     
                     //this.$data.attrs.append();
                 }
@@ -210,5 +249,16 @@
         })
 
     </script>
+
+    <style>
+        .card-header#headingOne h2.mb-0 {
+  display:flex;
+  justify-content:space-between;
+}
+
+.fa-pen {
+  font-size: 0.75rem;
+}
+    </style>
 
 </body>
