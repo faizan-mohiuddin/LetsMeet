@@ -1,6 +1,6 @@
 package com.LetsMeet.LetsMeet.DBChecks;
 
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
@@ -8,7 +8,6 @@ import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 
 @Component

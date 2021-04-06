@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventResult.OptimalityLocation;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.GradedProperty;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 
 public class EventLocationSolver {
     
-    private List<OptimalityLocation> solution;
+    private List<GradedProperty<Location>> solution;
     private List<Location> locations;
 
 
@@ -24,11 +24,11 @@ public class EventLocationSolver {
             locations.add(er.getEventProperties().getLocation());
     }
 
-    public List<OptimalityLocation> solve(){
+    public List<GradedProperty<Location>> solve(){
         locations.sort(null);
 
         for (int i = 0; i < locations.size(); i++)
-            solution.add(new OptimalityLocation(locations.get(i), scan(i, -1) + scan(i, 1)));     // Scan for locations within this one to the left (-1) and right (1). Optimality is sum of locations inside.
+            solution.add(new GradedProperty<>(locations.get(i), scan(i, -1) + scan(i, 1)));     // Scan for locations within this one to the left (-1) and right (1). Optimality is sum of locations inside.
 
         return solution;
     }
@@ -50,7 +50,7 @@ public class EventLocationSolver {
         return hitCount;
     }
 
-    public List<OptimalityLocation> getSolution(){
+    public List<GradedProperty<Location>> getSolution(){
         return this.solution;
     }
 

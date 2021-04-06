@@ -6,12 +6,12 @@
 
 package com.LetsMeet.LetsMeet.Event.Service;
 
-import java.io.IOException;
-import java.time.Duration;
-
 //-----------------------------------------------------------------
 
+import java.io.IOException;
+
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +21,8 @@ import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
@@ -29,13 +31,13 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventResultDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventResult;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.LetsMeet.LetsMeet.Utilities.MethodService.deepCopyStringList;
 
 //-----------------------------------------------------------------
 
@@ -144,7 +146,18 @@ public class EventService{
         }
     }
 
-
+    // Returns general search results
+    public List<Event> search(String term){
+        String likeTerm = "'%" + String.format("%s", term) + "%'";
+        String query = String.format("SELECT * FROM Event WHERE Event.EventUUID = '%s' OR " +
+                        "Event.Name LIKE %s OR Event.Description LIKE %s OR Event.Location LIKE %s",
+                term, likeTerm, likeTerm, likeTerm);
+        Optional<List<Event>> events = eventDao.search(query);
+        if(events.isPresent()){
+            return events.get();
+        }
+        return null;
+    }
 
     // Returns a single event as specified
     public Event getEvent(String eventUUID) throws IllegalArgumentException {
@@ -171,46 +184,6 @@ public class EventService{
         return event.getProperties().get(key);
     }
 
-    public EventResult calculateResults(Event event, User user, int duration, boolean requiredUsers) throws IllegalArgumentException{
-        try{
-            if (permissionDao.get(event.getUUID(), user.getUUID()).orElseThrow().getIsOwner() != true) throw new IllegalArgumentException("Insufficient privileges");
-
-            EventResult result;
-            List<EventResponse> responses = responseService.getResponses(event);
-            result = resultDao.get(event.getUUID()).orElseGet(() -> newEventResult(event));
-
-            List<EventResponse> requiredResponses = new ArrayList<>();
-            for (EventResponse response : responses){
-                if (response.getRequired()) requiredResponses.add(response);
-            }
-        
-            EventTimeSolver timeSolver = new EventTimeSolver(getEvent(event.getUUID().toString()), responses);
-
-            timeSolver.solve(1);
-
-            if(duration > 4) timeSolver.withDuration(Duration.ofMinutes(duration));
-            if(requiredUsers) timeSolver.withResponses(requiredResponses);
-
-            result.setUniqueResponses(responses.size());
-            result.setDateTimeRanges(timeSolver.getSolution());
-            resultDao.update(result);
-            return result;
-        }
-        catch(Exception e){
-            throw new IllegalArgumentException("Could not calculate results: " + e.getMessage());
-        }
-    }
-
-    private EventResult newEventResult(Event event){
-        try{
-        EventResult result = new EventResult(event.getUUID(), null);
-        resultDao.save(result);
-        return result;
-        }
-        catch (Exception e){
-            return null;
-        }
-    }
 
     //-----------------------------------------------------------------
     /* -- User related operations --
@@ -288,9 +261,8 @@ public class EventService{
 
 
     // Will add a new period to the time range constraint - use to set the periods that the event could take place.
-    public boolean setTimeRange(UUID eventUuid, List<DateTimeRange> times) {
+    public boolean setTimeRange(Event event, List<DateTimeRange> times) {
         try{
-            Event event = eventDao.get(eventUuid).get();
             event.getEventProperties().setTimes(times);
             return eventDao.update(event);
         }
@@ -310,9 +282,26 @@ public class EventService{
         }
     }
 
-    public boolean setFacilities(UUID eventUUID, List<String> facilities) {
+    public static List<DateTimeRange> processJsonRanges(String tRanges){
+        List<DateTimeRange> ranges = new ArrayList<>();
+        Gson g = new Gson();
+        JsonObject[] obj = g.fromJson(tRanges, JsonObject[].class);
+        for (int i = 0; i < obj.length; i++) {
+            String s = obj[i].get("start").getAsString();
+            String e = obj[i].get("end").getAsString();
+
+            s = checkTimeRangeForParsing(s);
+            e = checkTimeRangeForParsing(e);
+
+            var start = ZonedDateTime.parse(s);
+            var end = ZonedDateTime.parse(e);
+            ranges.add(new DateTimeRange(start, end));
+        }
+        return ranges;
+    }
+
+    public boolean setFacilities(Event event, List<String> facilities) {
         try{
-            Event event = eventDao.get(eventUUID).get();
             event.getEventProperties().setFacilities(facilities);
             return true;
         }
@@ -331,9 +320,8 @@ public class EventService{
         }
     }
 
-    public boolean setLocations(UUID eventUuid, Location location) {
+    public boolean setLocation(Event event, Location location) {
         try{
-            Event event = eventDao.get(eventUuid).get();
             event.getEventProperties().setLocation(location);
             return true;
         }
@@ -351,6 +339,80 @@ public class EventService{
         catch(Exception e){
             throw new IllegalArgumentException();
         }
+    }
+
+    public List<List<String>> processTimeRanges(Event event){
+        List<List<String>> strtimes = new ArrayList<>();
+        List<String> arr = new ArrayList<>();
+        int rows = -1;
+        for(DateTimeRange t : event.getEventProperties().getTimes()){
+            rows += 1;
+            arr.clear();
+            // Start date
+            ZonedDateTime s = t.getStart();
+            arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
+
+            // Start time
+            String h = processTime(s.getHour());
+            String m = processTime(s.getMinute());
+            String sec = processTime(s.getSecond());
+
+            arr.add(String.format("%s:%s:%s", h, m, sec));
+
+            // End date
+            ZonedDateTime e = t.getEnd();
+            arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
+
+            // End time
+            h = processTime(e.getHour());
+            m = processTime(e.getMinute());
+            sec = processTime(e.getSecond());
+
+            arr.add(String.format("%s:%s:%s", h, m, sec));
+
+            // Add input ID's
+            arr.add(String.format("startDay%d", rows));
+            arr.add(String.format("startTime%d", rows));
+            arr.add(String.format("endDay%d", rows));
+            arr.add(String.format("endTime%d", rows));
+
+            strtimes.add(deepCopyStringList(arr));
+        }
+        return strtimes;
+    }
+
+    private static String processTime(int t){
+        String st;
+        if(t < 10){
+            st = String.format("0%s", t);
+        }else{
+            st = Integer.toString(t);
+        }
+        return st;
+    }
+
+    private static String checkTimeRangeForParsing(String t){
+        // Check parse-ability of string
+        // Split on T
+        String[] parts = t.split("T");
+        String[] Date = parts[0].split("-");
+        int counter = 0;
+        for(String d : Date){
+            if(d.length() < 2){
+                Date[counter] = "0" + Date[counter];
+            }
+            counter += 1;
+        }
+        // Reconstruct String
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(Date[0]);
+        stringBuilder.append("-");
+        stringBuilder.append(Date[1]);
+        stringBuilder.append("-");
+        stringBuilder.append(Date[2]);
+        stringBuilder.append("T");
+        stringBuilder.append(parts[1]);
+        return stringBuilder.toString();
     }
 }
 

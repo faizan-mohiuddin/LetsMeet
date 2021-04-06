@@ -1,50 +1,46 @@
 package com.LetsMeet.LetsMeet.Event.Model;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.ResultProperty;
 
 public class EventResult implements Serializable{
     
     private static final long serialVersionUID = -248989502245064846L;
 
-    public static class OptimalityRange implements Serializable{
-        private static final long serialVersionUID = -222100436555521092L;
-        public DateTimeRange range;
-        public Integer optimality;
-
-        public OptimalityRange(DateTimeRange range, Integer optimality){this.range = range; this.optimality = optimality;}
-    }
-
-    public static class OptimalityLocation implements Serializable{
-        private static final long serialVersionUID = -222100466555521092L;
-        public Location location;
-        public Integer optimality;
-
-        public OptimalityLocation(Location range, Integer optimality){this.location = range; this.optimality = optimality;}
-    }
 
 
+    private ResultProperty<DateTimeRange> dates;
+    private ResultProperty<Location> locations;
+    private UUID venueUUID;
     private UUID eventUUID;
-    private List<OptimalityRange> dateTimeRanges;
     private int uniqueResponses;
-    
-    public EventResult(UUID eventUUID, List<OptimalityRange> dateTimeRanges){
-        this.eventUUID = eventUUID;
-        this.dateTimeRanges = dateTimeRanges;
-        uniqueResponses = 0;
+
+
+
+    public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations, int uniqueResponses, UUID venueUUID) {
+    this.dates = dates;
+    this.locations = locations;
+    this.eventUUID = eventUUID;
+    this.uniqueResponses = uniqueResponses;
+    this.venueUUID = venueUUID;
     }
 
-    public List<OptimalityRange> getDateTimeRanges() {
-        return dateTimeRanges;
+    public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations, int uniqueResponses){
+        this(eventUUID, dates, locations, uniqueResponses, UUID.fromString("00000000-0000-0000-0000-000000000000"));
     }
 
-    public void setDateTimeRanges(List<OptimalityRange> dateTimeRanges) {
-        this.dateTimeRanges = dateTimeRanges;
+    public EventResult(UUID eventUUID, ResultProperty<DateTimeRange> dates, ResultProperty<Location> locations) {
+        this(eventUUID, dates, locations, 0);
     }
+
+    public EventResult(UUID eventUUID) {
+        this(eventUUID, new ResultProperty<>() , new ResultProperty<>());
+    }
+
 
     public UUID getEventUUID() {
         return eventUUID;
@@ -64,5 +60,33 @@ public class EventResult implements Serializable{
 
     public float getPercent(int optimality){
         return ((float) optimality /(float)this.uniqueResponses);
+    }
+
+
+    public ResultProperty<DateTimeRange> getDates() {
+        return dates;
+    }
+
+
+    public void setDates(ResultProperty<DateTimeRange> dates) {
+        this.dates = dates;
+    }
+
+
+    public ResultProperty<Location> getLocations() {
+        return locations;
+    }
+
+
+    public void setLocations(ResultProperty<Location> locations) {
+        this.locations = locations;
+    }
+
+    public UUID getVenueUUID() {
+        return venueUUID;
+    }
+
+    public void setVenueUUID(UUID venueUUID) {
+        this.venueUUID = venueUUID;
     }
 }

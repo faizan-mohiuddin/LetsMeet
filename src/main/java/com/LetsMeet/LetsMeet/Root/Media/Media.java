@@ -1,37 +1,26 @@
 package com.LetsMeet.LetsMeet.Root.Media;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
-import org.springframework.web.multipart.MultipartFile;
 
 public class Media {
-    private MultipartFile file;
-    private String path;
+    private Path path;
     private UUID uuid;
-    private UUID owner;
+    private String type;
 
-    public Media(MultipartFile file, String path, UUID uuid, UUID owner) {
-        this.file = file;
+    public Media(UUID uuid, Path path, String type ) {
         this.path = path;
         this.uuid = uuid;
-        this.owner = owner;
+        this.type = type;
     }
 
-
-    public Media(MultipartFile file, String path, UUID owner){
-        this(file, path, UUID.randomUUID(), owner);
+    public Path getPath() {
+        return path;
     }
 
-    public Media(MultipartFile file , UUID owner){
-        this(file, "/misc",UUID.randomUUID(),owner);
-    }
-
-    public MultipartFile getFile() {
-        return file;
-    }
-
-    public void setFile(MultipartFile file) {
-        this.file = file;
+    public void setPath(Path path) {
+        this.path = path;
     }
 
     public UUID getUuid() {
@@ -42,27 +31,12 @@ public class Media {
         this.uuid = uuid;
     }
 
-    public String getPath() {
-        return path;
+    public String getType() {
+        return type;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getURL(){
-        return "/media/"+ this.path +"/" + this.getFilename();
-    }
-
-    public String getFilename(){
-        return this.uuid.toString() + "_" + this.file.getOriginalFilename();
-    }
-
-    public UUID getOwner(){
-        return this.owner;
-    }
-
-    public void setOwner(UUID userUUID){
-        this.owner = userUUID;
-    }
 }

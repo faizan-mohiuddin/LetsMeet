@@ -225,33 +225,64 @@
     </div>
   </div>
 
-  <div class="container">
-    
-  </div>
 
   <div class="container">
-    <form th:action="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}">
+    <div th:include="fragments/common :: alerts"></div>
+    <form th:action="@{/event/{eventuuid}/response(eventuuid = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST" id="createForm" name="createForm">
 
       <div class="form-group">
         <label for="eventdesc">When are you available?</label>
-        <div class="container" id="timeRangeGroup">
-          <div class="row align-items-start">
-            <div class="col-sm-5">
-                <div class="span4">hellllooooooo
-              <input type="datetime" class="form-control datepicker" name="eventlocation" placeholder="From...">
-            </div>
-            </div>
-            <div class="col-sm-5">
-              <input type="datetime" class="form-control datepicker" name="eventlocation" placeholder="Until...">
-            </div>
-            <div class="col">
-              <button type="button" class="btn btn-secondary" onclick="msg()">-</button>
-            </div>
-            <div class="col">
-              <button type="button" class="btn btn-secondary" onclick="msg()">+</button>
+        <div class="row px-3">
+
+
+          <div class="col list" th:if="${response == null}">
+            <div class="row">
+              <label>From:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes">
+              </div>
+              <label>Until:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
+              </div>
+              <p class="btn btn-light remove">Remove</p>
             </div>
           </div>
+
+          <div class="col list" th:unless="${response == null}">
+            <div class="row" th:each="t : ${times}">
+              <label>From:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" th:id="${t[4]}"
+                       th:value="${t[0]}" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" th:id="${t[5]}" name="startTimes" th:value="${t[1]}">
+              </div>
+
+              <label>Until:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" th:id="${t[6]}"
+                       th:value="${t[2]}" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" th:id="${t[7]}" name="endTimes" th:value="${t[3]}">
+              </div>
+              <p class="btn btn-light remove">Remove</p>
+            </div>
+          </div>
+
         </div>
+
+        <p class="btn btn-light add" id="add">Add</p>
+        <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
+        <input type="hidden" name="rows" id="rows" th:value="${numtimes}">
       </div>
 
       <div class="form-group">
@@ -282,10 +313,157 @@
 
       <div class="form-group">
         <label for="eventdesc">What facilities should the venue have? </label>
-        <input type="text" class="form-control" name="responsefacilities" placeholder="Search for facilities...">
+        <div class="container" id="facilities">
+
+          <div class="row align-items-start" th:if="${facilities == null}">
+
+            <div class="col">
+              <input type="text" class="form-control" name="responsefacilities"
+                     placeholder="Facility Tag...">
+            </div>
+
+            <div class="col">
+              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+            </div>
+          </div>
+
+          <div class="row align-items-start" th:unless="${facilities == null}" th:each="f : ${facilities}">
+
+            <div class="col">
+              <input type="text" class="form-control" name="responsefacilities"
+                     placeholder="Facility Tag..." th:value="${f}">
+            </div>
+
+            <div class="col">
+              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+            </div>
+          </div>
+
+
+
+          <div class="col">
+            <button type="button" class="append" id="append">Add More Facilities</button>
+          </div>
+
+        </div>
       </div>
-      
-      <button type="submit" class="btn btn-primary">Confirm</button>
+
+      <script>
+        function JSONFormatting() {
+          var eventDates = [];
+          dateRowNo = document.createForm.rows.value;
+          for (i=0; i<dateRowNo+1; i++) {
+            if (document.getElementById('startDay'+i) !== null) {
+              var startDay = document.getElementById('startDay'+i).value;
+              var startTime = document.getElementById('startTime'+i).value;
+              var endDay = document.getElementById('endDay'+i).value;
+              var endTime = document.getElementById('endTime'+i).value;
+              const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+              const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+              let dateEntry = new Map()
+              dateEntry['start'] = startDate;
+              dateEntry['end'] = endDate;
+              eventDates.push(dateEntry);
+              console.log(eventDates);
+            }
+          }
+          document.createForm.jsonTimes.value = JSON.stringify(eventDates);
+          document.forms["createForm"].submit();
+        }
+      </script>
+
+      <script>
+        // Counter for the rows
+        var dateRowNo = 0;
+        $(document).ready(function(){
+          $('.add').click(function(){
+            // Read dateRowNo
+            dateRowNo = document.createForm.rows.value;
+
+            // Day formatting for the generated HTML
+            $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+            $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+
+            // Incrementing the counter
+            dateRowNo++;
+            $(".list").append(
+                    '<div class="row">' +
+                    '<label>From:</label>' +
+                    '<div class="col">' +
+                    '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
+                    '</div>' +
+                    '<div class="col">' +
+                    '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
+                    '</div>' +
+                    '<label>Until:</label>' +
+                    '<div class="col">' +
+                    '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
+                    '</div>' +
+                    '<div class="col">' +
+                    '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
+                    '</div>' +
+                    '<p class="btn btn-light remove">Remove</p>' +
+                    '</div>');
+
+            // Write dateRowNo
+            document.createForm.rows.value = dateRowNo;
+          });
+
+          $(".list").on('click', '.remove', function(){
+            $(this).parent().remove();
+          });
+        });
+
+        // Day formatting for pre-included HTML
+        $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+
+        // Finding user's time zone
+        var offset = new Date().getTimezoneOffset();
+
+        var plusMinusTimeZone = "";
+        if (offset > 0){
+          plusMinusTimeZone = "-";
+        }else{
+          plusMinusTimeZone = "+";
+        }
+
+        HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
+        if (HoursTimeZone.length < 2){
+          HoursTimeZone = "0" + HoursTimeZone;
+        }
+
+        MinutesTimeZone = Math.abs(offset%60).toString();
+        if (MinutesTimeZone.length < 2){
+          MinutesTimeZone = "0" + MinutesTimeZone;
+        }
+      </script>
+
+      <script>
+        $(document).on('click', '.append', function(){
+          var html = '<div class="row align-items-start">\n' +
+                  '                    <div class="col">\n' +
+                  '                        <input type="text" class="form-control" name="responsefacilities"\n' +
+                  '                               placeholder="Facility Tag...">\n' +
+                  '                    </div>\n' +
+                  '\n' +
+                  '                    <div class="col">\n' +
+                  '                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>\n' +
+                  '                    </div>\n' +
+                  '                </div>';
+          $(html).insertBefore(".append");
+
+        });
+      </script>
+
+      <script>
+        function remove(el){
+          var myobj = el.parentElement.parentElement;
+          myobj.remove();
+        }
+      </script>
+
+      <button onclick="JSONFormatting()" class="btn btn-primary">Create</button>
       <p>You are responding as <span th:text="${user.fName} + ' ' + ${user.lName}"></span></p>
     </form>
   </div>

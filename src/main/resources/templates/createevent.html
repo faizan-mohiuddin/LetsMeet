@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
@@ -80,18 +80,53 @@
     #target {
         width: 345px;
     }
+    
+    input.form-control:read-only {
+        background-color: #fff;
+    }
 </style>
 
 <script>
     // This example requires the Places library. Include the libraries=places
     // parameter when you first load the API. For example:
     // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
+
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
             center: { lat: 55.3781, lng: -2.4360 },
             zoom: 5,
             streetViewControl: false,
             mapTypeControl: false,
+        });
+        infoWindow = new google.maps.InfoWindow();
+        const locationButton = document.createElement("button");
+        locationButton.type = 'button';
+        locationButton.setAttribute('class', 'btn btn-light');
+        locationButton.setAttribute('style', 'margin: 10px;');
+        locationButton.textContent = "Current Location";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setZoom(14);
+                        infoWindow.setPosition(pos);
+                        map.setCenter(pos);
+                    },
+                    () => {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                    }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
         });
         const card = document.getElementById("pac-card");
         map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
@@ -127,7 +162,7 @@
         const infowindow = new google.maps.InfoWindow();
         const infowindowContent = document.getElementById("infowindow-content");
         infowindow.setContent(infowindowContent);
-        const marker = new google.maps.Marker({
+        let marker = new google.maps.Marker({
             map,
             anchorPoint: new google.maps.Point(0, -29),
         });
@@ -135,9 +170,28 @@
             infowindow.close();
             marker.setVisible(false);
             const place = autocomplete.getPlace();
+            document.getElementById("myRange").disabled = false;
 
             document.getElementById('thelat').value = place.geometry.location.lat();
             document.getElementById('thelong').value = place.geometry.location.lng();
+
+            var circle = new google.maps.Circle({
+                map: map,
+                radius: 0,
+                fillColor: '#AA0000',
+                fillOpacity: 0.17,
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+            });
+
+            $('#myRange').change(function() {
+                var new_rad = $(this).val();
+                var rad = new_rad * 1000;
+
+                circle.setRadius(rad);
+            });
+
+            circle.bindTo('center', marker, 'position');
 
             if (!place.geometry || !place.geometry.location) {
                 // User entered the name of a Place that was not suggested and
@@ -179,22 +233,42 @@
         });
 
         var geocoder = new google.maps.Geocoder();
-
-        var markerr;
+        var counter = 0;
 
         function placeMarker(location) {
 
-            if (markerr == null)
+            infowindow.close();
+
+            if (marker == null)
             {
-                markerr = new google.maps.Marker({
-                    position: location,
-                    map: map
-                });
+
             }
             else
             {
-                markerr.setPosition(location);
+                marker.setPosition(location);
             }
+
+            if (counter === 0){
+            var circle = new google.maps.Circle({
+                map: map,
+                radius: 0,
+                fillColor: '#AA0000',
+                fillOpacity: 0.17,
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+            });}
+            // Add circle overlay and bind to marker
+            $('#myRange').change(function() {
+                var new_rad = $(this).val();
+                var rad = new_rad * 1000;
+
+                circle.setRadius(rad);
+            });
+
+            document.getElementById("myRange").disabled = false;
+            circle.bindTo('center', marker, 'position');
+            counter = counter + 1
+
         }
 
         google.maps.event.addListener(map, 'click', function(event) {
@@ -212,7 +286,6 @@
                 }
             });
         });
-
 
         // Sets a listener on a given radio button. The radio buttons specify
         // the countries used to restrict the autocomplete search.
@@ -240,8 +313,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 
-<body>
-
     <div th:insert="header :: navbar"></div>
 
     <div class="jumbotron">
@@ -251,7 +322,8 @@
     </div>
 
     <div class="container">
-        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT">
+        <div th:include="fragments/common :: alerts"></div>
+        <form th:action="@{/createevent}" enctype="multipart/form-data" th:method="PUT" id="createForm" name="createForm">
 
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
@@ -294,9 +366,34 @@
                 <input type="hidden" name="thelong" id="thelong"/>
             </div>
 
+            <div class = "form-group">
+                <label for = "myRange">Radius (km): </label>
+                <input type = "range" id = "myRange" name = "radius" value = "0" disabled = "true">
+                <span id = "demo"></span>
+            </div>
+
+            <script>
+
+                var slider = document.getElementById("myRange");
+                var output = document.getElementById("demo");
+                output.innerHTML = slider.value;
+
+
+                slider.oninput = function() {
+                    output.innerHTML = this.value;
+                }
+
+            </script>
             
         <!-- Scripts for Event Times -->
         <script>
+        // Today's Date
+        var Today = new Date();
+        var DD = String(Today.getDate()).padStart(2, '0');
+        var MM = String(Today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var YYYY = Today.getFullYear();
+        Today = YYYY + '-' + MM + '-' + DD;
+         
         // Counter for the rows
         var dateRowNo = 0;
         $(document).ready(function(){
@@ -312,47 +409,17 @@
         '<div class="row">' +
         '<label>From:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay' + dateRowNo + '">' +
+        '<input type="datetime" value=' + Today + ' class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes" value="09:00:00">' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
-        '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay' + dateRowNo + '">' +
+        '<input type="datetime" value=' + Today + ' class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '">' +
-        '</div>' +
-        '<label>Time Zone:</label>' +
-        '<div class="col">' +
-        '<select name="timezone" class="form-control" id="timeZone' + dateRowNo + '">' +
-        '<option value="+00:00">+00:00</option>' +
-        '<option value="+01:00">+01:00</option>' +
-        '<option value="+02:00">+02:00</option>' +
-        '<option value="+03:00">+03:00</option>' +
-        '<option value="+04:00">+04:00</option>' +
-        '<option value="+05:00">+05:00</option>' +
-        '<option value="+06:00">+06:00</option>' +
-        '<option value="+07:00">+07:00</option>' +
-        '<option value="+08:00">+08:00</option>' +
-        '<option value="+09:00">+09:00</option>' +
-        '<option value="+10:00">+10:00</option>' +
-        '<option value="+11:00">+11:00</option>' +
-        '<option value="+12:00">+12:00</option>' +
-        '<option value="-01:00">-01:00</option>' +
-        '<option value="-02:00">-02:00</option>' +
-        '<option value="-03:00">-03:00</option>' +
-        '<option value="-04:00">-04:00</option>' +
-        '<option value="-05:00">-05:00</option>' +
-        '<option value="-06:00">-06:00</option>' +
-        '<option value="-07:00">-07:00</option>' +
-        '<option value="-08:00">-08:00</option>' +
-        '<option value="-09:00">-09:00</option>' +
-        '<option value="-10:00">-10:00</option>' +
-        '<option value="-11:00">-11:00</option>' +
-        '<option value="-12:00">-12:00</option>' +
-        '</select>' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes" value="17:00:00">' +
         '</div>' +
         '<p class="btn btn-light remove">Remove</p>' +
         '</div>');
@@ -366,57 +433,45 @@
         // Day formatting for pre-included HTML
         $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
         $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
-        // NOT SURE IF THE LINE BELLOW FUNCTIONS
-        $(function() {$(".datetimepicker").datetimepicker({ format: 'hh:mm:ss'})});
+            
+        // Finding user's time zone
+        var offset = new Date().getTimezoneOffset();
+
+        var plusMinusTimeZone = "";
+        if (offset > 0){
+        plusMinusTimeZone = "-";
+        }else{
+        plusMinusTimeZone = "+";
+        }
+
+        HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
+        if (HoursTimeZone.length < 2){
+        HoursTimeZone = "0" + HoursTimeZone;
+        }
+
+        MinutesTimeZone = Math.abs(offset%60).toString();
+        if (MinutesTimeZone.length < 2){
+        MinutesTimeZone = "0" + MinutesTimeZone;
+        }
         </script>
             
             <label>Event Times:</label>
                 <div class="row px-3">
-                   <div class="col list">
+gfdg                   <div class="col list">
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="startDay0">
+                                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control datetimepicker" step="1" id="startTime0">
+                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes" value="09:00:00">
                             </div>
                             <label>Until:</label>
                             <div class="col">
-                                <input type="datetime" class="form-control" placeholder="dd-mm-yyyy" id="endDay0">
+                                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control datetimepicker" step="1" id="endTime0">
-                            </div>
-                            <label>Time Zone:</label>
-                            <div class="col">
-                                <select name="timezone" class="form-control" id="timeZone0">
-                                    <option value="+00:00">+00:00</option>
-                                    <option value="+01:00">+01:00</option>
-                                    <option value="+02:00">+02:00</option>
-                                    <option value="+03:00">+03:00</option>
-                                    <option value="+04:00">+04:00</option>
-                                    <option value="+05:00">+05:00</option>
-                                    <option value="+06:00">+06:00</option>
-                                    <option value="+07:00">+07:00</option>
-                                    <option value="+08:00">+08:00</option>
-                                    <option value="+09:00">+09:00</option>
-                                    <option value="+10:00">+10:00</option>
-                                    <option value="+11:00">+11:00</option>
-                                    <option value="+12:00">+12:00</option>
-                                    <option value="-01:00">-01:00</option>
-                                    <option value="-02:00">-02:00</option>
-                                    <option value="-03:00">-03:00</option>
-                                    <option value="-04:00">-04:00</option>
-                                    <option value="-05:00">-05:00</option>
-                                    <option value="-06:00">-06:00</option>
-                                    <option value="-07:00">-07:00</option>
-                                    <option value="-08:00">-08:00</option>
-                                    <option value="-09:00">-09:00</option>
-                                    <option value="-10:00">-10:00</option>
-                                    <option value="-11:00">-11:00</option>
-                                    <option value="-12:00">-12:00</option>
-                                </select>
+                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes" value="17:00:00">
                             </div>
                             <p class="btn btn-light remove">Remove</p>
                         </div>
@@ -424,9 +479,13 @@
                 </div>
             <p class="btn btn-light add">Add</p>
 
-            <p onclick="JSONFormatting()">TestForJson (Click on me and Look at the Console)</p>
+            <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
 
             <script>
+            // Today's Date
+            document.getElementById("startDay0").value = Today;
+            document.getElementById("endDay0").value = Today;
+             
             function JSONFormatting() {
                 var eventDates = [];
                 for (i=0; i<dateRowNo+1; i++) {
@@ -435,9 +494,8 @@
                         var startTime = document.getElementById('startTime'+i).value;
                         var endDay = document.getElementById('endDay'+i).value;
                         var endTime = document.getElementById('endTime'+i).value;
-                        var timeZone = document.getElementById('timeZone'+i).value;
-                        const startDate = startDay + 'T' + startTime + timeZone;
-                        const endDate = endDay + 'T' + endTime + timeZone;
+                        const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+                        const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
                         let dateEntry = new Map()
                         dateEntry['start'] = startDate;
                         dateEntry['end'] = endDate;
@@ -445,10 +503,12 @@
                         console.log(eventDates);
                     }
                 }
+                document.createForm.jsonTimes.value = JSON.stringify(eventDates);
+                document.forms["createForm"].submit();
             }
             </script>
 
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button onclick="JSONFormatting()" class="btn btn-primary">Create</button>
         </form>
     </div>
     <div th:insert="footer :: footer"></div>

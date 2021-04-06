@@ -18,9 +18,9 @@
     <div th:insert="header :: navbar"></div>
 
     <div class="jumbotron" th:if="${event.properties.properties.get('header_image')}"
-        th:style="'background:url('+ ${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
+        th:style="'background:url('+'/' +${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
         <div class="container">
-            <div class="shadow p-3 mb-5 bg-primary text-white rounded">
+            <div class="shadow p-3 mb-5 bg-light text-dark rounded">
                 <h5>Event:</span></h5>
                 <h1><span th:text="${event.getName()}"></span></h1>
             </div>
@@ -40,8 +40,7 @@
 
     <div class="container">
 
-        <div class="alert alert-success" th:text="${success}" th:if="${success}"></div>
-        <div class="alert alert-danger" th:text="${danger}" th:if="${danger}"></div>
+        <div th:include="fragments/common :: alerts"></div>
 
         <div class="row">
 
@@ -89,21 +88,35 @@
 
             <div class="col-4">
                 <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" th:src="${event.properties.properties.get('header_image')}"
+                    <img class="card-img-top" th:src="'/'+${event.properties.properties.get('header_image')}"
                         th:if="${event.properties.properties.get('header_image')}" alt="Card image cap">
                     <div class="card-body">
                         <div th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
-                        <a th:href="@{/event/{eventuuid}/results?duration=5&attendance=0(eventuuid = ${event.getUUID()})}"
+                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
                             class="btn btn-dark btn-block"><i class="bi bi-calendar-week"></i> Results</a>
                         <a th:href="@{/event/{eventuuid}/respond2(eventuuid = ${event.getUUID()})}"
                             class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Respond</a>
 
                         <div class="alert alert-dark" th:unless="${hasUserRespondedToEvent}"> You have not responded to
                             this event. Let the organiser know your preferences!</div>
-                        <a href="#" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
+                        
+                        <script>
+                        function copy() {
+                            var eventWebsite = document.body.appendChild(document.createElement("input"));
+                            eventWebsite.value = window.location.href;
+                            eventWebsite.focus();
+                            eventWebsite.select();
+                            eventWebsite.setSelectionRange(0, 99999);
+                            document.execCommand('copy');
+                            eventWebsite.parentNode.removeChild(eventWebsite);
+                            alert("Link copied to Your Clipboard");
+                        }    
+                        </script>
+                        
+                        <a onclick="copy()" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
 
@@ -149,8 +162,7 @@
                     <p>Are your sure you want to delete this event?</p>
                 </div>
                 <div class="modal-footer">
-                    <button th:href="@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}"
-                        class="btn btn-danger sm-6">Delete</button>
+                    <a class="btn btn-danger sm-6" th:href=  "@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}" >Delete</a>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
@@ -189,7 +201,7 @@
             
             value = $(this).prop('checked');
             $.ajax({
-                url: `http://localhost:8080/api/Event/${eventID}/Response/${userID}?Token=${apiToken}&required=${value}`,
+                url: `/api/Event/${eventID}/Response/${userID}?Token=${apiToken}&required=${value}`,
                 type: 'PUT',
                 success: function(response){
                     console.log(response);

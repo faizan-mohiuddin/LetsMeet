@@ -19,15 +19,31 @@
     </div>
 
     <div class = "container">
+        <h3>Events</h3>
         <div class="alert alert-warning" th:text="${'No events found'}" th:if="${empty}"></div>
-        
-        <tr th:each = "result : ${results}">
-            <p></p>
-            <a class = "btn btn-text" th:text = "${result.key}" th:href = "@{/event/{eventUUID}(eventUUID = ${result.value})}"></a>
-        </tr>
+        <a style="color:black; text-decoration: none; background-color: transparent;" th:each = "e : ${events}" th:href="@{/event/{eventuuid}(eventuuid = ${e.getUUID()})}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text = "${e.getName()}"></h5>
+                </div>
+            </div>
+        </a>
     </div>
 
+    <hr class="featurette-divider">
 
+    <div class="container">
+        <h3>Venues</h3>
+
+        <a style="color:black; text-decoration: none; background-color: transparent;" th:each = "v : ${venues}" th:href="@{/Venue/{venueID}(venueID = ${v.getUUID()})}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text = "${v.getName()}"></h5>
+                </div>
+            </div>
+        </a>
+
+    </div>
 
     <div th:insert = "footer :: footer"></div>
 

@@ -249,7 +249,8 @@
 </div>
 
 <div class="container">
-    <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST">
+    <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST"
+          id="createForm" name="createForm">
 
         <div class="form-group">
             <label for="venueName">Venue Name: </label>
@@ -303,11 +304,74 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
+        <div class="form-group">
+            <label for="openingTimes">Venue Opening Times</label>
+            <div class="container" id="openingTimes">
+
+                <div class="row my-4">
+                    <select class="DaySelect0" id="DaySelect0">
+                        <option selected>Choose Day</option>
+                        <option value="2">Monday</option>
+                        <option value="3">Tuesday</option>
+                        <option value="4">Wednesday</option>
+                        <option value="5">Thursday</option>
+                        <option value="6">Friday</option>
+                        <option value="7">Saturday</option>
+                        <option value="1">Sunday</option>
+                    </select>
+
+                    <div class="col">
+                        <label>Opening Time:</label>
+                        <input type="time" class="form-control" step="1" id="OpeningTime0" name="startTimes">
+                    </div>
+                    <div class="col">
+                        <label>Closing Time:</label>
+                        <input type="time" class="form-control" step="1" id="ClosingTime0" name="startTimes">
+                    </div>
+
+                    <div class="col">
+                        <button type="button" class="btn btn-light" onclick="remove(this)">Remove</button>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button type="button" class="appendDays" id="appendDays">Add More Opening Times</button>
+                </div>
+
+                <input type="hidden" name="rows" id="rows" value="0">
+                <input type="hidden" name="TimeRanges" id="TimeRanges" value="0">
+
+            </div>
+        </div>
+
+        <button onclick="prepSubmission()" class="btn btn-primary">Create</button>
     </form>
 </div>
 <div th:insert = "footer :: footer"></div>
 </body>
+
+<script>
+    function prepSubmission(){
+        var numTimes = document.createForm.rows.value;
+        console.log(numTimes);
+        var records = [];
+        for(i=0; i<numTimes+1; i++){
+            if(document.getElementById('OpeningTime'+i) !== null){
+                var openTime = document.getElementById('OpeningTime'+i).value;
+                var closeTime = document.getElementById('ClosingTime'+i).value;
+                var Day = document.getElementById('DaySelect'+i).value;
+                let record = new Map();
+                record['open'] = openTime;
+                record['close'] = closeTime;
+                record['day'] = Day;
+                records.push(record);
+            }
+            console.log(records);
+            document.createForm.TimeRanges.value = JSON.stringify(records);
+            document.forms["createForm"].submit();
+        }
+    }
+</script>
 
 <script>
     $(document).on('click', '.append', function(){
@@ -325,6 +389,41 @@
 
     });
 </script>
+
+<script >
+    $(document).on('click', '.appendDays', function(){
+        var RowNo = document.createForm.rows.value;
+        console.log("Getting value:", RowNo);
+
+        RowNo++;
+        console.log("After incrementing:", RowNo);
+
+        var html = '<div class="row my-4"> ' +
+            '<select class="DaySelect'+ RowNo +'" id="DaySelect'+ RowNo +'"> ' +
+            '<option selected>Choose Day</option> ' +
+            '<option value="2">Monday</option> ' +
+            '<option value="3">Tuesday</option> ' +
+            '<option value="4">Wednesday</option> ' +
+            '<option value="5">Thursday</option> ' +
+            '<option value="6">Friday</option> ' +
+            '<option value="7">Saturday</option> ' +
+            '<option value="1">Sunday</option> ' +
+            '</select> ' +
+            '<div class="col"> ' +
+            '<input type="time" class="form-control" step="1" id="OpeningTime'+ RowNo +'" name="startTimes"> ' +
+            '</div> ' +
+            '<div class="col"> ' +
+            '<input type="time" class="form-control" step="1" id="ClosingTime'+ RowNo +'" name="startTimes"> ' +
+            '</div> </div>'
+
+        $(html).insertBefore(".appendDays").parent().parent();
+
+        console.log("Before Writing:", RowNo);
+        document.createForm.rows.value = RowNo;
+        console.log("After writing:", RowNo);
+    });
+</script>
+
 <script>
     function remove(el){
         var myobj = el.parentElement.parentElement;

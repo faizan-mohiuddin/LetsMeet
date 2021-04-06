@@ -2,7 +2,7 @@
 // UserService.java
 // Let's Meet 2021
 //
-// Responsible for perfoming high level BL on User objects
+// Responsible for performing high level BL on User objects
 
 package com.LetsMeet.LetsMeet.User.Service;
 

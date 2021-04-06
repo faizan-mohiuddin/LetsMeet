@@ -12,20 +12,26 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventResult;
+import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
+import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
-import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventResultDao implements DAO<EventResult> {
+
+    @Autowired
+    ConnectionService connectionService;
 
     // Get
     //-----------------------------------------------------------------
 
     @Override
     public Optional<EventResult> get(UUID uuid) throws IOException {
-        try(Statement statement = DatabaseInterface.get().createStatement()) {
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();) {
             String query = String.format("select * from EventResult where EventResult.EventUUID = '%s'", uuid);
 
             ResultSet rs = statement.executeQuery(query);
@@ -33,12 +39,10 @@ public class EventResultDao implements DAO<EventResult> {
 
             Optional<EventResult> eventResponse = Optional.ofNullable(readSerialised(EventResult.class,rs.getBytes("EventResult")));
 
-            DatabaseInterface.drop();
             return eventResponse;
 
         }catch(SQLException e){
-            DatabaseInterface.drop();
-            throw new IOException(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -49,7 +53,8 @@ public class EventResultDao implements DAO<EventResult> {
 
     @Override
     public Boolean save(EventResult t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO EventResult (EventUUID, EventResult) VALUES (?,?)")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO EventResult (EventUUID, EventResult) VALUES (?,?)")){
 
             statement.setString(1, t.getEventUUID().toString());
             statement.setObject(2, t);
@@ -64,7 +69,8 @@ public class EventResultDao implements DAO<EventResult> {
 
     @Override
     public Boolean update(EventResult t) throws IOException {
-        try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("UPDATE EventResult SET EventResult = ? WHERE EventUUID = ?")){
+        try(DatabaseConnector connector = connectionService.get();
+        PreparedStatement statement = connector.getConnection().prepareStatement("UPDATE EventResult SET EventResult = ? WHERE EventUUID = ?")){
 
             statement.setObject(1, t);
             statement.setString(2, t.getEventUUID().toString());

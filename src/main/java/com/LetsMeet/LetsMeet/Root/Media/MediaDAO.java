@@ -32,46 +32,46 @@ public class MediaDAO implements DAO<Media> {
     @Override
     public Optional<Media> get(UUID uuid) {
         // TODO Auto-generated method stub
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public Optional<Collection<Media>> getAll() {
         // TODO Auto-generated method stub
-        return null;
+        return Optional.empty();
     }
+
+    public Boolean save(Media t, InputStream data) throws IOException {
+        // Save database entry
+        save(t);
+
+        // Save local file
+        Path path = Paths.get(config.getdataFolder()).resolve(t.getPath());
+
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+        }
+
+        try {
+            Files.copy(data, path, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
 
     @Override
     public Boolean save(Media t) throws IOException {
-
-        // Check Media object for common errors
-        if (t.getFile() == null){throw new IllegalArgumentException("No media file");}
-        if (t.getFilename().isEmpty()){throw new IllegalArgumentException("invalid name");}
-        if (t.getPath().isEmpty()){throw new IllegalArgumentException("invalid file path");}
-
-        // Save file within file system
-        Path uploadPath = Paths.get(config.getdataFolder() +"\\" + t.getPath());
-        LOGGER.debug("Saving {} to path: {}",t.getFilename(), uploadPath);
-
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        try (InputStream inputStream = t.getFile().getInputStream()) {
-            Path filePath = uploadPath.resolve(t.getFilename());
-            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-        }
-        catch (IOException ioe) {        
-            throw new IOException("Could not save file: " + t.getFile().getOriginalFilename(), ioe);
-        }
 
         // Reference file within database
         try(PreparedStatement statement = DatabaseInterface.get().prepareStatement("INSERT INTO Media (MediaUUID, UserUUID, Type, Path) VALUES (?,?,?,?)")){
 
             statement.setString(1, t.getUuid().toString());
-            statement.setString(2, t.getOwner().toString());
-            statement.setString(3, t.getFile().getContentType());
-            statement.setString(4, t.getURL());
+            statement.setString(4, t.getPath().toString());
+            statement.setString(3, t.getType());
+            statement.setString(2, "not required");
 
             if(statement.executeUpdate() > 0){
                 DatabaseInterface.drop();

@@ -29,9 +29,9 @@
 
 
 
-
+      <div th:insert="fragments/search :: basic_search"></div>
       <div class="btn-group" th:if="${user}">
-        <div th:insert="fragments/search :: basic_search"></div>
+
         <div class="btn-group">    
           <button type="button" class="btn btn-light"> <i class="bi bi-person"></i> Welcome <th th:text="${user.fName}">.</th></button>
           <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"

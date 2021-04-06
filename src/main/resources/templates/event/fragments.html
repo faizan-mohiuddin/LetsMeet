@@ -12,7 +12,7 @@
     <div th:fragment="edit">
 
         <form th:action="@{/event/{eventUUID}/edit(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data"
-            method="post">
+            method="post" id="updateForm" name="updateForm">
 
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
@@ -41,28 +41,147 @@
 
             <div class="form-group">
                 <label for="eventTimes">Event Times:</label>
+
+                <script type="text/javascript"
+                        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+                <script>
+                    // Counter for the rows
+                    var dateRowNo = 0;
+
+                    $(document).ready(function(){
+                        $('.add').click(function(){
+                            // Read dateRowNo
+                            dateRowNo = document.updateForm.rows.value;
+
+                            console.log("Testing here");
+                            console.log(dateRowNo);
+
+                            // Day formatting for the generated HTML
+                            $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+                            $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+
+                            // Incrementing the counter
+                            dateRowNo++;
+                            $(".list").append(
+                                '<div class="row">' +
+                                '<label>From:</label>' +
+                                '<div class="col">' +
+                                '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
+                                '</div>' +
+                                '<div class="col">' +
+                                '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
+                                '</div>' +
+                                '<label>Until:</label>' +
+                                '<div class="col">' +
+                                '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
+                                '</div>' +
+                                '<div class="col">' +
+                                '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
+                                '</div>' +
+                                '<div class="row"></div>' +
+                                '<div class="col">' +
+                                '<p class="btn btn-light remove">Remove</p>' +
+                                '</div>' +
+                                '</div>');
+
+                            // Write dateRowNo
+                            document.updateForm.rows.value = dateRowNo;
+                        });
+
+                        $(".list").on('click', '.remove', function(){
+                            $(this).parent().parent().remove();
+                        });
+                    });
+
+                    // Day formatting for pre-included HTML
+                    $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
+                    $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+
+                    // Finding user's time zone
+                    var offset = new Date().getTimezoneOffset();
+
+                    var plusMinusTimeZone = "";
+                    if (offset > 0){
+                        plusMinusTimeZone = "-";
+                    }else{
+                        plusMinusTimeZone = "+";
+                    }
+
+                    HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
+                    if (HoursTimeZone.length < 2){
+                        HoursTimeZone = "0" + HoursTimeZone;
+                    }
+
+                    MinutesTimeZone = Math.abs(offset%60).toString();
+                    if (MinutesTimeZone.length < 2){
+                        MinutesTimeZone = "0" + MinutesTimeZone;
+                    }
+                </script>
+
                 <div class="container" id="timeRangeGroup">
-                    <div class="row align-items-start">
-                        <div class="col">
-                            <input type="datetime" class="form-control datepicker" name="eventlocation"
-                                placeholder="From...">
-                        </div>
-                        <div class="col">
-                            <input type="datetime" class="form-control datepicker" name="eventlocation"
-                                placeholder="Until...">
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Remove</button>
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-light" onclick="msg()">Add</button>
+                    <div class="col list">
+                        <div class="row align-items-start" th:each="t : ${times}">
+                            <label>From:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" th:id="${t[4]}"
+                                       th:value="${t[0]}" readonly>
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control" step="1" th:id="${t[5]}" name="startTimes"
+                                th:value="${t[1]}">
+                            </div>
+
+                            <label>Until:</label>
+                            <div class="col">
+                                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" th:id="${t[6]}"
+                                       th:value="${t[2]}" readonly>
+                            </div>
+                            <div class="col">
+                                <input type="time" class="form-control" step="1" th:id="${t[7]}" name="endTimes"
+                                th:value="${t[3]}">
+                            </div>
+                            <div class="row"></div>
+                            <div class="col">
+                                <p class="btn btn-light remove">Remove</p>
+                            </div>
                         </div>
                     </div>
 
+                    <div class="col">
+                        <p class="btn btn-light add" id="add">Add</p>
+                    </div>
+
+                    <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
+                    <input type="hidden" name="rows" id="rows" th:value="${rows}">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Save</button>
+            <script>
+                function JSONFormatting() {
+                    var eventDates = [];
+                    dateRowNo = document.updateForm.rows.value;
+                    for (i=0; i<dateRowNo+1; i++) {
+                        if (document.getElementById('startDay'+i) !== null) {
+                            var startDay = document.getElementById('startDay'+i).value;
+                            var startTime = document.getElementById('startTime'+i).value;
+                            var endDay = document.getElementById('endDay'+i).value;
+                            var endTime = document.getElementById('endTime'+i).value;
+                            const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+                            const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+                            let dateEntry = new Map()
+                            dateEntry['start'] = startDate;
+                            dateEntry['end'] = endDate;
+                            eventDates.push(dateEntry);
+                            console.log(eventDates);
+                        }
+                    }
+                    document.updateForm.jsonTimes.value = JSON.stringify(eventDates);
+                    document.forms["updateForm"].submit();
+                }
+            </script>
+
+            <button onclick="JSONFormatting()" class="btn btn-primary">Save</button>
         </form>
 
     </div>
@@ -119,6 +238,20 @@
                 myobj.remove();
             }
         </script>
+    </div>
+
+    <div th:fragment="confirm">
+
+            <form th:action="@{/event/{eventUUID}/results/confirm(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" method="post">
+
+            <div class="form-group">
+                <label for="message">Message (optional) </label>
+                <input type="text" class="form-control" name="message">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Send Confirmation</button>
+        </form>
+
     </div>
 
 </body>

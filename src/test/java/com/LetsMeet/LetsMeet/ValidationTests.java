@@ -3,9 +3,9 @@
 //import com.LetsMeet.LetsMeet.Business.Controller.BusinessControllerAPI;
 //import com.LetsMeet.LetsMeet.Business.Model.Business;
 //import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-//import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerAPI;
-//import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-//import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
+//import com.LetsMeet.LetsMeet.Venue.Controller.VenueControllerAPI;
+//import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+//import com.LetsMeet.LetsMeet.Venue.Service.VenueBusinessService;
 //import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 //import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 //import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;

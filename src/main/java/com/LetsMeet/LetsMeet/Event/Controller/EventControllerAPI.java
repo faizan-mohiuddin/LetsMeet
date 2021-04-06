@@ -100,10 +100,10 @@ public class EventControllerAPI {
         @RequestParam(value = "Token", defaultValue = "") String token){
 
         try{
-            User user = userValidation.getAuthenticatedUser(token);
+            userValidation.getAuthenticatedUser(token);
             Event event = eventService.getEvent(eventUUID);
 
-            eventService.calculateResults(event, user, 5, true);
+            
             return new ResponseEntity<>(eventService.getProperty(event, "results.time"),HttpStatus.OK);
         }
         catch (Exception e){
@@ -190,7 +190,7 @@ public class EventControllerAPI {
                 timeRanges.add(new DateTimeRange(ZonedDateTime.parse(o.get("start")), ZonedDateTime.parse(o.get("end"))));
             }
 
-            return (eventService.setTimeRange(UUID.fromString(eventUUID), timeRanges)) ? "Event times set" : "Event TImes not set";         
+            return (eventService.setTimeRange(eventService.getEvent(eventUUID), timeRanges)) ? "Event times set" : "Event TImes not set";         
         }
         else{
             // return the user validation error
@@ -279,22 +279,28 @@ public class EventControllerAPI {
     // Location
     //-----------------------------------------------------------------
     @GetMapping("api/Event/{EventUUID}/location")
-    public Location getLocation(@PathVariable(value = "EventUUID") String eventUUID){
+    public ResponseEntity<Object> getLocation(@PathVariable(value = "EventUUID") String eventUUID){
+        try{
         Event event =  eventService.getEvent(eventUUID);
-        return event.getEventProperties().getLocation();
+        return new ResponseEntity<>(event.getEventProperties().getLocation(),HttpStatus.OK);
+        }
+        catch(Exception e){
+            LOGGER.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/api/Event/{EventUUID}/location")
-    public ResponseEntity<String> setLocation(
+    public ResponseEntity<Object> setLocation(
                                 @RequestParam(value = "Token", defaultValue = "") String token,
                                 @PathVariable(value = "EventUUID") String eventUUID,
                                 @RequestBody List<Location> locations){
          
         try{
-            userValidation.getAuthenticatedUser(token);
             Event event = eventService.getEvent(eventUUID);
             event.getEventProperties().setLocation(locations.get(0));
-            return new ResponseEntity<>(HttpStatus.OK);
+            eventService.updateEvent(userValidation.getAuthenticatedUser(token), event);
+            return new ResponseEntity<>(event.getEventProperties(),HttpStatus.OK);
             
         }
         catch(Exception e){
