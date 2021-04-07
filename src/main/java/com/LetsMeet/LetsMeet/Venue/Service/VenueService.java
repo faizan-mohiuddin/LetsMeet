@@ -187,9 +187,11 @@ public class VenueService {
         }
     }
 
-    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude, String radius, String time){
+    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
+                              String radius, String time, String hours, String minutes, String day){
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
-        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") && latitude.equals("") && time.equals("")){
+        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") &&
+                latitude.equals("") && time.equals("") && hours.equals("") && minutes.equals("") && day.equals("")){
             Collection<Venue> venues = DAO.getAll().get();
             List<Venue> v = new ArrayList<>(venues);
             return v;
@@ -203,6 +205,9 @@ public class VenueService {
         boolean facilitySearch = false;
         boolean locationSearch = false;
         boolean coordSearch = false;
+        boolean timeSearch = false;
+        boolean durationSearch = false;
+        boolean daySearch = false;
 
         if(name.length() > 0){
             //query = query + String.format("Venue.Name = '%s'", name);
@@ -291,6 +296,57 @@ public class VenueService {
 
             query = query + String.format("Venue.VenueUUID = VenueOpeningTimes.VenueUUID AND '%s' >= VenueOpeningTimes.openHour " +
                     "AND '%s' <= VenueOpeningTimes.closeHour", time, time);
+            timeSearch = true;
+        }
+
+        // Check for duration
+        if((!hours.equals("") || !minutes.equals("")) && timeSearch){
+            query = query + String.format(" AND ");
+
+            // Given time + duration <= venueOpeningTimes.closeHour
+            String[] parts = time.split(":");
+            int givenHours = Integer.parseInt(parts[0]);
+            int givenMinutes = Integer.parseInt(parts[1]);
+
+            int durationHours;
+            int durationMinutes;
+            try{
+                durationHours = Integer.parseInt(hours);
+            }catch(Exception e){
+                durationHours = 0;
+            }
+
+            try{
+                durationMinutes = Integer.parseInt(minutes);
+            }catch(Exception e){
+                durationMinutes = 0;
+            }
+
+            givenMinutes = givenMinutes + durationMinutes;
+            if (givenMinutes >= 60){
+                givenHours += 1;
+                givenMinutes -= 60;
+            }
+
+            givenHours = (givenHours + durationHours) % 24;
+
+            // Reconstruct String
+            String endTime = String.format("%d:%d", givenHours, givenMinutes);
+
+            query = query + String.format("VenueOpeningTimes.closeHour >= '%s'", endTime);
+            durationSearch = true;
+        }
+
+        // Check for day
+        if(!day.equals("") && timeSearch){
+            // Check day is more than 0 and less than 8
+            int d = Integer.parseInt(day);
+            if(d > 0 && d < 8) {
+                query = query + String.format(" AND ");
+
+                query = query + String.format("VenueOpeningTimes.DayOfWeek = '%s'", day);
+                daySearch = true;
+            }
         }
 
         // Check ending of query
