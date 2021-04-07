@@ -189,6 +189,7 @@ public class VenueService {
 
     public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
                               String radius, String time, String hours, String minutes, String day){
+
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
         if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") &&
                 latitude.equals("") && time.equals("") && hours.equals("") && minutes.equals("") && day.equals("")){
@@ -381,6 +382,13 @@ public class VenueService {
             return response.get();
         }
         return null;
+    }
+
+    public List<Venue> searchWithDate(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
+                              String radius, String time, String hours, String minutes, String date){
+        date = date.replaceAll(":", "-");
+        return this.search(name, unparsedFacilitiesList, location, longitude, latitude, radius, time, hours, minutes,
+                String.valueOf(venueTimesDAO.getDayFromDate(date)));
     }
 
     public void removeFacility(Venue venue, String facility){

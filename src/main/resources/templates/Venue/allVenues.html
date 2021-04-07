@@ -58,7 +58,7 @@
                 <div class="col">
                     <label  for="day">Which day are you planning on visiting?</label>
                     <select class="DaySelect" id="DaySelect" name="DaySelect">
-                        <option selected>Choose Day</option>
+                        <option selected value="">Choose Day</option>
                         <option value="2">Monday</option>
                         <option value="3">Tuesday</option>
                         <option value="4">Wednesday</option>
@@ -67,7 +67,21 @@
                         <option value="7">Saturday</option>
                         <option value="1">Sunday</option>
                     </select>
+
+                    <input type="datetime" class="form-control" name="date" placeholder="dd-mm-yyyy" id="date">
+                    <script>
+                        $(function() {$("#date").datepicker({ format: 'yyyy-mm-dd' })});
+
+                        $(function () {
+                            $('.datepicker').datepicker({
+                                format: 'mm-dd-yyyy'
+                            });
+                        });
+                    </script>
+                    <script type="text/javascript"
+                            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
                 </div>
+
             </div>
         </div>
 
