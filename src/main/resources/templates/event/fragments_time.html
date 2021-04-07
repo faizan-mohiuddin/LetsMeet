@@ -19,11 +19,11 @@
                         <!--<span>{{ dateRange.start }}->{{ dateRange.end }}</span>-->
                         <button
                         type="button"
-                        class="btn btn-primary btn-block"
+                        class="btn btn-primary btn-block mt-2"
                         :class="date ? 'bg-red-500' : 'bg-red-300'"
                         :disabled="!date"
-                        @click="addToList()">
-                        Add
+                        @click="addToList()"><i class="bi bi-plus-square"></i>
+                         Add
                       </button>
                     </div>
                 </div>
@@ -96,17 +96,18 @@
                     var end = this.$data.dateRange.end.toISOString();
                     var endLocal = this.$data.dateRange.end.toLocaleString();
                     console.log('start:\t'+ start + '\nend:\t' + end);
-                    var temp = document.getElementById("basic");
-                    temp.innerHTML = start + '---->' + end;
-                    var clone = temp.content.cloneNode(true);
-                    document.body.appendChild(clone);
+                    //var temp = document.getElementById("basic");
+                    //temp.innerHTML = start + '---->' + end;
+                    //var clone = temp.content.cloneNode(true);
+                    //document.body.appendChild(clone);
                     var json = JSON.stringify(this.$data.dateRange);
+                    alert(json);
                     var dateMarkup = `
                     <div class="card w-100 mt-2 bg-light">
                         <div class="card-body">
                             <input type="hidden" name="times"value='[${json}]'/>
                             <div class="row align-items-center">
-                                <div class="col-sm-5">
+                                <div class="col-sm-4">
                                     <div class="row">
                                         <div class="span4"><b>From:&nbsp; </b></div>
                                         <div class="span8">
@@ -114,10 +115,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-1">
+                                <div class="col-sm-2">
                                     <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
                                 </div>
-                                <div class="col-sm-5">
+                                <div class="col-sm-4">
                                     <div class="row">
                                         <div class="span4"><b>To:&nbsp; </b></div>
                                         <div class="span8">
@@ -125,13 +126,33 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-sm-1">
+                                        <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').remove()"><i class="bi bi-x"></i></button>
+                                    </div>
                             </div>
                         </div>
                     </div>
                 `;
                     $("#timeRangeList").append(dateMarkup);
                     
-                    //this.$data.attrs.append();
+                    // Attempt to update calendar attributes
+                    var updateThing = `
+                    {
+                        "highlight": {
+                            "start": { "fillMode": light },
+                            "base": { "fillMode": light },
+                            "end": { "fillMode": light },
+                        },
+                        "dates": "${json}",
+                    },
+                    `;
+
+                    var thing2 = `
+                    {"dates": 2}
+                    `;
+                    
+                    //alert(JSON.parse(updateThing));
+                    //this.$data.attrs.push(JSON.parse(updateThing));
                 }
             },
         })

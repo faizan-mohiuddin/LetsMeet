@@ -20,7 +20,7 @@
     <!-- TITLE BAR -->
     <div class="jumbotron">
         <div class="container">
-            <h1>Create an Event</h1>
+            <h1>New Event</h1>
         </div>
     </div>
 
@@ -35,6 +35,7 @@
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
                 <input type="text" class="form-control form-control-lg" name="name"/><br/>
+                <input type="text" class="form-control form-control-lg" name="yolo"/><br/>
                 <label for="eventdesc">Image: </label>
                 <div class="custom-file">
                     <div class="row">
@@ -56,71 +57,98 @@
                 <!-- LOCATION PICKER -->
                 <div class="card">
                     <div class="card-header">
-                      Location
-                      <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">Enabled</label>
-                      </div>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">Where are you?</h5>
-                      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                    </div>
-                  </div><br/>
-
-                <div class="card">
-                    <div class="card-header" style="vertical-align: top;">
-                      Dates and Times
-                      <div class="custom-control custom-checkbox" style="vertical-align: auto; float: right;">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">Enabled</label>
-                      </div>
-                    </div>
-                    <div class="card-body">
-                      <h5 class="card-title">When are you available?</h5>
-                      <p class="card-text">Double click on a date to select it. Click and drag to select multiple.</p>
-                    </div>
-                  </div><br/>
-
-                <div class="row">
-                    <div class="col">
-                                      <!-- DATE PICKER -->
-                    <div th:include="event/fragments_time :: main"></div>
-                    </div>
-                    <div class="col" id="timeRangeList">
-
-                    </div>
-                  </div>
-            </div>
-        
-            <input type="text" name="times"/><br/><br/>
-            <input type="submit" value="Submit" id="btnSubmit"/>
-
-                <!-- DATE PICKER -->
-            <div id='app'>
-                <template>
-                    <div class="section text-center">
-                        <h4>Time Selection & Timezone</h4>
-                        <div class="flex flex-col items-center mb-6">
-                            <v-date-picker mode="dateTime" v-model="dateRange" is-range :attributes="attrs"></v-date-picker>
-                            <span>{{ date.toISOString() }}</span>
-                            <button
-                            type="button"
-                            class="btn btn-primary"
-                            :class="date ? 'bg-red-500' : 'bg-red-300'"
-                            :disabled="!date"
-                            @click="addToList()">
-                            Add
-                          </button>
+                        Location
+                        <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                            <input type="checkbox" class="custom-control-input" id="customCheck1">
+                            <label class="custom-control-label" for="customCheck1">Enabled</label>
                         </div>
                     </div>
-                </template>
+                    <div class="card-body">
+                        <h5 class="card-title">Where are you?</h5>
+                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    </div>
+                </div><br/>
+
+
+                <!-- DATE AND TIMES -->
+                <div class="card">
+                    <div class="card-header" style="vertical-align: top;">
+                        Dates and Times
+                        <div class="custom-control custom-checkbox" style="vertical-align: auto; float: right;">
+                            <input type="checkbox" class="custom-control-input" id="customCheck1">
+                            <label class="custom-control-label" for="customCheck1">Enabled</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">When are you available?</h5>
+                        <p class="card-text">Double click on a date to select it. Click and drag to select multiple.</p>
+                        <!-- DATE PICKER -->
+                        <div class="row">
+                            <div class="col-sm-5">
+                                          
+                            <div th:include="event/fragments_time :: main"></div>
+                        </div>
+                        <!-- DATE LIST -->
+                        <div class="col" id="timeRangeList">
+                        </div>
+                    </div>
+                </div>
+            </div><br/>
             </div>
 
-            <template class="dateRange" id=basic>
-                <h1 id=start>Hello</h1>
-                <h1 id=end>Hello</h1>
-            </template>
+            <!-- FACILITIES PICKER -->
+            <div class="card">
+                <div class="card-header">
+                    Venue Facilities
+                    <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">Enabled</label>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <h5 class="card-title">What facilities should the venue have?</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>              
+                            <div th:include="event/fragments :: facilities_selector"></div>
+                        </div>
+                        <!-- DATE LIST -->
+                        <div class="col" id="facilitiesList">
+                        </div>
+                    </div>
+                </div>
+            </div><br/>
+
+            <!-- POLL CREATOR -->
+            <div class="card">
+                <div class="card-header">
+                    Participant Polls
+                    <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">Enabled</label>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <h5 class="card-title">Ask some questions!</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>              
+                            <div th:include="event/fragments :: poll_creator"></div>
+                        </div>
+                        <!-- DATE LIST -->
+                        <div class="col" id="pollList">
+                        </div>
+                    </div>
+                </div>
+            </div><br/>
+        
+            <input type="hidden" name="times"/><br/><br/>
+            <input type="hidden" name="polls"/><br/><br/>
+            <input type="submit" value="Submit" id="btnSubmit"/>
 
         </form>
      </div>

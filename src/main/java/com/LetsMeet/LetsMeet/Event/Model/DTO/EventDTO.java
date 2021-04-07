@@ -30,11 +30,14 @@ public class EventDTO {
     //@NotEmpty // TODO validate that length is not odd
     private String[] times;
 
+    private String[] facilities;
+
+    private String[] polls;
+
     private MultipartFile image;
 
-    public EventDTO(@Size(min = 3, max = 50) String name, @Size(max = 500) String description,
-            @Size(min = 3, max = 50) String location, @NotEmpty double latitude, @NotEmpty double longitude,
-            @NotEmpty double radius, @NotEmpty String[] times, MultipartFile image) {
+    public EventDTO(String name, String description, String location, double latitude, double longitude, double radius,
+            String[] times, String[] facilities, String[] polls, MultipartFile image) {
         this.name = name;
         this.description = description;
         this.location = location;
@@ -42,6 +45,8 @@ public class EventDTO {
         this.longitude = longitude;
         this.radius = radius;
         this.times = times;
+        this.facilities = facilities;
+        this.polls = polls;
         this.image = image;
     }
 
@@ -101,6 +106,22 @@ public class EventDTO {
         this.times = times;
     }
 
+    public String[] getFacilities() {
+        return facilities;
+    }
+
+    public void setFacilities(String[] facilities) {
+        this.facilities = facilities;
+    }
+
+    public String[] getPolls() {
+        return polls;
+    }
+
+    public void setPolls(String[] polls) {
+        this.polls = polls;
+    }
+
     public MultipartFile getImage() {
         return image;
     }
@@ -108,6 +129,10 @@ public class EventDTO {
     public void setImage(MultipartFile image) {
         this.image = image;
     }
+
+
+
+    
 
     
 }
