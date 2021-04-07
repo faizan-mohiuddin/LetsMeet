@@ -36,6 +36,11 @@
                    placeholder="Enter location...">
         </div>
 
+        <div class="form-group">
+            <label for="openTime">When must the Venue be open?:</label>
+            <input type="time" class="form-control" step="1" id="time" name="time">
+        </div>
+
         <button type="submit" class="btn btn-primary">Search</button>
         <a th:href="@{/Venues}" class="btn btn-primary">Reset</a>
     </form>

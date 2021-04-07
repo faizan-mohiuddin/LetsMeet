@@ -187,20 +187,22 @@ public class VenueService {
         }
     }
 
-    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude, String radius){
+    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude, String radius, String time){
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
-        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") && latitude.equals("")){
+        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") && latitude.equals("") && time.equals("")){
             Collection<Venue> venues = DAO.getAll().get();
             List<Venue> v = new ArrayList<>(venues);
             return v;
         }
 
         // Build a query to execute
-        String query = String.format("SELECT * FROM Venue WHERE ");
+        String query = String.format("SELECT DISTINCT Venue.VenueUUID, Venue.Name, Venue.Facilities, Venue.Address, Venue.Longitude, Venue.Latitude " +
+                "FROM Venue, VenueOpeningTimes WHERE ");
 
         boolean nameSearch = false;
         boolean facilitySearch = false;
         boolean locationSearch = false;
+        boolean coordSearch = false;
 
         if(name.length() > 0){
             //query = query + String.format("Venue.Name = '%s'", name);
@@ -270,6 +272,7 @@ public class VenueService {
                                 "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
                                 " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
                         dlat, this.p, dlat, this.p, this.p, dlong, this.p, dradius);
+                coordSearch = true;
             }catch (Exception e){
                 // We dont care, carry on with the rest of the search
                 if(!(locationSearch || nameSearch || facilitySearch)){
@@ -278,6 +281,16 @@ public class VenueService {
                     return v;
                 }
             }
+        }
+
+        // Check for time
+        if(!time.equals("")){
+            if(nameSearch || facilitySearch || locationSearch || coordSearch){
+                query = query + String.format(" AND ");
+            }
+
+            query = query + String.format("Venue.VenueUUID = VenueOpeningTimes.VenueUUID AND '%s' >= VenueOpeningTimes.openHour " +
+                    "AND '%s' <= VenueOpeningTimes.closeHour", time, time);
         }
 
         // Check ending of query

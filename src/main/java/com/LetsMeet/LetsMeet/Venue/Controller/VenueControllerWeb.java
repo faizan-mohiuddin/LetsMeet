@@ -196,7 +196,8 @@ public class VenueControllerWeb {
                                @RequestParam(value="location", defaultValue = "") String searchLocation,
                                @RequestParam(value="longitdue", defaultValue = "") String longitude,
                                @RequestParam(value="latitude", defaultValue = "") String latitude,
-                               @RequestParam(value="radius", defaultValue = "") String radius){
+                               @RequestParam(value="radius", defaultValue = "") String radius,
+                               @RequestParam(value="time", defaultValue = "") String time){
 
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
@@ -207,7 +208,7 @@ public class VenueControllerWeb {
         }
 
         // Search for events by what is given
-        List<Venue> venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius);
+        List<Venue> venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius, time);
         model.addAttribute("venues", venues);
 
         return "Venue/allVenues";
