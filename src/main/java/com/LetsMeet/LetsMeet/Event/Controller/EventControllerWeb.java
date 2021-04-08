@@ -608,7 +608,7 @@ public class EventControllerWeb {
                                @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
                                @RequestParam(value="thelat", defaultValue="") String lat,
                                @RequestParam(value="thelong", defaultValue="") String longitude,
-                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities){
+                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities, @RequestParam(value="radius", defaultValue="") String radius){
         // Get user
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
@@ -634,11 +634,13 @@ public class EventControllerWeb {
                 Location location = properties.getLocation();
                 Double dlat = Double.parseDouble(lat);
                 Double dlong = Double.parseDouble(longitude);
+                Double dRadius = Double.parseDouble(radius);
 
                 if(!address.equals("")) {
                     location.setName(address);
                     location.setLatitude(dlat);
                     location.setLongitude(dlong);
+                    location.setRadius(dRadius);
                     properties.setLocation(location);
                 }
             }catch(Exception e){
@@ -660,6 +662,7 @@ public class EventControllerWeb {
             response.setEventProperties(properties);
             responseService.saveResponse(response);
 
+            System.out.println(response.getEventProperties().getLocation().getRadius());
             // Redirect to event page
             redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
 
