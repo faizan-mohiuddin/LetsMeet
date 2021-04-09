@@ -359,7 +359,8 @@
                     var options = $(this).closest("div.modal-content").find("input[name='Option']");
                     var i = 0
                     for (i = 0; i < options.length; i++) {
-                        poll.options.push(options[i].value);
+                        //poll.options.push(options[i].value);
+                        poll.options.push([options[i].value, 0])
                     } 
                     console.log(`Poll <${poll.name}> with multiselect=${poll.multiselect} created with options <${poll.options}>`);
                     var json = JSON.stringify(poll);

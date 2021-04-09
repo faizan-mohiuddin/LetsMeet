@@ -10,6 +10,7 @@ public class Events {
         Event event = new Event(eventDTO.getName());
         event.setLocation(eventDTO.getLocation());
         event.setDescription(eventDTO.getLocation());
+        event.getEventProperties().setFacilities(eventDTO.getFacilities());
         //TODO event.setProperties(properties);
         return event;
     }

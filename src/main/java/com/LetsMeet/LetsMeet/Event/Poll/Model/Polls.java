@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Poll.Model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.thymeleaf.expression.Lists;
 
 public class Polls {
 
@@ -38,7 +41,10 @@ public class Polls {
      */
     public static Poll fromJson(String json){
         Gson gson = new Gson();
-        pollInputParams input = gson.fromJson(json, pollInputParams.class);
-        return of(input.options, input.multiselect, input.name);
+        Poll poll = gson.fromJson(json, Poll.class);
+        if (poll.getUUID()==null){
+            poll.setUUID(UUID.randomUUID());
+        }
+        return poll;
     }
 }

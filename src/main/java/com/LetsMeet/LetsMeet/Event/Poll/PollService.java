@@ -40,7 +40,7 @@ public class PollService {
         PollResponse response = PollResponses.forPoll(poll, choices);
         return addResponse(poll, response);
     }
-
+    
     public boolean addResponse(Poll poll, PollResponse response){
         try{
             // Increase values in the poll

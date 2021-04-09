@@ -20,9 +20,12 @@
     <!-- TITLE BAR -->
     <div class="jumbotron">
         <div class="container">
-            <h1>New Event</h1>
+            <h1 th:text="${title}">New Event</h1>
+            
         </div>
     </div>
+
+    
 
      <!-- MAIN BODY -->
      <div class="container">
@@ -34,8 +37,7 @@
          <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="@{/v2/event/new}" th:method="PUT">
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
-                <input type="text" class="form-control form-control-lg" name="name"/><br/>
-                <input type="text" class="form-control form-control-lg" name="yolo"/><br/>
+                <input type="text" class="form-control form-control-lg" name="name" th:value="${event.getName()}"/><br/>
                 <label for="eventdesc">Image: </label>
                 <div class="custom-file">
                     <div class="row">
@@ -49,11 +51,11 @@
                     </div>
                 </div>
                 <label for="eventname">Description </label>
-                <textarea type="text" class="form-control" name="description"></textarea><br/>
-                <input type="hidden" name="location" value="Everywhere"/><br/>
-                <input type="hidden" name="latitude" value="0.0"/>
-                <input type="hidden" name="longitude"value="0.0"/>
-                <input type="hidden" name="radius"value="9.0"/>
+                <textarea type="text" class="form-control" name="description" placeholder="Description..." th:text="${event.getDescription()}"></textarea><br/>
+                <input type="hidden" name="location" th:value="${event.location}"/>
+                <input type="hidden" name="latitude" th:value="${event.latitude}"/>
+                <input type="hidden" name="longitude" th:value="${event.longitude}"/>
+                <input type="hidden" name="radius" th:value="${event.radius}"/>
                 <!-- LOCATION PICKER -->
                 <div class="card">
                     <div class="card-header">
@@ -90,6 +92,38 @@
                         </div>
                         <!-- DATE LIST -->
                         <div class="col" id="timeRangeList">
+                            <div th:each="time : ${times}">
+                                <div class="card w-100 mt-2 bg-light">
+                                    <div class="card-body">
+                                        <input hidden type="text" name="times" th:value='${time.json}'/>
+                                        <div class="row align-items-center">
+                                            <div class="col-sm-4">
+                                                <div class="row">
+                                                    <div class="span4"><b>From:&nbsp; </b></div>
+                                                    <div class="span8">
+                                                        <p class="card-text" th:text="${time.startDate} + ${time.startTime}  "></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="row">
+                                                    <div class="span4"><b>To:&nbsp; </b></div>
+                                                    <div class="span8">
+                                                        <p class="card-text" th:text="${time.endDate} + ${time.endTime}  "></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                    <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').remove()"><i class="bi bi-x"></i></button>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -116,6 +150,25 @@
                         </div>
                         <!-- DATE LIST -->
                         <div class="col" id="facilitiesList">
+                            <div th:each="facility : ${event.facilities}">
+                                <div class="card w-100 mt-2 bg-light">
+                                    <div class="card-body">
+                                        <input hidden type="text" name="facilities"value='[${serviceName}]'/>
+                                        <div class="row align-items-center">
+                                            <div class="col-sm-10">
+                                                <div class="row">
+                                                    <div class="span10">
+                                                        <p class="card-text"th:text="${facility}">${serviceName}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

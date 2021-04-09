@@ -30,19 +30,19 @@ public class EventDTO {
     @NotNull
     private double radius;
 
-    @NotEmpty // TODO validate that length is not odd
+    //@NotEmpty // TODO validate that length is not odd
     private List<String> times;
 
-    @NotNull
+    //@NotNull
     private List<String> facilities;
 
-    @NotNull
+    //@NotNull
     private List<String> polls;
 
-    @NotNull
+    //@NotNull
     private MultipartFile image;
 
-    @NotNull
+    //@NotNull
     private List<String> properties;
 
     public EventDTO(String uuid, String name, String description, String location, double latitude, double longitude,

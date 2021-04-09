@@ -103,5 +103,9 @@ public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
 
     }
 
+    public String toJson(){
+        return String.format(" {\"start\":\"%s\",\"end\":\"%s\"} ", this.start.toString(), this.end.toString());
+    }
+
     
 }

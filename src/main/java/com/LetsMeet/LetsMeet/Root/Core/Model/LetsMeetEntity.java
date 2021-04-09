@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class LetsMeetEntity {
 
-    UUID uuid;
-    String name;
+    public UUID uuid;
+    public String name;
 
     public LetsMeetEntity(UUID uuid, String name) {
         this.uuid = uuid;
