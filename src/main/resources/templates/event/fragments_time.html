@@ -25,6 +25,12 @@
                         @click="addToList()"><i class="bi bi-plus-square"></i>
                          Add
                       </button>
+                      <button
+                      type="button"
+                      class="btn btn-link btn-block"
+                      @click="importFile()"><i class="bi bi-cloud-upload"></i>
+                       Power user? Import file
+                    </button>
                     </div>
                 </div>
             </template>
@@ -54,39 +60,19 @@
                         end,
                     },
                     attrs: [
-                        {
-                            highlight: {
-                                start: { fillMode: 'light' },
-                                base: { fillMode: 'light' },
-                                end: { fillMode: 'light' },
-                            },
-                            dates: { start: new Date(year, month, 21), end: new Date(year, month, 17) },
-                        },
-                        {
-                            key: 'today',
-                            highlight: {
-                                color: 'blue',
-                                fillMode: 'light',
-                                contentClass: 'italic',
-                            },
-                            dates: new Date(year, month, 4),
-                        },
-                        {
-                            highlight: {
-                                color: 'blue',
-                                fillMode: 'light',
-                            },
-                            dates: new Date(year, month, 12),
-                        },
-                        {
-                            highlight: {
-                                color: 'blue',
-                                fillMode: 'light',
-                            },
-                            dates: new Date(year, month, 13),
-                        },
+
                     ],
                 };
+            },
+            mounted(){
+                var range = $(".card-title");
+
+                console.log(range.length);
+                var i;
+                for (i = 0; i < range.length; i++) {
+                    console.log(range[i].innerHTML);
+                } 
+                console.log("beforeMount complete!")
             },
             methods: {
                 addToList() {
@@ -127,7 +113,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-1">
-                                        <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').remove()"><i class="bi bi-x"></i></button>
+                                        <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
                                     </div>
                             </div>
                         </div>
@@ -135,26 +121,31 @@
                 `;
                     $("#timeRangeList").append(dateMarkup);
                     
-                    // Attempt to update calendar attributes
-                    var updateThing = `
-                    {
-                        "highlight": {
-                            "start": { "fillMode": light },
-                            "base": { "fillMode": light },
-                            "end": { "fillMode": light },
+                    // Update calendar attributes;
+                    var thing = {
+                        highlight: {
+                            start: { fillMode: 'light' },
+                            base: { fillMode: 'light' },
+                            end: { fillMode: 'light' },
                         },
-                        "dates": "${json}",
-                    },
-                    `;
+                        dates: { start: this.$data.dateRange.start, end: this.$data.dateRange.end },
+                    };
 
-                    var thing2 = `
-                    {"dates": 2}
-                    `;
-                    
-                    //alert(JSON.parse(updateThing));
-                    //this.$data.attrs.push(JSON.parse(updateThing));
-                }
+                    this.attrs.push(thing);
+                },
+                importFile(){
+                var fileSelector = document.createElement('input');
+                fileSelector.setAttribute('type', 'file');
+
+                var selectDialogueLink = document.createElement('a');
+                selectDialogueLink.setAttribute('href', '');
+                selectDialogueLink.innerText = "Select File";
+                fileSelector.click();
+                alert("Not implemented");
+                return false;
             },
+            },
+
         })
 
     </script>
@@ -167,3 +158,34 @@
 
 </body>
 
+<!-- {
+    highlight: {
+        start: { fillMode: 'light' },
+        base: { fillMode: 'light' },
+        end: { fillMode: 'light' },
+    },
+    dates: { start: new Date(year, month, 21), end: new Date(year, month, 17) },
+},
+{
+    key: 'today',
+    highlight: {
+        color: 'blue',
+        fillMode: 'light',
+        contentClass: 'italic',
+    },
+    dates: new Date(year, month, 4),
+},
+{
+    highlight: {
+        color: 'blue',
+        fillMode: 'light',
+    },
+    dates: new Date(year, month, 12),
+},
+{
+    highlight: {
+        color: 'blue',
+        fillMode: 'light',
+    },
+    dates: new Date(year, month, 13),
+}, -->

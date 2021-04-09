@@ -117,7 +117,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-sm-1">
-                                                <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').remove()"><i class="bi bi-x"></i></button>
+                                                <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
                                             </div>
                                         </div>
                                     </div>
