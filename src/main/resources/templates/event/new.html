@@ -117,39 +117,38 @@
                                                 </div>
                                             </div>
                                             <div class="col-sm-1">
-                                                    <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').remove()"><i class="bi bi-x"></i></button>
-                                                </div>
+                                                <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').remove()"><i class="bi bi-x"></i></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
             </div><br/>
             </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <!-- FACILITIES PICKER -->
+                    <div class="card">
+                        <div class="card-header">
+                            Venue Facilities
+                            <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                <label class="custom-control-label" for="customCheck1">Enabled</label>
+                            </div>
+                        </div>
+                        <div class="card-body">
 
-            <!-- FACILITIES PICKER -->
-            <div class="card">
-                <div class="card-header">
-                    Venue Facilities
-                    <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">Enabled</label>
-                    </div>
-                </div>
-                <div class="card-body">
+                            
 
-                    
-                    <div class="row">
-                        <div class="col-sm-5">
                             <h5 class="card-title">What facilities should the venue have?</h5>
                             <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>              
                             <div th:include="event/fragments :: facilities_selector"></div>
-                        </div>
+
                         <!-- DATE LIST -->
-                        <div class="col" id="facilitiesList">
+                        <div id="facilitiesList">
                             <div th:each="facility : ${event.facilities}">
                                 <div class="card w-100 mt-2 bg-light">
                                     <div class="card-body">
@@ -170,44 +169,48 @@
                                 </div>
                             </div>
                         </div>
+                    </div><br/>
                     </div>
                 </div>
-            </div><br/>
-
-            <!-- POLL CREATOR -->
-            <div class="card">
-                <div class="card-header">
-                    Participant Polls
-                    <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">Enabled</label>
-                    </div>
-                </div>
-                <div class="card-body">
-
-                    
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <h5 class="card-title">Ask some questions!</h5>
-                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>              
-                            <div th:include="event/fragments :: poll_creator"></div>
+                <div class="col-sm-6">
+                    <!-- POLL CREATOR -->
+                    <div class="card">
+                        <div class="card-header">
+                            Participant Polls
+                            <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                <label class="custom-control-label" for="customCheck1">Enabled</label>
+                            </div>
                         </div>
-                        <!-- DATE LIST -->
-                        <div class="col" id="pollList">
+                        <div class="card-body">
+                            <div class="row">
+                                <h5 class="card-title">Ask some questions!</h5>
+                                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+
+                                <div th:include="event/fragments :: poll_creator"></div>
+
+                                <!-- DATE LIST -->
+                                <div id="pollList">
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </div><br/>
                 </div>
-            </div><br/>
+            </div>
         
             <!-- Workaround for zealous Spring WebMvcConfigurerAdapter Formatter on single value inputs-->
             <input type="hidden" name="times" value="null"/>
             <input type="hidden" name="polls"value="null"/>
             <input type="hidden" name="facilities"value="null"/>
             <input type="hidden" name="properties"value="null"/>
-            <input type="submit" value="Submit" id="btnSubmit"/>
+
+
+            <input class="btn btn-primary btn-block mt-2" type="submit" value="Submit" id="btnSubmit"/>
 
         </form>
      </div>
+
+     <div th:insert="footer :: footer"></div>
 
 
 </body>

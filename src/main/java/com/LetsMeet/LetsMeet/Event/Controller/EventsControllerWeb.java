@@ -101,19 +101,8 @@ public class EventsControllerWeb {
             User user = validateSession(session);
             model.addAttribute(USER_ATTR, user);
 
-            EventDTO eventDTO = new EventDTO(
-                "",
-                "haha mother fucker",
-                "event.getDescription()", 
-                "event.getEventProperties().getLocation().getName()", 
-                0.0, 
-                0.0,
-                0.0,
-                new ArrayList<>(), 
-                new ArrayList<>(), 
-                new ArrayList<>(), 
-                null, 
-                new ArrayList<>());
+
+            EventDTO eventDTO = dtoFromEvent(new Event(""));
 
                 model.addAttribute("event", eventDTO);
 
@@ -164,22 +153,8 @@ public class EventsControllerWeb {
 
             // Add Event to model
             Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
-            model.addAttribute("event", event);
 
-            EventDTO eventDTO = new EventDTO(
-                event.getUUID().toString(),
-                event.getName(),
-                event.getDescription(), 
-                event.getEventProperties().getLocation().getName(), 
-                event.getEventProperties().getLocation().getLongitude(), 
-                event.getEventProperties().getLocation().getLatitude(),
-                event.getEventProperties().getLocation().getRadius(),
-                new ArrayList<>(), 
-                event.getEventProperties().getFacilities(), 
-                new ArrayList<>(), 
-                null, 
-                new ArrayList<>());
-
+            EventDTO eventDTO = dtoFromEvent(event);
             model.addAttribute("event", eventDTO);
 
             // Add times to model
@@ -255,6 +230,22 @@ public class EventsControllerWeb {
         if (user == null) 
             throw new IllegalArgumentException("Permission Denied");
         else return user;
+    }
+
+    private EventDTO dtoFromEvent(Event event){
+        return new EventDTO(
+            event.getUUID().toString(),
+            event.getName(),
+            event.getDescription(), 
+            event.getEventProperties().getLocation().getName(), 
+            event.getEventProperties().getLocation().getLongitude(), 
+            event.getEventProperties().getLocation().getLatitude(),
+            event.getEventProperties().getLocation().getRadius(),
+            new ArrayList<>(), 
+            event.getEventProperties().getFacilities(), 
+            new ArrayList<>(), 
+            null, 
+            new ArrayList<>());
     }
 
 }
