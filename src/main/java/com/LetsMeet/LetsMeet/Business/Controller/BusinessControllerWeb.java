@@ -2,11 +2,8 @@ package com.LetsMeet.LetsMeet.Business.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
-import com.LetsMeet.LetsMeet.Event.Controller.EventControllerWeb;
-import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Root.Media.Media;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueBusinessService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.slf4j.Logger;

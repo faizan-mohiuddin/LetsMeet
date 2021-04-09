@@ -36,6 +36,55 @@
                    placeholder="Enter location...">
         </div>
 
+        <div class="form-group">
+            <div class="row">
+                <div class="col">
+                    <label for="time">When must the Venue be open?:</label>
+                    <input type="time" class="form-control" step="1" id="time" name="time">
+                </div>
+
+                <div class="col">
+                    <label>How long must the Venue be open for?</label>
+                    <div class="col">
+                        <label for="hours">Hours:</label>
+                        <input type="number" id="hours" name="hours" min="0">
+                    </div>
+                    <div class="col">
+                        <label for="minutes">Minutes:</label>
+                        <input type="number" id="minutes" name="minutes" min="0" max="59">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <label  for="day">Which day are you planning on visiting?</label>
+                    <select class="DaySelect" id="DaySelect" name="DaySelect">
+                        <option selected value="">Choose Day</option>
+                        <option value="2">Monday</option>
+                        <option value="3">Tuesday</option>
+                        <option value="4">Wednesday</option>
+                        <option value="5">Thursday</option>
+                        <option value="6">Friday</option>
+                        <option value="7">Saturday</option>
+                        <option value="1">Sunday</option>
+                    </select>
+
+                    <input type="datetime" class="form-control" name="date" placeholder="dd-mm-yyyy" id="date">
+                    <script>
+                        $(function() {$("#date").datepicker({ format: 'yyyy-mm-dd' })});
+
+                        $(function () {
+                            $('.datepicker').datepicker({
+                                format: 'mm-dd-yyyy'
+                            });
+                        });
+                    </script>
+                    <script type="text/javascript"
+                            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+                </div>
+
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Search</button>
         <a th:href="@{/Venues}" class="btn btn-primary">Reset</a>
     </form>

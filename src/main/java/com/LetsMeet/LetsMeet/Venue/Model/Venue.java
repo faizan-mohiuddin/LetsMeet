@@ -1,8 +1,7 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Model;
+package com.LetsMeet.LetsMeet.Venue.Model;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.google.gson.Gson;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.util.*;
 
@@ -15,15 +14,18 @@ public class Venue {
     boolean coords;
     double longitude;
     double latitude;
+    VenueOpenTimes openTimes = new VenueOpenTimes();
 
     public Venue(UUID uuid, String name){
         this.venueUUID = uuid;
         this.name = name;
+        this.openTimes.setVenueUUID(this.venueUUID);
     }
 
     public Venue(String uuid, String name){
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
+        this.openTimes.setVenueUUID(this.venueUUID);
     }
 
     public Venue(UUID uuid, String name, List<String> facilities){
@@ -31,11 +33,13 @@ public class Venue {
         this.name = name;
         this.facilities = facilities;
         this.facilities.removeAll(Collections.singleton(""));
+        this.openTimes.setVenueUUID(this.venueUUID);
     }
 
     public Venue(String uuid, String name, String facilities){
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
+        this.openTimes.setVenueUUID(this.venueUUID);
 
         // Check if facilities is null
         if(!(facilities == null)){
@@ -63,6 +67,7 @@ public class Venue {
         this.facilities = facilities;
         this.facilities.removeAll(Collections.singleton(""));
         this.address = address;
+        this.openTimes.setVenueUUID(this.venueUUID);
 
         if(longitude == null || latitude == null) {
             this.coords = false;
@@ -77,6 +82,7 @@ public class Venue {
         this.venueUUID = UUID.fromString(uuid);
         this.name = name;
         this.address = address;
+        this.openTimes.setVenueUUID(this.venueUUID);
 
         if(longitude == null || latitude == null) {
             this.coords = false;
@@ -194,5 +200,20 @@ public class Venue {
 
     public void removeFacility(String facility){
         this.facilities.remove(facility);
+    }
+
+    public VenueOpenTimes getOpenTimes(){
+        return this.openTimes;
+    }
+
+    public void setOpenTimes(VenueOpenTimes t){
+        this.openTimes = t;
+    }
+
+    public static Boolean CompareDay(String a, String b){
+        if(a.equals(b)){
+            return true;
+        }
+        return false;
     }
 }

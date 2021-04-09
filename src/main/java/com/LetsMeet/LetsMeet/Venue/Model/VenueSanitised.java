@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Model;
+package com.LetsMeet.LetsMeet.Venue.Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

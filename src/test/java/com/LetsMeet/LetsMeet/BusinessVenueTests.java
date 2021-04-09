@@ -6,13 +6,13 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessOwnerDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerAPI;
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueBusinessDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Controller.VenueControllerAPI;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueBusinessService;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.DBChecks.BusinessDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.EventDBChecker;
 import com.LetsMeet.LetsMeet.DBChecks.UserDBChecker;
@@ -23,7 +23,6 @@ import com.LetsMeet.LetsMeet.TestingTools.TestingEvents;
 import com.LetsMeet.LetsMeet.TestingTools.TestingUsers;
 import com.LetsMeet.LetsMeet.TestingTools.TestingVenue;
 import com.LetsMeet.LetsMeet.User.Controller.UserControllerAPI;
-import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONArray;
@@ -616,28 +615,32 @@ public class BusinessVenueTests {
         TestingVenue venue1 = testVenue.get(0);
 
         // Search with the whole string
-        List<Venue> response = venueController.API_SearchVenue(venue1.name, "", "", "", "", "");
+        List<Venue> response = venueController.API_SearchVenue(venue1.name, "", "", "",
+                "", "", "", "", "", "");
         assertEquals(1, response.size());
         Venue responseVenue = response.get(0);
         assertEquals(venue1.uuid, responseVenue.getUUID().toString());
         assertEquals(venue1.name, responseVenue.getName());
 
         // Try searching with only the start of the string
-        response = venueController.API_SearchVenue(venue1.name.substring(0, 3), "", "", "", "", "");
+        response = venueController.API_SearchVenue(venue1.name.substring(0, 3), "", "",
+                "", "", "", "", "", "", "");
         assertEquals(1, response.size());
         responseVenue = response.get(0);
         assertEquals(venue1.uuid, responseVenue.getUUID().toString());
         assertEquals(venue1.name, responseVenue.getName());
 
         // Try searching with only the middle of the string
-        response = venueController.API_SearchVenue(venue1.name.substring(3, 6), "", "", "", "", "");
+        response = venueController.API_SearchVenue(venue1.name.substring(3, 6), "", "",
+                "", "", "", "", "", "", "");
         assertEquals(1, response.size());
         responseVenue = response.get(0);
         assertEquals(venue1.uuid, responseVenue.getUUID().toString());
         assertEquals(venue1.name, responseVenue.getName());
 
         // Try searching with only the end of the string
-        response = venueController.API_SearchVenue(venue1.name.substring(5), "", "", "", "", "");
+        response = venueController.API_SearchVenue(venue1.name.substring(5), "", "", "",
+                "", "", "", "", "", "");
         assertEquals(1, response.size());
         responseVenue = response.get(0);
         assertEquals(venue1.uuid, responseVenue.getUUID().toString());
@@ -669,14 +672,16 @@ public class BusinessVenueTests {
 
         // Search with no name given
         String searchFacilities = String.format("[\"%s\",\"%s\",\"%s\"]", tag1, tag2, tag3);
-        List<Venue> response = venueController.API_SearchVenue("", searchFacilities, "", "", "", "");
+        List<Venue> response = venueController.API_SearchVenue("", searchFacilities, "", "",
+                "", "", "", "", "", "");
         assertEquals(1, response.size());
         Venue responseVenue = response.get(0);
         assertEquals(venue.uuid, responseVenue.getUUID().toString());
         assertEquals(venue.name, responseVenue.getName());
 
         // Search with name given
-        response = venueController.API_SearchVenue(venue.name, searchFacilities, "", "", "", "");
+        response = venueController.API_SearchVenue(venue.name, searchFacilities, "", "", "",
+                "", "", "", "", "");
         assertEquals(1, response.size());
         responseVenue = response.get(0);
         assertEquals(venue.uuid, responseVenue.getUUID().toString());

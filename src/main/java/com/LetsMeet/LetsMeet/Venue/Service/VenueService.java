@@ -1,15 +1,16 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Service;
+package com.LetsMeet.LetsMeet.Venue.Service;
 
 
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
-import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueBusinessDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.DAO.VenueDAO;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
+import com.LetsMeet.LetsMeet.Venue.DAO.VenueTimesDAO;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,9 @@ public class VenueService {
 
     @Autowired
     VenueBusinessDAO venueBusinessDAO;
+
+    @Autowired
+    VenueTimesDAO venueTimesDAO;
 
     @Autowired
     BusinessDAO businessDAO;
@@ -134,7 +138,14 @@ public class VenueService {
     public Venue getVenue(String venueUUID){
         Optional<Venue> venue = DAO.get(UUID.fromString(venueUUID));
         if(venue.isPresent()){
-            return venue.get();
+            Venue v = venue.get();
+            try {
+                Optional<VenueOpenTimes> times = venueTimesDAO.get(v.getUUID());
+                times.ifPresent(v::setOpenTimes);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return v;
         }
         return null;
     }
@@ -176,20 +187,28 @@ public class VenueService {
         }
     }
 
-    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude, String radius){
+    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
+                              String radius, String time, String hours, String minutes, String day){
+
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
-        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") && latitude.equals("")){
+        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") &&
+                latitude.equals("") && time.equals("") && hours.equals("") && minutes.equals("") && day.equals("")){
             Collection<Venue> venues = DAO.getAll().get();
             List<Venue> v = new ArrayList<>(venues);
             return v;
         }
 
         // Build a query to execute
-        String query = String.format("SELECT * FROM Venue WHERE ");
+        String query = String.format("SELECT DISTINCT Venue.VenueUUID, Venue.Name, Venue.Facilities, Venue.Address, Venue.Longitude, Venue.Latitude " +
+                "FROM Venue, VenueOpeningTimes WHERE ");
 
         boolean nameSearch = false;
         boolean facilitySearch = false;
         boolean locationSearch = false;
+        boolean coordSearch = false;
+        boolean timeSearch = false;
+        boolean durationSearch = false;
+        boolean daySearch = false;
 
         if(name.length() > 0){
             //query = query + String.format("Venue.Name = '%s'", name);
@@ -259,6 +278,7 @@ public class VenueService {
                                 "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
                                 " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
                         dlat, this.p, dlat, this.p, this.p, dlong, this.p, dradius);
+                coordSearch = true;
             }catch (Exception e){
                 // We dont care, carry on with the rest of the search
                 if(!(locationSearch || nameSearch || facilitySearch)){
@@ -266,6 +286,67 @@ public class VenueService {
                     List<Venue> v = new ArrayList<>(venues);
                     return v;
                 }
+            }
+        }
+
+        // Check for time
+        if(!time.equals("")){
+            if(nameSearch || facilitySearch || locationSearch || coordSearch){
+                query = query + String.format(" AND ");
+            }
+
+            query = query + String.format("Venue.VenueUUID = VenueOpeningTimes.VenueUUID AND '%s' >= VenueOpeningTimes.openHour " +
+                    "AND '%s' <= VenueOpeningTimes.closeHour", time, time);
+            timeSearch = true;
+        }
+
+        // Check for duration
+        if((!hours.equals("") || !minutes.equals("")) && timeSearch){
+            query = query + String.format(" AND ");
+
+            // Given time + duration <= venueOpeningTimes.closeHour
+            String[] parts = time.split(":");
+            int givenHours = Integer.parseInt(parts[0]);
+            int givenMinutes = Integer.parseInt(parts[1]);
+
+            int durationHours;
+            int durationMinutes;
+            try{
+                durationHours = Integer.parseInt(hours);
+            }catch(Exception e){
+                durationHours = 0;
+            }
+
+            try{
+                durationMinutes = Integer.parseInt(minutes);
+            }catch(Exception e){
+                durationMinutes = 0;
+            }
+
+            givenMinutes = givenMinutes + durationMinutes;
+            if (givenMinutes >= 60){
+                givenHours += 1;
+                givenMinutes -= 60;
+            }
+
+            givenHours = (givenHours + durationHours) % 24;
+
+            // Reconstruct String
+            String endTime = String.format("%d:%d", givenHours, givenMinutes);
+
+            query = query + String.format("VenueOpeningTimes.closeHour >= '%s'", endTime);
+            durationSearch = true;
+        }
+
+        // Check for day
+        if(!day.equals("") && timeSearch){
+            // Check day is more than 0 and less than 8
+            int d = Integer.parseInt(day);
+            if(d > 0 && d < 8) {
+                query = query + String.format(" AND ");
+
+                query = query + String.format("VenueOpeningTimes.DayOfWeek = '%s'", day);
+                daySearch = true;
             }
         }
 
@@ -303,6 +384,13 @@ public class VenueService {
         return null;
     }
 
+    public List<Venue> searchWithDate(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
+                              String radius, String time, String hours, String minutes, String date){
+        date = date.replaceAll(":", "-");
+        return this.search(name, unparsedFacilitiesList, location, longitude, latitude, radius, time, hours, minutes,
+                String.valueOf(venueTimesDAO.getDayFromDate(date)));
+    }
+
     public void removeFacility(Venue venue, String facility){
         // Remove facility from venue if its there
         int len1 = venue.numFacilities();
@@ -310,6 +398,14 @@ public class VenueService {
         int len2 = venue.numFacilities();
         if(len2 < len1){
             updateVenue(venue);
+        }
+    }
+
+    public void saveVenueTimes(Venue venue){
+        try {
+            venueTimesDAO.save(venue.getOpenTimes());
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 

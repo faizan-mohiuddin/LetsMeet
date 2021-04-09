@@ -1,11 +1,11 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Controller;
+package com.LetsMeet.LetsMeet.Venue.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueSanitised;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueBusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueSanitised;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueBusinessService;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,8 +125,12 @@ public class VenueControllerAPI {
                                        @RequestParam(value="location", defaultValue = "") String location,
                                        @RequestParam(value="longitdue", defaultValue = "") String longitude,
                                        @RequestParam(value="latitude", defaultValue = "") String latitude,
-                                       @RequestParam(value="radius", defaultValue = "") String radius){
-        return venueService.search(name, unparsedFacilitiesList, location, longitude, latitude, radius);
+                                       @RequestParam(value="radius", defaultValue = "") String radius,
+                                       @RequestParam(value="time", defaultValue = "") String time,
+                                       @RequestParam(value="hours", defaultValue = "") String hours,
+                                       @RequestParam(value="minutes", defaultValue = "") String minutes,
+                                       @RequestParam(value="DaySelect", defaultValue = "") String day){
+        return venueService.search(name, unparsedFacilitiesList, location, longitude, latitude, radius, time, hours, minutes, day);
     }
 
     @GetMapping ("api/Venue/Search/Radius")

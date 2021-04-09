@@ -46,6 +46,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import static com.LetsMeet.LetsMeet.Utilities.MethodService.deepCopyStringList;
+
 //-----------------------------------------------------------------
 
 @Service
@@ -427,6 +429,56 @@ public class EventService{
         catch(Exception e){
             throw new IllegalArgumentException();
         }
+    }
+
+    public List<List<String>> processTimeRanges(Event event){
+        List<List<String>> strtimes = new ArrayList<>();
+        List<String> arr = new ArrayList<>();
+        int rows = -1;
+        for(DateTimeRange t : event.getEventProperties().getTimes()){
+            rows += 1;
+            arr.clear();
+            // Start date
+            ZonedDateTime s = t.getStart();
+            arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
+
+            // Start time
+            String h = processTime(s.getHour());
+            String m = processTime(s.getMinute());
+            String sec = processTime(s.getSecond());
+
+            arr.add(String.format("%s:%s:%s", h, m, sec));
+
+            // End date
+            ZonedDateTime e = t.getEnd();
+            arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
+
+            // End time
+            h = processTime(e.getHour());
+            m = processTime(e.getMinute());
+            sec = processTime(e.getSecond());
+
+            arr.add(String.format("%s:%s:%s", h, m, sec));
+
+            // Add input ID's
+            arr.add(String.format("startDay%d", rows));
+            arr.add(String.format("startTime%d", rows));
+            arr.add(String.format("endDay%d", rows));
+            arr.add(String.format("endTime%d", rows));
+
+            strtimes.add(deepCopyStringList(arr));
+        }
+        return strtimes;
+    }
+
+    private static String processTime(int t){
+        String st;
+        if(t < 10){
+            st = String.format("0%s", t);
+        }else{
+            st = Integer.toString(t);
+        }
+        return st;
     }
 
     private static String checkTimeRangeForParsing(String t){

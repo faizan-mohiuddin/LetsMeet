@@ -1,9 +1,10 @@
-package com.LetsMeet.LetsMeet.Business.Venue.Controller;
+package com.LetsMeet.LetsMeet.Venue.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Root.Media.Media;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -91,6 +92,14 @@ public class VenueControllerWeb {
             model.addAttribute("facilities", true);
         }
 
+        VenueOpenTimes openTimes = venue.getOpenTimes();
+        if(openTimes.numTimes() == 0){
+            model.addAttribute("openTimes", null);
+        }else{
+            List<List<String>> times = openTimes.getTimesWithDays();
+            model.addAttribute("openTimes", times);
+        }
+
         LOGGER.info("Venue loading coordinates: " + venue.getLatitude() + ", " + venue.getLongitude());
 
         // Get user
@@ -141,7 +150,8 @@ public class VenueControllerWeb {
                             @RequestParam(value="facilities") String facilities,
                             @RequestParam(value = "venuelocation") String venueLocation,
                             @RequestParam(value = "thelat") String venueLatitude,
-                            @RequestParam(value = "thelong") String venueLongitude){
+                            @RequestParam(value = "thelong") String venueLongitude,
+                            @RequestParam(value="TimeRanges") String timeRanges){
         // Validate user
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {
@@ -161,12 +171,20 @@ public class VenueControllerWeb {
 
             Object[] response = venueService.createVenue(user, name, b.getUUID().toString(), facs, venueLocation, venueLatitude, venueLongitude);
             Venue v = (Venue) response[1];
+
+            // Set venue Times ranges
+            VenueOpenTimes times = v.getOpenTimes();
+            times.setTimes(timeRanges);
+            v.setOpenTimes(times);
+            venueService.saveVenueTimes(v);
+
             String redirectAddress = String.format("redirect:/Venue/%s", v.getUUID().toString());
             return redirectAddress;
         }
 
         catch(Exception e){
             redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
+            e.printStackTrace();
             return "redirect:/Home";
         }
     }
@@ -178,7 +196,12 @@ public class VenueControllerWeb {
                                @RequestParam(value="location", defaultValue = "") String searchLocation,
                                @RequestParam(value="longitdue", defaultValue = "") String longitude,
                                @RequestParam(value="latitude", defaultValue = "") String latitude,
-                               @RequestParam(value="radius", defaultValue = "") String radius){
+                               @RequestParam(value="radius", defaultValue = "") String radius,
+                               @RequestParam(value="time", defaultValue = "") String time,
+                               @RequestParam(value="hours", defaultValue = "") String hours,
+                               @RequestParam(value="minutes", defaultValue = "") String minutes,
+                               @RequestParam(value="DaySelect", defaultValue = "") String day,
+                               @RequestParam(value="date", defaultValue = "") String date){
 
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
@@ -189,7 +212,16 @@ public class VenueControllerWeb {
         }
 
         // Search for events by what is given
-        List<Venue> venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius);
+        List<Venue> venues;
+        if(date.equals("")) {
+            venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius,
+                    time, hours, minutes, day);
+        }else{
+            venues = venueService.searchWithDate(searchName, searchFacilities, searchLocation, longitude, latitude, radius,
+                    time, hours, minutes, date);
+        }
+
+
         model.addAttribute("venues", venues);
 
         return "Venue/allVenues";
@@ -238,6 +270,9 @@ public class VenueControllerWeb {
 
             if(venueService.checkUserPermission(venue, user)) {
                 model.addAttribute("venue", venue);
+                List<List<String>> response = venue.getOpenTimes().getTimesWithIndex();
+                model.addAttribute("times", response);
+                model.addAttribute("numTimes", response.size());
                 return "Venue/editVenue";
             }
         }
@@ -252,7 +287,8 @@ public class VenueControllerWeb {
                             @RequestParam(value="facilities", defaultValue = "") String facilities,
                             @RequestParam(value = "venuelocation", defaultValue = "") String venueLocation,
                             @RequestParam(value = "thelat", defaultValue = "") String venueLatitude,
-                            @RequestParam(value = "thelong", defaultValue = "") String venueLongitude){
+                            @RequestParam(value = "thelong", defaultValue = "") String venueLongitude,
+                            @RequestParam(value="TimeRanges") String OpenTimes){
         // Get venue
         Venue venue = venueService.getVenue(venueUUID);
 
@@ -264,6 +300,14 @@ public class VenueControllerWeb {
             if(venueService.checkUserPermission(venue, user)) {
                 // Update venue
                 venueService.updateVenue(venue, name, facilities, venueLocation, venueLatitude, venueLongitude);
+
+                //Update venueTimes
+                VenueOpenTimes times = venue.getOpenTimes();
+                times.setTimes(OpenTimes);
+                venue.setOpenTimes(times);
+                venueService.saveVenueTimes(venue);
+
+                // Redirect to venue page
                 String destination = String.format("redirect:/Venue/%s", venueUUID);
                 return destination;
             }

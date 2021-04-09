@@ -1,9 +1,7 @@
-package com.LetsMeet.LetsMeet.Business.Venue.DAO;
+package com.LetsMeet.LetsMeet.Venue.DAO;
 
-import com.LetsMeet.LetsMeet.Business.Model.BusinessOwner;
-import com.LetsMeet.LetsMeet.Business.Venue.Model.VenueBusiness;
+import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
-import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import org.slf4j.Logger;

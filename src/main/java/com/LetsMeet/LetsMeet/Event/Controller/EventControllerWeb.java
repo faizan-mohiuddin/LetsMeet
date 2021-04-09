@@ -1,6 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
-import com.LetsMeet.LetsMeet.Business.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
@@ -15,13 +15,10 @@ import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import static com.LetsMeet.LetsMeet.Utilities.MethodService.deepCopyStringList;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -613,7 +610,7 @@ public class EventControllerWeb {
                                @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
                                @RequestParam(value="thelat", defaultValue="") String lat,
                                @RequestParam(value="thelong", defaultValue="") String longitude,
-                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities){
+                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities, @RequestParam(value="radius", defaultValue="") String radius){
         // Get user
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.getEvent(eventuuid);
@@ -639,11 +636,13 @@ public class EventControllerWeb {
                 Location location = properties.getLocation();
                 Double dlat = Double.parseDouble(lat);
                 Double dlong = Double.parseDouble(longitude);
+                Double dRadius = Double.parseDouble(radius);
 
                 if(!address.equals("")) {
                     location.setName(address);
                     location.setLatitude(dlat);
                     location.setLongitude(dlong);
+                    location.setRadius(dRadius);
                     properties.setLocation(location);
                 }
             }catch(Exception e){
@@ -665,6 +664,7 @@ public class EventControllerWeb {
             response.setEventProperties(properties);
             responseService.saveResponse(response);
 
+            System.out.println(response.getEventProperties().getLocation().getRadius());
             // Redirect to event page
             redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
 
@@ -696,82 +696,10 @@ public class EventControllerWeb {
                 EventProperties eventProperties = response.get().getEventProperties();
                 List<DateTimeRange> times = eventProperties.getTimes();
 
-                List<List<String>> strtimes = new ArrayList<>();
-                List<String> arr = new ArrayList<>();
-                int rows = -1;
-                for(DateTimeRange t : event.getEventProperties().getTimes()){
-                    rows += 1;
-                    arr.clear();
-                    // Start date
-                    ZonedDateTime s = t.getStart();
-                    arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
-
-                    // Start time
-                    int hour = s.getHour();
-                    String h;
-                    if(hour < 10){
-                        h = String.format("0%s", hour);
-                    }else{
-                        h = Integer.toString(hour);
-                    }
-
-                    int minute = s.getMinute();
-                    String m;
-                    if(minute < 10){
-                        m = String.format("0%s", minute);
-                    }else{
-                        m = Integer.toString(minute);
-                    }
-
-                    int second = s.getSecond();
-                    String sec;
-                    if(second < 10){
-                        sec = String.format("0%s", second);
-                    }else{
-                        sec = Integer.toString(second);
-                    }
-
-                    arr.add(String.format("%s:%s:%s", h, m, sec));
-
-                    // End date
-                    ZonedDateTime e = t.getEnd();
-                    arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
-
-                    // End time
-                    hour = e.getHour();
-                    if(hour < 10){
-                        h = String.format("0%s", hour);
-                    }else{
-                        h = Integer.toString(hour);
-                    }
-
-                    minute = e.getMinute();
-                    if(minute < 10){
-                        m = String.format("0%s", minute);
-                    }else{
-                        m = Integer.toString(minute);
-                    }
-
-                    second = e.getSecond();
-                    if(second < 10){
-                        sec = String.format("0%s", second);
-                    }else{
-                        sec = Integer.toString(second);
-                    }
-
-                    arr.add(String.format("%s:%s:%s", h, m, sec));
-
-                    // Add input ID's
-                    arr.add(String.format("startDay%d", rows));
-                    arr.add(String.format("startTime%d", rows));
-                    arr.add(String.format("endDay%d", rows));
-                    arr.add(String.format("endTime%d", rows));
-
-                    strtimes.add(deepCopyStringList(arr));
-                }
+                List<List<String>> strtimes = eventService.processTimeRanges(event);
 
                 model.addAttribute("times", strtimes);
-                model.addAttribute("numtimes", rows);
+                model.addAttribute("numtimes", strtimes.size()-1);
 
                 // facilities
                 List<String> facilities = eventProperties.getFacilities();
