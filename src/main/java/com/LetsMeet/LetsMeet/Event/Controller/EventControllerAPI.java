@@ -131,7 +131,8 @@ public class EventControllerAPI {
             }
 
             try {
-                eventService.createEvent(Name, desc, location, user.getStringUUID());
+                //eventService.createEvent(Name, desc, location, user.getStringUUID());
+                eventService.save(new Event(Name), user);
                 return "Event successfully created.";
             }catch (Exception e){
                 return "Error creating event";
@@ -218,7 +219,7 @@ public class EventControllerAPI {
             event.setDescription(desc);
             event.setLocation(location);
 
-            eventService.updateEvent(user, event);
+            eventService.update(user, event);
             return new ResponseEntity<>(HttpStatus.OK);
 
         }catch(IllegalArgumentException e){
@@ -299,7 +300,7 @@ public class EventControllerAPI {
         try{
             Event event = eventService.getEvent(eventUUID);
             event.getEventProperties().setLocation(locations.get(0));
-            eventService.updateEvent(userValidation.getAuthenticatedUser(token), event);
+            eventService.update(userValidation.getAuthenticatedUser(token), event);
             return new ResponseEntity<>(event.getEventProperties(),HttpStatus.OK);
             
         }

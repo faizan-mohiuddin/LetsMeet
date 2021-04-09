@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Model.DTO;
 
-import javax.validation.Valid;
+import java.util.List;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -9,35 +10,45 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class EventDTO {
 
-    //@Size(min = 3, max = 50)
+    private String uuid;
+
+    @Size(min = 3, max = 50)
     private String name;
 
-    //@Size(max = 500)
+    @Size(max = 500)
     private String description;
 
-    //@Size(min = 3, max = 50)
+    @Size(min = 3, max = 50)
     private String location;
 
-    //@NotNull
+    @NotNull
     private double latitude;
 
-    //@NotNull
+    @NotNull
     private double longitude;
 
-    //@NotNull
+    @NotNull
     private double radius;
 
-    //@NotEmpty // TODO validate that length is not odd
-    private String[] times;
+    @NotEmpty // TODO validate that length is not odd
+    private List<String> times;
 
-    private String[] facilities;
+    @NotNull
+    private List<String> facilities;
 
-    private String[] polls;
+    @NotNull
+    private List<String> polls;
 
+    @NotNull
     private MultipartFile image;
 
-    public EventDTO(String name, String description, String location, double latitude, double longitude, double radius,
-            String[] times, String[] facilities, String[] polls, MultipartFile image) {
+    @NotNull
+    private List<String> properties;
+
+    public EventDTO(String uuid, String name, String description, String location, double latitude, double longitude,
+            double radius, List<String> times, List<String> facilities, List<String> polls, MultipartFile image,
+            List<String> properties) {
+        this.uuid = uuid;
         this.name = name;
         this.description = description;
         this.location = location;
@@ -48,6 +59,22 @@ public class EventDTO {
         this.facilities = facilities;
         this.polls = polls;
         this.image = image;
+        this.properties = properties;
+        
+        /*  "null"  may have been appended as workaround for zealous Spring 
+        WebMvcConfigurerAdapter Formatter on single value array inputs, we can remove it now */
+        this.times.remove("null");
+        this.facilities.remove("null");
+        this.polls.remove("null");
+        this.properties.remove("null");
+    }
+
+    public String getUUID() {
+        return uuid;
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {
@@ -98,27 +125,27 @@ public class EventDTO {
         this.radius = radius;
     }
 
-    public String[] getTimes() {
+    public List<String> getTimes() {
         return times;
     }
 
-    public void setTimes(String[] times) {
+    public void setTimes(List<String> times) {
         this.times = times;
     }
 
-    public String[] getFacilities() {
+    public List<String> getFacilities() {
         return facilities;
     }
 
-    public void setFacilities(String[] facilities) {
+    public void setFacilities(List<String> facilities) {
         this.facilities = facilities;
     }
 
-    public String[] getPolls() {
+    public List<String> getPolls() {
         return polls;
     }
 
-    public void setPolls(String[] polls) {
+    public void setPolls(List<String> polls) {
         this.polls = polls;
     }
 
@@ -130,9 +157,11 @@ public class EventDTO {
         this.image = image;
     }
 
+    public List<String> getProperties() {
+        return properties;
+    }
 
-
-    
-
-    
+    public void setProperties(List<String> properties) {
+        this.properties = properties;
+    }  
 }

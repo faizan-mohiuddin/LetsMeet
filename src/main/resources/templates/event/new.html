@@ -146,25 +146,15 @@
                 </div>
             </div><br/>
         
-            <input type="hidden" name="times"/><br/><br/>
-            <input type="hidden" name="polls"/><br/><br/>
+            <!-- Workaround for zealous Spring WebMvcConfigurerAdapter Formatter on single value inputs-->
+            <input type="hidden" name="times" value="null"/>
+            <input type="hidden" name="polls"value="null"/>
+            <input type="hidden" name="facilities"value="null"/>
+            <input type="hidden" name="properties"value="null"/>
             <input type="submit" value="Submit" id="btnSubmit"/>
 
         </form>
      </div>
 
-
-    
-
-    <style>
-        .card-header#headingOne h2.mb-0 {
-  display:flex;
-  justify-content:space-between;
-}
-
-.fa-pen {
-  font-size: 0.75rem;
-}
-    </style>
 
 </body>

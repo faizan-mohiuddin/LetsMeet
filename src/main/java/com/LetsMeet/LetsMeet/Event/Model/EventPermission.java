@@ -9,6 +9,8 @@ package com.LetsMeet.LetsMeet.Event.Model;
 
 import java.util.UUID;
 
+import com.LetsMeet.LetsMeet.User.Model.User;
+
 public class EventPermission {
     private UUID event;
     private UUID user;
@@ -37,5 +39,9 @@ public class EventPermission {
 
     public Boolean getIsOwner(){
         return this.isOwner;
+    }
+
+    public static EventPermission fromEntity(Event event, User user, boolean owner){
+        return new EventPermission(event.getUUID(), user.getUUID(), owner);
     }
 }

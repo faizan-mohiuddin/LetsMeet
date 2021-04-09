@@ -25,11 +25,12 @@ public class PollService {
     PollResponseDAO pollResponseDAO;
 
     public boolean create(User user, Poll poll){
+
+        // Set Users permissions
+        permissionService.setPermission(Permissions.create(user.getUUID(), poll.getUUID(), "0400"));
+        
         // Save poll
         savePoll(poll);
-
-        // Set Users permissions on poll
-        permissionService.setPermission(Permissions.create(user.getUUID(), poll.getUUID(), "0400"));
 
         return true;
     }

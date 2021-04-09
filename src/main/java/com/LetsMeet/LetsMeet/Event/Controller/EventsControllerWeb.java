@@ -1,10 +1,20 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import java.util.List;
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.Events;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Poll.PollService;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.Polls;
+import com.LetsMeet.LetsMeet.Event.Service.EventCoordinator;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -27,7 +37,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @SessionAttributes("userlogin")
 public class EventsControllerWeb {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(EventControllerWeb.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(EventsControllerWeb.class);
 
     @Autowired
     private UserService userService;
@@ -37,6 +47,12 @@ public class EventsControllerWeb {
 
     @Autowired 
     private MediaService mediaService;
+
+    @Autowired 
+    private PollService pollService;
+
+    @Autowired
+    private EventCoordinator eventCoordinator;
 
     private static String EVENT_NEW = "event/new";
     private static String EVENT = "event/event";
@@ -68,23 +84,53 @@ public class EventsControllerWeb {
     }
 
     @PostMapping({"/createevent", "/event/new"})
-    public ModelAndView httpEventNewPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+    public String httpEventNewPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
         @ModelAttribute EventDTO eventDTO){
-            LOGGER.info(eventDTO.getName());
-            return new ModelAndView("redirect:/Home", model.asMap(), HttpStatus.OK);
+            try {
+                User user = validateSession(session);
+                Event event = Events.from(eventDTO); 
+
+                // Save event
+                eventService.save(event, user);
+
+                // Save any Polls
+                for (String p : eventDTO.getPolls()){
+                    var poll = Polls.fromJson(p);
+                    pollService.create(user, poll);
+                    eventService.addPoll(event, poll);
+                }
+
+                return "redirect:/Home";
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "redirect:/Home";
         }
+    }
 
 
     @PostMapping("/event/{EventUUID}/edit")
     public ModelAndView httpEventEditPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
-        @PathVariable("EventUUID") String eventUUID,
-        @RequestParam("file") MultipartFile file,
-        @RequestParam(name = "eventname") String eventname,
-        @RequestParam(name = "eventdesc") String eventdesc,
-        @RequestParam(name = "eventlocation") String eventlocation,
-        @RequestParam(name="jsonTimes") String tRanges){
+    @ModelAttribute EventDTO eventDTO,
+    @PathVariable("EventUUID") String eventUUID) {
 
         try{
+            User user = validateSession(session);
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
+            
+            // Update event
+            eventService.update(user, event, eventDTO);
+
+            // Update any polls
+            List<Poll> polls = eventService.getPolls(event);
+            
+            for (String p : eventDTO.getPolls()){
+                List<Poll> polls = eventService.getPolls(event);
+                
+                var poll = Polls.fromJson(p);
+                pollService.create(user, poll);
+                eventService.addPoll(event, poll);
+            }
+            
             return new ModelAndView("redirect:/Home", model.asMap(), HttpStatus.FORBIDDEN);
 
         } catch(Exception e){

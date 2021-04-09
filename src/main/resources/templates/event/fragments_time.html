@@ -101,11 +101,11 @@
                     //var clone = temp.content.cloneNode(true);
                     //document.body.appendChild(clone);
                     var json = JSON.stringify(this.$data.dateRange);
-                    alert(json);
+                    //alert(json);
                     var dateMarkup = `
                     <div class="card w-100 mt-2 bg-light">
                         <div class="card-body">
-                            <input type="hidden" name="times"value='[${json}]'/>
+                            <input hidden type="text" name="times"value='${json}'/>
                             <div class="row align-items-center">
                                 <div class="col-sm-4">
                                     <div class="row">

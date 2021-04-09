@@ -17,6 +17,12 @@ public class Poll extends LetsMeetEntity implements Map<String,Integer>  {
         this.selectMultiple = selectMultiple;
     }
 
+    public Poll(String name, Boolean mutliselect, Map<String, Integer> options) {
+        super(UUID.randomUUID(), name);
+        this.options = options;
+        this.selectMultiple = mutliselect;
+    }
+
     public Map<String, Integer> getOptions() {
         return options;
     }

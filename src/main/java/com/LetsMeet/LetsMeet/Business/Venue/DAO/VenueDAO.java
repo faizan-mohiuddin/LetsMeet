@@ -4,7 +4,6 @@ import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Venue.Controller.VenueControllerWeb;
 import com.LetsMeet.LetsMeet.Business.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
 import com.LetsMeet.LetsMeet.Utilities.DatabaseInterface;
