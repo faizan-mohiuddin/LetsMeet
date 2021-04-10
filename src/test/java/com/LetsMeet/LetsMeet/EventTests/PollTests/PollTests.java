@@ -31,7 +31,7 @@ public class PollTests {
     PollDAO pollDAO;
 
     private User testUser(){
-        return new User(UUID.randomUUID().toString());
+        return new User("48f9f376-0dc0-38e4-bae9-f4e50f5f73db");
     }
 
     @Test

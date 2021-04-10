@@ -27,7 +27,7 @@ public class PollService {
     public boolean create(User user, Poll poll){
 
         // Set Users permissions
-        permissionService.setPermission(Permissions.create(user.getUUID(), poll.getUUID(), "0400"));
+        permissionService.setPermission(Permissions.create(user.getUUID(), poll.getUUID(), "0600"));
         
         // Save poll
         savePoll(poll);

@@ -21,7 +21,6 @@
     <div class="jumbotron">
         <div class="container">
             <h1 th:text="${title}">New Event</h1>
-            
         </div>
     </div>
 
@@ -34,7 +33,7 @@
         <div th:include="fragments/common :: alerts"></div>
 
          <!-- EVENT FORM -->
-         <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="@{/v2/event/new}" th:method="PUT">
+         <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="${onSubmit}" th:method="PUT">
             <div class="form-group">
                 <label for="eventname">Event Name: </label>
                 <input type="text" class="form-control form-control-lg" name="name" th:value="${event.getName()}"/><br/>

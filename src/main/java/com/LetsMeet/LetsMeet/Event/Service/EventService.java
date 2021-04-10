@@ -10,7 +10,6 @@ package com.LetsMeet.LetsMeet.Event.Service;
 
 import java.io.IOException;
 
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
+import com.LetsMeet.LetsMeet.Event.DAO.EventPollDAO;
 import com.LetsMeet.LetsMeet.Event.DAO.EventResultDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
@@ -38,8 +38,10 @@ import com.LetsMeet.LetsMeet.Event.Model.Events;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
+import com.LetsMeet.LetsMeet.Event.Poll.PollDAO;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
+import com.LetsMeet.LetsMeet.Root.Core.Model.LetsMeetTuple;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +79,9 @@ public class EventService{
 
     @Autowired
     PollService pollService;
+
+    @Autowired
+    EventPollDAO eventPollDAO;
 
 
     /* -- CRUD operations -- */
@@ -248,8 +253,19 @@ public class EventService{
         }
     }
 
-    public boolean addPoll(Event event, Poll poll){
-        // TODO link poll in db
+    /**
+     * Adds an existing poll to an event
+     * @param event
+     * @param poll
+     * @return
+     * @throws IllegalArgumentException if either event or poll are not found in persistence
+     */
+    public boolean addPoll(Event event, Poll poll) throws IllegalArgumentException{
+        try {
+            eventPollDAO.save(new LetsMeetTuple<>(event.getUUID(), poll));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not add Poll<" + poll.getUUID() + "> to Event<" + event.getUUID() + "> : " + e.getMessage());
+        }
         return false;
     }
 
@@ -258,9 +274,12 @@ public class EventService{
         return false;
     }
 
-    public List<Poll> getPolls(Event event){
-        List<Poll> polls = new ArrayList<>();
-        return polls;
+    public List<Poll> getPolls(Event event) throws IllegalArgumentException{
+        try {
+            return eventPollDAO.get(event.getUUID()).orElseThrow();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not get Polls for Event<"+event.getUUID()+"> : " + e.getMessage());
+        }
     }
 
     @Deprecated(forRemoval = true)

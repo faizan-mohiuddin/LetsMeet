@@ -9,8 +9,6 @@ import com.LetsMeet.LetsMeet.Root.Core.Model.LetsMeetEntity;
 
 public class Poll extends LetsMeetEntity /*implements Map<String,Integer>*/  {
   
-    //private UUID uuid;
-    //private String name;
     private Map<String, Integer> options;
     private Boolean multiselect;
 

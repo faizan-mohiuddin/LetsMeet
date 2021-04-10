@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.Events;
@@ -16,14 +15,8 @@ import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Polls;
-import com.LetsMeet.LetsMeet.Event.Service.EventCoordinator;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
-import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
-import com.LetsMeet.LetsMeet.User.Service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 @RequestMapping("/v2")
@@ -45,13 +36,7 @@ public class EventsControllerWeb {
     private static final Logger LOGGER=LoggerFactory.getLogger(EventsControllerWeb.class);
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private EventService eventService;
-
-    @Autowired 
-    private MediaService mediaService;
 
     @Autowired 
     private PollService pollService;
@@ -110,6 +95,9 @@ public class EventsControllerWeb {
 
                 model.addAttribute("polls", null);
 
+                model.addAttribute("title", "New Meet");
+                model.addAttribute("onSubmit", "/v2/event/new");
+
             return EVENT_NEW;
         }
         catch (Exception e){
@@ -120,6 +108,11 @@ public class EventsControllerWeb {
         }
     }
 
+    /**
+     * Handles request to create a new event
+     * @param eventDTO Must be present with all attributes to correctly initialise event
+     * @return The create events page
+     */
     @PostMapping({"/createevent", "/event/new"})
     public String httpEventNewPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
         @ModelAttribute EventDTO eventDTO){
@@ -131,16 +124,22 @@ public class EventsControllerWeb {
                 eventService.save(event, user);
 
                 // Save any Polls
-                for (String p : eventDTO.getPolls()){
-                    var poll = Polls.fromJson(p);
-                    pollService.create(user, poll);
-                    eventService.addPoll(event, poll);
+                try {
+                    for (String p : eventDTO.getPolls()){
+                        var poll = Polls.fromJson(p);
+                        pollService.create(user, poll);
+                        eventService.addPoll(event, poll);
+                    }
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("warning", "There was an issue creating one or more polls");
                 }
 
-                return "redirect:/Home";
+
+                return "redirect:/event/" + event.getUUID().toString();
             } catch (Exception e) {
-                e.printStackTrace();
-                return "redirect:/Home";
+                LOGGER.error("Could not create new event: {}", e.getMessage());
+                redirectAttributes.addFlashAttribute("danger", "A critical error occurred, please try again later. ");
+                return "redirect:/event/new}";
         }
     }
 
@@ -169,18 +168,17 @@ public class EventsControllerWeb {
             for (var v : eventService.getPolls(event)){
                 polls.add(new JsonPair(v,v.toString()));
             }
-
             model.addAttribute("polls", polls);
 
-
-            // Set title
-            model.addAttribute("title", "Edit Event");
+            // Setup form
+            model.addAttribute("title", "Edit Meet");
+            model.addAttribute("onSubmit", "/v2/event/" + eventUUID + "/edit");
 
             return EVENT_NEW;
         }
         catch (Exception e){
             LOGGER.error("Could not create Event: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("accessDenied", "An error ocurred");
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred");
 
             return "redirect:/Home";
         }
@@ -200,8 +198,6 @@ public class EventsControllerWeb {
             eventService.update(user, event, eventDTO);
 
             // Update any polls
-            //List<Poll> polls = eventService.getPolls(event);
-            
             for (String p : eventDTO.getPolls()){
                 List<Poll> polls = eventService.getPolls(event);
                 

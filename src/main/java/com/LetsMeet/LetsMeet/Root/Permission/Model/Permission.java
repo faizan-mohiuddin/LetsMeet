@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Permission {
     
     public enum Type{
-        READ("0300"),
+        READ("0400"),
         WRITE("0200"),
         READ_WRITE("0600");
 
