@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Poll;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.Poll.Model.*;
@@ -33,6 +34,15 @@ public class PollService {
         savePoll(poll);
 
         return true;
+    }
+
+    public boolean update(Poll poll) throws IllegalArgumentException{
+        try {
+            return pollDAO.update(poll);
+            
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not update Poll<"+poll.getUUID()+"> : " + e.getMessage());
+        }
     }
 
 
@@ -94,9 +104,9 @@ public class PollService {
 
 
 
-    public Poll getPoll(UUID pollUUID) throws IllegalArgumentException{
+    public Optional<Poll> getPoll(UUID pollUUID) throws IllegalArgumentException{
         try{
-            return pollDAO.get(pollUUID).orElseThrow();
+            return pollDAO.get(pollUUID);
         }
         catch( Exception e){
             throw new IllegalArgumentException("Unable to get Poll: " + e.getMessage());

@@ -163,5 +163,12 @@ public class EventDTO {
 
     public void setProperties(List<String> properties) {
         this.properties = properties;
-    }  
+    }
+    
+    public void validate(){
+        this.times.remove("null");
+        this.facilities.remove("null");
+        this.polls.remove("null");
+        this.properties.remove("null");
+    }
 }

@@ -186,7 +186,7 @@ public class EventsControllerWeb {
 
 
     @PostMapping("/event/{EventUUID}/edit")
-    public ModelAndView httpEventEditPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+    public String httpEventEditPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
     @ModelAttribute EventDTO eventDTO,
     @PathVariable("EventUUID") String eventUUID) {
 
@@ -194,6 +194,8 @@ public class EventsControllerWeb {
             User user = validateSession(session);
             Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
             
+            eventDTO.validate();
+
             // Update event
             eventService.update(user, event, eventDTO);
 
@@ -205,14 +207,28 @@ public class EventsControllerWeb {
                 pollService.create(user, poll);
                 eventService.addPoll(event, poll);
             }
+
+            //List<Poll> polls = eventService.getPolls(event);
+
+            for (String p : eventDTO.getPolls()){
+                var newPoll = Polls.fromJson(p);
+                var existingPoll = pollService.getPoll(newPoll.getUUID());
+                if (existingPoll.isPresent()){
+                    pollService.update(newPoll);
+                }
+                else{
+                    pollService.create(user, newPoll);
+                    eventService.addPoll(event, newPoll);
+                }
+            }
             
-            return new ModelAndView("redirect:/Home", model.asMap(), HttpStatus.FORBIDDEN);
+            return "redirect:/event/{EventUUID}";
 
         } catch(Exception e){
             LOGGER.error("Could not create Event: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred");
 
-            return new ModelAndView("redirect:/Home", model.asMap(), HttpStatus.FORBIDDEN);
+            return EVENT_NEW;
         }
         
 

@@ -48,7 +48,7 @@ public class PollTests {
         pollService.addResponse(poll, choices2);
         pollService.addResponse(poll, choices3);
 
-        var pol2 = pollService.getPoll(poll.getUUID());
+        var pol2 = pollService.getPoll(poll.getUUID()).orElseThrow();
         pol2.getOptions();
         pollDAO.delete(poll);
 
