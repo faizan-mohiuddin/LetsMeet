@@ -146,7 +146,7 @@
                             <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>              
                             <div th:include="event/fragments :: facilities_selector"></div>
 
-                        <!-- DATE LIST -->
+                        <!-- FACILITIES LIST -->
                         <div id="facilitiesList">
                             <div th:each="facility : ${event.facilities}">
                                 <div class="card w-100 mt-2 bg-light">
@@ -193,7 +193,7 @@
                                     <div th:each="poll : ${polls}">
                                         <div class="card w-100 mt-2 bg-light">
                                             <div class="card-body">
-                                                <input hidden type="text" name="facilities" th:value='${poll.json}'/>
+                                                <input hidden type="text" name="polls" th:value='${poll.json}'/>
                                                 <div class="row align-items-center">
                                                     <div class="col-sm-10">
                                                         <div class="row">
