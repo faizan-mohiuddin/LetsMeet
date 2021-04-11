@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +22,9 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -44,13 +43,24 @@ public class EventsControllerWeb {
     public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss a"; 
     public static final DateTimeFormatter LDT_FOMATTER = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN);
 
-    public static class JsonPair{
-        public Object object;
+    /**
+     * Poll model data interface
+     */
+    public static class _PollData{
         public String json;
+        public String name;
+        public Map<String, Integer> options;
 
-        JsonPair(Object object, String string){this.object = object; this.json = string;}
+        _PollData(Poll poll){
+            this.json = poll.toJson();
+            this.name = poll.getName();
+            this.options = poll.getOptions();
+        }
     }
 
+    /**
+     * DateTimeRange model data interface
+     */
     public static class _DateTimeData{
         public String json;
         public String startDate;
@@ -67,9 +77,8 @@ public class EventsControllerWeb {
         }
     }
 
-    private static String EVENT_NEW = "event/new";
-    private static String EVENT = "event/event";
-    private static String EVENT_EDIT = "";
+    private static String EVENT_TEMPLATE_EDITOR = "event/new";
+    private static String EVENT_TEMPLATE_VIEWER = "event/event";
 
     private static String USER_ATTR = "user";
 
@@ -96,9 +105,10 @@ public class EventsControllerWeb {
                 model.addAttribute("polls", null);
 
                 model.addAttribute("title", "New Meet");
+                model.addAttribute("icon", "bi-plus-square");
                 model.addAttribute("onSubmit", "/v2/event/new");
 
-            return EVENT_NEW;
+            return EVENT_TEMPLATE_EDITOR;
         }
         catch (Exception e){
             LOGGER.error("Could not create Event: {}", e.getMessage());
@@ -164,17 +174,18 @@ public class EventsControllerWeb {
             model.addAttribute("times", times);
 
             // Add polls to model
-            List<JsonPair> polls = new ArrayList<>();
-            for (var v : eventService.getPolls(event)){
-                polls.add(new JsonPair(v,v.toString()));
+            List<_PollData> polls = new ArrayList<>();
+            for (var poll : eventService.getPolls(event)){
+                polls.add(new _PollData(poll));
             }
             model.addAttribute("polls", polls);
 
             // Setup form
             model.addAttribute("title", "Edit Meet");
+            model.addAttribute("icon", "bi-pen");
             model.addAttribute("onSubmit", "/v2/event/" + eventUUID + "/edit");
 
-            return EVENT_NEW;
+            return EVENT_TEMPLATE_EDITOR;
         }
         catch (Exception e){
             LOGGER.error("Could not create Event: {}", e.getMessage());
@@ -200,26 +211,25 @@ public class EventsControllerWeb {
             eventService.update(user, event, eventDTO);
 
             // Update any polls
-            for (String p : eventDTO.getPolls()){
-                List<Poll> polls = eventService.getPolls(event);
-                
-                var poll = Polls.fromJson(p);
-                pollService.create(user, poll);
-                eventService.addPoll(event, poll);
-            }
-
-            //List<Poll> polls = eventService.getPolls(event);
-
+            List<UUID> newPolls = new ArrayList<>();
             for (String p : eventDTO.getPolls()){
                 var newPoll = Polls.fromJson(p);
-                var existingPoll = pollService.getPoll(newPoll.getUUID());
-                if (existingPoll.isPresent()){
+                newPolls.add(newPoll.getUUID());         
+                var existingPoll = pollService.getPoll(newPoll.getUUID());      // Check if poll already exists
+                if (existingPoll.isPresent()){                                  // If so, update it
                     pollService.update(newPoll);
                 }
-                else{
+            else{                                                               // Otherwise create it
                     pollService.create(user, newPoll);
                     eventService.addPoll(event, newPoll);
                 }
+            }
+
+            List<Poll> toDelete = eventService.getPolls(event);
+            toDelete.removeIf(n -> (newPolls.contains(n.getUUID())));
+            for (Poll poll : toDelete){
+                eventService.removePoll(event, poll);
+                // TODO pollService.delete(poll)
             }
             
             return "redirect:/event/{EventUUID}";
@@ -228,13 +238,11 @@ public class EventsControllerWeb {
             LOGGER.error("Could not create Event: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("accessDenied", "An error occurred");
 
-            return EVENT_NEW;
+            return EVENT_TEMPLATE_EDITOR;
         }
         
 
     }
-
-
 
 
     private User validateSession(HttpSession session) throws IllegalAccessException{

@@ -25,6 +25,10 @@ public class LetsMeetEntity {
         this.name = "entity_" + this.uuid.toString();
     }
 
+    public String toJson(){
+        return "{not implemented}";
+    }
+
     public UUID getUUID() {
         return uuid;
     }

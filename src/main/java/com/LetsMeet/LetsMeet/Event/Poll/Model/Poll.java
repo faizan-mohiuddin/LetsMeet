@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Root.Core.Model.LetsMeetEntity;
+import com.google.gson.Gson;
 
 public class Poll extends LetsMeetEntity /*implements Map<String,Integer>*/  {
   
@@ -24,6 +25,11 @@ public class Poll extends LetsMeetEntity /*implements Map<String,Integer>*/  {
         this.name = name;
         this.options = options;
         this.multiselect = mutliselect;
+    }
+
+    @Override
+    public String toJson(){
+        return new Gson().toJson(this);
     }
 
 

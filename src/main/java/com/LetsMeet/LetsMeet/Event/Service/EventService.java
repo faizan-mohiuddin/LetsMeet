@@ -270,7 +270,12 @@ public class EventService{
     }
 
     public boolean removePoll(Event event, Poll poll){
-        // TODO unlink poll in db
+        
+        try {
+            eventPollDAO.delete(new LetsMeetTuple<>(event.getUUID(), poll));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not remove Poll<" + poll.getUUID() + "> from Event<" + event.getUUID() + "> : " + e.getMessage());
+        }
         return false;
     }
 

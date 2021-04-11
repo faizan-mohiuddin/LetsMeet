@@ -258,7 +258,7 @@
         <div class="input-group mb-3 content">
             <input type="text" name="serviceName" class="form-control" placeholder="Facility/Service" aria-label="Facility/Service" aria-describedby="basic-addon2">
             <div class="input-group-append">
-              <button class="btn btn-outline-primary" id="addRange" type="button" value="hi">Add</button>
+              <button class="btn btn-outline-primary" id="addRange" type="button" value="hi"><i class="bi bi-plus-square-fill"></i> Add</button>
             </div>
           </div>
         <script>
@@ -299,8 +299,9 @@
 
     <div th:fragment="poll_creator">
         <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Add
+        <button type="button" class="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#exampleModal">
+            <i class="bi bi-plus-square-fill"></i>
+            New
         </button>
         
         <!-- Modal -->
