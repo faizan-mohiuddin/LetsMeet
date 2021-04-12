@@ -351,13 +351,31 @@ public class EventControllerWeb {
     @PostMapping("/event/{eventUUID}/users")
     public String eventUsers(Model model, RedirectAttributes redirectAttributes, HttpSession session,
     @PathVariable("eventUUID") String eventUUID,
-    @RequestParam(value="usersRequired") List<String> userUUIDs){
+    @RequestParam(value="usersRequired") List<String> userInputs){
         try{
             Event event = eventService.getEvent(eventUUID);
             List<User> users = new ArrayList<>();
-            for ( var v : userUUIDs){
-                users.add(userService.getUserByUUID(v));
+            User invitedUser = null;
+
+            for ( var v : userInputs){
+                // Attempts to get by uuid
+                try {
+                    invitedUser = userService.getUserByUUID(v);
+                }catch(Exception e){
+                    // We dont care about this
+                }
+
+                if(invitedUser == null){
+                    // Attempt to get by email
+                    invitedUser = userService.getUserByEmail(v);
+                }
+
+                if(!(invitedUser == null)){
+                    // Add user to list
+                    users.add(invitedUser);
+                }
             }
+
             for (var user : users){
                 responseService.createResponse(user, event, false);
             }
