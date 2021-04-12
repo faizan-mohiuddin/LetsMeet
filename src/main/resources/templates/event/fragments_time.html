@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <div th:fragment="main">
+
+        <div id='app'>
+            <template>
+                <div class="section text-center">
+                    <div class="flex flex-col items-center mb-6">
+                        <v-date-picker mode="dateTime" v-model="dateRange" is-range is-expanded :attributes="attrs"></v-date-picker>
+                        <!--<span>{{ dateRange.start }}->{{ dateRange.end }}</span>-->
+                        <button
+                        type="button"
+                        class="btn btn-primary btn-block mt-2"
+                        :class="date ? 'bg-red-500' : 'bg-red-300'"
+                        :disabled="!date"
+                        @click="addToList()"><i class="bi bi-plus-square"></i>
+                         Add
+                      </button>
+                      <button
+                      type="button"
+                      class="btn btn-link btn-block"
+                      @click="importFile()"><i class="bi bi-cloud-upload"></i>
+                       Power user? Import file
+                    </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+             <!-- 1. Link Vue Javascript -->
+    <script src='https://unpkg.com/vue/dist/vue.js'></script>
+
+    <!-- 2. Link VCalendar Javascript (Plugin automatically installed) -->
+    <script src='https://unpkg.com/v-calendar'></script>
+
+    <!--3. Create the Vue instance-->
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const start = new Date();
+                const end = new Date();
+                return {
+                    date: new Date(),
+                    timezone: '',
+                    dateRange: {
+                        start,
+                        end,
+                    },
+                    attrs: [
+
+                    ],
+                };
+            },
+            mounted(){
+                var range = $(".card-title");
+
+                console.log(range.length);
+                var i;
+                for (i = 0; i < range.length; i++) {
+                    console.log(range[i].innerHTML);
+                } 
+                console.log("beforeMount complete!")
+            },
+            methods: {
+                addToList() {
+                    var vm = this;
+                    var start = this.$data.dateRange.start.toISOString();
+                    var startLocal = this.$data.dateRange.start.toLocaleString();
+                    var end = this.$data.dateRange.end.toISOString();
+                    var endLocal = this.$data.dateRange.end.toLocaleString();
+                    console.log('start:\t'+ start + '\nend:\t' + end);
+                    //var temp = document.getElementById("basic");
+                    //temp.innerHTML = start + '---->' + end;
+                    //var clone = temp.content.cloneNode(true);
+                    //document.body.appendChild(clone);
+                    var json = JSON.stringify(this.$data.dateRange);
+                    //alert(json);
+                    var dateMarkup = `
+                    <div class="card w-100 mt-2 bg-light">
+                        <div class="card-body">
+                            <input hidden type="text" name="times"value='${json}'/>
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <div class="row">
+                                        <div class="span4"><b>From:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text">${startLocal}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="row">
+                                        <div class="span4"><b>To:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text">${endLocal}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                        <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    $("#timeRangeList").append(dateMarkup);
+                    
+                    // Update calendar attributes;
+                    var thing = {
+                        highlight: {
+                            start: { fillMode: 'light' },
+                            base: { fillMode: 'light' },
+                            end: { fillMode: 'light' },
+                        },
+                        dates: { start: this.$data.dateRange.start, end: this.$data.dateRange.end },
+                    };
+
+                    this.attrs.push(thing);
+                },
+                importFile(){
+                var fileSelector = document.createElement('input');
+                fileSelector.setAttribute('type', 'file');
+
+                var selectDialogueLink = document.createElement('a');
+                selectDialogueLink.setAttribute('href', '');
+                selectDialogueLink.innerText = "Select File";
+                fileSelector.click();
+                alert("Not implemented");
+                return false;
+            },
+            },
+
+        })
+
+    </script>
+
+
+    </div>
+
+
+   
+
+</body>
+
+<!-- {
+    highlight: {
+        start: { fillMode: 'light' },
+        base: { fillMode: 'light' },
+        end: { fillMode: 'light' },
+    },
+    dates: { start: new Date(year, month, 21), end: new Date(year, month, 17) },
+},
+{
+    key: 'today',
+    highlight: {
+        color: 'blue',
+        fillMode: 'light',
+        contentClass: 'italic',
+    },
+    dates: new Date(year, month, 4),
+},
+{
+    highlight: {
+        color: 'blue',
+        fillMode: 'light',
+    },
+    dates: new Date(year, month, 12),
+},
+{
+    highlight: {
+        color: 'blue',
+        fillMode: 'light',
+    },
+    dates: new Date(year, month, 13),
+}, -->

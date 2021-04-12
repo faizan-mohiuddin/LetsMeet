@@ -150,7 +150,9 @@ public class EventControllerWeb {
             model.addAttribute("eventlocation", eventlocation);
 
             // Create new Event object and persist it
-            Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+            //Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
+            Event event = new Event(eventname);
+            eventService.save(event, user);
 
             /* Setup and add Event Times */
 

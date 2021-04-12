@@ -102,8 +102,8 @@
 
         <h1>&nbsp;</h1>
 
-        <div class="card border-warning mb-3" style="max-width: 18rem;">
-            <div class="card-header">Debug Tools</div>
+        <div th:if="${userlogin?.isAdmin}" class="card border-warning mb-3" style="max-width: 18rem;">
+            <div class="card-header">Administration Tools</div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-sm">

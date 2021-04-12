@@ -20,85 +20,223 @@
     <!-- TITLE BAR -->
     <div class="jumbotron">
         <div class="container">
-            <h1>Create an Event</h1>
+            <div class="row">
+                <div class="col-sm-1"><h1 class="bi" th:classappend="${icon}"></h1></div>
+                <div class="col"><h1 th:text="${title}">New Event</h1></div>         
+            </div>
         </div>
     </div>
 
-    <!-- DATE PICKER -->
-    <div id='app'>
-        <template>
-            <div class="section text-center">
-                <h4>Time Selection & Timezones</h4>
-                <div class="flex flex-col items-center mb-6">
-                    <v-date-picker mode="dateTime" v-model="range2" is-range :attributes="attrs"></v-date-picker>
-                    <button type="button" class="btn btn-primary">Add</button>
+    
+
+     <!-- MAIN BODY -->
+     <div class="container">
+
+         <!-- ALERTS -->
+        <div th:include="fragments/common :: alerts"></div>
+
+         <!-- EVENT FORM -->
+         <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="${onSubmit}" th:method="PUT">
+            <div class="form-group">
+                <label for="eventname">Event Name: </label>
+                <input type="text" class="form-control form-control-lg" name="name" placeholder="What is your Meet called?" th:value="${event.getName()}"/><br/>
+                <label for="eventdesc">Image: </label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="image">
+                    <label class="custom-file-label" for="customFile">Choose image (jpeg, png)</label><br/><br/>
+                </div>
+                <label for="eventname">Description </label>
+                <textarea type="text" class="form-control" name="description" placeholder="Tell us about your Meet..." th:text="${event.getDescription()}"></textarea><br/>
+                <input type="hidden" name="location" th:value="${event.location}"/>
+                <input type="hidden" name="latitude" th:value="${event.latitude}"/>
+                <input type="hidden" name="longitude" th:value="${event.longitude}"/>
+                <input type="hidden" name="radius" th:value="${event.radius}"/>
+                <!-- LOCATION PICKER -->
+                <div class="card">
+                    <div class="card-header">
+                        Location
+                        <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                            <input type="checkbox" class="custom-control-input" id="customCheck1">
+                            <label class="custom-control-label" for="customCheck1">Enabled</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Where are you?</h5>
+                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    </div>
+                </div><br/>
+
+
+                <!-- DATE AND TIMES -->
+                <div class="card">
+                    <div class="card-header" style="vertical-align: top;">
+                        Dates and Times
+                        <div class="custom-control custom-checkbox" style="vertical-align: auto; float: right;">
+                            <input type="checkbox" class="custom-control-input" id="customCheck1">
+                            <label class="custom-control-label" for="customCheck1">Enabled</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">When are you available?</h5>
+                        <p class="card-text">Double click on a date to select it. Click and drag to select multiple.</p>
+                        <!-- DATE PICKER -->
+                        <div class="row">
+                            <div class="col-sm-5">
+                                          
+                            <div th:include="event/fragments_time :: main"></div>
+                        </div>
+                        <!-- DATE LIST -->
+                        <div class="col" id="timeRangeList">
+                            <div th:each="time : ${times}">
+                                <div class="card w-100 mt-2 bg-light">
+                                    <div class="card-body">
+                                        <input hidden type="text" name="times" th:value='${time.json}'/>
+                                        <div class="row align-items-center">
+                                            <div class="col-sm-4">
+                                                <div class="row">
+                                                    <div class="span4"><b>From:&nbsp; </b></div>
+                                                    <div class="span8">
+                                                        <p class="card-text" th:text="${time.startDate} + ${time.startTime}  "></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="row">
+                                                    <div class="span4"><b>To:&nbsp; </b></div>
+                                                    <div class="span8">
+                                                        <p class="card-text" th:text="${time.endDate} + ${time.endTime}  "></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><br/>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <!-- FACILITIES PICKER -->
+                    <div class="card">
+                        <div class="card-header">
+                            Venue Facilities
+                            <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                <label class="custom-control-label" for="customCheck1">Enabled</label>
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                            
+
+                            <h5 class="card-title">What facilities do you need?</h5>
+                            <p class="card-text">Let us find the perfect venue for your Meet.</p>              
+                            <div th:include="event/fragments :: facilities_selector"></div>
+
+                        <!-- FACILITIES LIST -->
+                        <div id="facilitiesList">
+                            <div th:each="facility : ${event.facilities}">
+                                <div class="card w-100 mt-2 bg-light">
+                                    <div class="card-body">
+                                        <input hidden type="text" name="facilities"th:value='${facility}'/>
+                                        <div class="row align-items-center">
+                                            <div class="col-sm-10">
+                                                <div class="row">
+                                                    <div class="span10">
+                                                        <p class="card-text"th:text="${facility}">${serviceName}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><br/>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <!-- POLL CREATOR -->
+                    <div class="card">
+                        <div class="card-header">
+                            Participant Polls
+                            <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                                <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                <label class="custom-control-label" for="customCheck1">Enabled</label>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <h5 class="card-title">Ask some questions!</h5>
+                                <p class="card-text">Get feedback from your participants.</p>
+
+                                <div th:include="event/fragments :: poll_creator"></div>
+
+                                <!-- DATE LIST -->
+                                <div id="pollList">
+                                    <div th:each="poll : ${polls}">
+                                        <div class="card w-100 mt-2 bg-light">
+                                            <div class="card-body">
+                                                <input hidden type="text" name="polls" th:value='${poll.json}'/>
+                                                <div class="row align-items-center">
+                                                    <div class="col-sm-10">
+                                                        <div class="row">
+                                                            <div class="span10">
+                                                                <p class="card-text"th:text="${poll.name}">${serviceName}</p>
+                                                                <p class="card-text"th:text="${poll.options}">${serviceName}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><br/>
                 </div>
             </div>
-        </template>
+        
+            <!-- Workaround for zealous Spring WebMvcConfigurerAdapter Formatter on single value inputs-->
+            <input type="hidden" name="times" value="null"/>
+            <input type="hidden" name="polls"value="null"/>
+            <input type="hidden" name="facilities"value="null"/>
+            <input type="hidden" name="properties"value="null"/>
 
 
-    </div>
+            <input class="btn btn-primary btn-block mt-2" type="submit" value="Submit" id="btnSubmit"/>
+
+        </form>
+     </div>
+
+     <div th:insert="footer :: footer"></div>
 
 
+     <!-- SCRIPTS -->
 
-    <!-- 1. Link Vue Javascript -->
-    <script src='https://unpkg.com/vue/dist/vue.js'></script>
-
-    <!-- 2. Link VCalendar Javascript (Plugin automatically installed) -->
-    <script src='https://unpkg.com/v-calendar'></script>
-
-    <!--3. Create the Vue instance-->
-    <script>
-        new Vue({
-            el: '#app',
-            data() {
-                const date = new Date();
-                const year = date.getFullYear();
-                const month = date.getMonth();
-                return {
-                    attrs: [
-                        {
-                            highlight: {
-                                start: { fillMode: 'light' },
-                                base: { fillMode: 'light' },
-                                end: { fillMode: 'light' },
-                            },
-                            dates: { start: new Date(year, month, 21), end: new Date(year, month, 17) },
-                        },
-                        {
-                            key: 'today',
-                            highlight: {
-                                color: 'blue',
-                                fillMode: 'light',
-                                contentClass: 'italic',
-                            },
-                            dates: new Date(year, month, 4),
-                        },
-                        {
-                            highlight: {
-                                color: 'blue',
-                                fillMode: 'light',
-                            },
-                            dates: new Date(year, month, 12),
-                        },
-                        {
-                            highlight: {
-                                color: 'blue',
-                                fillMode: 'light',
-                            },
-                            dates: new Date(year, month, 13),
-                        },
-                    ],
-                };
-            },
-        })
-
+     <script>
+        // Image upload filename text
+        $(".custom-file-input").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
     </script>
-
-
-
-
-
 
 
 </body>

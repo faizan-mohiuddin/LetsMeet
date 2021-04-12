@@ -80,7 +80,10 @@ public class EventDao implements DAO<Event> {
             return event;
 
         }catch(SQLException e){
-            
+
+            if (e.getSQLState().contains("S1000"))
+                return Optional.empty();
+        
             throw new IOException(e.getMessage());
         }
     }
