@@ -109,11 +109,8 @@ public class ValidationService {
         // Check email is not already in use
         if(!dao.get(email).isPresent()){
             // Check email is comprised of correct parts
-            Pattern pattern = Pattern.compile(EMAIL_REGEX);
-            Matcher matcher = pattern.matcher(email);
-            boolean result = matcher.matches();
-            arr[0] = result;
-            if(result){
+            arr[0] = checkEmailMakeUp(email);
+            if(arr[0]){
                 arr[1] = "";
             }else{
                 arr[1] = "Email is not valid";
@@ -123,6 +120,14 @@ public class ValidationService {
         arr[0] = false;
         arr[1] = "Email already in use";
         return arr;
+    }
+
+    public Boolean checkEmailMakeUp(String email){
+        // Check email is comprised of correct parts
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        boolean result = matcher.matches();
+        return result;
     }
 
     // Private methods

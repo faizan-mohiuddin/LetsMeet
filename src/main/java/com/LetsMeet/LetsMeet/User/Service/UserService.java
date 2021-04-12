@@ -57,6 +57,9 @@ public class UserService implements UserServiceInterface {
     @Autowired
     ValidationService validationService;
 
+    @Autowired
+    GuestDAO guestDAO;
+
 
     // CRUD
     //-----------------------------------------------------------------
@@ -148,12 +151,36 @@ public class UserService implements UserServiceInterface {
     }
 
     //-----------------------------------------------------------------
-  
+    public User createGuest(String email, Event eventInvitedTo){
+	    // Generate UUID
+        UUID uuid = createGuestUserUUID(email, eventInvitedTo);
+
+        // Create User object
+        User guest = new User(uuid, "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", false);
+
+        // Store in DB - User table
+        if(dao.save(guest)) {
+            // Store in DB - IsGuest table
+            guestDAO.save();
+            return guest;
+        }
+        return null;
+    }
+    //-----------------------------------------------------------------
+
     // Returns a UUID generated from user specific seed data
     public static UUID createUserUUID(String fName, String lName, String email){
         String uuidData = fName + lName + email;
         UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
         return uuid;
+    }
+
+    public static UUID createGuestUserUUID(String email, Event event){
+        long time = Instant.now().getEpochSecond();
+        String strTime = Long.toString(time);
+	    String uuidData = "Guest" + email + event.getName() + strTime;
+	    UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
+	    return uuid;
     }
 
     // Returns a random salt string

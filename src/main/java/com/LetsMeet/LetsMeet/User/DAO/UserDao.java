@@ -118,7 +118,6 @@ public class UserDao implements DAO<User> {
     //-----------------------------------------------------------------
     @Override
     public Boolean save(User t)  {
-        
 
         try(DatabaseConnector connector = connectionService.get();
             PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO User (UserUUID, fName, lName, email, PasswordHash, salt) VALUES (?,?,?,?,?,?)")) {
@@ -129,8 +128,6 @@ public class UserDao implements DAO<User> {
             statement.setString(5, t.getPasswordHash());
             statement.setString(6, t.getSalt());
             int rows = statement.executeUpdate();
-
-            
 
             if (rows > 0) {
                 return true;

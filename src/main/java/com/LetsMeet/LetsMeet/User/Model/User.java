@@ -11,6 +11,7 @@ public class User {
     String passwordHash;
     String salt;
     Boolean isAdmin = false;
+    Boolean isGuest = false;
 
     public User(UUID UUID, String fName, String lName, String email, String passwordHash, String salt){
         this.UUID = UUID;
@@ -66,6 +67,14 @@ public class User {
     public Boolean getIsAdmin() { return this.isAdmin; }
 
     public void setIsAdmin(Boolean b) { this.isAdmin = b; }
+
+    public Boolean getIsGuest(){
+        return this.isGuest;
+    }
+
+    public void setIsGuest(Boolean b){
+        this.isGuest = b;
+    }
 
     public String getStringUUID(){
         return this.UUID.toString();

@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
@@ -60,6 +61,9 @@ public class EventControllerWeb {
 
     @Autowired
     VenueService venueService;
+
+    @Autowired
+    ValidationService validationService;
 
     @GetMapping({"/createevent", "/event/new"})
     public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -370,14 +374,30 @@ public class EventControllerWeb {
                     invitedUser = userService.getUserByEmail(v);
                 }
 
+                if(invitedUser == null){
+                    // User is not in DB
+                    // Check if email has been input
+                    Object[] response = validationService.checkEmailMakeUp(v);
+                    boolean emailFormat = (boolean) response[0];
+                    if(emailFormat){
+                        // Send invite to this email - for guest
+                        System.out.println("Guest account needed");
+                        invitedUser = userService.createGuest(v);
+                    }
+                }
+
                 if(!(invitedUser == null)){
                     // Add user to list
                     users.add(invitedUser);
                 }
             }
 
-            for (var user : users){
+            for (User user : users){
                 responseService.createResponse(user, event, false);
+                if(user.getIsGuest()){
+                    // Email guest
+
+                }
             }
             redirectAttributes.addFlashAttribute("success","Invitation sent!");
         }
