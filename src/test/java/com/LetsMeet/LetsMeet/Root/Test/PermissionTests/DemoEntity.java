@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.RootTests.PermissionTests;
+package com.LetsMeet.LetsMeet.Root.Test.PermissionTests;
 
 import java.util.UUID;
 

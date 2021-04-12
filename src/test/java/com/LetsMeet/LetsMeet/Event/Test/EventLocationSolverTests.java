@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.EventTests;
+package com.LetsMeet.LetsMeet.Event.Test;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;

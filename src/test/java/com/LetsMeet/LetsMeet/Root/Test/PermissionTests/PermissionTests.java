@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.RootTests.PermissionTests;
+package com.LetsMeet.LetsMeet.Root.Test.PermissionTests;
 
 import com.LetsMeet.LetsMeet.Root.Database.DatabaseConnectionPool;
 import com.LetsMeet.LetsMeet.Root.Permission.PermissionDAO;

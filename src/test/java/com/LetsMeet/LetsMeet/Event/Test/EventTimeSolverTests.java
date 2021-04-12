@@ -1,8 +1,7 @@
-package com.LetsMeet.LetsMeet.EventTests;
+package com.LetsMeet.LetsMeet.Event.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.LetsMeet.LetsMeet.RootTests.DatabaseTests;
+package com.LetsMeet.LetsMeet.Root.Test.DatabaseTests;
 
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
