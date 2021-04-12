@@ -78,7 +78,7 @@ public class EventsControllerWeb {
     }
 
     private static String EVENT_TEMPLATE_EDITOR = "event/new";
-    private static String EVENT_TEMPLATE_VIEWER = "event/event";
+    // TODO impliment event viewing stuff private static String EVENT_TEMPLATE_VIEWER = "event/event"
 
     private static String USER_ATTR = "user";
 
@@ -95,10 +95,10 @@ public class EventsControllerWeb {
             User user = validateSession(session);
             model.addAttribute(USER_ATTR, user);
 
-
-            EventDTO eventDTO = dtoFromEvent(new Event(""));
-
+            if (model.getAttribute("event") == null){
+                EventDTO eventDTO = dtoFromEvent(new Event(""));
                 model.addAttribute("event", eventDTO);
+            }
 
                 model.addAttribute("times", null);
 
@@ -127,6 +127,9 @@ public class EventsControllerWeb {
     public String httpEventNewPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
         @ModelAttribute EventDTO eventDTO){
             try {
+
+                eventDTO.validate();
+
                 User user = validateSession(session);
                 Event event = Events.from(eventDTO); 
 
@@ -134,22 +137,26 @@ public class EventsControllerWeb {
                 eventService.save(event, user);
 
                 // Save any Polls
-                try {
-                    for (String p : eventDTO.getPolls()){
-                        var poll = Polls.fromJson(p);
-                        pollService.create(user, poll);
-                        eventService.addPoll(event, poll);
-                    }
-                } catch (Exception e) {
-                    redirectAttributes.addFlashAttribute("warning", "There was an issue creating one or more polls");
+                for (String p : eventDTO.getPolls()){
+                    var poll = Polls.fromJson(p);
+                    pollService.create(user, poll);
+                    eventService.addPoll(event, poll);
                 }
 
-
+                redirectAttributes.addFlashAttribute("success", "Event created!");
                 return "redirect:/event/" + event.getUUID().toString();
             } catch (Exception e) {
                 LOGGER.error("Could not create new event: {}", e.getMessage());
-                redirectAttributes.addFlashAttribute("danger", "A critical error occurred, please try again later. ");
-                return "redirect:/event/new}";
+
+                if (e.getMessage().contains("Invalid Poll JSON"))
+                    redirectAttributes.addFlashAttribute("warning", "There was an issue creating one or more polls.");
+
+                redirectAttributes.addFlashAttribute("danger", "The Event could not be created, please try again later. ");
+
+                // We don't want users to enter all their details again
+                redirectAttributes.addFlashAttribute("event", eventDTO);
+                
+                return "redirect:/v2/createevent";
         }
     }
 

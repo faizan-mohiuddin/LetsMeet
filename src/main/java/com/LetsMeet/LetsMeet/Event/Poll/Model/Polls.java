@@ -39,12 +39,17 @@ public class Polls {
      * @param json must define "name: ", "multiselect: " and "options: {}"
      * @return new Poll
      */
-    public static Poll fromJson(String json){
-        Gson gson = new Gson();
-        Poll poll = gson.fromJson(json, Poll.class);
-        if (poll.getUUID()==null){
-            poll.setUUID(UUID.randomUUID());
+    public static Poll fromJson(String json) throws IllegalArgumentException{
+        try{
+            Gson gson = new Gson();
+            Poll poll = gson.fromJson(json, Poll.class);
+            if (poll.getUUID()==null){
+                poll.setUUID(UUID.randomUUID());
+            }
+            return poll;
         }
-        return poll;
+        catch (Exception e){
+            throw new IllegalArgumentException("Invalid Poll JSON");
+        }
     }
 }
