@@ -377,12 +377,11 @@ public class EventControllerWeb {
                 if(invitedUser == null){
                     // User is not in DB
                     // Check if email has been input
-                    Object[] response = validationService.checkEmailMakeUp(v);
-                    boolean emailFormat = (boolean) response[0];
+                    boolean emailFormat = validationService.checkEmailMakeUp(v);
                     if(emailFormat){
                         // Send invite to this email - for guest
                         System.out.println("Guest account needed");
-                        invitedUser = userService.createGuest(v);
+                        invitedUser = userService.createGuest(v, event);
                     }
                 }
 
@@ -396,6 +395,10 @@ public class EventControllerWeb {
                 responseService.createResponse(user, event, false);
                 if(user.getIsGuest()){
                     // Email guest
+                    String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
+                    LOGGER.info(guestLink);
+                }else{
+                    // Email regular user
 
                 }
             }
@@ -770,6 +773,54 @@ public class EventControllerWeb {
 
 
         return "event/edit";
+    }
+
+    @GetMapping("/event/{eventuuid}/respond/{userUUID}")
+    public String guestRespondEventPreface(@PathVariable("eventuuid") String eventuuid, @PathVariable("userUUID") String userUUID,
+                                    Model model, RedirectAttributes redirectAttributes, HttpSession session){
+        // Get guest user
+        User user = userService.getUserByUUID(userUUID);
+        Event event = eventService.getEvent(eventuuid);
+        System.out.println("HERE");
+        //localhost:8080/event/184b7802-0e85-35e6-bc3b-1787e04752ae/respond/5999658d-a8da-3291-b98a-ba18762243dd
+
+        if(user == null || event == null || !user.getIsGuest()){
+            return "redirect:/404";
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("event", event);
+
+        return "event/guestResponsePreface";
+    }
+
+    @GetMapping("/event/{eventuuid}/responding/{userUUID}")
+    public String guestRespondEvent(@PathVariable("eventuuid") String eventUUID, @PathVariable("userUUID") String userUUID,
+                                    Model model, RedirectAttributes redirectAttributes, HttpSession session,
+                                    @RequestParam(value="FirstName", defaultValue = "") String fname,
+                                    @RequestParam(value="LastName", defaultValue = "") String lname){
+        // Get guest user
+        User guest = userService.getUserByUUID(userUUID);
+        if(guest == null){
+            return "redirect:/Home";
+        }
+
+        // Check user has been invited to event
+
+
+        // If first and or last name is given - add to user record
+        Boolean updatedDetails = false;
+        if(!(fname.equals(""))){
+            // Add to record
+
+             updatedDetails = true;
+        }
+
+        if(!(lname.equals(""))){
+            // Add to record
+            updatedDetails = true;
+        }
+        return null;
     }
 
     // Error catching

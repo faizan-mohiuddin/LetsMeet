@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+<div th:insert="header :: navbar"></div>
+
+<div class="jumbotron">
+    <div class="container">
+        <h1 th:text="${'You\'ve been invited to' + event.getName()}">You've been invited to</h1>
+    </div>
+</div>
+
+<div class="container">
+
+    <h3>You can choose to register this email address, or continue as a guest!</h3>
+
+    <div class="row">
+        <div class="col">
+            <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST"
+                  id="continueAsGuest" name="continueAsGuest">
+                <button type="submit" class="btn btn-primary">Continue As Guest</button>
+            </form>
+
+            <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST"
+                  id="register" name="register">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div th:insert="footer :: footer"></div>
+</body>

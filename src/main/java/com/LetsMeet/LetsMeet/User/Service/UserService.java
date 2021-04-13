@@ -13,6 +13,7 @@ import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.DAO.*;
+import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -156,12 +157,14 @@ public class UserService implements UserServiceInterface {
         UUID uuid = createGuestUserUUID(email, eventInvitedTo);
 
         // Create User object
-        User guest = new User(uuid, "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", false);
+        User guest = new User(uuid, "Unknown", "Unknown", email, "Unknown", "Unknown", false);
+        guest.setIsGuest(true);
 
         // Store in DB - User table
         if(dao.save(guest)) {
             // Store in DB - IsGuest table
-            guestDAO.save();
+            IsGuest isGuest = new IsGuest(guest.getUUID(), eventInvitedTo.getUUID());
+            guestDAO.save(isGuest);
             return guest;
         }
         return null;

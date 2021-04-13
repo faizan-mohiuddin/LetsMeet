@@ -32,6 +32,17 @@ public class User {
         this.isAdmin = isAdmin;
     }
 
+    public User(UUID UUID, String fName, String lName, String email, String passwordHash, String salt, Boolean isAdmin, Boolean isGuest){
+        this.UUID = UUID;
+        this.fName = fName;
+        this.lName = lName;
+        this.email = email;
+        this.salt = salt;
+        this.passwordHash = passwordHash;
+        this.isAdmin = isAdmin;
+        this.isGuest = isGuest;
+    }
+
     public User(String uuid){
         this.UUID = UUID.fromString(uuid);
     }

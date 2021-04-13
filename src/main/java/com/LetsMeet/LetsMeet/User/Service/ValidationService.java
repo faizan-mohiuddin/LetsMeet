@@ -110,7 +110,7 @@ public class ValidationService {
         if(!dao.get(email).isPresent()){
             // Check email is comprised of correct parts
             arr[0] = checkEmailMakeUp(email);
-            if(arr[0]){
+            if((Boolean) arr[0]){
                 arr[1] = "";
             }else{
                 arr[1] = "Email is not valid";

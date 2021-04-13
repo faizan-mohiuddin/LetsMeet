@@ -13,6 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,7 @@ public class GuestDAO {
             }
         }catch (Exception e){
             LOGGER.warn("Error saving IsGuest Data: {}", e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
