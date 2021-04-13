@@ -21,8 +21,10 @@
 
     <div class="jumbotron">
         <div class="container">
-            <h3><span th:text="${event.name}"></span></h3>
+            <h3 ><a th:href="@{/event/{eventUUID}/results(eventUUID = ${event.getUUID()})}" th:text="${event.name}" class="text-dark" style="text-decoration: none">Event Name</a></h3>
             <h1><i class="bi bi-building"></i> Venue</h1>
+
+
         </div>
     </div>
     <div class="container">
@@ -69,7 +71,10 @@
                                     <div class="row">
                                         <div class="span8"><h3 th:text="${venue.name}"></h3></div>
                                         <p class="card-text" th:text="${venue.address}"></p>
-                                        <p class="card-text" th:text="${venue.getUUID()}"></p>
+                                        <section th:if="${@environment.getProperty('lm.web.debugRender')}">
+                                            <p class="card-text" th:text="${venue.getUUID()}"></p>
+                                        </section>
+
                                     </div>
                                 </div>
                                 <div class="col-sm-2">
@@ -86,9 +91,10 @@
                     </div>
                 </div>
                 <div class="card bg-light mt-2 w-100" th:if="${venues.isEmpty()}">
-                    <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
+                    <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable venues</div>
                     <div class="card-body">
-                      <p class="card-text">Widen your search and try again.</p>
+                        <p class="card-text">Widen your search and try again.</p>
+                        <p class="card-text" ><a th:href="@{/event/{eventUUID}/results/venue(eventUUID = ${event.getUUID()})}">Clear filters</a></p>
                     </div>
                   </div>
             </div>

@@ -171,10 +171,10 @@ public class ResultControllerWeb {
 
         try{
             var results = resultsService.getResult(event);
-
             var location = results.getLocations().getSelected().orElseThrow( () -> new IllegalArgumentException(LOCATION_NOT_FOUND)).getProperty();
             var date = results.getDates().getSelected().orElseThrow(()-> new IllegalArgumentException(DATETIME_NOT_FOUND)).getProperty().getStart();
-            //var start = results.getDates().getSelected().orElseThrow().getProperty().getStart().toString();
+
+            // Build and execute search
             List<Venue> venues = venueService.search(
                     "",
                     "[" + facilities + "]",
@@ -186,8 +186,6 @@ public class ResultControllerWeb {
                     (isOpen) ? String.valueOf(date.getHour()) : "",
                     (isOpen) ? String.valueOf(date.getMinute()) : "",
                     (isOpen) ? date.getDayOfWeek().toString(): "");
-
-            //var venues = venueService.searchByRadius(results.getLocations().getSelected().get().getProperty().getLongitude(), results.getLocations().getSelected().get().getProperty().getLatitude(), results.getLocations().getSelected().get().getProperty().getRadius());
 
             model.addAttribute("user", user);
             model.addAttribute("event", eventService.get(UUID.fromString(eventuuid)).orElseThrow());

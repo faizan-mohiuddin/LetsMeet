@@ -170,7 +170,7 @@
 
     <div class="jumbotron">
         <div class="container">
-            <h3><span th:text="${event.name}"></span></h3>
+            <h3 ><a th:href="@{/event/{eventUUID}/results(eventUUID = ${event.getUUID()})}" th:text="${event.name}" class="text-dark" style="text-decoration: none">Event Name</a></h3>
             <h1><i class="bi bi-geo"></i> Location</h1>
         </div>
     </div>
