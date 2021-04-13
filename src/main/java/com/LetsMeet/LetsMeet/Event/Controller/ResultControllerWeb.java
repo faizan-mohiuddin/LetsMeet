@@ -5,6 +5,7 @@ import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.Venue.Model.Venue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequestMapping("/event/{eventUUID}/results")
@@ -173,9 +175,9 @@ public class ResultControllerWeb {
             var location = results.getLocations().getSelected().orElseThrow( () -> new IllegalArgumentException(LOCATION_NOT_FOUND)).getProperty();
             var date = results.getDates().getSelected().orElseThrow(()-> new IllegalArgumentException(DATETIME_NOT_FOUND)).getProperty().getStart();
             //var start = results.getDates().getSelected().orElseThrow().getProperty().getStart().toString();
-            var venues = venueService.search(
+            List<Venue> venues = venueService.search(
                     "",
-                    facilities,
+                    "[" + facilities + "]",
                     "",
                     String.valueOf(location.getLongitude()),
                     String.valueOf(location.getLatitude()),
