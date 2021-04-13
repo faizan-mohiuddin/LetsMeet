@@ -386,7 +386,7 @@ public class EventControllerWeb {
         }
         return "redirect:/event/{eventUUID}";
     }
-    
+
     @GetMapping("/event/{eventuuid}/respond")
     public String respondEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
 

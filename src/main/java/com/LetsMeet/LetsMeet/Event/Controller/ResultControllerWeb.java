@@ -151,8 +151,14 @@ public class ResultControllerWeb {
         }
     }
 
+    private static String LOCATION_NOT_FOUND = "Location not found";
+    private static String DATETIME_NOT_FOUND = "Date/Time not found";
+
     @GetMapping("/venue")
-    public String eventResultsLocation(Model model, RedirectAttributes redirectAttributes, HttpSession session, @PathVariable("eventUUID") String eventuuid){
+    public String eventResultsLocation(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "facilities", defaultValue = "") String facilities,
+        @RequestParam(value = "isOpen", defaultValue = "false") boolean isOpen){
 
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.get(UUID.fromString(eventuuid)).orElseThrow();
@@ -163,24 +169,45 @@ public class ResultControllerWeb {
 
         try{
             var results = resultsService.getResult(event);
-            var venues = venueService.searchByRadius(results.getLocations().getSelected().get().getProperty().getLongitude(), results.getLocations().getSelected().get().getProperty().getLatitude(), results.getLocations().getSelected().get().getProperty().getRadius());
+
+            var location = results.getLocations().getSelected().orElseThrow( () -> new IllegalArgumentException(LOCATION_NOT_FOUND)).getProperty();
+            var date = results.getDates().getSelected().orElseThrow(()-> new IllegalArgumentException(DATETIME_NOT_FOUND)).getProperty().getStart();
+            //var start = results.getDates().getSelected().orElseThrow().getProperty().getStart().toString();
+            var venues = venueService.search(
+                    "",
+                    facilities,
+                    "",
+                    String.valueOf(location.getLongitude()),
+                    String.valueOf(location.getLatitude()),
+                    String.valueOf(location.getRadius()),
+                    "",
+                    (isOpen) ? String.valueOf(date.getHour()) : "",
+                    (isOpen) ? String.valueOf(date.getMinute()) : "",
+                    (isOpen) ? date.getDayOfWeek().toString(): "");
+
+            //var venues = venueService.searchByRadius(results.getLocations().getSelected().get().getProperty().getLongitude(), results.getLocations().getSelected().get().getProperty().getLatitude(), results.getLocations().getSelected().get().getProperty().getRadius());
 
             model.addAttribute("user", user);
             model.addAttribute("event", eventService.get(UUID.fromString(eventuuid)).orElseThrow());
             model.addAttribute("venues", venues);
+            model.addAttribute("options", event.getEventProperties().getFacilities());
             return "event/results/venue";
         }
         catch(Exception e){
             LOGGER.error("Could not set times User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
-            redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
+
+            if (e.getMessage().contains(LOCATION_NOT_FOUND)) redirectAttributes.addFlashAttribute("warning", LOCATION_NOT_FOUND);
+            if (e.getMessage().contains(DATETIME_NOT_FOUND)) redirectAttributes.addFlashAttribute("warning",DATETIME_NOT_FOUND);
+            redirectAttributes.addFlashAttribute("danger", "An error occurred");
+
             return "redirect:/event/{eventUUID}";
         }
     }
 
     @PostMapping("/venue")
     public String resultsVenueSelect(Model model, RedirectAttributes redirectAttributes, HttpSession session,
-                                     @PathVariable("eventUUID") String eventuuid,
-                                     @RequestParam(value = "venueUUID") String venueUUID){
+        @PathVariable("eventUUID") String eventuuid,
+        @RequestParam(value = "venueUUID") String venueUUID){
 
         User user = (User) session.getAttribute("userlogin");
         Event event = eventService.get(UUID.fromString(eventuuid)).orElseThrow();
@@ -194,7 +221,6 @@ public class ResultControllerWeb {
             redirectAttributes.addFlashAttribute("success", "Venue confirmed!");
 
             return "redirect:/event/{eventUUID}/results";
-
         }
         catch(Exception e){
             LOGGER.error("Could not set venue User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
