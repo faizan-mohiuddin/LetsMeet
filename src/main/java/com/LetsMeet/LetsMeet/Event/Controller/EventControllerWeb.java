@@ -380,7 +380,6 @@ public class EventControllerWeb {
                     boolean emailFormat = validationService.checkEmailMakeUp(v);
                     if(emailFormat){
                         // Send invite to this email - for guest
-                        System.out.println("Guest account needed");
                         invitedUser = userService.createGuest(v, event);
                     }
                 }

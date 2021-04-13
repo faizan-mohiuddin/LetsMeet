@@ -16,6 +16,6 @@ public class IsGuest {
     }
 
     public UUID getEventUUID(){
-        return this.guestUUID;
+        return this.eventUUID;
     }
 }

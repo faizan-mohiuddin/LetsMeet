@@ -47,7 +47,6 @@ public class GuestDAO {
             }
         }catch (Exception e){
             LOGGER.warn("Error saving IsGuest Data: {}", e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
