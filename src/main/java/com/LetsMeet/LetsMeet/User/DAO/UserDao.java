@@ -98,8 +98,6 @@ public class UserDao implements DAO<User> {
             
             ResultSet rs = statement.executeQuery("select * from User");
 
-            
-
             List<User> users = new ArrayList<>();
 
             while(rs.next()){

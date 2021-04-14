@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.User.DAO;
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
 import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.User.Model.IsGuest;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,6 +50,42 @@ public class GuestDAO {
         }catch (Exception e){
             LOGGER.warn("Error saving IsGuest Data: {}", e.getMessage());
             return false;
+        }
+    }
+
+    public Optional<IsGuest> get(User user, Event event){
+        try {
+            DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();
+            String query = String.format("SELECT * FROM IsGuest AS g WHERE g.GuestUUID = '%s' AND g.EventUUID = '%s'",
+                    user.getUUID().toString(), event.getUUID().toString());
+            ResultSet rs = statement.executeQuery(query);
+
+            rs.next();
+            Optional<IsGuest> record = Optional.of(new IsGuest(rs.getString(1), rs.getString(2)));
+            return record;
+        }catch(Exception e){
+            LOGGER.warn(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<List<IsGuest>> get(User user){
+        try{
+            DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();
+            String query = String.format("SELECT * FROM IsGuest AS g WHERE g.GuestUUID = '%s'", user.getUUID().toString());
+            ResultSet rs = statement.executeQuery(query);
+
+            List<IsGuest> records = new ArrayList<>();
+            while(rs.next()){
+                records.add(new IsGuest(rs.getString(1), rs.getString(2)));
+            }
+            return Optional.of(records);
+
+        }catch(Exception e){
+            LOGGER.warn(e.getMessage());
+            return Optional.empty();
         }
     }
 }
