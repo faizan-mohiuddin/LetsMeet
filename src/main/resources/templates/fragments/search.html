@@ -7,9 +7,22 @@
 
 <body>
     <div th:fragment="basic_search">
-        <form class="d-flex">
+        <form class="d-flex" id="searchForm" action="#" onsubmit="return search();">
             <input class="form-control me-2" id="searchBox" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline" type="button" onclick="window.open(`/search?term=${document.getElementById('searchBox').value}`,'_self');" style="position: relative; left: -50px"><i class="bi bi-search"></i></button>
+            <button class="btn btn-outline" type="submit" style="position: relative; left: -50px"><i class="bi bi-search"></i></button>
         </form>
+
+        <script>
+            $('#searchForm').submit(function() {
+                let val = document.getElementById('searchBox').value;
+                if (val.length > 0){
+                    window.open(`/search?term=${document.getElementById('searchBox').value}`,'_self')
+                }
+                else{
+                    document.getElementById('searchBox').placeholder = "Search for something!";
+                }
+                return false; // return false to cancel form action
+            });
+        </script>
     </div>
 </body>
