@@ -102,6 +102,10 @@ public class UserService implements UserServiceInterface {
             if(u.getIsGuest()){
                 // User is guest
                 this.updateUser(u, fName, lName, "", password, false);
+
+                // Remove all instances of user from 'IsGuest' table
+                guestDAO.removeUser(u);
+
                 return "Account upgraded from guest account to full account";
             }else{
                 // email is already in use

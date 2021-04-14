@@ -88,4 +88,18 @@ public class GuestDAO {
             return Optional.empty();
         }
     }
+
+    public Boolean removeUser(User user){
+        try{
+            DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();
+            String query = String.format("DELETE FROM IsGuest WHERE IsGuest.GuestUUID = '%s'", user.getUUID().toString());
+            statement.executeUpdate(query);
+
+            return true;
+        }catch (Exception e){
+            LOGGER.warn("Error removing guest user instances: {}", e.getMessage());
+            return false;
+        }
+    }
 }
