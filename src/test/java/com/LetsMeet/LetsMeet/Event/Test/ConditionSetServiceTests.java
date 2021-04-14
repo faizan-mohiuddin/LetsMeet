@@ -1,4 +1,4 @@
-//package com.LetsMeet.LetsMeet.EventTests;
+//package com.LetsMeet.LetsMeet.Event.EventTests;
 //
 //import org.junit.jupiter.api.*;
 //import org.springframework.beans.factory.annotation.Autowired;

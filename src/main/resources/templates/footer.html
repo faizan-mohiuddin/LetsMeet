@@ -8,6 +8,8 @@
                 <div class="col-12 col-md">
                     <h3>LetsMeet</h3>
                     <small class="d-block mb-3 text-muted">Developed by Team Delta for Software Engineering and Professional Practice CS3528.</small>
+                    <small class="d-block text-muted" th:text="'Version: ' + ${@environment.getProperty('lm.appVersion')}"></small>
+                    <small class="d-block text-muted" th:text="'Built: ' + ${@environment.getProperty('lm.buildTimestamp')}"></small>
                 </div>
                 <div class="col-6 col-md">
                     <h5>About Us</h5>

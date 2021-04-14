@@ -1,13 +1,8 @@
-package com.LetsMeet.LetsMeet.EventTests.PollTests;
+package com.LetsMeet.LetsMeet.Event.Poll.Test;
 
 import com.LetsMeet.LetsMeet.Event.Poll.*;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Polls;
-import com.LetsMeet.LetsMeet.Root.Database.DatabaseConnectionPool;
-import com.LetsMeet.LetsMeet.Root.Permission.PermissionDAO;
-import com.LetsMeet.LetsMeet.Root.Permission.PermissionService;
-import com.LetsMeet.LetsMeet.Root.Permission.Model.Permissions;
 import com.LetsMeet.LetsMeet.User.Model.User;
-import com.LetsMeet.LetsMeet.User.Service.UserService;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

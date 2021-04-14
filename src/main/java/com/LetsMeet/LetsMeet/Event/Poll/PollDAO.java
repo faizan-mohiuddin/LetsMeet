@@ -27,12 +27,12 @@ public class PollDAO implements DAO<Poll>{
     @Autowired
     ConnectionService connectionService;
 
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     @Override
     public Optional<Poll> get(UUID uuid) throws IOException {  
         try(DatabaseConnector connector = connectionService.get();
-        Statement statement = connector.getConnection().createStatement();) {
+        Statement statement = connector.getConnection().createStatement()) {
         String query = String.format("select * from Event_Poll where Event_Poll.UUID = '%s'", uuid);
 
         ResultSet rs = statement.executeQuery(query);
@@ -40,7 +40,7 @@ public class PollDAO implements DAO<Poll>{
         if (!rs.next())
             return Optional.empty();
 
-        return Optional.ofNullable(new Poll(
+        return Optional.of(new Poll(
             UUID.fromString(rs.getString(1)), 
             rs.getString(2), 
             new Gson().fromJson(rs.getString(4), new TypeToken<Map<String, Integer>>() {}.getType()),
@@ -103,7 +103,7 @@ public class PollDAO implements DAO<Poll>{
     @Override
     public Boolean delete(UUID uuid) throws IOException {
         try(DatabaseConnector connector = connectionService.get();
-        Statement statement = connector.getConnection().createStatement();){
+        Statement statement = connector.getConnection().createStatement()){
     
         String query;
 

@@ -1,4 +1,4 @@
-//package com.LetsMeet.LetsMeet.EventTests;
+//package com.LetsMeet.LetsMeet.Event.EventTests;
 //
 //import com.LetsMeet.LetsMeet.Event.DAO.ConditionSetDao;
 //import com.LetsMeet.LetsMeet.Event.Model.ConditionSet;

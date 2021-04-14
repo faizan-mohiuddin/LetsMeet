@@ -208,7 +208,7 @@ public class VenueControllerWeb {
 
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
-            searchFacilities = "[\"" + searchFacilities + "\"]";
+            searchFacilities = "[" + searchFacilities + "]";
         }
 
         // Search for events by what is given

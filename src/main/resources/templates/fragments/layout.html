@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+</head>
+<body>
+
+
+<div th:fragment="sidebar">
+
+    <!-- Our Custom CSS -->
+    <link href="/css/style3.css" rel="stylesheet">
+    <!-- Scrollbar Custom CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css"
+          rel="stylesheet">
+
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div id="dismiss">
+                <i class="bi bi-x" style="color: #437DD8"></i>
+            </div>
+
+            <div class="sidebar-header">
+                <h3>Let's Meet</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="/Home">Home</a>
+                </li>
+                <li>
+                    <a href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Venues"><i class="bi bi-building"></i> Venue Finder</a>
+                </li>
+                <li>
+                    <a href="#"><i class="bi bi-question-circle"></i> Help</a>
+                </li>
+                <li>
+                    <a aria-expanded="false" data-toggle="collapse" href="#pageSubmenu"><i class="bi bi-people"></i> About <i class="bi bi-caret-down-fill"></i></a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+                        <li>
+                            <a href="#">About us</a>
+                        </li>
+                        <li>
+                            <a href="#">Our Technology</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="list-unstyled components" th:if="${userlogin?.isAdmin}">
+                <li>
+                    <p class="mb-0" style="color: black;"><i class="bi bi-shield" style="color: black;"></i> Admin Tools</p>
+                </li>
+                <li>
+                    <a href="/adminviewallevents">Events</a>
+                </li>
+                <li>
+                    <a href="/adminviewallusers">Users</a>
+                </li>
+            </ul>
+
+            <ul class="list-unstyled components d-sm-block d-md-none">
+                <li class="nav-item" th:if="${user}">
+                    <a href="/logout">Logout</a>
+                </li>
+                <li class="nav-item" th:unless="${user}">
+                    <a href="/login">Login</a>
+                </li>
+                <li class="nav-item active">
+                    <br>
+                    <div th:insert="fragments/search :: basic_search"></div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-light" style="color: #0b2e13">
+        <button class="btn btn-link" id="sidebarCollapse" type="button">
+            <i class="bi bi-justify" style="font-size: 2.5rem; color: black"></i>
+            <span></span>
+        </button>
+        <div class="container">
+            <ul class="nav navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="navbar-brand" href="/Home" style="color: black">
+                        <img src="../static/images/logo_vector.svg" th:src="@{/images/logo_vector.svg}" alt="" width="70" height="70" >
+                        Let's Meet
+                    </a>
+                </li>
+                <li>
+                    <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+                            class="btn btn-dark d-inline-block d-lg-none ml-auto d-none" data-target="#navbarSupportedContent"
+                            data-toggle="collapse"
+                            type="button">
+                        <i class="bi bi-justify"></i>
+                    </button>
+                </li>
+            </ul>
+
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <div th:insert="fragments/search :: basic_search"></div>
+                    </li>
+                    <li class="nav-item active" th:if="${user}">
+                        <a class="btn btn-outline-secondary mx-1" href="/dashboard" role="button">Dashboard</a>
+                    </li>
+                    <li class="nav-item" th:if="${user}">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary mx-1 dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" >
+                                <i class="bi bi-person"></i> Hello, <a th:utext="${user.fName}"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                <li><a class="dropdown-item" href="/Home">Account Options</a></li>
+                                <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item active" th:unless="${user}">
+                        <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#myModal">Login</button>
+                        <a class="btn btn-secondary" href="/createuser" role="button">Register</a>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Login</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div th:insert="fragments/auth :: login"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div th:fragment="footer">
+
+    <div class="container-fluid">
+    <div class="overlay" style="left: 0"></div>
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script crossorigin="anonymous"
+            integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!-- jQuery Custom Scroller CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#sidebar").mCustomScrollbar({
+                theme: "minimal"
+            });
+
+            $('#dismiss, .overlay').on('click', function () {
+                $('#sidebar').removeClass('active');
+                $('.overlay').removeClass('active');
+            });
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').addClass('active');
+                $('.overlay').addClass('active');
+                $('.collapse.in').toggleClass('in');
+                $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+            });
+        });
+    </script>
+</div>
+
+
+</body>
+</html>

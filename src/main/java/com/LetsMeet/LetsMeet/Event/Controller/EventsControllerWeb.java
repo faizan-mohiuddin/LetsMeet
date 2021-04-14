@@ -41,7 +41,7 @@ public class EventsControllerWeb {
     private PollService pollService;
 
     public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss a"; 
-    public static final DateTimeFormatter LDT_FOMATTER = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN);
+    public static final DateTimeFormatter LDT_FORMATTER = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN);
 
     /**
      * Poll model data interface
@@ -70,10 +70,10 @@ public class EventsControllerWeb {
 
         _DateTimeData(DateTimeRange dateTimeRange){
             this.json = dateTimeRange.toJson();
-            this.startDate = LDT_FOMATTER.format(dateTimeRange.getStart());
-            this.startTime = LDT_FOMATTER.format(dateTimeRange.getStart());
-            this.endDate = LDT_FOMATTER.format(dateTimeRange.getStart());
-            this.endDate = LDT_FOMATTER.format(dateTimeRange.getStart());
+            this.startDate = LDT_FORMATTER.format(dateTimeRange.getStart());
+            this.startTime = LDT_FORMATTER.format(dateTimeRange.getStart());
+            this.endDate = LDT_FORMATTER.format(dateTimeRange.getStart());
+            this.endDate = LDT_FORMATTER.format(dateTimeRange.getStart());
         }
     }
 
