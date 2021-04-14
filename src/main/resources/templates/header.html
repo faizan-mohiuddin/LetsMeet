@@ -5,79 +5,81 @@
 <div th:include="fragments/js :: bootstrap"></div>
 
 
-
-
 <body>
 
-  <div th:fragment="navbar">
+<div th:fragment="navbar">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <img src="../static/images/logo_vector.svg" th:src="@{/images/logo_vector.svg}" width="50" class="img-responsive" />
-      <a class="navbar-brand" href="/Home">LetsMeet</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-item nav-link" href="/Home">Home </a>
-          <a class="nav-item nav-link" href="/Venues">Venues</a>
-          <a th:if="${user}" class="btn btn-primary" href="/dashboard" role="button">Dashboard</a>
-        </div>
-      </div>
-
-
-
-
-      <div th:insert="fragments/search :: basic_search"></div>
-      <div class="btn-group" th:if="${user}">
-
-        <div class="btn-group">    
-          <button type="button" class="btn btn-light"> <i class="bi bi-person"></i> Welcome <th th:text="${user.fName}">.</th></button>
-          <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <div class="dropdown-menu p-2 text-muted" style="max-width: 200px;">
-            <a class="dropdown-item" href="/Home">Account Options </a>
-            <a class="dropdown-item" href="/dashboard">Dashboard</a>
-            <a class="dropdown-item" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a>
-            <div th:if="${userlogin?.isAdmin}">
-            <li><hr class="dropdown-divider"></li>
-            <p class="mb-0" style="color: darkorange;"><i class="bi bi-shield" style="color: darkorange;"></i>  Admin Tools</p>
-            <a class="dropdown-item" href="/adminviewallevents">Events </a>
-            <a class="dropdown-item" href="/adminviewallusers">Users</a>
-          </div>
-          </div>
-        </div>
-      </div>
-      <div th:unless="${user}">
-        <!-- Trigger the modal with a button -->
-        <button type="button" class="btn btn-light" data-toggle="modal" data-target="#myModal">Login</button>
-        <a class="btn btn-outline-light" href="/createuser" role="button">Register</a>
-        <!-- Modal -->
-        <div class="modal fade" id="myModal" role="dialog">
-          <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">Login</h4>
-              </div>
-              <div class="modal-body">
-                <div th:insert="fragments/auth :: login"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
+        <img src="../static/images/logo_vector.svg" th:src="@{/images/logo_vector.svg}" width="50"
+             class="img-responsive"/>
+        <a class="navbar-brand" href="/Home">LetsMeet</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/Home">Home </a>
+                <a class="nav-item nav-link" href="/Venues">Venues</a>
+                <a th:if="${user}" class="btn btn-primary" href="/dashboard" role="button">Dashboard</a>
             </div>
-
-          </div>
         </div>
-      </div>
+
+
+        <div th:insert="fragments/search :: basic_search"></div>
+        <div c lass="btn-group" th:if="${user}">
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-light"><i class="bi bi-person"></i> Welcome
+                    <th th:text="${user.fName}">.</th>
+                </button>
+                <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu p-2 text-muted" style="max-width: 200px;">
+                    <a class="dropdown-item" href="/Home">Account Options </a>
+                    <a class="dropdown-item" href="/dashboard">Dashboard</a>
+                    <a class="dropdown-item" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a>
+                    <div th:if="${userlogin?.isAdmin}">
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <p class="mb-0" style="color: darkorange;"><i class="bi bi-shield"
+                                                                      style="color: darkorange;"></i> Admin Tools</p>
+                        <a class="dropdown-item" href="/adminviewallevents">Events </a>
+                        <a class="dropdown-item" href="/adminviewallusers">Users</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:unless="${user}">
+            <!-- Trigger the modal with a button -->
+            <button type="button" class="btn btn-light" data-toggle="modal" data-target="#myModal">Login</button>
+            <a class="btn btn-outline-light" href="/createuser" role="button">Register</a>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Login</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div th:insert="fragments/auth :: login"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </nav>
 
-  </div>
+</div>
 </body>
 
 </html>

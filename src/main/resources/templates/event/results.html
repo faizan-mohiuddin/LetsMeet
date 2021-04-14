@@ -2,22 +2,25 @@
 <!-- Latest compiled and minified CSS -->
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
-
-<!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-
-
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Lets Meet</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Let's Meet: Home</title>
+
 </head>
 
 <body>
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
 
-    <div th:insert="header :: navbar"></div>
+    <!-- Page Content  -->
+    <div id="content">
+
+        <div th:insert="fragments/layout :: navbar"></div>
 
     <div class="jumbotron">
         <div class="container">
@@ -129,15 +132,17 @@
 
             
         </div>
-        
+
+
 
 
 
 
     </div>
-
-    <div th:insert="footer :: footer"></div>
-
+        <div th:insert="footer :: footer"></div>
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+</div>
 </body>
 
 <script th:inline="javascript">

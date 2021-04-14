@@ -28,8 +28,14 @@
 </head>
 
 <body>
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
 
-<div th:insert = "header :: navbar"></div>
+    <!-- Page Content  -->
+    <div id="content">
+
+        <div th:insert="fragments/layout :: navbar"></div>
+
 
 <div class = "jumbotron">
     <div class = "container">
@@ -85,7 +91,7 @@
     <button id="signout_button" style="display: none;" class = "btn btn-danger">Sign Out</button>
     <button class = "btn btn-success" onclick= "addevent()" type = "button">Sync LetsMeet Events with Google Calendar</button>
 
-    <pre id="content" style="white-space: pre-wrap;"></pre>
+    <pre id="content2" style="white-space: pre-wrap;"></pre>
 
     <script type="text/javascript">
 
@@ -171,7 +177,7 @@
          * @param {string} message Text to be placed in pre element.
          */
         function appendPre(message) {
-            var pre = document.getElementById('content');
+            var pre = document.getElementById('content2');
             var textContent = document.createTextNode(message + '\n');
             pre.appendChild(textContent);
         }
@@ -304,9 +310,14 @@
             </tbody>
         </table>
     </div>
+    <div th:insert="footer :: footer"></div>
 </div>
 
-<div th:insert = "footer :: footer"></div>
+
+
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+</div>
 
 </body>
 
