@@ -13,6 +13,7 @@ import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.DAO.*;
+import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -26,6 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +60,10 @@ public class UserService implements UserServiceInterface {
     @Autowired
     ValidationService validationService;
 
+    @Autowired
+    GuestDAO guestDAO;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     // CRUD
     //-----------------------------------------------------------------
@@ -65,33 +72,43 @@ public class UserService implements UserServiceInterface {
 	@Override
 	public String createUser(String fName, String lName, String email, String password) {
 	    // Check that email has not already been used
-        if(!checkUniqueEmail(email)){
-            return "Email address is already used for another account.";
-        }
+        User u = this.getUserByEmail(email);
 
-	    // Generate UserUUID, passwordHash, salt
-        UUID UserUUID = createUserUUID(fName, lName, email); // UUID for new user
-        byte[] salt = generateSalt();
-        byte[] hash = generateHash(password, salt);
+        if(u == null) {
+            // Generate UserUUID, passwordHash, salt
+            UUID UserUUID = createUserUUID(fName, lName, email); // UUID for new user
+            byte[] salt = generateSalt();
+            byte[] hash = generateHash(password, salt);
 
-        if(hash == null){
-            return "An error occurred creating account";
-        }
+            if (hash == null) {
+                return "An error occurred creating account";
+            }
 
-	    // Create User object for internal use
-        User newUser = new User(UserUUID, fName, lName, email, toHex(hash), toHex(salt));
-        password = null; // For security
+            // Create User object for internal use
+            User newUser = new User(UserUUID, fName, lName, email, toHex(hash), toHex(salt));
+            password = null; // For security
 
-        // Do validation and security business
-        if(Boolean.TRUE.equals(dao.save(newUser))){
-            return "User Account Created Successfully";
-        }
-        else{
-            return "An error occurred creating account";
+            // Do validation and security business
+            if (Boolean.TRUE.equals(dao.save(newUser))) {
+                return "User Account Created Successfully";
+            } else {
+                LOGGER.error("An error occurred creating account");
+                return "An error occurred creating account";
+            }
+
+        }else{
+            // User exists
+            if(u.getIsGuest()){
+                // User is guest
+                this.updateUser(u, fName, lName, "", password, false);
+                return "Account upgraded from guest account to full account";
+            }else{
+                // email is already in use
+                return "Email address is already used for another account.";
+            }
         }
 	}
 
-    @Override
     public String updateUser(User user, String fName, String lName, String email) {
 
 	    // Check if email needs updated
@@ -108,10 +125,49 @@ public class UserService implements UserServiceInterface {
         user.switchLName(lName);
         user.switchEmail(email);
 
+
         // Update in DB
         if(dao.update(user)){
             return "User successfully updated";
         }
+        return "Error updating user";
+    }
+
+    public String updateUser(User user, String fName, String lName, String email, String pw, Boolean isGuest) {
+
+        // Check if email needs updated
+        if(!email.equals("")){
+            // Check email is valid
+            Object[] valid = validationService.checkEmailValidity(email);
+            if(!(boolean) valid[0]){
+                return (String) valid[1];
+            }
+        }
+
+        // Populate user object with updated values
+        user.switchFName(fName);
+        user.switchLName(lName);
+        user.switchEmail(email);
+        user.switchIsGuestStatus(isGuest);
+
+        // New password means new salt
+        if(!(pw.equals(""))){
+            byte[] salt = generateSalt();
+            byte[] hash = generateHash(pw, salt);
+
+            if (hash == null) {
+                return "An error occurred updating account";
+            }
+
+            user.setPWHash(toHex(hash));
+            user.setSalt(toHex(salt));
+        }
+
+        // Update in DB
+        if(dao.update(user)){
+            return "User successfully updated";
+        }
+
         return "Error updating user";
     }
 
@@ -148,12 +204,38 @@ public class UserService implements UserServiceInterface {
     }
 
     //-----------------------------------------------------------------
-  
+    public User createGuest(String email, Event eventInvitedTo){
+	    // Generate UUID
+        UUID uuid = createGuestUserUUID(email, eventInvitedTo);
+
+        // Create User object
+        User guest = new User(uuid, "Unknown", "Unknown", email, "Unknown", "Unknown", false);
+        guest.setIsGuest(true);
+
+        // Store in DB - User table
+        if(dao.save(guest)) {
+            // Store in DB - IsGuest table
+            IsGuest isGuest = new IsGuest(guest.getUUID(), eventInvitedTo.getUUID());
+            guestDAO.save(isGuest);
+            return guest;
+        }
+        return null;
+    }
+    //-----------------------------------------------------------------
+
     // Returns a UUID generated from user specific seed data
     public static UUID createUserUUID(String fName, String lName, String email){
         String uuidData = fName + lName + email;
         UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
         return uuid;
+    }
+
+    public static UUID createGuestUserUUID(String email, Event event){
+        long time = Instant.now().getEpochSecond();
+        String strTime = Long.toString(time);
+	    String uuidData = "Guest" + email + event.getName() + strTime;
+	    UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
+	    return uuid;
     }
 
     // Returns a random salt string
@@ -283,7 +365,7 @@ public class UserService implements UserServiceInterface {
     public Boolean isValidRegister(String firstName, String lastName, String email, String password) {
 
 	    // All fields are required
-	    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+	    if (firstName.length() == 0 || lastName.length() == 0 || email.length() == 0 || password.length() == 0) {
 
 	        return false;
 
@@ -294,6 +376,12 @@ public class UserService implements UserServiceInterface {
 
 	        return false;
 
+        }
+
+	    // Check email is not currently in use
+        User u = this.getUserByEmail(email);
+	    if(!(u == null) && !u.getIsGuest()){
+	        return false;
         }
 
 	    if (password.length() <= 5 ) {

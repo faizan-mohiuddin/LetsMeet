@@ -65,13 +65,20 @@ public class UserControllerWeb {
 
 
     @GetMapping("/createuser")
-    public String createuser(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String createuser(Model model, HttpSession session, RedirectAttributes redirectAttributes,
+                             @RequestParam(value="guestEmail", defaultValue = "") String guestEmail) {
 
         User user = (User) session.getAttribute("userlogin");
 
         if (user == null) {
 
             model.addAttribute("user", user);
+
+            if(!guestEmail.equals("")){
+                model.addAttribute("GivenGuestEmail", guestEmail);
+            }else{
+                model.addAttribute("GivenGuestEmail", null);
+            }
 
             return "createuser";
 
@@ -108,10 +115,11 @@ public class UserControllerWeb {
                 model.addAttribute("useremail", useremail);
                 model.addAttribute("userpassword", userpassword);
 
-                userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
+                String response = userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
 
                 this.loginToSession(useremail, userpassword, model, session);
 
+                redirectAttributes.addFlashAttribute("notice", response);
                 return "saveuser";
             }
         } else {
@@ -229,7 +237,7 @@ public class UserControllerWeb {
                 Boolean noEvents = true;
                 model.addAttribute("noEvents", noEvents);
 
-            } else {
+            }
 
                 model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user));
 
@@ -244,7 +252,6 @@ public class UserControllerWeb {
 
                 model.addAttribute("responses", responses);
 
-            }
             
             // Get users businesses
             Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());

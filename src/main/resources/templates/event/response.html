@@ -333,7 +333,8 @@
 
   <div class="container">
     <div th:include="fragments/common :: alerts"></div>
-    <form th:action="@{/event/{eventuuid}/response(eventuuid = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST" id="createForm" name="createForm">
+    <form th:action="@{/event/{eventuuid}/response(eventuuid = ${event.getUUID()})}" enctype="multipart/form-data"
+          th:method="POST" id="createForm" name="createForm">
 
       <div class="form-group">
         <label for="eventdesc">When are you available?</label>
@@ -587,6 +588,7 @@
         }
       </script>
 
+      <input type="hidden" name="userUUID" th:value="${user.getUUID().toString()}">
       <button onclick="JSONFormatting()" class="btn btn-primary">Create</button>
       <p>You are responding as <span th:text="${user.fName} + ' ' + ${user.lName}"></span></p>
     </form>

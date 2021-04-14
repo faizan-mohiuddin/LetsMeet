@@ -1,6 +1,7 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
+import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
@@ -60,6 +61,9 @@ public class EventControllerWeb {
 
     @Autowired
     VenueService venueService;
+
+    @Autowired
+    ValidationService validationService;
 
     @GetMapping({"/createevent", "/event/new"})
     public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -370,14 +374,32 @@ public class EventControllerWeb {
                     invitedUser = userService.getUserByEmail(v);
                 }
 
+                if(invitedUser == null){
+                    // User is not in DB
+                    // Check if email has been input
+                    boolean emailFormat = validationService.checkEmailMakeUp(v);
+                    if(emailFormat){
+                        // Send invite to this email - for guest
+                        invitedUser = userService.createGuest(v, event);
+                    }
+                }
+
                 if(!(invitedUser == null)){
                     // Add user to list
                     users.add(invitedUser);
                 }
             }
 
-            for (var user : users){
+            for (User user : users){
                 responseService.createResponse(user, event, false);
+                if(user.getIsGuest()){
+                    // Email guest
+                    String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
+                    LOGGER.info(guestLink);
+                }else{
+                    // Email regular user
+
+                }
             }
             redirectAttributes.addFlashAttribute("success","Invitation sent!");
         }
@@ -413,12 +435,23 @@ public class EventControllerWeb {
                                @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
                                @RequestParam(value="thelat", defaultValue="") String lat,
                                @RequestParam(value="thelong", defaultValue="") String longitude,
-                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities, @RequestParam(value="radius", defaultValue="") String radius){
+                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities,
+                               @RequestParam(value="radius", defaultValue="") String radius,
+                               @RequestParam(value="userUUID", defaultValue="") String useruuid){
         // Get user
         User user = (User) session.getAttribute("userlogin");
+        if(user == null && !(useruuid.equals(""))){
+            user = userService.getUserByUUID(useruuid);
+        }
+
         Event event = eventService.getEvent(eventuuid);
 
-        String destination = String.format("redirect:/event/%s", eventuuid);
+        String destination;
+        if(user.getIsGuest()){
+            destination = String.format("redirect:/Home");
+        }else {
+            destination = String.format("redirect:/event/%s", eventuuid);
+        }
 
         // Check user is invited to event
         Optional<EventResponse> record = responseService.getResponse(user, event);
@@ -427,8 +460,6 @@ public class EventControllerWeb {
             EventProperties properties = response.getEventProperties();
 
             // Process time ranges
-            System.out.println("jsonTimeRanges:");
-            System.out.println(jsonTimeRanges);
             List<DateTimeRange> ranges = EventService.processJsonRanges(jsonTimeRanges);
 
             properties.setTimes(ranges);
@@ -467,7 +498,6 @@ public class EventControllerWeb {
             response.setEventProperties(properties);
             responseService.saveResponse(response);
 
-            System.out.println(response.getEventProperties().getLocation().getRadius());
             // Redirect to event page
             redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
 
@@ -535,6 +565,75 @@ public class EventControllerWeb {
 
 
         return "event/edit";
+    }
+
+    @GetMapping("/event/{eventuuid}/respond/{userUUID}")
+    public String guestRespondEventPreface(@PathVariable("eventuuid") String eventuuid, @PathVariable("userUUID") String userUUID,
+                                    Model model, RedirectAttributes redirectAttributes, HttpSession session){
+        // Get guest user
+        User user = userService.getUserByUUID(userUUID);
+        Event event = eventService.getEvent(eventuuid);
+
+        if(user == null || event == null || !user.getIsGuest()){
+            return "redirect:/404";
+        }
+
+        model.addAttribute("guest", user);
+        model.addAttribute("event", event);
+        String destination = String.format("/event/%s/responding/%s", eventuuid, userUUID);
+        model.addAttribute("ContinueAsGuest", destination);
+
+        return "event/guestResponsePreface";
+    }
+
+    @GetMapping("/event/{eventuuid}/responding/{userUUID}")
+    public String guestRespondEvent(@PathVariable("eventuuid") String eventUUID, @PathVariable("userUUID") String userUUID,
+                                    Model model, RedirectAttributes redirectAttributes, HttpSession session,
+                                    @RequestParam(value="FirstName", defaultValue = "") String fname,
+                                    @RequestParam(value="LastName", defaultValue = "") String lname){
+        // Get guest user
+        User guest = userService.getUserByUUID(userUUID);
+        Event event = eventService.getEvent(eventUUID);
+        if(guest == null || event == null){
+            return "redirect:/Home";
+        }
+
+        // Check user has been invited to event
+        Optional<EventResponse> response = responseService.getResponse(guest, event);
+
+        if(response.isPresent()) {
+            model.addAttribute("event", event);
+            model.addAttribute("user", guest);
+
+            // If first and or last name is given - add to user record
+            userService.updateUser(guest, fname, lname, "");
+
+            if(response.get().hasResponded()){
+                model.addAttribute("response", response.get());
+                EventProperties eventProperties = response.get().getEventProperties();
+                List<DateTimeRange> times = eventProperties.getTimes();
+
+                List<List<String>> strtimes = eventService.processTimeRanges(event);
+
+                model.addAttribute("times", strtimes);
+                model.addAttribute("numtimes", strtimes.size()-1);
+
+                // facilities
+                List<String> facilities = eventProperties.getFacilities();
+                if(facilities.size() > 0){
+                    model.addAttribute("facilities", facilities);
+                }else{
+                    model.addAttribute("facilities", null);
+                }
+            }else{
+                model.addAttribute("response", null);
+            }
+
+            return "event/response";
+
+        }else{
+            return "redirect:/404";
+        }
     }
 
     // Error catching
