@@ -29,6 +29,7 @@ public class DatabaseConnectionPool {
 
     private int POOL_SIZE = 4;
     private int VALIDATOR_FREQUENCY = 5000;
+    private boolean RUN = true;
 
     // Get a logger
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnectionPool.class);
@@ -36,17 +37,20 @@ public class DatabaseConnectionPool {
     @Autowired
     private LetsMeetConfiguration config;
 
+    private int connectionTarget = 20;
+    private int connectionLimit = 50;
+
     private Queue<Connection> readyConnectionPool;
     private Queue<Connection> usedConnectionPool;
+
+    private Queue<Connection> idleBuffer = new LinkedList<>();
+    private Queue<Connection> usedBuffer = new LinkedList<>();
+    private Queue<Connection> swapBuffer =  new LinkedList<>();
 
     // Thread asynchronously checks each connection object and replaces those which are no longer valid
     Thread validator = new Thread(() -> {
 
-        Queue<Connection> idleBuffer = new LinkedList<>();
-        Queue<Connection> usedBuffer;
-        Queue<Connection> swapBuffer;
-
-        while (POOL_SIZE > 0){
+        while (RUN){
             Instant start = Instant.now();
             try{
 
@@ -58,10 +62,9 @@ public class DatabaseConnectionPool {
 
                 // Check return queue
                 for (Connection c : usedBuffer){
-                    if (c != null && c.isValid(1)){     // Add valid connections into ready queue
-                        idleBuffer.add(c);
-                    }  
-                    else failed++;                      // Discard invalid connections                        
+                if (c == null)  failed++;                                                                           // Discard invalid connections
+                else if (c.isValid(1) && idleBuffer.size()<=connectionTarget)   idleBuffer.add(c);           // Add valid connections into ready queue
+                else c.close();                                                                                     // Discard unwanted connections
                 } 
 
                 // Check ready queue
@@ -69,6 +72,7 @@ public class DatabaseConnectionPool {
                 while (iti.hasNext()){
                     Connection c = iti.next();      
                     if (!c.isValid(1)){
+                        c.close();
                         failed++;
                         iti.remove();
                     }
@@ -100,6 +104,36 @@ public class DatabaseConnectionPool {
                 LOGGER.warn("Connection Validator worker thread encountered an issue: {}", e.getMessage());
             }
         }
+
+        Queue<Connection> toClose = new LinkedList<>();
+        toClose.addAll(idleBuffer);
+        toClose.addAll(usedBuffer);
+        toClose.addAll(swapBuffer);
+        toClose.addAll(readyConnectionPool);
+
+        int closedCount = 0;
+        int errorCount = 0;
+
+        for (Connection c : toClose){
+            try {
+                c.close();
+                closedCount++;
+            } catch (SQLException throwables) {
+                errorCount++;
+            }
+        }
+        LOGGER.info("Closed {} connections gracefully. {} connections could not be closed", closedCount, errorCount);
+
+    });
+
+    Thread stop = new Thread(() -> {
+        this.RUN = false;
+        try {
+            validator.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     });
 
 
@@ -108,7 +142,9 @@ public class DatabaseConnectionPool {
         readyConnectionPool = new LinkedList<>();
         usedConnectionPool = new LinkedList<>();
 
-        int connectionLimit = config.getconnectionLimit();
+        connectionTarget = config.getconnectionTarget();
+        connectionLimit = config.getconnectionLimit();
+
         if (connectionLimit < 1) {
             connectionLimit = POOL_SIZE;
             LOGGER.warn("Property lm.config.connectionLimit is not valid. Set to default of {}", POOL_SIZE);
@@ -124,21 +160,14 @@ public class DatabaseConnectionPool {
 
         validator.start();
 
+        Runtime.getRuntime().addShutdownHook(stop);
+
     }
     /**
      * It is safe to assume that the connection returned is valid
      * @return a connection object from the connection pool
      */
     public Connection get() {
-        // try{
-        //     return idleConnectionPool.remove();
-        // }
-        // catch (Exception e){
-        //     LOGGER.error("Not enough connections: {}", e.getMessage());
-        //     return null;
-        // }
-
-        
         try{
         
         return readyConnectionPool.remove();
