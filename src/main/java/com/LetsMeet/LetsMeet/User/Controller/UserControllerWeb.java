@@ -237,7 +237,7 @@ public class UserControllerWeb {
                 Boolean noEvents = true;
                 model.addAttribute("noEvents", noEvents);
 
-            } else {
+            }
 
                 model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user));
 
@@ -252,7 +252,6 @@ public class UserControllerWeb {
 
                 model.addAttribute("responses", responses);
 
-            }
             
             // Get users businesses
             Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());
