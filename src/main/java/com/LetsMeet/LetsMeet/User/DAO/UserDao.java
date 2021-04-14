@@ -153,7 +153,9 @@ public class UserDao implements DAO<User> {
         try(DatabaseConnector connector = connectionService.get();
             Statement statement = connector.getConnection().createStatement();){
 
-            String query = String.format("UPDATE User SET fName = '%s', lName = '%s', email = '%s', PasswordHash = '%s', salt = '%s' WHERE UserUUID = '%s'", t.getfName(), t.getlName(), t.getEmail(), t.getPasswordHash(), t.getSalt(), t.getUUID().toString());
+            String query = String.format("UPDATE User SET fName = '%s', lName = '%s', email = '%s', PasswordHash = '%s', " +
+                    "salt = '%s', isGuest = '%b' WHERE UserUUID = '%s'", t.getfName(), t.getlName(), t.getEmail(),
+                    t.getPasswordHash(), t.getSalt(), t.getIsGuest(), t.getUUID().toString());
             statement.executeUpdate(query);
 
             return true;

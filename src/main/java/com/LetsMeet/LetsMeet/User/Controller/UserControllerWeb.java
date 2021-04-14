@@ -263,14 +263,16 @@ public class UserControllerWeb {
     }
 
     @GetMapping("/deleteuser/{useruuid}")
-    public String deleteUser(@PathVariable("useruuid") String useruuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String deleteUser(@PathVariable("useruuid") String useruuid, Model model, RedirectAttributes redirectAttributes, HttpSession session,
+                             SessionStatus endSession) {
 
         User user = (User) session.getAttribute("userlogin");
 
         // User must be logged in and user must be admin in order to delete accounts.
         // TODO Re-do this function so that a user can delete their own account once a 'settings' page is created.
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+        // Check user has permission to delete this account
+        if (!(user != null && (user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db") || user.getUUID().toString().equals(useruuid)))) {
 
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
 
@@ -278,13 +280,20 @@ public class UserControllerWeb {
 
         } else {
 
+            String destination;
+            if(user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")){
+                destination = "redirect:/adminviewallusers";
+            }else{
+                destination = "redirect:/Home";
+            }
+
             User userToDelete = userServiceInterface.getUserByUUID(useruuid);
 
             if (userToDelete == null) {
 
                 redirectAttributes.addFlashAttribute("danger", "There was an error finding the user.");
 
-                return "redirect:/adminviewallusers";
+                return destination;
 
             } else {
 
@@ -294,6 +303,9 @@ public class UserControllerWeb {
 
                     redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
 
+                    // Log out of session
+                    endSession.setComplete();
+
                 } else {
 
                     redirectAttributes.addFlashAttribute("danger", "There was an error deleting the user.");
@@ -302,7 +314,7 @@ public class UserControllerWeb {
 
             }
 
-            return "redirect:/adminviewallusers";
+            return destination;
 
         }
     }
@@ -379,4 +391,17 @@ public class UserControllerWeb {
 
     }
 
+    @GetMapping("/MyAccount")
+    public String MyAccountPage(Model model, RedirectAttributes redirectAttributes, HttpSession session){
+        // Check user is logged in
+        User user = (User) session.getAttribute("userlogin");
+
+        if(user == null){
+            return "redirect:/404";
+        }
+        model.addAttribute("user", user);
+        String deletePath = String.format("/deleteuser/%s", user.getUUID().toString());
+        model.addAttribute("deletePath", deletePath);
+        return "User/MyAccount";
+    }
 }
