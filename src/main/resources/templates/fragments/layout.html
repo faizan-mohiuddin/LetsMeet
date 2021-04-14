@@ -34,12 +34,14 @@
             </div>
 
             <ul class="list-unstyled components">
-                <p>Collaborative planner</p>
                 <li class="active">
                     <a href="#">Home</a>
                 </li>
                 <li>
-                    <a href="#"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    <a href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Venues"><i class="bi bi-building"></i> Venue Finder</a>
                 </li>
                 <li>
                     <a href="#"><i class="bi bi-question-circle"></i> Help</a>
@@ -57,13 +59,15 @@
                 </li>
             </ul>
 
-            <ul class="list-unstyled CTAs">
+            <ul class="list-unstyled components" th:if="${userlogin?.isAdmin}">
                 <li>
-                    <a class="download" href="https://bootstrapious.com/tutorial/files/sidebar.zip">Login</a>
-                    <button class="btn btn-primary btn-block" type="button">Dashboard</button>
+                    <p class="mb-0" style="color: black;"><i class="bi bi-shield" style="color: black;"></i> Admin Tools</p>
                 </li>
                 <li>
-                    <a class="article" href="https://bootstrapious.com/p/bootstrap-sidebar">Register</a>
+                    <a href="/adminviewallevents">Events</a>
+                </li>
+                <li>
+                    <a href="/adminviewallusers">Users</a>
                 </li>
             </ul>
         </nav>
@@ -81,7 +85,7 @@
                     </button>
                 </li>
                 <li class="nav-item">
-                    <a class="navbar-brand" href="#" style="color: black">
+                    <a class="navbar-brand" href="/Home" style="color: black">
                         <img src="../static/images/logo_vector.svg" th:src="@{/images/logo_vector.svg}" alt="" width="70" height="70" >
                         Let's Meet
                     </a>
@@ -100,13 +104,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item active">
-                        <form class="d-flex">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-outline" type="submit" style="position: relative; left: -50px"><i class="bi bi-search"></i></button>
-                        </form>
+                        <div th:insert="fragments/search :: basic_search"></div>
                     </li>
                     <li class="nav-item active" th:if="${user}">
-                        <button class="btn btn-outline-secondary mx-1" type="button" id="dashboard">Dashboard</button>
+                        <a class="btn btn-outline-secondary mx-1" href="/dashboard" role="button">Dashboard</a>
                     </li>
                     <li class="nav-item" th:if="${user}">
                         <div class="dropdown">
@@ -116,9 +117,8 @@
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                 <li><a class="dropdown-item" href="/Home">Account Options</a></li>
                                 <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
-                                <li><a class="dropdown-item" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Separated link</a></li>
+                                <li><a class="dropdown-item" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a></li>
                             </ul>
                         </div>
                     </li>

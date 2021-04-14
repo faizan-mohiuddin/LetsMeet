@@ -51,17 +51,17 @@ a:focus {
 ----------------------------------------------------- */
 
 #sidebar {
-    width: 250px;
+    width: 300px;
     position: fixed;
     top: 0;
-    left: -250px;
+    left: -350px;
     height: 100vh;
     z-index: 999;
     background: #fafafa;
     color: #6f6f6f;
     transition: all 0.3s;
     overflow-y: scroll;
-    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 10px 1px 10px rgba(0, 0, 0, 0.2);
 }
 
 #sidebar.active {
@@ -93,7 +93,7 @@ a:focus {
     position: fixed;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0);
     z-index: 998;
     opacity: 0;
     transition: all 0.5s ease-in-out;
@@ -104,6 +104,7 @@ a:focus {
 }
 
 #sidebar .sidebar-header {
+    height: 96px;
     padding: 20px;
     background: #437dd8;
     color: #fcfcfc;
@@ -111,7 +112,7 @@ a:focus {
 
 #sidebar ul.components {
     padding: 20px 0;
-    border-bottom: 1px solid #1565c0;
+
 }
 
 #sidebar ul p {

@@ -7,11 +7,9 @@
 
 <body>
     <div th:fragment="basic_search">
-        <div class="btn-group mr-1">
-            <input id="searchBox" type="text" class="form-control" placeholder="Find events...">
-            <button class="btn btn-light" type="submit"
-                onclick="window.open(`/search?term=${document.getElementById('searchBox').value}`,'_self');"
-                id="searchButton"><i class="bi bi-search"></i></button>
-        </div>
+        <form class="d-flex">
+            <input class="form-control me-2" id="searchBox" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline" type="button" onclick="window.open(`/search?term=${document.getElementById('searchBox').value}`,'_self');" style="position: relative; left: -50px"><i class="bi bi-search"></i></button>
+        </form>
     </div>
 </body>

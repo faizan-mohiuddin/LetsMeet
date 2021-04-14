@@ -39,7 +39,7 @@
                             <p class="card-text"> Create your event! Go on. It's free. We totally won't sell your data
                                 to
                                 third parties 😏</p>
-                            <a class="btn btn-primary" th:if="${user}" href="/createevent" role="button">Create an
+                            <a class="btn btn-primary" th:if="${user}" href="/v2/event/new" role="button">Create an
                                 Event</a>
                             <div th:unless="${user}">
                                 <!-- Trigger the modal with a button -->
