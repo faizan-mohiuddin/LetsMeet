@@ -35,7 +35,7 @@
 
             <ul class="list-unstyled components">
                 <li class="active">
-                    <a href="#">Home</a>
+                    <a href="/Home">Home</a>
                 </li>
                 <li>
                     <a href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
@@ -70,20 +70,31 @@
                     <a href="/adminviewallusers">Users</a>
                 </li>
             </ul>
+
+            <ul class="list-unstyled components d-sm-block d-md-none">
+                <li class="nav-item" th:if="${user}">
+                    <a href="/logout">Logout</a>
+                </li>
+                <li class="nav-item" th:unless="${user}">
+                    <a href="/login">Login</a>
+                </li>
+                <li class="nav-item active">
+                    <br>
+                    <div th:insert="fragments/search :: basic_search"></div>
+                </li>
+            </ul>
         </nav>
     </div>
 </div>
 
 <div th:fragment="navbar">
     <nav class="navbar navbar-expand-lg navbar-dark bg-light" style="color: #0b2e13">
-        <div class="container-fluid">
+        <button class="btn btn-link" id="sidebarCollapse" type="button">
+            <i class="bi bi-justify" style="font-size: 2.5rem; color: black"></i>
+            <span></span>
+        </button>
+        <div class="container">
             <ul class="nav navbar-nav mr-auto">
-                <li class="nav-item">
-                    <button class="btn btn-link" id="sidebarCollapse" type="button">
-                        <i class="bi bi-justify" style="font-size: 2.5rem; color: black"></i>
-                        <span></span>
-                    </button>
-                </li>
                 <li class="nav-item">
                     <a class="navbar-brand" href="/Home" style="color: black">
                         <img src="../static/images/logo_vector.svg" th:src="@{/images/logo_vector.svg}" alt="" width="70" height="70" >
@@ -92,7 +103,7 @@
                 </li>
                 <li>
                     <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
-                            class="btn btn-dark d-inline-block d-lg-none ml-auto" data-target="#navbarSupportedContent"
+                            class="btn btn-dark d-inline-block d-lg-none ml-auto d-none" data-target="#navbarSupportedContent"
                             data-toggle="collapse"
                             type="button">
                         <i class="bi bi-justify"></i>
