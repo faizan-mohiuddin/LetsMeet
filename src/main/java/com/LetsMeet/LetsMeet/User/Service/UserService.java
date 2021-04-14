@@ -23,6 +23,7 @@ import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -215,9 +216,29 @@ public class UserService implements UserServiceInterface {
         // Store in DB - User table
         if(dao.save(guest)) {
             // Store in DB - IsGuest table
-            IsGuest isGuest = new IsGuest(guest.getUUID(), eventInvitedTo.getUUID());
-            guestDAO.save(isGuest);
+            this.newIsGuestRecord(guest, eventInvitedTo);
             return guest;
+        }
+        return null;
+    }
+
+    public Boolean newIsGuestRecord(User user, Event event){
+        IsGuest isGuest = new IsGuest(user.getUUID(), event.getUUID());
+        return guestDAO.save(isGuest);
+    }
+    
+    public IsGuest getGuestEvent(User user, Event event){
+        Optional<IsGuest> response = guestDAO.get(user, event);
+        if(response.isPresent()){
+            return response.get();
+        }
+        return null;
+    }
+
+    public List<IsGuest> getGuestRecords(User user){
+        Optional<List<IsGuest>> response = guestDAO.get(user);
+        if(response.isPresent()){
+            return response.get();
         }
         return null;
     }

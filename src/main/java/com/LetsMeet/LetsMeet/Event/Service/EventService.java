@@ -21,6 +21,7 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
+import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
 import com.google.gson.Gson;
@@ -547,6 +548,16 @@ public class EventService{
         }
     }
 
+    //-----------------------------------------------------------------------------------------------------------------
+    public void inviteGuestToEvent(User user, Event event){
+        // Check is guest has been invited to event already
+        IsGuest checker = userService.getGuestEvent(user, event);
+
+        if(checker == null) {
+            // If not - invite (Add to isGuest table)
+            userService.newIsGuestRecord(user, event);
+        }
+    }
 }
 
 

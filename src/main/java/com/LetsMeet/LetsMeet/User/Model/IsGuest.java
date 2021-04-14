@@ -11,6 +11,11 @@ public class IsGuest {
         this.eventUUID = eventUUID;
     }
 
+    public IsGuest(String guestUUID, String eventUUID){
+        this.guestUUID = UUID.fromString(guestUUID);
+        this.eventUUID = UUID.fromString(eventUUID);
+    }
+
     public UUID getGuestUUID(){
         return this.guestUUID;
     }

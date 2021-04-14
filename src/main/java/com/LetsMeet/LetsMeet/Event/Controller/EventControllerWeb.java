@@ -395,6 +395,7 @@ public class EventControllerWeb {
                 if(user.getIsGuest()){
                     // Email guest
                     String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
+                    eventService.inviteGuestToEvent(user, event);
                     LOGGER.info(guestLink);
                 }else{
                     // Email regular user
