@@ -51,9 +51,13 @@
         </div>
 
         <div class="col">
-            <div class="container">
-                <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="GET"
+            <div class="container bg-secondary">
+
+                <p style="color: white;">Want to create an account? Create an account with this email now!</p>
+
+                <form th:action="@{/createuser}" enctype="multipart/form-data" th:method="GET"
                       id="register" name="register">
+                    <input type="hidden" th:value="${guest.getEmail()}" name="guestEmail">
                     <button type="submit" class="btn btn-primary">Register</button>
                 </form>
             </div>

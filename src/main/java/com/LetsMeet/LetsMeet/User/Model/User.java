@@ -114,6 +114,10 @@ public class User {
         }
     }
 
+    public void switchIsGuestStatus(boolean b){
+        this.isGuest = b;
+    }
+
     public void prepareUpdate(){
         // Store password hash and salt in object
         if(this.passwordHash == null){
@@ -131,5 +135,13 @@ public class User {
 
     public void setlName(String lName){
         this.lName = lName;
+    }
+
+    public void setPWHash(String hash){
+        this.passwordHash = hash;
+    }
+
+    public void setSalt(String salt){
+        this.salt = salt;
     }
 }

@@ -675,8 +675,6 @@ public class EventControllerWeb {
             EventProperties properties = response.getEventProperties();
 
             // Process time ranges
-            System.out.println("jsonTimeRanges:");
-            System.out.println(jsonTimeRanges);
             List<DateTimeRange> ranges = EventService.processJsonRanges(jsonTimeRanges);
 
             properties.setTimes(ranges);
@@ -715,7 +713,6 @@ public class EventControllerWeb {
             response.setEventProperties(properties);
             responseService.saveResponse(response);
 
-            System.out.println(response.getEventProperties().getLocation().getRadius());
             // Redirect to event page
             redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
 
