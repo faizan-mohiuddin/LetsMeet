@@ -650,12 +650,23 @@ public class EventControllerWeb {
                                @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
                                @RequestParam(value="thelat", defaultValue="") String lat,
                                @RequestParam(value="thelong", defaultValue="") String longitude,
-                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities, @RequestParam(value="radius", defaultValue="") String radius){
+                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities,
+                               @RequestParam(value="radius", defaultValue="") String radius,
+                               @RequestParam(value="userUUID", defaultValue="") String useruuid){
         // Get user
         User user = (User) session.getAttribute("userlogin");
+        if(user == null && !(useruuid.equals(""))){
+            user = userService.getUserByUUID(useruuid);
+        }
+
         Event event = eventService.getEvent(eventuuid);
 
-        String destination = String.format("redirect:/event/%s", eventuuid);
+        String destination;
+        if(user.getIsGuest()){
+            destination = String.format("redirect:/Home");
+        }else {
+            destination = String.format("redirect:/event/%s", eventuuid);
+        }
 
         // Check user is invited to event
         Optional<EventResponse> record = responseService.getResponse(user, event);
@@ -780,15 +791,15 @@ public class EventControllerWeb {
         // Get guest user
         User user = userService.getUserByUUID(userUUID);
         Event event = eventService.getEvent(eventuuid);
-        System.out.println("HERE");
-        //localhost:8080/event/184b7802-0e85-35e6-bc3b-1787e04752ae/respond/5999658d-a8da-3291-b98a-ba18762243dd
 
         if(user == null || event == null || !user.getIsGuest()){
             return "redirect:/404";
         }
 
-        model.addAttribute("user", user);
+        model.addAttribute("guest", user);
         model.addAttribute("event", event);
+        String destination = String.format("/event/%s/responding/%s", eventuuid, userUUID);
+        model.addAttribute("ContinueAsGuest", destination);
 
         return "event/guestResponsePreface";
     }
@@ -800,26 +811,47 @@ public class EventControllerWeb {
                                     @RequestParam(value="LastName", defaultValue = "") String lname){
         // Get guest user
         User guest = userService.getUserByUUID(userUUID);
-        if(guest == null){
+        Event event = eventService.getEvent(eventUUID);
+        if(guest == null || event == null){
             return "redirect:/Home";
         }
 
         // Check user has been invited to event
+        Optional<EventResponse> response = responseService.getResponse(guest, event);
 
+        if(response.isPresent()) {
+            model.addAttribute("event", event);
+            model.addAttribute("user", guest);
 
-        // If first and or last name is given - add to user record
-        Boolean updatedDetails = false;
-        if(!(fname.equals(""))){
-            // Add to record
+            // If first and or last name is given - add to user record
+            userService.updateUser(guest, fname, lname, "");
 
-             updatedDetails = true;
+            if(response.get().hasResponded()){
+                model.addAttribute("response", response.get());
+                EventProperties eventProperties = response.get().getEventProperties();
+                List<DateTimeRange> times = eventProperties.getTimes();
+
+                List<List<String>> strtimes = eventService.processTimeRanges(event);
+
+                model.addAttribute("times", strtimes);
+                model.addAttribute("numtimes", strtimes.size()-1);
+
+                // facilities
+                List<String> facilities = eventProperties.getFacilities();
+                if(facilities.size() > 0){
+                    model.addAttribute("facilities", facilities);
+                }else{
+                    model.addAttribute("facilities", null);
+                }
+            }else{
+                model.addAttribute("response", null);
+            }
+
+            return "event/response";
+
+        }else{
+            return "redirect:/404";
         }
-
-        if(!(lname.equals(""))){
-            // Add to record
-            updatedDetails = true;
-        }
-        return null;
     }
 
     // Error catching

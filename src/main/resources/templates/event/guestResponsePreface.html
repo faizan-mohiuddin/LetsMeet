@@ -20,7 +20,7 @@
 
 <div class="jumbotron">
     <div class="container">
-        <h1 th:text="${'You\'ve been invited to' + event.getName()}">You've been invited to</h1>
+        <h1 th:text="'You\'ve been invited to ' + ${event.getName()}"></h1>
     </div>
 </div>
 
@@ -30,17 +30,35 @@
 
     <div class="row">
         <div class="col">
-            <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST"
-                  id="continueAsGuest" name="continueAsGuest">
-                <button type="submit" class="btn btn-primary">Continue As Guest</button>
-            </form>
+            <div class="container bg-secondary">
 
-            <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="POST"
-                  id="register" name="register">
-                <button type="submit" class="btn btn-primary">Register</button>
-            </form>
+                <p style="color: white;">Provide a first name and surname so the event organiser knows who you are. Or don't its completely upto you.</p>
 
+                <form th:action="${ContinueAsGuest}" enctype="multipart/form-data" th:method="GET"
+                      id="continueAsGuest" name="continueAsGuest">
+
+                    <label for="FirstName" style="color: white;">First Name: </label>
+                    <input type="text" class="form-control" name="FirstName"
+                           placeholder="Enter First name...">
+
+                    <label for="LastName" style="color: white;">Surname: </label>
+                    <input type="text" class="form-control" name="LastName"
+                           placeholder="Enter Surname...">
+
+                    <button type="submit" class="btn btn-primary">Continue As Guest</button>
+                </form>
+            </div>
         </div>
+
+        <div class="col">
+            <div class="container">
+                <form th:action="@{/venue/new}" enctype="multipart/form-data" th:method="GET"
+                      id="register" name="register">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 

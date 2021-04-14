@@ -124,4 +124,12 @@ public class User {
 
         }
     }
+
+    public void setfName(String fname){
+        this.fName = fname;
+    }
+
+    public void setlName(String lName){
+        this.lName = lName;
+    }
 }
