@@ -7,9 +7,12 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
 //-----------------------------------------------------------------
+import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -52,6 +55,42 @@ public class EventResponseService {
             throw new IllegalArgumentException(e.getMessage());
         }
         
+    }
+
+    public boolean update(EventResponse response){
+        try{
+            return dao.update(response);
+        }
+        catch (Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public boolean update(EventResponse response, ResponseDTO responseDTO){
+        try{
+            // Update location
+            response.getEventProperties().setLocation( new Location(
+                    responseDTO.getLocation(),
+                    responseDTO.getLatitude(),
+                    responseDTO.getLongitude(),
+                    responseDTO.getRadius()
+            ));
+
+            // Update times
+            List<DateTimeRange> times = new ArrayList<>();
+            for (var time : responseDTO.getTimes())
+                times.add(DateTimeRange.fromJson(time));
+
+            response.getEventProperties().setTimes(times);
+
+            // Update facilities
+            response.getEventProperties().setFacilities(responseDTO.getFacilities());
+
+            return update(response);
+        }
+        catch (Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public Boolean deleteResponse(User user, Event event) throws IllegalArgumentException{

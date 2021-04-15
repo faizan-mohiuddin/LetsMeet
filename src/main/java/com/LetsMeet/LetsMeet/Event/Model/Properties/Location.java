@@ -21,6 +21,10 @@ public class Location implements Serializable, Comparable<Location> {
         this.radius = radius;
     }
 
+    public Location(){
+        this("none",0d,0d,0d);
+    }
+
     public String getName(){
         return this.name;
     }

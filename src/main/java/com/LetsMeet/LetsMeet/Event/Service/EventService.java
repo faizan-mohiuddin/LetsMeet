@@ -22,6 +22,8 @@ import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventResult;
+import com.LetsMeet.LetsMeet.Root.Notification.NotificationService;
+import com.LetsMeet.LetsMeet.Root.Notification.Notifications;
 import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
@@ -84,12 +86,13 @@ public class EventService{
 
     @Autowired
     EventResultService resultService;
+    NotificationService notificationService;
 
 
     /* -- CRUD operations -- */
 
     // Create a new event:
-    // Creates a new event and sets the given user (typically the one creating the event) administrative rights over it. 
+    // Creates a new event and sets the given user (typically the one creating the event) administrative rights over it.
 
     public Event save(Event event, User user) throws IOException{
 
@@ -132,37 +135,37 @@ public class EventService{
      * @return true if update is successful
      */
     public boolean update(User user, Event event, @Valid EventDTO eventDTO){
-        try{    
+        try{
             // Update the basics (name, description, image, generic properties)
             event.setName(eventDTO.getName());
             event.setDescription(eventDTO.getDescription());
-    
+
             // Update image
             if (eventDTO.getImage().getSize()>0){
                 this.setHeaderImage(event, eventDTO.getImage());
             }
-            
+
             /*  Update EventProperties  */
             // Location
             event.getEventProperties().setLocation(new Location(
                 eventDTO.getLocation(),
                 eventDTO.getLatitude(),
-                eventDTO.getLongitude(), 
+                eventDTO.getLongitude(),
                 eventDTO.getRadius()));
-            
+
             // Times
             List<DateTimeRange> times = new ArrayList<>();
             for (var time : eventDTO.getTimes())
                 times.add(DateTimeRange.fromJson(time));
-             
+
             event.getEventProperties().setTimes(times);
-    
+
             // Services
             event.getEventProperties().setFacilities(eventDTO.getFacilities());
-            
+
             // Send modified event to update
             return update(user, event);
-    
+
         } catch (Exception e){
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -175,7 +178,7 @@ public class EventService{
      * Requests the persistent layer to remove the supplied Event
      * @param event Event to be deleted
      * @param user User requesting deletion (must have permission)
-     * @return true if deletion reported successfully 
+     * @return true if deletion reported successfully
      * @throws IllegalArgumentException
      */
     public Boolean deleteEvent(Event event, User user) throws IllegalArgumentException{
@@ -211,7 +214,7 @@ public class EventService{
     }
 
     /**
-     * Get a list of all the event. 
+     * Get a list of all the event.
      * Expensive, avoid this and only request events you need.
      * @return
      */
@@ -248,7 +251,7 @@ public class EventService{
     @Deprecated(forRemoval = true)
     public Event getEvent(String eventUUID) throws IllegalArgumentException {
         try{
-            Optional<Event> event = eventDao.get(eventUUID);        
+            Optional<Event> event = eventDao.get(eventUUID);
 
             if(event.isPresent()){return event.get();}
             else throw new IllegalArgumentException("No Event found for UUID <" + eventUUID + ">");
@@ -290,7 +293,7 @@ public class EventService{
     }
 
     public boolean removePoll(Event event, Poll poll){
-        
+
         try {
             eventPollDAO.delete(new LetsMeetTuple<>(event.getUUID(), poll));
         } catch (Exception e) {
@@ -321,7 +324,7 @@ public class EventService{
 
     //-----------------------------------------------------------------
     /* -- User related operations --
-    
+
         Users are linked to an event either through an EventPermission, which records whether they own an event and can edit it
         or through a EventResponse which records their "response" to an event and is managed in a separate ResponseManager.java
     */
@@ -383,11 +386,11 @@ public class EventService{
 
     //-----------------------------------------------------------------
     /* -- ConditionSet related operations --
-    
+
         Each Event has it's own ConditionSet. This is used to record any data which logically belongs to an event
         such as the range of dates it could take place. Dates that a user could make it to an event belong to that user
-        not the event and as such should be stored within their Response and not, NOT, in the events ConditionSet. 
-        Constraints that a User must be at the event are stored here. 
+        not the event and as such should be stored within their Response and not, NOT, in the events ConditionSet.
+        Constraints that a User must be at the event are stored here.
 
         This section is mostly a gateway to the separate ConditionSet manager, which handles the heavy logic
         Here, get the Event, then call the ConditionSetService with the UUID of the ConditionSet attached to the event.
@@ -443,7 +446,7 @@ public class EventService{
             throw new IllegalArgumentException();
         }
     }
-    
+
     public List<String> getFacilities(UUID eventUUID) {
         try{
             Event event = eventDao.get(eventUUID).get();
@@ -580,10 +583,29 @@ public class EventService{
             userService.newIsGuestRecord(user, event);
         }
     }
+
+    /**
+     * Send Event invites to users. If identifier can't resolved to a registered user
+     * then a guest account is created and invited.
+     * @param event to be invited to
+     * @param identifiers of users/entities to be invited
+     * @throws IllegalArgumentException if an identifier is invalid
+     */
+    public void invite( Event event, List<String> identifiers) throws IllegalArgumentException{
+        for ( String identifier : identifiers){
+            User user;
+
+            if (identifier.matches(" [^@ \\t\\r\\n]+@[^@ \\t\\r\\n]+\\.[^@ \\t\\r\\n]+"))
+                user = userService.getUserByEmail(identifier);
+
+            else
+                user = userService.getUserByUUID(identifier);
+
+            if (user == null) userService.createGuest(identifier, event);
+
+            responseService.createResponse(user,event,false);
+
+            notificationService.send(Notifications.simpleMail("","",""),user);
+        }
+    }
 }
-
-
-
-
-
-
