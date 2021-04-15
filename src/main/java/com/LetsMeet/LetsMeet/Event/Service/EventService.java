@@ -21,6 +21,8 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
+import com.LetsMeet.LetsMeet.Root.Notification.NotificationService;
+import com.LetsMeet.LetsMeet.Root.Notification.Notifications;
 import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
@@ -80,6 +82,9 @@ public class EventService{
 
     @Autowired
     EventPollDAO eventPollDAO;
+
+    @Autowired
+    NotificationService notificationService;
 
 
     /* -- CRUD operations -- */
@@ -556,6 +561,31 @@ public class EventService{
         if(checker == null) {
             // If not - invite (Add to isGuest table)
             userService.newIsGuestRecord(user, event);
+        }
+    }
+
+    /**
+     * Send Event invites to users. If identifier can't resolved to a registered user
+     * then a guest account is created and invited.
+     * @param event to be invited to
+     * @param identifiers of users/entities to be invited
+     * @throws IllegalArgumentException if an identifier is invalid
+     */
+    public void invite( Event event, List<String> identifiers) throws IllegalArgumentException{
+        for ( String identifier : identifiers){
+            User user;
+
+            if (identifier.matches(" [^@ \\t\\r\\n]+@[^@ \\t\\r\\n]+\\.[^@ \\t\\r\\n]+"))
+                user = userService.getUserByEmail(identifier);
+
+            else
+                user = userService.getUserByUUID(identifier);
+
+            if (user == null) userService.createGuest(identifier, event);
+
+            responseService.createResponse(user,event,false);
+
+            notificationService.send(Notifications.simpleMail("","",""),user);
         }
     }
 }

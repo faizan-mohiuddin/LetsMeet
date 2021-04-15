@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 
 
 @Controller
+@RequestMapping("/old")
 @SessionAttributes("userlogin")
 public class EventControllerWeb {
 
