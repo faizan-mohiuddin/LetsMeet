@@ -1,24 +1,24 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.Events;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Polls;
+import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/v2")
 @SessionAttributes("userlogin")
 public class EventsControllerWeb {
 
@@ -39,6 +38,12 @@ public class EventsControllerWeb {
 
     @Autowired 
     private PollService pollService;
+
+    @Autowired
+    private EventResponseService responseService;
+
+    @Autowired
+    private UserService userService;
 
     public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss a"; 
     public static final DateTimeFormatter LDT_FORMATTER = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN);
@@ -78,7 +83,7 @@ public class EventsControllerWeb {
     }
 
     private static String EVENT_TEMPLATE_EDITOR = "event/new";
-    // TODO impliment event viewing stuff private static String EVENT_TEMPLATE_VIEWER = "event/event"
+    private static String EVENT_TEMPLATE_VIEWER = "viewevent";
 
     private static String USER_ATTR = "user";
 
@@ -247,8 +252,59 @@ public class EventsControllerWeb {
 
             return EVENT_TEMPLATE_EDITOR;
         }
-        
+    }
 
+    @GetMapping("/event/{EventUUID}")
+    public String httpEventGet(HttpServletRequest request, Model model, HttpSession session, RedirectAttributes redirectAttributes,
+        @PathVariable("EventUUID") String eventUUID){
+
+        try{
+            User user = validateSession(session);
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
+
+            model.addAttribute("event", event);
+
+            model.addAttribute("hasUserRespondedToEvent", responseService.getResponse(user, event).isPresent());
+
+            if (eventService.checkOwner(event.getUUID(), user.getUUID())) {
+
+                model.addAttribute("isOwnerOfEvent", true);
+
+                List<HashMap<String,Object>> responses= new ArrayList<>();
+                for (EventResponse o : responseService.getResponses(event)){
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("user", userService.getUserByUUID(o.getUser().toString()));
+                    data.put("response", o);
+                    responses.add(data);
+                }
+
+                model.addAttribute("responses", responses);
+
+            }
+            return EVENT_TEMPLATE_VIEWER;
+        }
+        catch (Exception e){
+            redirectAttributes.addFlashAttribute("warning", "You do not have permission to view this page.");
+            return "redirect:/Home";
+        }
+    }
+
+    @PostMapping("/event/{eventUUID}/users")
+    public String httpEventInvitesPost(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventUUID,
+        @RequestParam(value="usersRequired") List<String> usersRequired,
+        @RequestHeader String host){
+        try{
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
+
+            eventService.invite(event, usersRequired);
+
+            redirectAttributes.addFlashAttribute("success","Invitation sent!");
+        }
+        catch(Exception e){
+            redirectAttributes.addFlashAttribute("danger","Failed to invite users: " + e.getMessage());
+        }
+        return "redirect:/event/{eventUUID}";
     }
 
 

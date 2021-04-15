@@ -1,22 +1,32 @@
 package com.LetsMeet.LetsMeet.Event.Model.DTO;
 
+import com.LetsMeet.LetsMeet.Event.Controller.EventsControllerWeb;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Transfer Object for Response front-end communication
+ */
 public class ResponseDTO {
 
-    private String uuid;
+    private String eventUUID;
+    private String userUUID;
     private String location;
-    private double lattitude;
+    private double latitude;
     private double longitude;
     private double radius;
     private List<String> times;
     private List<String> facilities;
     private List<String> pollResponse;
 
-    public ResponseDTO(String uuid, String location, double latitude, double longitude, double radius, List<String> times, List<String> facilities, List<String> pollResponse) {
-        this.uuid = uuid;
+    @SuppressWarnings("all")
+    public ResponseDTO(String eventUUID, String userUUID, String location, double latitude, double longitude, double radius, List<String> times, List<String> facilities, List<String> pollResponse) {
+        this.eventUUID = eventUUID;
+        this.userUUID = userUUID;
         this.location = location;
-        this.lattitude = latitude;
+        this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
         this.times = times;
@@ -32,12 +42,33 @@ public class ResponseDTO {
         this.pollResponse.remove("null");
     }
 
-    public String getUuid() {
-        return uuid;
+    public static ResponseDTO fromResponse(EventResponse eventResponse){
+
+        return new ResponseDTO(eventResponse.getEvent().toString(),
+                eventResponse.getUser().toString(),
+                eventResponse.getEventProperties().getLocation().getName(),
+                eventResponse.getEventProperties().getLocation().getLatitude(),
+                eventResponse.getEventProperties().getLocation().getLongitude(),
+                eventResponse.getEventProperties().getLocation().getRadius(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>());
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public String getEventUUID() {
+        return eventUUID;
+    }
+
+    public void setEventUUID(String eventUUID) {
+        this.eventUUID = eventUUID;
+    }
+
+    public String getUserUUID() {
+        return userUUID;
+    }
+
+    public void setUserUUID(String userUUID) {
+        this.userUUID = userUUID;
     }
 
     public String getLocation() {
@@ -48,12 +79,12 @@ public class ResponseDTO {
         this.location = location;
     }
 
-    public double getLattitude() {
-        return lattitude;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setLattitude(double lattitude) {
-        this.lattitude = lattitude;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public double getLongitude() {
