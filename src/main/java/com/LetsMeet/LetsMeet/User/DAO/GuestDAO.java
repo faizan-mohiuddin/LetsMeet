@@ -89,6 +89,44 @@ public class GuestDAO {
         }
     }
 
+    public Optional<List<IsGuest>> get(UUID userUUID){
+        try{
+            DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();
+            String query = String.format("SELECT * FROM IsGuest AS g WHERE g.GuestUUID = '%s'", userUUID.toString());
+            ResultSet rs = statement.executeQuery(query);
+
+            List<IsGuest> records = new ArrayList<>();
+            while(rs.next()){
+                records.add(new IsGuest(rs.getString(1), rs.getString(2)));
+            }
+            return Optional.of(records);
+
+        }catch(Exception e){
+            LOGGER.warn(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<List<IsGuest>> getEventGuests(Event event){
+        try{
+            DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();
+            String query = String.format("SELECT * FROM IsGuest AS g WHERE g.EventUUID = '%s'", event.getUUID().toString());
+            ResultSet rs = statement.executeQuery(query);
+
+            List<IsGuest> records = new ArrayList<>();
+            while(rs.next()){
+                records.add(new IsGuest(rs.getString(1), rs.getString(2)));
+            }
+            return Optional.of(records);
+            
+        }catch (Exception e){
+            LOGGER.warn(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
     public Boolean removeUser(User user){
         try{
             DatabaseConnector connector = connectionService.get();

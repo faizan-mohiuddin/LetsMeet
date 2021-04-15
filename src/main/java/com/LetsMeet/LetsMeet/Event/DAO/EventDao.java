@@ -219,7 +219,8 @@ public class EventDao implements DAO<Event> {
             return true;
 
         }catch(SQLException e){
-            throw new IOException(e.getMessage());
+            LOGGER.error(e.getMessage());
+            return false;
         }
     }
 

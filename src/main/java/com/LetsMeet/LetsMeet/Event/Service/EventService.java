@@ -21,6 +21,7 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
+import com.LetsMeet.LetsMeet.Event.Model.EventResult;
 import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
@@ -80,6 +81,9 @@ public class EventService{
 
     @Autowired
     EventPollDAO eventPollDAO;
+
+    @Autowired
+    EventResultService resultService;
 
 
     /* -- CRUD operations -- */
@@ -180,8 +184,26 @@ public class EventService{
             if(!this.checkOwner(event.getUUID(), user.getUUID())) {
                 throw new IllegalArgumentException("Provided User does not have sufficient privileges. User= <" + user.getUUID() + ">");
             }
-            
-            return eventDao.delete(event);
+
+            // Get occurrences of event from IsGuest
+            List<IsGuest> records = userService.getEventGuests(event);
+            Boolean result = eventDao.delete(event);
+
+            if(result){
+                // Remove one by one
+                List<IsGuest> userRecords;
+                for(IsGuest r : records) {
+                    // If an affected Guest no longer has any other events, delete guest account
+                    userRecords = userService.getGuestRecords(r.getGuestUUID());
+                    if(userRecords.size() == 0){
+                        // Delete guest account
+                        String response = userService.deleteUser(userService.getUserByUUID(r.getGuestUUID().toString()));
+                        System.out.println(response);
+                    }
+                }
+            }
+
+             return result;
         }
         catch (Exception e){
             throw new IllegalArgumentException("Unable to delete Event <" + event.getUUID() + ">" + e.getMessage());

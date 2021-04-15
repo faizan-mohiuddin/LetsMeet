@@ -13,13 +13,17 @@ import com.LetsMeet.LetsMeet.Root.Notification.Model.Notification;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventResultService {
 
-    
+    // Logger
+    private static final Logger LOGGER= LoggerFactory.getLogger(EventResultService.class);
+
     @Autowired
     EventResultDao resultDao;
 
@@ -204,5 +208,14 @@ public class EventResultService {
         }
 
 
+    }
+
+    public void createDummyResult(Event event){
+        EventResult result = new EventResult(event.getUUID());
+        try {
+            resultDao.save(result);
+        }catch (Exception e){
+            LOGGER.error("Error saving dummy result: {}", e.getMessage());
+        }
     }
 }

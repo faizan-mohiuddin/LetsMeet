@@ -239,8 +239,16 @@ public class UserService implements UserServiceInterface {
         return null;
     }
 
-    public List<IsGuest> getGuestRecords(User user){
-        Optional<List<IsGuest>> response = guestDAO.get(user);
+    public List<IsGuest> getGuestRecords(UUID userUUID){
+        Optional<List<IsGuest>> response = guestDAO.get(userUUID);
+        if(response.isPresent()){
+            return response.get();
+        }
+        return null;
+    }
+
+    public List<IsGuest> getEventGuests(Event event){
+        Optional<List<IsGuest>> response = guestDAO.getEventGuests(event);
         if(response.isPresent()){
             return response.get();
         }
