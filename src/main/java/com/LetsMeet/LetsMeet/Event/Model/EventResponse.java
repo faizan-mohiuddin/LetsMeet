@@ -6,10 +6,15 @@
 
 package com.LetsMeet.LetsMeet.Event.Model;
 
+import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
+
 import java.util.ArrayList;
 
 //-----------------------------------------------------------------
 
+import java.util.List;
 import java.util.UUID;
 
 //-----------------------------------------------------------------
@@ -33,6 +38,30 @@ public class EventResponse {
         this.user = user;
         this.properties = properties;
 		this.required = required;
+	}
+
+	public EventResponse(UUID event, UUID user){
+    	this(event,user,new EventProperties(new ArrayList<>(),new ArrayList<>(), new Location()));
+	}
+
+	/**
+	 * Create a EventResponse from a DTO
+	 * @param dto
+	 * @return new EventResponse
+	 */
+	public static EventResponse fromDTO(ResponseDTO dto){
+    	EventResponse response = new EventResponse(UUID.fromString(dto.getEventUUID()),UUID.fromString(dto.getUserUUID()));
+
+		response.getEventProperties().setFacilities(dto.getFacilities());
+
+		List<DateTimeRange> times = new ArrayList<>();
+		for (var time : dto.getTimes())
+			times.add(DateTimeRange.fromJson(time));
+		response.getEventProperties().setTimes(times);
+
+		response.getEventProperties().setLocation(new Location(dto.getLocation(), dto.getLatitude(), dto.getLongitude(), dto.getRadius()));
+
+		return response;
 	}
 
 	public UUID getEvent() {

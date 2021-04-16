@@ -13,7 +13,6 @@ import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.DAO.*;
-import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Model.UserSanitised;
 import com.LetsMeet.LetsMeet.User.Model.Token;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -61,9 +60,6 @@ public class UserService implements UserServiceInterface {
     @Autowired
     ValidationService validationService;
 
-    @Autowired
-    GuestDAO guestDAO;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     // CRUD
@@ -102,6 +98,7 @@ public class UserService implements UserServiceInterface {
             if(u.getIsGuest()){
                 // User is guest
                 this.updateUser(u, fName, lName, "", password, false);
+
                 return "Account upgraded from guest account to full account";
             }else{
                 // email is already in use
@@ -215,33 +212,14 @@ public class UserService implements UserServiceInterface {
 
         // Store in DB - User table
         if(dao.save(guest)) {
-            // Store in DB - IsGuest table
-            this.newIsGuestRecord(guest, eventInvitedTo);
             return guest;
         }
         return null;
     }
 
-    public Boolean newIsGuestRecord(User user, Event event){
-        IsGuest isGuest = new IsGuest(user.getUUID(), event.getUUID());
-        return guestDAO.save(isGuest);
-    }
-    
-    public IsGuest getGuestEvent(User user, Event event){
-        Optional<IsGuest> response = guestDAO.get(user, event);
-        if(response.isPresent()){
-            return response.get();
-        }
-        return null;
-    }
 
-    public List<IsGuest> getGuestRecords(User user){
-        Optional<List<IsGuest>> response = guestDAO.get(user);
-        if(response.isPresent()){
-            return response.get();
-        }
-        return null;
-    }
+
+
     //-----------------------------------------------------------------
 
     // Returns a UUID generated from user specific seed data

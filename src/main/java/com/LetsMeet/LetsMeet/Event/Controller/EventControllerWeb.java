@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 
 
 @Controller
+@RequestMapping("/old")
 @SessionAttributes("userlogin")
 public class EventControllerWeb {
 
@@ -549,7 +550,7 @@ public class EventControllerWeb {
             model.addAttribute("response", null);
         }
 
-        return "event/response";
+        return "response_old";
     }
 
     @GetMapping("/event/{eventuuid}/edit")
@@ -630,7 +631,7 @@ public class EventControllerWeb {
                 model.addAttribute("response", null);
             }
 
-            return "event/response";
+            return "response_old";
 
         }else{
             return "redirect:/404";

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Let's Meet: Home</title>
+
+</head>
+
+<body>
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
+
+    <!-- Page Content  -->
+    <div id="content">
+
+        <div th:insert="fragments/layout :: navbar"></div>
+
+    <div class="jumbotron" th:if="${event.properties.properties.get('header_image')}"
+        th:style="'background:url('+'/' +${event.properties.properties.get('header_image')} +');border-radius: 0%;'">
+        <div class="container">
+            <div class="shadow p-3 mb-5 bg-light text-dark rounded">
+                <h5>Event:</span></h5>
+                <h1><span th:text="${event.getName()}"></span></h1>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="jumbotron" th:unless="${event.properties.properties.get('header_image')}">
+
+        <div class="container">
+            <h5>Event:</h5>
+            <h1><span th:text="${event.getName()}"></span></h1>
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        <div th:include="fragments/common :: alerts"></div>
+
+        <div class="row">
+
+            <div class="col-sm-8">
+
+                    <p th:text="${event.getDescription()}"></p>
+
+                <h4><i class="bi bi-geo"></i> Location</h4>
+                <p th:text="${event.getLocation()}"></p>
+
+                <div th:if="${isOwnerOfEvent}">
+                    <h4><i class="bi bi-people"></i> Participants</h4>
+                    <tr th:each="response : ${responses}">
+                        <div class="card w-100 mt-2 bg-light">
+                            <div class="card-body">
+                                <a hidden id="userUUID" th:text="${response.response.user}"></a>
+                                <a hidden id="eventUUID" th:text="${response.response.event}"></a>
+                                <div class="row align-items-center">
+                                    <div class="col-sm-5">
+                                        <p class="card-text" th:text="${response.user.fName}  + ' ' + ${response.user.lName}"></p>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input required_check" type="checkbox" th:checked="${response.response.required}" id="required_check">
+                                            <label class="form-check-label" for="required_check">VIP</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <i th:if="${response.response.hasResponded()}"  class="bi bi-check-circle" style="font-size: 1.25rem; color: green;" data-toggle="tooltip" data-placement="top" th:title="${response.user.fName}  + ' has responded'"></i>
+                                        <i th:unless="${response.response.hasResponded()}" class="bi bi-hourglass" style="font-size: 1.25rem; color: orange;"  data-toggle="tooltip" data-placement="top" th:title="'Waiting for ' + ${response.user.fName}  + ' to respond'"></i>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <td><a href="#" class="btn btn-outline-danger btn-block disabled"><i class="bi bi-person-x"></i></a></td>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                    </tr>
+                </div>
+
+
+            </div>
+
+            <div class="col-sm-4">
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" th:src="'/'+${event.properties.properties.get('header_image')}"
+                        th:if="${event.properties.properties.get('header_image')}" alt="Card image cap">
+                    <div class="card-body">
+                        <div th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
+                            data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
+                        <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
+                            data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
+                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
+                            class="btn btn-dark btn-block"><i class="bi bi-calendar-week"></i> Results</a>
+                        <a th:href="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}"
+                            class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Respond</a>
+
+                        <div class="alert alert-dark" th:unless="${hasUserRespondedToEvent}"> You have not responded to
+                            this event. Let the organiser know your preferences!</div>
+                        
+                        <script>
+                        function copy() {
+                            var eventWebsite = document.body.appendChild(document.createElement("input"));
+                            eventWebsite.value = window.location.href;
+                            eventWebsite.focus();
+                            eventWebsite.select();
+                            eventWebsite.setSelectionRange(0, 99999);
+                            document.execCommand('copy');
+                            eventWebsite.parentNode.removeChild(eventWebsite);
+                            alert("Link copied to Your Clipboard");
+                        }    
+                        </script>
+                        
+                        <a onclick="copy()" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
+                        <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
+                            data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div th:insert="footer :: footer"></div>
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit</h4>
+                </div>
+                <div class="modal-body">
+                    <div th:insert="event/fragments :: edit"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-block" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+     <!-- DELETE MODAL -->
+    <div class="modal fade" id="deleteConfirmation" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Event</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are your sure you want to delete this event?</p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-danger sm-6" th:href=  "@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}" >Delete</a>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- INVITE MODAL -->
+    <div class="modal fade" id="inviteUsers" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Invite</h4>
+                </div>
+                <div class="modal-body">
+                    <div th:insert="event/fragments :: invite"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-block" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+</body>
+
+<script th:inline="javascript">
+    $(document).ready(function () {
+        $('input.required_check').click(function () {
+            var apiToken = /*[[${session.apiToken}]]*/5;
+            var eventID = $(this).parent().parent().parent().parent().parent().find('#eventUUID').text();
+            var userID = $(this).parent().parent().parent().parent().parent().find('#userUUID').text();
+            
+            value = $(this).prop('checked');
+            $.ajax({
+                url: `/api/Event/${eventID}/Response/${userID}?Token=${apiToken}&required=${value}`,
+                type: 'PUT',
+                success: function(response){
+                    console.log(response);
+                    //$('input.required_check').parent().append("ok");
+                }
+            })
+            //var find = $(this).closest('td[eventUUID]')[0].text();
+            //alert(eventUUID+"\n"+duration + "\n" + attendance + "\n" + requiredUsers);
+            //window.open(`/event/${eventUUID}/results?duration=${duration}&attendance=${attendance}&required=${requiredUsers}`, "_self");
+        });
+    });
+</script>
+
+<script>
+    $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+
+
+</html>

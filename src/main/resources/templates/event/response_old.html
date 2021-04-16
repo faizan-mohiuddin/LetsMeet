@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<style type="text/css">
+  /* Always set the map height explicitly to define the size of the div
+   * element that contains the map. */
+  #map {
+    height: 100%;
+  }
+
+  /* Optional: Makes the sample page fill the window. */
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  #description {
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  #infowindow-content .title {
+    font-weight: bold;
+  }
+
+  #infowindow-content {
+    display: none;
+  }
+
+  #map #infowindow-content {
+    display: inline;
+  }
+
+  .pac-card {
+    margin: 10px 10px 0 0;
+    border-radius: 2px 0 0 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
+    font-family: Roboto;
+  }
+
+  #pac-container {
+    padding-bottom: 12px;
+    margin-right: 12px;
+  }
+
+  .pac-controls {
+    display: inline-block;
+    padding: 5px 11px;
+  }
+
+  .pac-controls label {
+    font-family: Roboto;
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+
+  #pac-input:focus {
+    border-color: #4d90fe;
+  }
+
+  #title {
+    color: #fff;
+    background-color: #4d90fe;
+    font-size: 25px;
+    font-weight: 500;
+    padding: 6px 12px;
+  }
+
+  #target {
+    width: 345px;
+  }
+</style>
+
+<script>
+  // This example requires the Places library. Include the libraries=places
+  // parameter when you first load the API. For example:
+  // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
+
+  function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 55.3781, lng: -2.4360 },
+      zoom: 5,
+      streetViewControl: false,
+      mapTypeControl: false,
+    });
+    infoWindow = new google.maps.InfoWindow();
+    const locationButton = document.createElement("button");
+    locationButton.type = 'button';
+    locationButton.setAttribute('class', 'btn btn-light');
+    locationButton.setAttribute('style', 'margin: 10px;');
+    locationButton.textContent = "Current Location";
+    locationButton.classList.add("custom-map-control-button");
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(locationButton);
+    locationButton.addEventListener("click", () => {
+      // Try HTML5 geolocation.
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                  };
+                  map.setZoom(14);
+                  infoWindow.setPosition(pos);
+                  map.setCenter(pos);
+                },
+                () => {
+                  handleLocationError(true, infoWindow, map.getCenter());
+                }
+        );
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+    });
+    const card = document.getElementById("pac-card");
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+    const center = { lat: 50.064192, lng: -130.605469 };
+    // Create a bounding box with sides ~10km away from the center point
+    const defaultBounds = {
+      north: center.lat + 0.1,
+      south: center.lat - 0.1,
+      east: center.lng + 0.1,
+      west: center.lng - 0.1,
+    };
+    const input = document.getElementById("pac-input");
+    const options = {
+      bounds: defaultBounds,
+      componentRestrictions: { country: "uk" },
+      fields: ["address_components", "geometry", "icon", "name"],
+      origin: center,
+      strictBounds: false,
+      types: ["establishment"],
+    };
+    const autocomplete = new google.maps.places.Autocomplete(
+            input,
+            options
+    );
+    // Set initial restriction to the greater list of countries.
+    autocomplete.setComponentRestrictions({
+      country: ["uk", "pr", "vi", "gu", "mp"],
+    });
+    const southwest = { lat: 5.6108, lng: 136.589326 };
+    const northeast = { lat: 61.179287, lng: 2.64325 };
+    const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+    autocomplete.setBounds(newBounds);
+    const infowindow = new google.maps.InfoWindow();
+    const infowindowContent = document.getElementById("infowindow-content");
+    infowindow.setContent(infowindowContent);
+    let marker = new google.maps.Marker({
+      map,
+      anchorPoint: new google.maps.Point(0, -29),
+    });
+    autocomplete.addListener("place_changed", () => {
+      infowindow.close();
+      marker.setVisible(false);
+      const place = autocomplete.getPlace();
+      document.getElementById("myRange").disabled = false;
+
+      document.getElementById('thelat').value = place.geometry.location.lat();
+      document.getElementById('thelong').value = place.geometry.location.lng();
+
+      var circle = new google.maps.Circle({
+        map: map,
+        radius: 0,
+        fillColor: '#AA0000',
+        fillOpacity: 0.17,
+        strokeOpacity: 0.5,
+        strokeWeight: 1,
+      });
+
+      $('#myRange').change(function() {
+        var new_rad = $(this).val();
+        var rad = new_rad * 1000;
+
+        circle.setRadius(rad);
+      });
+
+      circle.bindTo('center', marker, 'position');
+
+      if (!place.geometry || !place.geometry.location) {
+        // User entered the name of a Place that was not suggested and
+        // pressed the Enter key, or the Place Details request failed.
+        window.alert(
+                "No details available for input: '" + place.name + "'"
+        );
+        return;
+      }
+
+      // If the place has a geometry, then present it on a map.
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
+        map.setCenter(place.geometry.location);
+        map.setZoom(17); // Why 17? Because it looks good.
+      }
+      marker.setPosition(place.geometry.location);
+      marker.setVisible(true);
+      let address = "";
+
+      if (place.address_components) {
+        address = [
+          (place.address_components[0] &&
+                  place.address_components[0].short_name) ||
+          "",
+          (place.address_components[1] &&
+                  place.address_components[1].short_name) ||
+          "",
+          (place.address_components[2] &&
+                  place.address_components[2].short_name) ||
+          "",
+        ].join(" ");
+      }
+      infowindowContent.children["place-icon"].src = place.icon;
+      infowindowContent.children["place-name"].textContent = place.name;
+      infowindowContent.children["place-address"].textContent = address;
+      infowindow.open(map, marker);
+    });
+
+    var geocoder = new google.maps.Geocoder();
+    var counter = 0;
+
+    function placeMarker(location) {
+
+      infowindow.close();
+
+      if (marker == null)
+      {
+
+      }
+      else
+      {
+        marker.setPosition(location);
+      }
+
+      if (counter === 0){
+        var circle = new google.maps.Circle({
+          map: map,
+          radius: 0,
+          fillColor: '#AA0000',
+          fillOpacity: 0.17,
+          strokeOpacity: 0.5,
+          strokeWeight: 1,
+        });}
+      // Add circle overlay and bind to marker
+      $('#myRange').change(function() {
+        var new_rad = $(this).val();
+        var rad = new_rad * 1000;
+
+        circle.setRadius(rad);
+      });
+
+      document.getElementById("myRange").disabled = false;
+      circle.bindTo('center', marker, 'position');
+      counter = counter + 1
+
+    }
+
+    google.maps.event.addListener(map, 'click', function(event) {
+      geocoder.geocode({
+        'latLng': event.latLng
+      }, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          if (results[0]) {
+            document.getElementById("pac-input").value = results[0].formatted_address;
+            placeMarker(event.latLng);
+            map.panTo(event.latLng);
+            document.getElementById('thelat').value = results[0].geometry.location.lat();
+            document.getElementById('thelong').value = results[0].geometry.location.lng();
+          }
+        }
+      });
+    });
+
+    // Sets a listener on a given radio button. The radio buttons specify
+    // the countries used to restrict the autocomplete search.
+    function setupClickListener(id, countries) {
+      const radioButton = document.getElementById(id);
+      radioButton.addEventListener("click", () => {
+        autocomplete.setComponentRestrictions({ country: countries });
+      });
+    }
+    setupClickListener("changecountry-usa", "uk");
+    setupClickListener("changecountry-usa-and-uot", [
+      "uk",
+      "pr",
+      "vi",
+      "gu",
+      "mp",
+    ]);}
+</script>
+
+<script type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+  $(function () {
+    $('.datepicker').datepicker({
+      format: 'mm-dd-yyyy'
+    });
+  });
+</script>
+
+<head>
+  <title>Lets Meet</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+
+  <div th:insert="header :: navbar"></div>
+
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Response</h1>
+      <p><span th:text="${event.name}"></span></p>
+      <p><span th:text="${event.description}"></span></p>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div th:include="fragments/common :: alerts"></div>
+    <form th:action="@{/event/{eventuuid}/response(eventuuid = ${event.getUUID()})}" enctype="multipart/form-data"
+          th:method="POST" id="createForm" name="createForm">
+
+      <div class="form-group">
+        <label for="eventdesc">When are you available?</label>
+        <div class="row px-3">
+
+
+          <div class="col list" th:if="${response == null}">
+            <div class="row">
+              <label>From:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes">
+              </div>
+              <label>Until:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
+              </div>
+              <p class="btn btn-light remove">Remove</p>
+            </div>
+          </div>
+
+          <div class="col list" th:unless="${response == null}">
+            <div class="row" th:each="t : ${times}">
+              <label>From:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" th:id="${t[4]}"
+                       th:value="${t[0]}" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" th:id="${t[5]}" name="startTimes" th:value="${t[1]}">
+              </div>
+
+              <label>Until:</label>
+              <div class="col">
+                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" th:id="${t[6]}"
+                       th:value="${t[2]}" readonly>
+              </div>
+              <div class="col">
+                <input type="time" class="form-control" step="1" th:id="${t[7]}" name="endTimes" th:value="${t[3]}">
+              </div>
+              <p class="btn btn-light remove">Remove</p>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="btn btn-light add" id="add">Add</p>
+        <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
+        <input type="hidden" name="rows" id="rows" th:value="${numtimes}">
+      </div>
+
+      <div class="form-group">
+        <label for="eventdesc">Where would you like to meet? </label>
+
+        <div id = "pac-container">
+
+          <input type="text" class="form-control" name="responselocation" id="pac-input" placeholder="Search for location...">
+
+        </div>
+
+        <div id="map" style="clear:both; height:400px;"></div>
+
+        <div class = "form-group">
+          <label for = "myRange">Radius (km): </label>
+          <input type = "range" id = "myRange" name = "radius" value = "0" disabled = "true">
+          <span id = "demo"></span>
+        </div>
+
+        <script>
+
+          var slider = document.getElementById("myRange");
+          var output = document.getElementById("demo");
+          output.innerHTML = slider.value;
+
+
+          slider.oninput = function() {
+            output.innerHTML = this.value;
+          }
+
+        </script>
+
+        <input type = "hidden" name = "thelat" id = "thelat"/>
+        <input type="hidden" name="thelong" id="thelong"/>
+
+        <script
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=places&v=weekly"
+                async
+        ></script>
+        <!--
+        TODO Change above input to this commented code once Event model is updated to store lat and long
+        <input type = "hidden" name = "thelat" id = "thelat" th:value = "${event.getLocationLatitude()}">
+        <input type = "hidden" name = "thelong" id = "thelong" th:value = "${event.getLocationLongitude()}">
+        -->
+
+      </div>
+
+      <div class="form-group">
+        <label for="eventdesc">What facilities should the venue have? </label>
+        <div class="container" id="facilities">
+
+          <div class="row align-items-start" th:if="${facilities == null}">
+
+            <div class="col">
+              <input type="text" class="form-control" name="responsefacilities"
+                     placeholder="Facility Tag...">
+            </div>
+
+            <div class="col">
+              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+            </div>
+          </div>
+
+          <div class="row align-items-start" th:unless="${facilities == null}" th:each="f : ${facilities}">
+
+            <div class="col">
+              <input type="text" class="form-control" name="responsefacilities"
+                     placeholder="Facility Tag..." th:value="${f}">
+            </div>
+
+            <div class="col">
+              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
+            </div>
+          </div>
+
+
+
+          <div class="col">
+            <button type="button" class="append" id="append">Add More Facilities</button>
+          </div>
+
+        </div>
+      </div>
+
+      <script>
+        function JSONFormatting() {
+          var eventDates = [];
+          dateRowNo = document.createForm.rows.value;
+          for (i=0; i<dateRowNo+1; i++) {
+            if (document.getElementById('startDay'+i) !== null) {
+              var startDay = document.getElementById('startDay'+i).value;
+              var startTime = document.getElementById('startTime'+i).value;
+              var endDay = document.getElementById('endDay'+i).value;
+              var endTime = document.getElementById('endTime'+i).value;
+              const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+              const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
+              let dateEntry = new Map()
+              dateEntry['start'] = startDate;
+              dateEntry['end'] = endDate;
+              eventDates.push(dateEntry);
+              console.log(eventDates);
+            }
+          }
+          document.createForm.jsonTimes.value = JSON.stringify(eventDates);
+          document.forms["createForm"].submit();
+        }
+      </script>
+
+      <script>
+        // Counter for the rows
+        var dateRowNo = 0;
+        $(document).ready(function(){
+          $('.add').click(function(){
+            // Read dateRowNo
+            dateRowNo = document.createForm.rows.value;
+
+            // Day formatting for the generated HTML
+            $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+            $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+
+            // Incrementing the counter
+            dateRowNo++;
+            $(".list").append(
+                    '<div class="row">' +
+                    '<label>From:</label>' +
+                    '<div class="col">' +
+                    '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
+                    '</div>' +
+                    '<div class="col">' +
+                    '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
+                    '</div>' +
+                    '<label>Until:</label>' +
+                    '<div class="col">' +
+                    '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
+                    '</div>' +
+                    '<div class="col">' +
+                    '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
+                    '</div>' +
+                    '<p class="btn btn-light remove">Remove</p>' +
+                    '</div>');
+
+            // Write dateRowNo
+            document.createForm.rows.value = dateRowNo;
+          });
+
+          $(".list").on('click', '.remove', function(){
+            $(this).parent().remove();
+          });
+        });
+
+        // Day formatting for pre-included HTML
+        $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+
+        // Finding user's time zone
+        var offset = new Date().getTimezoneOffset();
+
+        var plusMinusTimeZone = "";
+        if (offset > 0){
+          plusMinusTimeZone = "-";
+        }else{
+          plusMinusTimeZone = "+";
+        }
+
+        HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
+        if (HoursTimeZone.length < 2){
+          HoursTimeZone = "0" + HoursTimeZone;
+        }
+
+        MinutesTimeZone = Math.abs(offset%60).toString();
+        if (MinutesTimeZone.length < 2){
+          MinutesTimeZone = "0" + MinutesTimeZone;
+        }
+      </script>
+
+      <script>
+        $(document).on('click', '.append', function(){
+          var html = '<div class="row align-items-start">\n' +
+                  '                    <div class="col">\n' +
+                  '                        <input type="text" class="form-control" name="responsefacilities"\n' +
+                  '                               placeholder="Facility Tag...">\n' +
+                  '                    </div>\n' +
+                  '\n' +
+                  '                    <div class="col">\n' +
+                  '                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>\n' +
+                  '                    </div>\n' +
+                  '                </div>';
+          $(html).insertBefore(".append");
+
+        });
+      </script>
+
+      <script>
+        function remove(el){
+          var myobj = el.parentElement.parentElement;
+          myobj.remove();
+        }
+      </script>
+
+      <input type="hidden" name="userUUID" th:value="${user.getUUID().toString()}">
+      <button onclick="JSONFormatting()" class="btn btn-primary">Create</button>
+      <p>You are responding as <span th:text="${user.fName} + ' ' + ${user.lName}"></span></p>
+    </form>
+  </div>
+
+  <div th:insert="footer :: footer"></div>
+
+</body>
+
+</html>

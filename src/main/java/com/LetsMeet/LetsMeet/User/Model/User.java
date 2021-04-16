@@ -84,7 +84,7 @@ public class User {
     }
 
     public int getIsGuestInt(){
-        if(this.getIsGuest()){
+        if(this.isGuest){
             return 1;
         }
         return 0;

@@ -2,12 +2,14 @@ package com.LetsMeet.LetsMeet.Event.Model.DTO;
 
 import java.util.List;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Data Transfer Object for Event front-end communication
+ */
 public class EventDTO {
 
     private String uuid;
@@ -30,21 +32,17 @@ public class EventDTO {
     @NotNull
     private double radius;
 
-    //@NotEmpty // TODO validate that length is not odd
     private List<String> times;
 
-    //@NotNull
     private List<String> facilities;
 
-    //@NotNull
     private List<String> polls;
 
-    //@NotNull
     private MultipartFile image;
 
-    //@NotNull
     private List<String> properties;
 
+    @SuppressWarnings("all")
     public EventDTO(String uuid, String name, String description, String location, double latitude, double longitude,
             double radius, List<String> times, List<String> facilities, List<String> polls, MultipartFile image,
             List<String> properties) {

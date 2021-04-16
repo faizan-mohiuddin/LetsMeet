@@ -7,13 +7,14 @@
 
 <body>
     <div th:fragment="basic_search">
-        <form class="d-flex" id="searchForm" action="#" onsubmit="return search();">
+        <form class="d-flex" id="searchForm" action="#">
             <input class="form-control me-2" id="searchBox" type="text" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline" type="submit" style="position: relative; left: -50px"><i class="bi bi-search"></i></button>
         </form>
 
         <script>
             $('#searchForm').submit(function() {
+                alert("2hi");
                 let val = document.getElementById('searchBox').value;
                 if (val.length > 0){
                     window.open(`/search?term=${document.getElementById('searchBox').value}`,'_self')
