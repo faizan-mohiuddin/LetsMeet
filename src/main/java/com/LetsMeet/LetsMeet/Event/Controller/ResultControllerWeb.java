@@ -270,4 +270,10 @@ public class ResultControllerWeb {
             return "redirect:/event/{eventUUID}/results/time?duration=10&attendance=10";
         }
     }
+
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
+    }
 }

@@ -225,4 +225,10 @@ public class BusinessControllerWeb {
         String destination = String.format("redirect:/Business/%s", business.getUUID().toString());
         return destination;
     }
+
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
+    }
 }

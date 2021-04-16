@@ -499,6 +499,4 @@ public class EventControllerAPI {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }   
     }
-
-
 }

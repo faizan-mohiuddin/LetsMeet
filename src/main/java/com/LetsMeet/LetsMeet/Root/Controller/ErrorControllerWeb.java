@@ -53,5 +53,41 @@ public class ErrorControllerWeb implements ErrorController {
     public String getErrorPath() {
         return "/error";
     }
+
+    @GetMapping("/403")
+    public String Error403(Model model, HttpSession session, HttpSession request){
+        User user = (User) session.getAttribute("userlogin");
+        if(!(user == null)) {
+            model.addAttribute("user", user);
+        }
+        return "error/403";
+    }
+
+    @GetMapping("/404")
+    public String Error404(Model model, HttpSession session, HttpSession request){
+        User user = (User) session.getAttribute("userlogin");
+        if(!(user == null)) {
+            model.addAttribute("user", user);
+        }
+        return "error/404";
+    }
+
+    @GetMapping("/405")
+    public String Error405(Model model, HttpSession session, HttpSession request){
+        User user = (User) session.getAttribute("userlogin");
+        if(!(user == null)) {
+            model.addAttribute("user", user);
+        }
+        return "error/405";
+    }
+
+    @GetMapping("/500")
+    public String Error500(Model model, HttpSession session, HttpSession request){
+        User user = (User) session.getAttribute("userlogin");
+        if(!(user == null)) {
+            model.addAttribute("user", user);
+        }
+        return "error/500";
+    }
 }
 

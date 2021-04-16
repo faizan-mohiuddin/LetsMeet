@@ -306,6 +306,13 @@ public class EventsControllerWeb {
         return "redirect:/event/{eventUUID}";
     }
 
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
 
     private User validateSession(HttpSession session) throws IllegalAccessException{
         User user = (User) session.getAttribute("userlogin");

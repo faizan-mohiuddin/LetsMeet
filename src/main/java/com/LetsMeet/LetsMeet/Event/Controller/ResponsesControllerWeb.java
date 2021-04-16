@@ -129,6 +129,14 @@ public class ResponsesControllerWeb {
         }
     }
 
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+
     private User validateSession(HttpSession session){
         User user = (User) session.getAttribute("userlogin");
         if (user == null)

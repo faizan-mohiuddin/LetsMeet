@@ -393,4 +393,13 @@ public class VenueControllerWeb {
         String destination = String.format("redirect:/Venue/%s", venueUUID);
         return destination;
     }
+
+    @GetMapping("/404")
+    public String Error404(Model model, HttpSession session, HttpSession request){
+        User user = (User) session.getAttribute("userlogin");
+        if(!(user == null)) {
+            model.addAttribute("user", user);
+        }
+        return "error/404";
+    }
 }
