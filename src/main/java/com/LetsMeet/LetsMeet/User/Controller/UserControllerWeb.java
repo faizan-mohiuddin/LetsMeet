@@ -349,6 +349,7 @@ public class UserControllerWeb {
                              @RequestParam(name = "userfirstname", defaultValue="") String firstName,
                              @RequestParam(name = "userlastname", defaultValue="") String lastName,
                              @RequestParam(name = "useremail", defaultValue="") String email,
+                             @RequestParam(name = "userpassword", defaultValue="") String pw,
                              HttpSession session, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
@@ -371,7 +372,7 @@ public class UserControllerWeb {
 
                 User userToUpdate = userServiceInterface.getUserByUUID(useruuid);
 
-                String tryUpdateUser = userServiceInterface.updateUser(userToUpdate, firstName, lastName, email);
+                String tryUpdateUser = userServiceInterface.updateUser(userToUpdate, firstName, lastName, email, pw, user.getIsGuest());
 
                 if (tryUpdateUser.equals("User successfully updated")) {
 

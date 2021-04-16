@@ -134,7 +134,7 @@ public class UserService implements UserServiceInterface {
     public String updateUser(User user, String fName, String lName, String email, String pw, Boolean isGuest) {
 
         // Check if email needs updated
-        if(!email.equals("")){
+        if(!email.equals("") && !email.equals(user.getEmail())){
             // Check email is valid
             Object[] valid = validationService.checkEmailValidity(email);
             if(!(boolean) valid[0]){
