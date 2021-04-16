@@ -83,7 +83,7 @@ public class EventsControllerWeb {
     }
 
     private static String EVENT_TEMPLATE_EDITOR = "event/new";
-    private static String EVENT_TEMPLATE_VIEWER = "viewevent";
+    private static String EVENT_TEMPLATE_VIEWER = "event/event";
 
     private static String USER_ATTR = "user";
 
@@ -111,7 +111,7 @@ public class EventsControllerWeb {
 
                 model.addAttribute("title", "New Meet");
                 model.addAttribute("icon", "bi-plus-square");
-                model.addAttribute("onSubmit", "/v2/event/new");
+                model.addAttribute("onSubmit", "/event/new");
 
             return EVENT_TEMPLATE_EDITOR;
         }
@@ -161,7 +161,7 @@ public class EventsControllerWeb {
                 // We don't want users to enter all their details again
                 redirectAttributes.addFlashAttribute("event", eventDTO);
                 
-                return "redirect:/v2/createevent";
+                return "redirect:/createevent";
         }
     }
 
@@ -195,7 +195,7 @@ public class EventsControllerWeb {
             // Setup form
             model.addAttribute("title", "Edit Meet");
             model.addAttribute("icon", "bi-pen");
-            model.addAttribute("onSubmit", "/v2/event/" + eventUUID + "/edit");
+            model.addAttribute("onSubmit", "/event/" + eventUUID + "/edit");
 
             return EVENT_TEMPLATE_EDITOR;
         }
@@ -292,8 +292,7 @@ public class EventsControllerWeb {
     @PostMapping("/event/{eventUUID}/users")
     public String httpEventInvitesPost(Model model, RedirectAttributes redirectAttributes, HttpSession session,
         @PathVariable("eventUUID") String eventUUID,
-        @RequestParam(value="usersRequired") List<String> usersRequired,
-        @RequestHeader String host){
+        @RequestParam(value="usersRequired") List<String> usersRequired){
         try{
             Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
 

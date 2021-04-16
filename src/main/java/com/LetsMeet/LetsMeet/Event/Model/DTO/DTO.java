@@ -30,12 +30,16 @@ public class DTO {
     public static class PollData {
         public String json;
         public String name;
+        public boolean multiselect;
+        public boolean required;
         public Map<String, Integer> options;
 
-        PollData(Poll poll){
+        public PollData(Poll poll){
             this.json = poll.toJson();
             this.name = poll.getName();
             this.options = poll.getOptions();
+            this.multiselect = poll.getSelectMultiple();
+            this.required = true;
         }
     }
 }

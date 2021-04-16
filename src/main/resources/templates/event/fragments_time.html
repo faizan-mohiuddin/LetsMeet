@@ -15,7 +15,7 @@
             <template>
                 <div class="section text-center">
                     <div class="flex flex-col items-center mb-6">
-                        <v-date-picker mode="dateTime" v-model="dateRange" is-range is-expanded :attributes="attrs"></v-date-picker>
+                        <v-date-picker ref="calendar" mode="dateTime" v-model="dateRange" is-range is-expanded :attributes="attrs" :available-dates="availableDates"></v-date-picker>
                         <!--<span>{{ dateRange.start }}->{{ dateRange.end }}</span>-->
                         <button
                         type="button"
@@ -62,17 +62,44 @@
                     attrs: [
 
                     ],
+                    availableDates: [],
                 };
             },
             mounted(){
-                var range = $(".card-title");
+                const calendar = this.$refs.calendar;
 
-                console.log(range.length);
-                var i;
-                for (i = 0; i < range.length; i++) {
-                    console.log(range[i].innerHTML);
-                } 
-                console.log("beforeMount complete!")
+                // Set enabled dates
+                var range = $(".lm-enabled-dates");
+                console.log("Setting available dates...")
+                let firstDay = new Date();
+                for (let i = 0; i < range.length; i++){
+                    let json = JSON.parse(range[i].value);
+                    console.log(json);
+                    this.availableDates.push(json);
+                    if (i===0) firstDay = json.start;
+                }
+                console.log("Done")
+
+                // Move calendar pane to fist enabled day
+                calendar.move(firstDay);
+
+                // Set pre-selected dates
+                var selectedRange = $(".lm-selected-dates");
+                console.log("Setting pre-selected dates...")
+                for (let i = 0; i < selectedRange.length; i++) {
+                    let json = JSON.parse(selectedRange[i].value);
+                    console.log(json);
+                    this.attrs.push({
+                        highlight: {
+                            start: {fillMode: 'solid'},
+                            base: {fillMode: 'solid'},
+                            end: {fillMode: 'solid'},
+                        },
+                        dates: json,
+                    });
+                }
+
+                console.log("beforeMount complete!");
             },
             methods: {
                 addToList() {
@@ -124,9 +151,9 @@
                     // Update calendar attributes;
                     var thing = {
                         highlight: {
-                            start: { fillMode: 'light' },
-                            base: { fillMode: 'light' },
-                            end: { fillMode: 'light' },
+                            start: { fillMode: 'solid' },
+                            base: { fillMode: 'solid' },
+                            end: { fillMode: 'solid' },
                         },
                         dates: { start: this.$data.dateRange.start, end: this.$data.dateRange.end },
                     };

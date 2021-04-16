@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Event.Model.DTO.DTO;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -50,16 +53,37 @@ public class ResponsesControllerWeb {
 
             // Validate and get user
             User user = (isGuest)? validateSession(session) : userService.getUserByUUID(guest);
-            model.addAttribute(user);
+            model.addAttribute("user", user);
 
             // Validate and get event
             Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
-            model.addAttribute(event);
+            model.addAttribute("event",event);
+
+            // Add event dates to model as Json structure - this is a bit hacky
+            //StringBuilder eventDateJson = new StringBuilder("[");
+            List<String> eventDates = new ArrayList<>();
+            for (var date : event.getEventProperties().getTimes())
+                eventDates.add(date.toJson());
+                //eventDateJson.append(date.toJson()).append(",");
+            //eventDateJson.replace(eventDateJson.lastIndexOf(","),eventDateJson.length(),"]");
+            model.addAttribute("eventDates",eventDates);
+
+            // Add polls
+            List<DTO.PollData> polls = new ArrayList<>();
+            for (var poll: eventService.getPolls(event))
+                polls.add(new DTO.PollData(poll));
+
+            model.addAttribute("polls",polls);
 
             // Get or generate temporary response
             EventResponse response = responseService.getResponse(user, event).orElseGet(() -> new EventResponse(user.getUUID(),event.getUUID()));
             ResponseDTO responseDTO = ResponseDTO.fromResponse(response);
             model.addAttribute("response", responseDTO);
+
+            // Setup page
+            model.addAttribute("title", "Respond to " + event.getName());
+            model.addAttribute("icon", "bi-calendar-check");
+            model.addAttribute("onSubmit", "/event/" + eventUUID + "/response");
 
             // Serve response page
             return RESPONSE_TEMPLATE;
