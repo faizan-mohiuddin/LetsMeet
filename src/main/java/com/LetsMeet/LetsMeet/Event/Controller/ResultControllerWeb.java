@@ -177,7 +177,7 @@ public class ResultControllerWeb {
             // Build and execute search
             List<Venue> venues = venueService.search(
                     "",
-                    "[" + facilities + "]",
+                    venueService.formatFacilitiesForSearch(facilities),
                     "",
                     String.valueOf(location.getLongitude()),
                     String.valueOf(location.getLatitude()),

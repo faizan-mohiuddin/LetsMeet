@@ -409,6 +409,16 @@ public class VenueService {
         }
     }
 
+    public String formatFacilitiesForSearch(String f){
+        String facilities = "[";
+        List<String> facs = Arrays.asList(f.split(","));
+        for(String fac : facs){
+            facilities = facilities + "\"" + fac + "\"";
+        }
+        facilities = facilities + "]";
+        return facilities;
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();

@@ -208,7 +208,7 @@ public class VenueControllerWeb {
 
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
-            searchFacilities = "[" + searchFacilities + "]";
+            searchFacilities = venueService.formatFacilitiesForSearch(searchFacilities);
         }
 
         // Search for events by what is given
@@ -394,12 +394,9 @@ public class VenueControllerWeb {
         return destination;
     }
 
-    @GetMapping("/404")
-    public String Error404(Model model, HttpSession session, HttpSession request){
-        User user = (User) session.getAttribute("userlogin");
-        if(!(user == null)) {
-            model.addAttribute("user", user);
-        }
-        return "error/404";
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
     }
 }
