@@ -186,7 +186,6 @@
 
     </div>
 
-
     <div th:fragment="invite">
         <form th:action="@{/event/{eventUUID}/users(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST">
             <div class="form-group">
