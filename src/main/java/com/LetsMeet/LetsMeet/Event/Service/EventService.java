@@ -21,10 +21,10 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.EventResult;
 import com.LetsMeet.LetsMeet.Root.Notification.NotificationService;
 import com.LetsMeet.LetsMeet.Root.Notification.Notifications;
-import com.LetsMeet.LetsMeet.User.Model.IsGuest;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
 import com.google.gson.Gson;
@@ -188,20 +188,22 @@ public class EventService{
                 throw new IllegalArgumentException("Provided User does not have sufficient privileges. User= <" + user.getUUID() + ">");
             }
 
-            // Get occurrences of event from IsGuest
-            List<IsGuest> records = userService.getEventGuests(event);
+            // Get event users
+            List<User> records = this.EventsUsers(event.getUUID());
             Boolean result = eventDao.delete(event);
 
             if(result){
                 // Remove one by one
-                List<IsGuest> userRecords;
-                for(IsGuest r : records) {
-                    // If an affected Guest no longer has any other events, delete guest account
-                    userRecords = userService.getGuestRecords(r.getGuestUUID());
-                    if(userRecords.size() == 0){
-                        // Delete guest account
-                        String response = userService.deleteUser(userService.getUserByUUID(r.getGuestUUID().toString()));
-                        System.out.println(response);
+                Collection<Event> userEvents;
+                for(User r : records) {
+                    if(r.getIsGuest()) {
+                        // If an affected Guest no longer has any other events, delete guest account
+                        userEvents = this.getUserEvents(r);
+                        if (userEvents.size() == 0) {
+                            // Delete guest account
+                            String response = userService.deleteUser(user);
+                            System.out.println(response);
+                        }
                     }
                 }
             }
@@ -575,12 +577,13 @@ public class EventService{
 
     //-----------------------------------------------------------------------------------------------------------------
     public void inviteGuestToEvent(User user, Event event){
-        // Check is guest has been invited to event already
-        IsGuest checker = userService.getGuestEvent(user, event);
+        // Check if guest has been invited to event already
+        Optional<EventResponse> checker = responseService.getResponse(user, event);
 
-        if(checker == null) {
+        if(checker.isEmpty()) {
             // If not - invite (Add to isGuest table)
-            userService.newIsGuestRecord(user, event);
+            EventResponse response = new EventResponse(event.getUUID(), user.getUUID());
+            responseService.saveResponse(response);
         }
     }
 
@@ -595,17 +598,24 @@ public class EventService{
         for ( String identifier : identifiers){
             User user;
 
-            if (identifier.matches(" [^@ \\t\\r\\n]+@[^@ \\t\\r\\n]+\\.[^@ \\t\\r\\n]+"))
+            if (identifier.contains("@") && identifier.contains("."))
                 user = userService.getUserByEmail(identifier);
 
             else
                 user = userService.getUserByUUID(identifier);
 
-            if (user == null) userService.createGuest(identifier, event);
+            if (user == null) user = userService.createGuest(identifier, event);
 
             responseService.createResponse(user,event,false);
 
-            notificationService.send(Notifications.simpleMail("","",""),user);
+            // If user is guest they needs the appropriate link
+            if(user.getIsGuest()){
+                String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
+                LOGGER.info(guestLink);
+                notificationService.send(Notifications.simpleMail("", "", ""), user);
+            }else {
+                notificationService.send(Notifications.simpleMail("", "", ""), user);
+            }
         }
     }
 }

@@ -111,7 +111,7 @@ public class EventsControllerWeb {
 
                 model.addAttribute("title", "New Meet");
                 model.addAttribute("icon", "bi-plus-square");
-                model.addAttribute("onSubmit", "/v2/event/new");
+                model.addAttribute("onSubmit", "/event/new");
 
             return EVENT_TEMPLATE_EDITOR;
         }
