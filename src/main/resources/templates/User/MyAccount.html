@@ -16,18 +16,33 @@
 </head>
 
 <body>
-<div th:insert="header :: navbar"></div>
+<div th:insert="fragments/layout :: navbar"></div>
 
 <div class="jumbotron">
     <h1>MyAccount</h1>
 </div>
 
 <div class="container">
-    <form th:action="${deletePath}" enctype="multipart/form-data" th:method="GET"
-          id="register" name="register">
-        <input type="hidden" th:value="${user.getEmail()}" name="guestEmail">
-        <button type="submit" class="btn btn-warning">Delete Account</button>
-    </form>
+
+    <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
+    <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
+
+    <div class="container">
+        <h2 th:text="'Your LetsMeet ID is: ' + ${user.getUUID().toString()}"></h2>
+        <p>This ID can be used by your friends to invite you to events!</p>
+    </div>
+
+    <div class="row">
+        <form th:action="${editPath}" enctype="multipart/form-data" th:method="GET"
+              id="editAccount" name="editAccount">
+            <button type="submit" class="btn btn-info">Edit Account</button>
+        </form>
+
+        <form th:action="${deletePath}" enctype="multipart/form-data" th:method="GET"
+              id="delete" name="delete">
+            <button type="submit" class="btn btn-warning">Delete Account</button>
+        </form>
+    </div>
 </div>
 
 <div th:insert="footer :: footer"></div>

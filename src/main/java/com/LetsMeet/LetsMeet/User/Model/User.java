@@ -83,6 +83,13 @@ public class User {
         return this.isGuest;
     }
 
+    public int getIsGuestInt(){
+        if(this.getIsGuest()){
+            return 1;
+        }
+        return 0;
+    }
+
     public void setIsGuest(Boolean b){
         this.isGuest = b;
     }

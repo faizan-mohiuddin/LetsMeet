@@ -328,7 +328,7 @@ public class UserControllerWeb {
         // TODO Re-do this function so that a user can edit their own account once a 'settings' page is created.
         // NB: editing only allows the user to edit their FName, LName and E-Mail. Will try password editing soon.
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+        if (!(user != null && (user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db") || user.getUUID().toString().equals(useruuid)))) {
 
             redirectAttributes.addFlashAttribute("accessDenied" ,"You do not have permission to view this page.");
 
@@ -353,7 +353,7 @@ public class UserControllerWeb {
 
         User user = (User) session.getAttribute("userlogin");
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+        if(!(user != null && (user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db") || user.getUUID().toString().equals(useruuid)))) {
 
             redirectAttributes.addFlashAttribute("accessDenied" ,"You do not have permission to view this page.");
 
@@ -373,17 +373,22 @@ public class UserControllerWeb {
 
                 String tryUpdateUser = userServiceInterface.updateUser(userToUpdate, firstName, lastName, email);
 
-                if (tryUpdateUser.equals("User successfully updated.")) {
+                if (tryUpdateUser.equals("User successfully updated")) {
 
                     redirectAttributes.addFlashAttribute("success", "User successfully updated.");
 
                 } else {
 
-                    redirectAttributes.addFlashAttribute("danger", "Something went wrong when editing the user!");
+                    redirectAttributes.addFlashAttribute("danger", tryUpdateUser);
 
                 }
 
-                return "redirect:/adminviewallusers";
+                // Check if admin or user
+                if(user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+                    return "redirect:/adminviewallusers";
+                }else{
+                    return "redirect:/myaccount";
+                }
 
             }
 
@@ -391,7 +396,7 @@ public class UserControllerWeb {
 
     }
 
-    @GetMapping("/MyAccount")
+    @GetMapping("/myaccount")
     public String MyAccountPage(Model model, RedirectAttributes redirectAttributes, HttpSession session){
         // Check user is logged in
         User user = (User) session.getAttribute("userlogin");
@@ -400,8 +405,14 @@ public class UserControllerWeb {
             return "redirect:/404";
         }
         model.addAttribute("user", user);
+
+        // Delete account URL
         String deletePath = String.format("/deleteuser/%s", user.getUUID().toString());
         model.addAttribute("deletePath", deletePath);
+
+        // Edit account URL
+        String updatePath = String.format("/edituser/%s", user.getUUID().toString());
+        model.addAttribute("editPath", updatePath);
         return "User/MyAccount";
     }
 }
