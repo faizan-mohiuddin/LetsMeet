@@ -79,7 +79,7 @@ public class UserControllerWeb {
 
         } else {
 
-            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+            redirectAttributes.addFlashAttribute("info", "You are already logged in.");
 
             return "redirect:/Home";
 
@@ -99,7 +99,7 @@ public class UserControllerWeb {
         if (user == null) {
             if (!userServiceInterface.isValidRegister(userfirstname, userlastname, useremail, userpassword)) {
 
-                redirectAttributes.addFlashAttribute("registerFailed", "There was a problem registering this account.");
+                redirectAttributes.addFlashAttribute("danger", "There was a problem registering this account.");
 
                 return "redirect:/createuser";
 
@@ -119,7 +119,7 @@ public class UserControllerWeb {
             }
         } else {
 
-            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+            redirectAttributes.addFlashAttribute("info", "You are already logged in.");
 
             return "redirect:/Home";
 
@@ -134,7 +134,7 @@ public class UserControllerWeb {
 
         if (user != null) {
 
-            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+            redirectAttributes.addFlashAttribute("info", "You are already logged in.");
 
             return "redirect:/Home";
 
@@ -152,11 +152,11 @@ public class UserControllerWeb {
 
         if (user == null) {
 
-            redirectAttributes.addFlashAttribute("accessDenied", "You are not logged in.");
+            redirectAttributes.addFlashAttribute("warning", "You are not logged in.");
 
         } else {
 
-            redirectAttributes.addFlashAttribute("loggedout", "You have successfully logged out.");
+            redirectAttributes.addFlashAttribute("success", "You have successfully logged out.");
             session.setComplete();
 
         }
