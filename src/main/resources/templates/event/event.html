@@ -96,8 +96,7 @@
                     <img class="card-img-top" th:src="'/'+${event.properties.properties.get('header_image')}"
                         th:if="${event.properties.properties.get('header_image')}" alt="Card image cap">
                     <div class="card-body">
-                        <div th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
-                            data-toggle="modal" data-target="#myModal"><i class="bi bi-pen"></i> Edit</div>
+                        <a th:if="${isOwnerOfEvent}" th:href="@{/event/{eventuuid}/edit (eventuuid = ${event.getUUID()})}" class="btn btn-outline-secondary btn-block" ><i class="bi bi-pen"></i> Edit</a>
                         <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
                             data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
                         <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
