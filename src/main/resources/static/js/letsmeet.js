@@ -1,3 +1,29 @@
+let player = null;
+
+
+$(document).ready(function () {
+    $('.lm-egg-dangerZone').click(function () {
+
+        player == null ? playAudio("https://ia802904.us.archive.org/24/items/TopGunThemeFilmVersionDangerZone/TopGunAnthemDangerzoneFilmIntro.mp3") : player.pause();
+    });
+
+});
+
+
+async function playAudio(source) {
+    var audio = new Audio(source);
+    audio.type = 'audio/mp3';
+    audio.currentTime = 182;
+
+    try {
+        await audio.play();
+        console.log('Playing...');
+        player = audio;
+    } catch (err) {
+        console.log('Failed to play...' + err);
+    }
+}
+
 
 // Get an API token using the existing session
 function getToken() {

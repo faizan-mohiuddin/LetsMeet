@@ -3,9 +3,6 @@
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 
-<!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
-      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 
 
 <html xmlns:th="http://www.thymeleaf.org">
@@ -16,35 +13,47 @@
 </head>
 
 <body>
+<div th:insert="fragments/layout :: sidebar"></div>
 <div th:insert="fragments/layout :: navbar"></div>
 
 <div class="jumbotron">
-    <h1>MyAccount</h1>
+    <div class="container">
+        <h1 th:text="'Hello '+ ${user?.fName}"></h1>
+        <h5>Welcome to your Let's Meet account.</h5>
+    </div>
 </div>
 
 <div class="container">
 
-    <div class = "alert alert-success" th:text = "${success}" th:if = "${success}"></div>
-    <div class = "alert alert-danger" th:text = "${danger}" th:if = "${danger}"></div>
+    <div th:insert="fragments/common :: alerts"></div>
 
     <div class="container">
-        <h2 th:text="'Your LetsMeet ID is: ' + ${user.getUUID().toString()}"></h2>
-        <p>This ID can be used by your friends to invite you to events!</p>
-    </div>
 
-    <div class="row">
-        <form th:action="${editPath}" enctype="multipart/form-data" th:method="GET"
-              id="editAccount" name="editAccount">
-            <button type="submit" class="btn btn-info">Edit Account</button>
-        </form>
+        <h4> Your personal details <a th:href="${editPath}"><i class="bi bi-pen-fill"></i> Edit</a></h4>
+        <p th:text="'Name:' + ${user?.fName} + ${user?.lName}"></p>
+        <p th:text="'email:' + ${user?.email}"></p>
 
-        <form th:action="${deletePath}" enctype="multipart/form-data" th:method="GET"
-              id="delete" name="delete">
-            <button type="submit" class="btn btn-warning">Delete Account</button>
-        </form>
-    </div>
+        <div class="card mt-3">
+            <div class="card-header">Let's Meet ID:</div>
+            <div class="card-body">
+                <p>This ID is unique to you and can be used by other to invite you to their Meets. We may request this ID to help assist you with support queries.</p>
+                <p style="font-weight: bold" th:text="${user.getUUID().toString()}"></p>
+            </div>
+        </div>
+
+        <div class="card bg-danger text-white mt-3">
+            <div class="card-header lm-egg-dangerZone">Danger Zone</div>
+            <div class="card-body">
+                <a class="btn btn-outline-light btn-block" th:href="${deletePath}" role="button">Delete Account</a>
+                <p class="card-text">Deleting your account will erase all your personal details including events and invitations from our servers. This action can not be reversed.</p>
+            </div>
+        </div>
+
 </div>
 
+</div>
 <div th:insert="footer :: footer"></div>
+<div th:insert="fragments/layout :: footer"></div>
+
 </body>
 </html>

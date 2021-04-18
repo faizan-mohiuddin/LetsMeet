@@ -68,9 +68,9 @@
                                         <p class="card-text" th:text="${response.user.fName}  + ' ' + ${response.user.lName}"></p>
                                     </div>
                                     <div class="col-sm-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input required_check" type="checkbox" th:checked="${response.response.required}" id="required_check">
-                                            <label class="form-check-label" for="required_check">VIP</label>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input required_check" th:checked="${response.response.required}" th:id="${response.response}">
+                                            <label class="custom-control-label" th:for="${response.response}">VIP</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-2">
@@ -92,20 +92,32 @@
             </div>
 
             <div class="col-sm-4">
-                <div class="card" style="width: 18rem;">
+                <div class="card bg-light text-dark" style="width: 18rem;">
                     <img class="card-img-top" th:src="'/'+${event.properties.properties.get('header_image')}"
-                        th:if="${event.properties.properties.get('header_image')}" alt="Card image cap">
-                    <div class="card-body">
-                        <a th:if="${isOwnerOfEvent}" th:href="@{/event/{eventuuid}/edit (eventuuid = ${event.getUUID()})}" class="btn btn-outline-secondary btn-block" ><i class="bi bi-pen"></i> Edit</a>
-                        <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
-                            data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i> Delete</a>
-                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
-                            class="btn btn-dark btn-block"><i class="bi bi-calendar-week"></i> Results</a>
-                        <a th:href="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}"
-                            class="btn btn-dark btn-block"><i class="bi bi-check-circle"></i> Respond</a>
+                        th:if="${event.properties.properties.get('header_image')}" alt="header_image">
+                    <div class="card-body" >
 
-                        <div class="alert alert-dark" th:unless="${hasUserRespondedToEvent}"> You have not responded to
+                        <div class="row pt-2 pb-2" th:if="${isOwnerOfEvent}">
+                            <div class="col">
+                                <a th:href="@{/event/{eventuuid}/edit (eventuuid = ${event.getUUID()})}" class="btn btn-outline-primary btn-block" ><i class="bi bi-pen"></i> Edit</a>
+                            </div>
+                            <div class="col-3">
+                                <a  href="#" class="btn btn-outline-primary btn-block"
+                                    data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </div>
+
+
+                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
+                            class="btn btn-secondary btn-block"><i class="bi bi-calendar-week"></i> Results</a>
+
+                        <a th:href="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}"
+                            class="btn btn-primary btn-block"><i class="bi bi-check-circle"></i> Respond</a>
+
+                        <div class="alert alert-primary" th:unless="${hasUserRespondedToEvent}"> You have not responded to
                             this event. Let the organiser know your preferences!</div>
+
+                        <div class="alert alert-primary" th:if="${hasUserRespondedToEvent}"> You have responded! </div>
                         
                         <script>
                         function copy() {
@@ -119,10 +131,19 @@
                             alert("Link copied to Your Clipboard");
                         }    
                         </script>
+
+                        <div class="row pt-2 pb-2">
+                            <div class="col" th:if="${isOwnerOfEvent}">
+                                <a href="#" class="btn btn-outline-primary btn-block"
+                                   data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
+                            </div>
+                            <div class="col-3">
+                                <a onclick="copy()" class="btn btn-outline-primary btn-block text-primary"><i class="bi bi-share"></i></a>
+                            </div>
+                        </div>
                         
-                        <a onclick="copy()" class="btn btn-outline-secondary btn-block"><i class="bi bi-share"></i> Share</a>
-                        <a th:if="${isOwnerOfEvent}" href="#" class="btn btn-outline-secondary btn-block"
-                            data-toggle="modal" data-target="#inviteUsers"><i class="bi bi-person-plus"></i> Invite</a>
+
+
 
                     </div>
                 </div>

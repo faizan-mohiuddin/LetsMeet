@@ -40,7 +40,7 @@
 
         <div th:insert="fragments/layout :: navbar"></div>
 
-        <div class="jumbotron cover">
+        <div class="jumbotron cover bg-primary">
             <div class="container">
                 <img src="../static/images/Home_banner_text.svg" th:src="@{images/Home_banner_text.svg}" width="650" style="max-width: 100%"
                      class="img-responsive" alt=""/>
@@ -49,7 +49,7 @@
 
         <div class="container" >
             <div th:insert="fragments/common :: alerts"></div>
-            <div class="jumbotron" style="background-color: #313282; color: white">
+            <div class="jumbotron bg-primary text-white" >
                 <div class="row">
                     <div class="col-sm-7">
                         <h1>An easier way to <b>Meet.</b></h1><br>
@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <div class="jumbotron" style="background-color: #ED0677; color: white">
+            <div class="jumbotron bg-secondary text-white">
                 <div class="row">
                     <div class="col-sm-5">
                         <img src="/images/iso_tech.svg" class="img-responsive float-right" alt="Responsive image"/>

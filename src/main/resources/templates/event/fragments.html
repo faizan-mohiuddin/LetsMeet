@@ -188,20 +188,18 @@
 
     <div th:fragment="invite">
         <form th:action="@{/event/{eventUUID}/users(eventUUID = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST">
-            <div class="form-group">
+            <div class="form-group pb-2">
                 <div class="container">
-                    <row>
-                        <div class="alert alert-warning" role="alert">
-                            <h4 class="alert-heading">Caution</h4>
-                            Enter the required users UUID string (e.g. 244ab0d3-332c-4aeb-83d8-962e21bff7c1) or email.
-                          </div>
-                    </row>
+                    <h5>Invite <i>anyone</i></h5>
+                    <p>Easily invite guests to your Meet using their email or Let's Meet ID, we'll let them know you invited them.</p>
+                    <p>They do not need a Let's Meet account.</p>
                 </div>
             </div>
+
             <div class="form-group">
                 <div class="container" id="usersRequired">
                 <div class="input-group mb-3">  
-                    <input type="text" class="form-control" id="myInput" name="usersRequired" placeholder="Recipient's UUID"
+                    <input type="text" class="form-control" id="myInput" name="usersRequired" placeholder="Let's Meet ID or email"
                            aria-label="Recipient's UUID" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" id="but_add" type="button"><i class="bi bi-plus"></i></button>
@@ -211,7 +209,7 @@
                 </div>
             </div>
             <div class="container">
-                <button type="submit" class="btn btn-primary">Confirm</button>
+                <button type="submit" class="btn btn-primary btn-block"><i class="bi bi-envelope-fill"></i> Send Invitation</button>
             </div>
         </form>
 
@@ -221,7 +219,7 @@
         
                 $('#but_add').click(function () {
                     var html = '<div class="input-group mb-3"><input type="text" class="form-control" id="myInput" name="usersRequired" ' +
-                        'placeholder="Recipient\'s UUID" aria-label="Recipient\'s UUID" aria-describedby="basic-addon2">' +
+                        'placeholder="Let\'s Meet ID or email" aria-label="Recipient\'s UUID" aria-describedby="basic-addon2">' +
                         '<div class="input-group-append"> <button class="btn btn-outline-secondary" id="but_add" type="button" onclick="remove(this)">' +
                         '<i class="bi bi-dash"></i></button></div></div>';
                     var b = document.getElementById("but_add").parentElement.parentElement;
