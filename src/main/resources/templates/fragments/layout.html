@@ -119,13 +119,13 @@
                     <li class="nav-item active ml-auto" >
                         <div th:insert="fragments/search :: basic_search"></div>
                     </li>
-                    <li class="nav-item active" th:if="${user}">
+                    <li class="nav-item active" th:if="${session?.userlogin}">
                         <a class="btn btn-outline-secondary mx-1" href="/dashboard" role="button">Dashboard</a>
                     </li>
-                    <li class="nav-item" th:if="${user}">
+                    <li class="nav-item" th:if="${session?.userlogin}">
                         <div class="dropdown">
                             <button class="btn btn-secondary mx-1 dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" >
-                                <i class="bi bi-person"></i> Hello, <a th:utext="${user.fName}"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <i class="bi bi-person"></i> Hello, <a th:utext="${session?.userlogin?.fName}"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             </button>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                 <li><a class="dropdown-item" href="/myaccount">Account Options</a></li>
@@ -135,7 +135,7 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item active" th:unless="${user}">
+                    <li class="nav-item active" th:unless="${session?.userlogin}">
                         <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#myModal">Login</button>
                         <a class="btn btn-secondary" href="/createuser" role="button">Register</a>
 

@@ -10838,6 +10838,22 @@ a.text-dark:hover, a.text-dark:focus {
   }
 }
 
+/* ---------------------------------------------------
+   Cover style
+----------------------------------------------------- */
+.lm-cover {
+  background-image: url("/images/Background 18.svg");
+  background-size: cover;
+  height: 25pc;
+  border-radius: 0;
+  top: 0;
+}
+
+.lm-jumbotron {
+  -webkit-box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+          box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+}
+
 .navbar {
   /*padding: 15px 10px;*/
   background: #313282;

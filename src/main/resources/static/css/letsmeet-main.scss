@@ -11,7 +11,23 @@ $theme-colors: (
 $font-family-sans-serif:      -apple-system, BlinkMacSystemFont, "Poppins", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
 
 // Bootstrap is not included, point this to your bootstrap installation
-@import "node_modules/bootstrap/scss/bootstrap";
+@import "bootstrap/scss/bootstrap";
+
+/* ---------------------------------------------------
+   Cover style
+----------------------------------------------------- */
+
+.lm-cover{
+    background-image: url("/images/Background 18.svg");
+    background-size: cover;
+    height: 25pc;
+    border-radius: 0;
+    top: 0;
+}
+
+.lm-jumbotron{
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+}
 
 .navbar {
     /*padding: 15px 10px;*/

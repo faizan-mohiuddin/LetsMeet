@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title th:text="'Lets Meet: ' + ${status}">Let's Meet: Error</title>
+
+
+
+</head>
+
+<body >
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
+
+    <!-- Page Content  -->
+    <div id="content" >
+
+        <div th:insert="fragments/layout :: navbar"></div>
+
+        <div class="jumbotron bg-primary lm-cover">
+            <div class="container">
+                <div class="jumbotron bg-light text-dark lm-jumbotron">
+                    <div class="row">
+                        <div class="col">
+                            <h1 th:text="'Error ' + ${status}">Error</h1>
+                            <h3 th:text="${error}">Something happened... </h3>
+                            <p th:text="${path} +' @ '+ ${timestamp}"></p>
+                            <p th:text="${message}"></p>
+                        </div>
+                        <div class="col-sm-3">
+                            <img src="/images/misc/avatarka_robot.svg" height="200pc" style="max-width: 100%"
+                                 class="img-responsive float-md-none" alt=""/>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="container" >
+            <div th:insert="fragments/common :: alerts"></div>
+
+
+        </div>
+        <div th:insert = "footer :: footer"></div>
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+</div>
+</body>
+
+</html>
