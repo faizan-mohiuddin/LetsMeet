@@ -139,7 +139,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
             if(statement.executeUpdate() > 0)return true;
             else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
 
-        }catch(SQLException e){
+        }catch(SQLException e) {
             throw new IOException(e.getMessage());
         }
     }

@@ -83,7 +83,7 @@ public class ResponsesControllerWeb {
             // Setup page
             model.addAttribute("title", "Respond to " + event.getName());
             model.addAttribute("icon", "bi-calendar-check");
-            model.addAttribute("onSubmit", "/event/" + eventUUID + "/response");
+            model.addAttribute("onSubmit", "/event/" + eventUUID + "/respond");
 
             // Serve response page
             return RESPONSE_TEMPLATE;
