@@ -428,9 +428,18 @@ public class VenueService {
 
     public String formatFacilitiesForSearch(String f){
         String facilities = "[";
+        f = f.replaceAll(", ", ",");
+
         List<String> facs = Arrays.asList(f.split(","));
+        Boolean added = false;
+
         for(String fac : facs){
-            facilities = facilities + "\"" + fac + "\"";
+            if(added) {
+                facilities = facilities + ",\"" + fac + "\"";
+            }else{
+                added = true;
+                facilities = facilities + "\"" + fac + "\"";
+            }
         }
         facilities = facilities + "]";
         return facilities;

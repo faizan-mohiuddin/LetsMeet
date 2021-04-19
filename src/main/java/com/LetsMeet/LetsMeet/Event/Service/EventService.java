@@ -46,6 +46,7 @@ import com.LetsMeet.LetsMeet.Root.Core.Model.LetsMeetTuple;
 import com.LetsMeet.LetsMeet.Root.Media.MediaService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailAuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,6 +87,8 @@ public class EventService{
 
     @Autowired
     EventResultService resultService;
+
+    @Autowired
     NotificationService notificationService;
 
 
@@ -594,7 +597,7 @@ public class EventService{
      * @param identifiers of users/entities to be invited
      * @throws IllegalArgumentException if an identifier is invalid
      */
-    public void invite( Event event, List<String> identifiers) throws IllegalArgumentException{
+    public void invite( Event event, List<String> identifiers) throws IllegalArgumentException, MailAuthenticationException {
         for ( String identifier : identifiers){
             User user;
 
@@ -612,7 +615,8 @@ public class EventService{
             if(user.getIsGuest()){
                 String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
                 LOGGER.info(guestLink);
-                notificationService.send(Notifications.simpleMail("", "", ""), user);
+                notificationService.send(Notifications.simpleMail("You have been invited to an Event",
+                        "You have been invited to " + event.getName(), guestLink), user);
             }else {
                 notificationService.send(Notifications.simpleMail("", "", ""), user);
             }
