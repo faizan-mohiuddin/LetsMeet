@@ -4,17 +4,29 @@ package com.LetsMeet.LetsMeet.Venue.Service;
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueTimesDAO;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.ExternalVenue;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
@@ -22,6 +34,8 @@ import java.util.*;
 public class VenueService {
 
     private final double p = Math.PI/180;  // Used for calculating distance between 2 sets or longitude and latitude
+
+    private static final Logger LOGGER= LoggerFactory.getLogger(VenueService.class);
 
     @Autowired
     VenueDAO DAO;
@@ -37,6 +51,9 @@ public class VenueService {
 
     @Autowired
     BusinessService businessService;
+
+    @Autowired
+    LetsMeetConfiguration config;
 
     public Object[] createVenue(User user, String name, String businessUUID){
         // Returns [String, Venue]
@@ -417,6 +434,72 @@ public class VenueService {
         }
         facilities = facilities + "]";
         return facilities;
+    }
+
+    // Methods for external data
+    public List<ExternalVenue> externalVenueSearch(double longitude, double latitude, double kilometers){
+
+        // Check input
+
+
+        // Form url
+        try {
+            // Required parameters
+            int radius = (int) Math.round(kilometers * 1000);
+
+            String requestUrl = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s" +
+                    "&location=%s&radius=%d", config.getGmapsKey(), String.format("%f,%f", latitude, longitude), radius);
+
+            Request request = new Request.Builder()
+                    .url(requestUrl)
+                    .build();
+
+            System.out.println(config.getGmapsKey());
+
+            LOGGER.info("Google request: " + request.toString());
+
+            // Send request
+            OkHttpClient httpClient = new OkHttpClient();
+
+            List<ExternalVenue> venues = new ArrayList<>();
+
+            // Iterate over all 'next page' results
+            while(true) {
+                Response response = httpClient.newCall(request).execute();
+
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                // Parse response
+                Gson gson = new Gson();
+                JsonObject json = gson.fromJson(response.body().string(), JsonObject.class);
+                JsonArray results = json.get("results").getAsJsonArray();
+
+                for (JsonElement e : results) {
+                    venues.add(new ExternalVenue(e.getAsJsonObject().get("name").toString()));
+                }
+
+                // Check for next iteration
+                if(json.has("next_page_token")){
+                    // Iterate again
+                    String nextToken = json.get("next_page_token").toString();
+                    nextToken = nextToken.replaceAll("\"", "");
+                   requestUrl = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s" +
+                            "&pagetoken=%s", config.getGmapsKey(), nextToken);
+
+                    request = new Request.Builder()
+                            .url(requestUrl)
+                            .build();
+                }else{
+                    // We are done
+                    break;
+                }
+            }
+
+            return venues;
+        }catch(Exception e){
+            LOGGER.error("Error sending request: {}", e.getMessage());
+        }
+        return null;
     }
 
     // Private methods

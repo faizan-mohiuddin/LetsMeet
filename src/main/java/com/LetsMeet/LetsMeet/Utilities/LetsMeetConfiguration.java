@@ -26,6 +26,8 @@ public class LetsMeetConfiguration {
 
     private String dataFolder;
 
+    private String GmapsKey;
+
     //-----------------------------------------------------------------
 
     public void setDatabaseHost(String x){ databaseHost = x;}
@@ -49,6 +51,9 @@ public class LetsMeetConfiguration {
 
     public void setdataFolder(String x){ dataFolder = x;}
     public String getdataFolder(){return dataFolder;}
+
+    public void setGmapsKey(String x){GmapsKey = x;}
+    public String getGmapsKey(){return GmapsKey;}
 
 
 
