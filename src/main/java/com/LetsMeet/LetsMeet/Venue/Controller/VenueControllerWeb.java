@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.Venue.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Venue.Model.ExternalVenue;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
@@ -230,8 +231,9 @@ public class VenueControllerWeb {
 
         // If longitude and latitude are given, use google search
         if(!longitude.equals("") && !longitude.equals("") && !radius.equals("")){
-            venueService.externalVenueSearch(Double.parseDouble(longitude), Double.parseDouble(latitude),
-                    Double.parseDouble(radius));
+            List<ExternalVenue> externalVenues = venueService.externalVenueSearch(Double.parseDouble(longitude),
+                    Double.parseDouble(latitude), Double.parseDouble(radius));
+            model.addAttribute("externalVenues", externalVenues);
         }
 
 

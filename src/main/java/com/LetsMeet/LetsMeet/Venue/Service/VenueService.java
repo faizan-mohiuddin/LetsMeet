@@ -5,32 +5,28 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
-import com.LetsMeet.LetsMeet.Venue.Controller.VenueControllerWeb;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueTimesDAO;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.ExternalVenue;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 
-import javax.mail.Header;
 import java.io.IOException;
-import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 
@@ -441,8 +437,7 @@ public class VenueService {
     }
 
     // Methods for external data
-    public List<Venue> externalVenueSearch(double longitude, double latitude, double kilometers){
-        String googleDataAPIAddress = "https://maps.googleapis.com/maps/api/place/findplacefromtext/output?parameters";
+    public List<ExternalVenue> externalVenueSearch(double longitude, double latitude, double kilometers){
 
         // Check input
 
@@ -452,33 +447,55 @@ public class VenueService {
             // Required parameters
             int radius = (int) Math.round(kilometers * 1000);
 
-            String requestUrl = String.format("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=%s" +
+            String requestUrl = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s" +
                     "&location=%s&radius=%d", config.getGmapsKey(), String.format("%f,%f", latitude, longitude), radius);
 
             Request request = new Request.Builder()
                     .url(requestUrl)
-//                    .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json")
-//                    .addHeader("key", config.getGmapsKey())
-//                    .addHeader("location", String.format("%f,%f", latitude, longitude))
-//                    .addHeader("radius", String.format("%d", radius))
-//                    .addHeader("language", "en-GB")
                     .build();
 
             System.out.println(config.getGmapsKey());
 
             LOGGER.info("Google request: " + request.toString());
-            System.out.println(request.headers());
 
             // Send request
             OkHttpClient httpClient = new OkHttpClient();
 
-            Response response = httpClient.newCall(request).execute();
-            
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            List<ExternalVenue> venues = new ArrayList<>();
 
-            // Get response body
-            System.out.println(response.body().string());
+            // Iterate over all 'next page' results
+            while(true) {
+                Response response = httpClient.newCall(request).execute();
 
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                // Parse response
+                Gson gson = new Gson();
+                JsonObject json = gson.fromJson(response.body().string(), JsonObject.class);
+                JsonArray results = json.get("results").getAsJsonArray();
+
+                for (JsonElement e : results) {
+                    venues.add(new ExternalVenue(e.getAsJsonObject().get("name").toString()));
+                }
+
+                // Check for next iteration
+                if(json.has("next_page_token")){
+                    // Iterate again
+                    String nextToken = json.get("next_page_token").toString();
+                    nextToken = nextToken.replaceAll("\"", "");
+                   requestUrl = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s" +
+                            "&pagetoken=%s", config.getGmapsKey(), nextToken);
+
+                    request = new Request.Builder()
+                            .url(requestUrl)
+                            .build();
+                }else{
+                    // We are done
+                    break;
+                }
+            }
+
+            return venues;
         }catch(Exception e){
             LOGGER.error("Error sending request: {}", e.getMessage());
         }

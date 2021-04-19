@@ -129,6 +129,15 @@
     </a>
 </div>
 
+<div class="container" th:if="${externalVenues}">
+    <h3>Venues not listed on our platform</h3>
+    <div class="card" th:each="ev : ${externalVenues}">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${ev.name}"></h5>
+        </div>
+    </div>
+</div>
+
 <div th:insert = "footer :: footer"></div>
     </div>
     <div th:insert="fragments/layout :: footer"></div>
