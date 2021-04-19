@@ -515,8 +515,9 @@ public class VenueService {
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();
         String strTime = Long.toString(time);
+        String strRandomNum = Double.toString(Math.floor(Math.random()*(1000000-561)+560));
 
-        String uuidData = name + user.getStringUUID() + "Venue" + user.getEmail() + user.getfName() + strTime;
+        String uuidData = name + user.getStringUUID() + "Venue" + user.getEmail() + user.getfName() + strTime + strRandomNum;
         UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
         return uuid;
     }

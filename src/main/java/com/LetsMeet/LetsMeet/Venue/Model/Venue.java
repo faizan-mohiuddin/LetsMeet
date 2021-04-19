@@ -105,7 +105,7 @@ public class Venue {
                 }
             } catch (Exception e) {
                 System.out.println("Venue : Init(String, String, String)");
-                System.out.println(e);
+                System.out.println(facilities);
                 e.printStackTrace();
             }
         }
@@ -196,6 +196,10 @@ public class Venue {
         }else{
             return null;
         }
+    }
+
+    public Boolean getCoords(){
+        return this.coords;
     }
 
     public void removeFacility(String facility){
