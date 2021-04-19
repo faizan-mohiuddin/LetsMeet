@@ -212,8 +212,10 @@ public class VenueControllerWeb {
         }
 
         // Check first character of searchLocation
-        if(searchLocation.charAt(0) == ','){
-            searchLocation = searchLocation.substring(1);
+        if(searchLocation.length() > 0) {
+            if (searchLocation.charAt(0) == ',') {
+                searchLocation = searchLocation.substring(1);
+            }
         }
 
         // Search for events by what is given

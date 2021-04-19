@@ -452,14 +452,19 @@ public class VenueService {
             // Required parameters
             int radius = (int) Math.round(kilometers * 1000);
 
+            String requestUrl = String.format("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=%s" +
+                    "&location=%s&radius=%d", config.getGmapsKey(), String.format("%f,%f", latitude, longitude), radius);
+
             Request request = new Request.Builder()
-                    .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/output")
-                    .addHeader("key", config.getGmapsKey())
-                    .addHeader("location", String.format("%f/%f", latitude, longitude))
-                    .addHeader("radius", String.format("%d", radius))
-                    .addHeader("language", "en-GB")
+                    .url(requestUrl)
+//                    .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json")
+//                    .addHeader("key", config.getGmapsKey())
+//                    .addHeader("location", String.format("%f,%f", latitude, longitude))
+//                    .addHeader("radius", String.format("%d", radius))
+//                    .addHeader("language", "en-GB")
                     .build();
 
+            System.out.println(config.getGmapsKey());
 
             LOGGER.info("Google request: " + request.toString());
             System.out.println(request.headers());
