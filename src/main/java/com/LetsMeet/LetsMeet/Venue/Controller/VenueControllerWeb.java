@@ -194,7 +194,7 @@ public class VenueControllerWeb {
                                @RequestParam(value="VenueName", defaultValue = "") String searchName,
                                @RequestParam(value="Facilities", defaultValue = "") String searchFacilities,
                                @RequestParam(value="location", defaultValue = "") String searchLocation,
-                               @RequestParam(value="longitdue", defaultValue = "") String longitude,
+                               @RequestParam(value="longitude", defaultValue = "") String longitude,
                                @RequestParam(value="latitude", defaultValue = "") String latitude,
                                @RequestParam(value="radius", defaultValue = "") String radius,
                                @RequestParam(value="time", defaultValue = "") String time,
@@ -211,6 +211,11 @@ public class VenueControllerWeb {
             searchFacilities = venueService.formatFacilitiesForSearch(searchFacilities);
         }
 
+        // Check first character of searchLocation
+        if(searchLocation.charAt(0) == ','){
+            searchLocation = searchLocation.substring(1);
+        }
+
         // Search for events by what is given
         List<Venue> venues;
         if(date.equals("")) {
@@ -219,6 +224,12 @@ public class VenueControllerWeb {
         }else{
             venues = venueService.searchWithDate(searchName, searchFacilities, searchLocation, longitude, latitude, radius,
                     time, hours, minutes, date);
+        }
+
+        // If longitude and latitude are given, use google search
+        if(!longitude.equals("") && !longitude.equals("") && !radius.equals("")){
+            venueService.externalVenueSearch(Double.parseDouble(longitude), Double.parseDouble(latitude),
+                    Double.parseDouble(radius));
         }
 
 
