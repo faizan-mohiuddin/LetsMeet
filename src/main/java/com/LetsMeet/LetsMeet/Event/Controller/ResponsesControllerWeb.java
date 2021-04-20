@@ -5,8 +5,6 @@ import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
-import com.LetsMeet.LetsMeet.Event.Poll.Model.PollResponse;
-import com.LetsMeet.LetsMeet.Event.Poll.Model.PollResponses;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
@@ -41,9 +39,9 @@ public class ResponsesControllerWeb {
 
     // Templates
     static final String RESPONSE_TEMPLATE = "event/response";
-    static final String GUEST_TEMPLATE = "event/guestResponsePreface";
+    static final String GUEST_TEMPLATE = "redirect:/Home";
     static final String SUCCESS_TEMPLATE = "redirect:/event/{eventUUID}";
-    static final String ERROR_TEMPLATE = "redirect:/Home";
+    static final String ERROR_TEMPLATE = "redirect:/event/{eventUUID}";
 
     public ResponsesControllerWeb(EventResponseService responseService, EventService eventService, UserService userService, PollService pollService) {
         this.responseService = responseService;
@@ -88,13 +86,14 @@ public class ResponsesControllerWeb {
             // Setup page
             model.addAttribute("title", "Respond to " + event.getName());
             model.addAttribute("icon", "bi-calendar-check");
-            model.addAttribute("onSubmit", "/event/" + eventUUID + "/respond");
+            model.addAttribute("onSubmit", "/event/" + eventUUID + ((isGuest) ? "/respond?guest="+user.getUUID() : "/respond"));
+            model.addAttribute("isGuest", isGuest);
 
             // Serve response page
             return RESPONSE_TEMPLATE;
         }
         catch (Exception e){
-            redirectAttributes.addFlashAttribute("warning", "Error:");
+            redirectAttributes.addFlashAttribute("warning", "Error:" + e.getMessage());
             LOGGER.error("Failed to serve response: {}", e.getMessage());
             return ERROR_TEMPLATE;
         }
@@ -103,6 +102,7 @@ public class ResponsesControllerWeb {
     @PostMapping()
     public String httpResponseSet(Model model, RedirectAttributes redirectAttributes, HttpSession session,
     @PathVariable("eventUUID") String eventUUID,
+    @ModelAttribute(name= "guestName") String guestName,
     @RequestParam(name = "guest", defaultValue = "false") String guest,
     @ModelAttribute ResponseDTO responseDTO){
         try{
@@ -110,6 +110,7 @@ public class ResponsesControllerWeb {
 
             // Validate and get user
             User user = (isGuest)? userService.getUserByUUID(guest) : validateSession(session);
+            if (isGuest) userService.updateUser(user,user.getfName(),"("+ guestName + ")", user.getEmail());
             model.addAttribute(user);
 
             // Validate and get event
@@ -123,6 +124,7 @@ public class ResponsesControllerWeb {
             EventResponse response = responseService.getResponse(user,event).orElseGet(() -> responseService.createResponse(user,event,false));
             responseService.update(response,responseDTO);
 
+            // Vote in polls
             List<Poll> polls = eventService.getPolls(event);
             List<String> responses = responseDTO.getPollResponse();
             if (polls.size() != responses.size()) throw new IllegalArgumentException("Number of Poll Responses does not match number of Polls");
@@ -132,21 +134,22 @@ public class ResponsesControllerWeb {
                 pollService.addResponse(polls.get(i), selected);
             }
 
+
+            redirectAttributes.addFlashAttribute("success", "Response sent! We'll let the organiser know. Thank you for using Let's Meet ❤");
+            if (isGuest) {
+                redirectAttributes.addFlashAttribute("info", "Why not ");
+                redirectAttributes.addFlashAttribute("infolinktext", "create an account?");
+                redirectAttributes.addFlashAttribute("infolink", "/register?email="+user.getEmail());
+            }
             // If they are a guest, send them to the guest signup page on completion
             return (isGuest) ? GUEST_TEMPLATE : SUCCESS_TEMPLATE;
 
         }
         catch (Exception e){
-            redirectAttributes.addFlashAttribute("warning", "Error:");
+            redirectAttributes.addFlashAttribute("warning", "Error:" + e.toString());
             LOGGER.error("Failed to serve response: {}", e.getMessage());
             return RESPONSE_TEMPLATE;
         }
-    }
-
-    // Error catching
-    @ExceptionHandler(Exception.class)
-    public String handleException(){
-        return "redirect:/405";
     }
 
     //----------------------------------------------------------------------------------------------------------------

@@ -59,9 +59,9 @@ public class UserControllerWeb {
     }
 
 
-    @GetMapping("/createuser")
+    @GetMapping({"/createuser", "/register"})
     public String createuser(Model model, HttpSession session, RedirectAttributes redirectAttributes,
-                             @RequestParam(value="guestEmail", defaultValue = "") String guestEmail) {
+                             @RequestParam(value="email", defaultValue = "") String guestEmail) {
 
         User user = (User) session.getAttribute("userlogin");
 

@@ -21,8 +21,7 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
 
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.EventResult;
+import com.LetsMeet.LetsMeet.Event.Model.*;
 import com.LetsMeet.LetsMeet.Root.Notification.NotificationService;
 import com.LetsMeet.LetsMeet.Root.Notification.Notifications;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
@@ -35,8 +34,6 @@ import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPermissionDao;
 import com.LetsMeet.LetsMeet.Event.DAO.EventPollDAO;
 import com.LetsMeet.LetsMeet.Event.DAO.EventResultDao;
-import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;

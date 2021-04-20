@@ -40,6 +40,11 @@
 
                 <!-- EVENT FORM -->
                 <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="${onSubmit}" th:method="PUT">
+                    <div class="form-group" th:if="${user.isGuest}">
+                        <label for="guestNameInput">Hello guest, who are you?</label>
+                        <input type="text" class="form-control" id="guestNameInput" name="guestName" aria-describedby="guestNameInputHelp" placeholder="Enter name">
+                        <small id="guestNameInputHelp" class="form-text text-muted">Enter something here to help the organiser know who you are.</small>
+                    </div>
                     <div class="form-group">
                         <input type="hidden" name="location" th:value="${response.location}"/>
                         <input type="hidden" name="latitude" th:value="${response.latitude}"/>
