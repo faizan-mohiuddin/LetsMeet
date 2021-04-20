@@ -9,6 +9,7 @@ package com.LetsMeet.LetsMeet.Event.Service;
 //-----------------------------------------------------------------
 import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
+import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,9 @@ public class EventResponseService {
     // Data Access Object (database interface)
     @Autowired
     EventResponseDao dao;
+
+    @Autowired
+    PollService pollService;
 
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventResponseService.class);

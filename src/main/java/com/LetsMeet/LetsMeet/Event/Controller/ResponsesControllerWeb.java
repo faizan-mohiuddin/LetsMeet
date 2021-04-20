@@ -4,10 +4,16 @@ import com.LetsMeet.LetsMeet.Event.Model.DTO.DTO;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.PollResponse;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.PollResponses;
+import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -31,6 +37,7 @@ public class ResponsesControllerWeb {
     private final EventResponseService responseService;
     private final EventService eventService;
     private final UserService userService;
+    private final PollService pollService;
 
     // Templates
     static final String RESPONSE_TEMPLATE = "event/response";
@@ -38,10 +45,11 @@ public class ResponsesControllerWeb {
     static final String SUCCESS_TEMPLATE = "redirect:/event/{eventUUID}";
     static final String ERROR_TEMPLATE = "redirect:/Home";
 
-    public ResponsesControllerWeb(EventResponseService responseService, EventService eventService, UserService userService) {
+    public ResponsesControllerWeb(EventResponseService responseService, EventService eventService, UserService userService, PollService pollService) {
         this.responseService = responseService;
         this.eventService = eventService;
         this.userService = userService;
+        this.pollService = pollService;
     }
 
     @GetMapping()
@@ -114,6 +122,15 @@ public class ResponsesControllerWeb {
             // Get Event or create new
             EventResponse response = responseService.getResponse(user,event).orElseGet(() -> responseService.createResponse(user,event,false));
             responseService.update(response,responseDTO);
+
+            List<Poll> polls = eventService.getPolls(event);
+            List<String> responses = responseDTO.getPollResponse();
+            if (polls.size() != responses.size()) throw new IllegalArgumentException("Number of Poll Responses does not match number of Polls");
+
+            for (int i = 0; i < polls.size() ; i++) {
+                List<String> selected= new Gson().fromJson(responses.get(i), new TypeToken<List<String>>(){}.getType());
+                pollService.addResponse(polls.get(i), selected);
+            }
 
             // If they are a guest, send them to the guest signup page on completion
             return (isGuest) ? GUEST_TEMPLATE : SUCCESS_TEMPLATE;
