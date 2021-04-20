@@ -1,5 +1,6 @@
 package com.LetsMeet.LetsMeet.Root.Notification;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,10 +55,7 @@ public class Notifications {
         Map<String,Object> model = new HashMap<>();
         model.put("title", title);
         model.put("body", body);
-        model.put("actions", action);
-        for (int i = 0; i<action.length;i++){
-            if (action[i].length() > 0){model.put("action"+i, action[i]);}
-        }
+        model.put("actions", Arrays.asList(action));
         
         return new Notification(title, model, "root/mail/default", type);
     }
@@ -76,10 +74,8 @@ public class Notifications {
         Map<String,Object> model = new HashMap<>();
         model.put("title", title);
         model.put("body", body);
-        model.put("actions", action);
-        for (int i = 0; i<action.length;i++){
-            if (action[i].length() > 0){model.put("action"+i, action[i]);}
-        }
+        model.put("actions", Arrays.asList(action));
+
         Notification notification = new Notification(title, model, "root/mail/default", (mailOnly) ? Notification.Type.MAIL_ONLY : Notification.Type.ALERT_AND_MAIL);
         notification.getFiles().add(new Notification.File(filename, new ByteArrayDataSource(data, "text/calendar")));
         

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lets Meet</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -85,8 +86,9 @@
 
     <div class="centeredBox">
         <h3>Actions</h3>
-        <div th:each="action : ${actions}">></div>
-        <button class="button" th:href="${action}">Button</button>
+        <div th:each="action : ${actions}">
+            <h4><a th:href="${action}">Learn More</a></h4>
+        </div>
     </div>
 
     <div class="footer">
