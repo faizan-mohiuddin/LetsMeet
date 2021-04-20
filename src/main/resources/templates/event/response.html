@@ -131,10 +131,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <!-- DATE LIST -->
-                                    <div id="pollList">
-                                        <div th:each="poll : ${polls}">
-                                            <div th:include="event/fragments :: poll_responder(${poll})"></div>
-                                        </div>
+                                    <div class="container" id="pollList">
+                                        <div th:include="event/fragments :: poll_responder(${polls})"></div>
                                     </div>
                                 </div>
                             </div>

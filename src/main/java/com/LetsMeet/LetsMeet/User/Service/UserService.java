@@ -207,7 +207,7 @@ public class UserService implements UserServiceInterface {
         UUID uuid = createGuestUserUUID(email, eventInvitedTo);
 
         // Create User object
-        User guest = new User(uuid, "Unknown", "Unknown", email, "Unknown", "Unknown", false);
+        User guest = new User(uuid, email, "", email, "Unknown", "Unknown", false);
         guest.setIsGuest(true);
 
         // Store in DB - User table

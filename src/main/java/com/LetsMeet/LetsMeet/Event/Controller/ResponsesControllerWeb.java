@@ -49,10 +49,10 @@ public class ResponsesControllerWeb {
     @PathVariable("eventUUID") String eventUUID,
     @RequestParam(name = "guest", defaultValue = "false") String guest){
         try{
-            boolean isGuest = guest.equals("false");
+            boolean isGuest = !guest.equals("false");
 
             // Validate and get user
-            User user = (isGuest)? validateSession(session) : userService.getUserByUUID(guest);
+            User user = (isGuest)? userService.getUserByUUID(guest) : validateSession(session) ;
             model.addAttribute("user", user);
 
             // Validate and get event
@@ -60,12 +60,9 @@ public class ResponsesControllerWeb {
             model.addAttribute("event",event);
 
             // Add event dates to model as Json structure - this is a bit hacky
-            //StringBuilder eventDateJson = new StringBuilder("[");
             List<String> eventDates = new ArrayList<>();
             for (var date : event.getEventProperties().getTimes())
                 eventDates.add(date.toJson());
-                //eventDateJson.append(date.toJson()).append(",");
-            //eventDateJson.replace(eventDateJson.lastIndexOf(","),eventDateJson.length(),"]");
             model.addAttribute("eventDates",eventDates);
 
             // Add polls
@@ -101,10 +98,10 @@ public class ResponsesControllerWeb {
     @RequestParam(name = "guest", defaultValue = "false") String guest,
     @ModelAttribute ResponseDTO responseDTO){
         try{
-            boolean isGuest = guest.equals("false");
+            boolean isGuest = !guest.equals("false");
 
             // Validate and get user
-            User user = (isGuest)? validateSession(session) : userService.getUserByUUID(guest);
+            User user = (isGuest)? userService.getUserByUUID(guest) : validateSession(session);
             model.addAttribute(user);
 
             // Validate and get event
