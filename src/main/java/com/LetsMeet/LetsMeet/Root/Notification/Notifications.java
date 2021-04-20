@@ -54,6 +54,7 @@ public class Notifications {
         Map<String,Object> model = new HashMap<>();
         model.put("title", title);
         model.put("body", body);
+        model.put("actions", action);
         for (int i = 0; i<action.length;i++){
             if (action[i].length() > 0){model.put("action"+i, action[i]);}
         }
@@ -75,6 +76,7 @@ public class Notifications {
         Map<String,Object> model = new HashMap<>();
         model.put("title", title);
         model.put("body", body);
+        model.put("actions", action);
         for (int i = 0; i<action.length;i++){
             if (action[i].length() > 0){model.put("action"+i, action[i]);}
         }
