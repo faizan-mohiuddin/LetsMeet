@@ -83,6 +83,11 @@ public class ResponsesControllerWeb {
             ResponseDTO responseDTO = ResponseDTO.fromResponse(response);
             model.addAttribute("response", responseDTO);
 
+            // Check if user has already given time ranges
+            if(response.getEventProperties().getTimes().size() > 0){
+                model.addAttribute("times", response.getEventProperties().getTimes());
+            }
+
             // Setup page
             model.addAttribute("title", "Respond to " + event.getName());
             model.addAttribute("icon", "bi-calendar-check");
