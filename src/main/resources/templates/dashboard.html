@@ -63,7 +63,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each = "myEvents : ${myEvents}">
+                <tr th:each = "myEvents : ${events}">
                     <td th:text = "${myEvents.name}"></td>
                     <td th:text = "${myEvents.description}"></td>
                     <td th:text = "${myEvents.location}"></td>
@@ -272,12 +272,11 @@
             <tbody>
                 <tr th:each = "response : ${responses}" id="hiya">
                     <div th:if = "${response}">
-                        <td th:text = "${response.event.getName()}" ></td>
-                        <td th:text = "${response.response.required}"></td>
-                        <td th:text = "${response.response.hasResponded()}"></td>
-                        <td><a class = "btn btn-primary" th:href = "@{/event/{eventuuid}(eventuuid = ${response.event.getUUID()})}">View</a></td>
-                        <td><a class = "btn btn-danger" style=" color: white !important;" th:id = "${response.event.UUID}" onclick="deleteResponse()"
-                               th:attr="onclick=|deleteResponse('${user.UUID}','${response.event.UUID}')|">Delete</a></td>
+                        <td th:text = "${response.value.getName()}" ></td>
+                        <td th:text = "${response.key.required}"></td>
+                        <td th:text = "${response.key.hasResponded()}"></td>
+                        <td><a class = "btn btn-primary" th:href = "@{/event/{eventuuid}(eventuuid = ${response.value.getUUID()})}">View</a></td>
+
                     </div>
                     <div th:unless = "${response}">
                         <td th:text = "${response} +''">Null entity</td>
@@ -289,27 +288,7 @@
         </table>
     </div>
 
-    <h2>Your Businesses</h2>
-    <div>
-        <table class = "table table">
-            <thead>
-                <tr>
-                    <th width="90%" scope = "col">Business Name</th>
-                    <th scope = "col"></th>
-                    <th scope = "col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each = "b : ${businesses}" id="businessRow">
-                    <div th:if ="${b}">
-                        <td th:text = "${b.getName()}"></td>
-                        <td></td>
-                        <td><a class = "btn btn-primary" th:href = "@{/Business/{businessID}(businessID = ${b.getUUID()})}">View</a></td>
-                    </div>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+
     <div th:insert="footer :: footer"></div>
 </div>
 

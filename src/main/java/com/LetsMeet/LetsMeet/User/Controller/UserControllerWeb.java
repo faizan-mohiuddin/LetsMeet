@@ -1,5 +1,7 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,7 +36,7 @@ public class UserControllerWeb {
     ValidationService userValidation;
 
     @Autowired
-    EventService eventServiceInterface;
+    EventService eventService;
 
     @Autowired
     EventResponseService eventResponseService;
@@ -214,47 +216,23 @@ public class UserControllerWeb {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        System.out.println("Received");
 
         User user = (User) session.getAttribute("userlogin");
-
         if (user == null) {
-
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-
             return "redirect:/Home";
-
-        } else {
-
-            model.addAttribute("user", user);
-
-            if (eventServiceInterface.getUserEvents(user).isEmpty()) {
-
-                Boolean noEvents = true;
-                model.addAttribute("noEvents", noEvents);
-
-            }
-
-                model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user));
-
-
-                List<HashMap<String,Object>> responses= new ArrayList<>();
-                for (EventResponse o : eventResponseService.getResponses(user)){
-                    HashMap<String, Object> data = new HashMap<>();
-                    data.put("event", eventServiceInterface.getEvent(o.getEvent().toString()));
-                    data.put("response", o);
-                    responses.add(data);
-                }
-
-                model.addAttribute("responses", responses);
-
-            
-            // Get users businesses
-            Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());
-            model.addAttribute("businesses", businesses);
-            
-            return "dashboard";
-
         }
+
+
+
+       var events = eventService.getUserEvents(user);
+        model.addAttribute("events", events);
+
+        var responses = eventResponseService.getResponsesWithEvent(user);
+        model.addAttribute("responses", responses);
+
+        return "dashboard";
     }
 
     @GetMapping("/deleteuser/{useruuid}")
@@ -409,6 +387,11 @@ public class UserControllerWeb {
         // Edit account URL
         String updatePath = String.format("/edituser/%s", user.getUUID().toString());
         model.addAttribute("editPath", updatePath);
+
+        // Businesses
+        Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());
+        model.addAttribute("businesses", businesses);
+
         return "User/MyAccount";
     }
 

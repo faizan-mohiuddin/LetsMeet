@@ -41,6 +41,28 @@
             </div>
         </div>
 
+        <h2>Your Businesses</h2>
+        <div>
+            <table class = "table table">
+                <thead>
+                <tr>
+                    <th width="90%" scope = "col">Business Name</th>
+                    <th scope = "col"></th>
+                    <th scope = "col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each = "b : ${businesses}" id="businessRow">
+                    <div th:if ="${b}">
+                        <td th:text = "${b.getName()}"></td>
+                        <td></td>
+                        <td><a class = "btn btn-primary" th:href = "@{/Business/{businessID}(businessID = ${b.getUUID()})}">View</a></td>
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div class="card bg-danger text-white mt-3">
             <div class="card-header lm-egg-dangerZone">Danger Zone</div>
             <div class="card-body">

@@ -224,7 +224,7 @@ public class EventDao implements DAO<Event> {
         }
     }
 
-    private EventProperties readSerialised(byte[] buf){
+    public static EventProperties readSerialised(byte[] buf){
         try{
             ObjectInputStream objectIn = null;
 
