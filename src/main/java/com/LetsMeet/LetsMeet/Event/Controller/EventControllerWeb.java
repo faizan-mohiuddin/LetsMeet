@@ -1,254 +1,270 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
-import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
-import com.LetsMeet.LetsMeet.User.Service.ValidationService;
-import com.LetsMeet.LetsMeet.Event.DAO.EventDao;
-import com.LetsMeet.LetsMeet.Event.Model.Event;
-import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
-import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
-import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
-import com.LetsMeet.LetsMeet.User.Model.User;
-import com.LetsMeet.LetsMeet.User.Service.UserService;
-import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
-import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
-import com.LetsMeet.LetsMeet.Event.Service.EventService;
-import com.LetsMeet.LetsMeet.Root.Media.MediaService;
-import static com.LetsMeet.LetsMeet.Utilities.MethodService.deepCopyStringList;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Events;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
+import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Poll.PollService;
+import com.LetsMeet.LetsMeet.Event.Poll.Model.Polls;
+import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
+import com.LetsMeet.LetsMeet.Event.Service.EventService;
+import com.LetsMeet.LetsMeet.User.Model.User;
+
+import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.*;
-import java.util.*;
-
-import javax.servlet.http.HttpSession;
-
-
 @Controller
-@RequestMapping("/old")
 @SessionAttributes("userlogin")
 public class EventControllerWeb {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(EventControllerWeb.class);
 
     @Autowired
-    EventService eventService;
+    private EventService eventService;
+
+    @Autowired 
+    private PollService pollService;
 
     @Autowired
-    EventResponseService responseService;
+    private EventResponseService responseService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
-    @Autowired
-    MediaService mediaService;
+    public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss a"; 
+    public static final DateTimeFormatter LDT_FORMATTER = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN);
 
-    @Autowired
-    EventDao eventDao;
+    /**
+     * Poll model data interface
+     */
+    public static class _PollData{
+        public String json;
+        public String name;
+        public Map<String, Integer> options;
 
-    @Autowired
-    UserService userServiceInterface;
-
-    @Autowired
-    EventResultService resultsService;
-
-    @Autowired
-    VenueService venueService;
-
-    @Autowired
-    ValidationService validationService;
-
-    @GetMapping({"/createevent", "/event/new"})
-    public String newEvent(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-
-        User user = (User) session.getAttribute("userlogin");
-
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-            return "redirect:/Home";
-        } 
-        
-        else {
-            model.addAttribute("user", user);
-            return "createevent";
+        _PollData(Poll poll){
+            this.json = poll.toJson();
+            this.name = poll.getName();
+            this.options = poll.getOptions();
         }
     }
+
+    /**
+     * DateTimeRange model data interface
+     */
+    public static class _DateTimeData{
+        public String json;
+        public String startDate;
+        public String startTime;
+        public String endDate;
+        public String endTime;
+
+        _DateTimeData(DateTimeRange dateTimeRange){
+            this.json = dateTimeRange.toJson();
+            this.startDate = LDT_FORMATTER.format(dateTimeRange.getStart());
+            this.startTime = LDT_FORMATTER.format(dateTimeRange.getStart());
+            this.endDate = LDT_FORMATTER.format(dateTimeRange.getStart());
+            this.endDate = LDT_FORMATTER.format(dateTimeRange.getStart());
+        }
+    }
+
+    private static String EVENT_TEMPLATE_EDITOR = "event/new";
+    private static String EVENT_TEMPLATE_VIEWER = "event/event";
+
+    private static String USER_ATTR = "user";
+
+    /**
+     * Serves a page for creating new events
+     * @param model
+     * @param session
+     * @param redirectAttributes
+     * @return
+     */
+    @GetMapping({"/createevent", "/event/new"})
+    public String httpEventNewGet(HttpServletRequest request, Model model, HttpSession session, RedirectAttributes redirectAttributes){
+        try{
+            User user = validateSession(session);
+            model.addAttribute(USER_ATTR, user);
+
+            if (model.getAttribute("event") == null){
+                EventDTO eventDTO = dtoFromEvent(new Event(""));
+                model.addAttribute("event", eventDTO);
+            }
+
+                model.addAttribute("times", null);
+
+                model.addAttribute("polls", null);
+
+                model.addAttribute("title", "New Meet");
+                model.addAttribute("icon", "bi-plus-square");
+                model.addAttribute("onSubmit", "/event/new");
+
+            return EVENT_TEMPLATE_EDITOR;
+        }
+        catch (Exception e){
+            LOGGER.error("Could not create Event: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("accessDenied", "An error ocurred");
+
+            return "redirect:/Home";
+        }
+    }
+
+    /**
+     * Handles request to create a new event
+     * @param eventDTO Must be present with all attributes to correctly initialise event
+     * @return The create events page
+     */
+    @PostMapping({"/createevent", "/event/new"})
+    public String httpEventNewPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+        @ModelAttribute EventDTO eventDTO){
+            try {
+
+                eventDTO.validate();
+
+                User user = validateSession(session);
+                Event event = Events.from(eventDTO); 
+
+                // Save event
+                eventService.save(event, user);
+
+                // Save any Polls
+                for (String p : eventDTO.getPolls()){
+                    var poll = Polls.fromJson(p);
+                    pollService.create(user, poll);
+                    eventService.addPoll(event, poll);
+                }
+
+                redirectAttributes.addFlashAttribute("success", "Event created!");
+                return "redirect:/event/" + event.getUUID().toString();
+            } catch (Exception e) {
+                LOGGER.error("Could not create new event: {}", e.getMessage());
+
+                if (e.getMessage().contains("Invalid Poll JSON"))
+                    redirectAttributes.addFlashAttribute("warning", "There was an issue creating one or more polls.");
+
+                redirectAttributes.addFlashAttribute("danger", "The Event could not be created, please try again later. ");
+
+                // We don't want users to enter all their details again
+                redirectAttributes.addFlashAttribute("event", eventDTO);
+                
+                return "redirect:/createevent";
+        }
+    }
+
+    @GetMapping("/event/{EventUUID}/edit")
+    public String httpEventEditGet(HttpServletRequest request, Model model, HttpSession session, RedirectAttributes redirectAttributes,
+    @PathVariable("EventUUID") String eventUUID){
+        try{
+            User user = validateSession(session);
+            model.addAttribute(USER_ATTR, user);
+
+            // Add Event to model
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
+
+            EventDTO eventDTO = dtoFromEvent(event);
+            model.addAttribute("event", eventDTO);
+
+            // Add times to model
+            List<_DateTimeData> times = new ArrayList<>();
+            for (var v : event.getEventProperties().getTimes()){
+                times.add(new _DateTimeData(v));
+            }
+            model.addAttribute("times", times);
+
+            // Add polls to model
+            List<_PollData> polls = new ArrayList<>();
+            for (var poll : eventService.getPolls(event)){
+                polls.add(new _PollData(poll));
+            }
+            model.addAttribute("polls", polls);
+
+            // Setup form
+            model.addAttribute("title", "Edit Meet");
+            model.addAttribute("icon", "bi-pen");
+            model.addAttribute("onSubmit", "/event/" + eventUUID + "/edit");
+
+            return EVENT_TEMPLATE_EDITOR;
+        }
+        catch (Exception e){
+            LOGGER.error("Could not create Event: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred");
+
+            return "redirect:/Home";
+        }
+    }
+
 
     @PostMapping("/event/{EventUUID}/edit")
-    public String updateEvent (HttpSession session, Model model, RedirectAttributes redirectAttributes,
-                               @PathVariable("EventUUID") String eventUUID,
-                               @RequestParam("file") MultipartFile file,
-                               @RequestParam(name = "eventname") String eventname,
-                               @RequestParam(name = "eventdesc") String eventdesc,
-                               @RequestParam(name = "eventlocation") String eventlocation,
-                               @RequestParam(name="jsonTimes") String tRanges){
-
-        User user = (User) session.getAttribute("userlogin");
-        Event event = eventService.getEvent(eventUUID);
-
-        if (user == null || event == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when editing the event.");
-            return "redirect:/Home";
-        }
-        
-        try{
-            event.setName(eventname);
-            event.setDescription(eventdesc);
-            event.setLocation(eventlocation);
-
-            if (file.getSize()>0){
-                var path= mediaService.newMedia(file, "event", "banner").orElseThrow();
-                eventService.setProperty(event, "header_image", mediaService.generateURL(path));
-            }
-
-            // Update time Ranges
-            // Format input data to DateTimeRange objects
-            List<DateTimeRange> ranges = EventService.processJsonRanges(tRanges);
-
-            // Add time ranges to Event
-            eventService.setTimeRange(event, ranges);
-
-            eventDao.update(event);
-        }
-        catch(Exception e){
-            redirectAttributes.addFlashAttribute("accessDenied", "Could not update event. Please try again later.");
-            e.printStackTrace();
-            return "redirect:/Home";
-        }
-
-        // Delegate to viewEvent to return the modified event's page
-        return viewEvent(eventUUID, model, redirectAttributes, session);
-
-    }
-
-
-    @PostMapping({"/createevent", "/event/new"})
-    public String saveEvent(HttpSession session, Model model, RedirectAttributes redirectAttributes,
-        @RequestParam("file") MultipartFile file, 
-        @RequestParam(name = "eventname") String eventname, 
-        @RequestParam(name = "eventdesc") String eventdesc, 
-        @RequestParam(name = "eventlocation") String eventlocation, @RequestParam(name = "thelat") double eventLatitude,
-                            @RequestParam(name = "thelong") double eventLongitude, @RequestParam(name = "radius") String eventRadius,
-                            @RequestParam(name = "startDays") List<String> startDay, @RequestParam(name="startTimes") List<String> startTime,
-                            @RequestParam(name="jsonTimes") String tRanges) {
-
-        // Validate user
-        User user = (User) session.getAttribute("userlogin");
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred when creating the event.");
-            return "redirect:/Home";
-        }
+    public String httpEventEditPost(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+    @ModelAttribute EventDTO eventDTO,
+    @PathVariable("EventUUID") String eventUUID) {
 
         try{
+            User user = validateSession(session);
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
             
-            model.addAttribute("user", user);
-            model.addAttribute("eventname", eventname);
-            model.addAttribute("eventdesc", eventdesc);
-            model.addAttribute("eventlocation", eventlocation);
+            eventDTO.validate();
 
-            // Create new Event object and persist it
-            //Event event = eventService.createEvent(eventname, eventdesc, eventlocation, user.getUUID().toString());
-            Event event = new Event(eventname);
-            eventService.save(event, user);
+            // Update event
+            eventService.update(user, event, eventDTO);
 
-            /* Setup and add Event Times */
-
-            // Check input data
-            if (startDay.isEmpty() || startTime.isEmpty()) {
-                redirectAttributes.addFlashAttribute("warning","Specify one or more event times.");
-                return  "redirect:/event/new";
+            // Update any polls
+            List<UUID> newPolls = new ArrayList<>();
+            for (String p : eventDTO.getPolls()){
+                var newPoll = Polls.fromJson(p);
+                newPolls.add(newPoll.getUUID());         
+                var existingPoll = pollService.getPoll(newPoll.getUUID());      // Check if poll already exists
+                if (existingPoll.isPresent()){                                  // If so, update it
+                    pollService.update(newPoll);
+                }
+            else{                                                               // Otherwise create it
+                    pollService.create(user, newPoll);
+                    eventService.addPoll(event, newPoll);
+                }
             }
 
-            // Format input data to DateTimeRange objects
-            List<DateTimeRange> ranges = EventService.processJsonRanges(tRanges);
-
-            // Add time ranges to Event
-            eventService.setTimeRange(event, ranges);
-
-            /* Setup and add Image */
-
-            // Store and set header image file if present
-            if (file.getSize()>0){
-                var path= mediaService.newMedia(file, "event", "banner").orElseThrow();
-                eventService.setProperty(event, "header_image", "media/" + mediaService.generateURL(path));    
+            List<Poll> toDelete = eventService.getPolls(event);
+            toDelete.removeIf(n -> (newPolls.contains(n.getUUID())));
+            for (Poll poll : toDelete){
+                eventService.removePoll(event, poll);
+                // TODO pollService.delete(poll)
             }
+            
+            return "redirect:/event/{EventUUID}";
 
-            /* Setup and add Location */
-            eventService.setLocation(event, new Location(eventlocation, eventLatitude, eventLongitude, 50000.0));
+        } catch(Exception e){
+            LOGGER.error("Could not create Event: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("accessDenied", "An error occurred");
 
-            /* Update event to persist changes */
-            eventDao.update(event);
-            return viewEvent(event.getUUID().toString(), model, redirectAttributes, session);
-        }
-        catch(Exception e){
-            redirectAttributes.addFlashAttribute("accessDenied", "Creation failed");
-            return "redirect:/Home";
+            return EVENT_TEMPLATE_EDITOR;
         }
     }
 
-    @GetMapping("/adminviewallevents")
-    public String adminviewallevents(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    @GetMapping("/event/{EventUUID}")
+    public String httpEventGet(HttpServletRequest request, Model model, HttpSession session, RedirectAttributes redirectAttributes,
+        @PathVariable("EventUUID") String eventUUID){
 
-        User user = (User) session.getAttribute("userlogin");
-        if (user == null || !user.getIsAdmin()) { // checks if logged in user is an admin
-            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-            return "redirect:/Home";
-        } 
-        
-        else {
-            model.addAttribute("user", user);
-            model.addAttribute("allevents", eventService.getEvents());
-            return "adminviewallevents";
-        }
-    }
+        try{
+            User user = validateSession(session);
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
 
-    @GetMapping("/deleteevent/{eventuuid}")
-    public String deleteEvent(@PathVariable("eventuuid") String eventUUID, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-
-        User user = (User) session.getAttribute("userlogin");
-        Event event = eventService.getEvent(eventUUID);
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
-            return "redirect:/Home";
-        } 
-        else {
-            if (eventService.deleteEvent(event, user)) {
-                redirectAttributes.addFlashAttribute("success", "The event was successfully deleted.");
-            } 
-            
-            else {
-                redirectAttributes.addFlashAttribute("danger", "An error occurred when deleting the event.");
-            }
-            return "redirect:/dashboard";
-        }
-    }
-
-    @GetMapping("/event/{eventuuid}")
-    public String viewEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-
-        User user = (User) session.getAttribute("userlogin");
-
-        // Checks if the currently logged in user is IN (not is owner) of an event.
-
-        // Check if user is logged in AND if the event exists AND if the user is in said event
-        if (user != null && eventService.getEvent(eventuuid) != null) {
-            
-            Event event = eventService.getEvent(eventuuid);
-            model.addAttribute("user", user);
             model.addAttribute("event", event);
 
-            Boolean hasCurrentUserRespondedToEvent = false;
-
-            if (responseService.getResponse(user, event).isPresent()){hasCurrentUserRespondedToEvent = true;}
-            model.addAttribute("hasUserRespondedToEvent", hasCurrentUserRespondedToEvent);
+            model.addAttribute("hasUserRespondedToEvent", responseService.getResponse(user, event).isPresent());
 
             if (eventService.checkOwner(event.getUUID(), user.getUUID())) {
 
@@ -261,148 +277,27 @@ public class EventControllerWeb {
                     data.put("response", o);
                     responses.add(data);
                 }
-    
+
                 model.addAttribute("responses", responses);
+
             }
-
-            // Get event times
-            List<List<String>> times = new ArrayList<>();
-            List<String> arr = new ArrayList<>();
-            int rows = -1;
-            for(DateTimeRange t : event.getEventProperties().getTimes()){
-                rows += 1;
-                arr.clear();
-                // Start date
-                ZonedDateTime s = t.getStart();
-                arr.add(String.format("%s-%s-%s",s.getYear(), s.getMonthValue(), s.getDayOfMonth()));
-
-                // Start time
-                int hour = s.getHour();
-                String h;
-                if(hour < 10){
-                    h = String.format("0%s", hour);
-                }else{
-                    h = Integer.toString(hour);
-                }
-
-                int minute = s.getMinute();
-                String m;
-                if(minute < 10){
-                    m = String.format("0%s", minute);
-                }else{
-                    m = Integer.toString(minute);
-                }
-
-                int second = s.getSecond();
-                String sec;
-                if(second < 10){
-                    sec = String.format("0%s", second);
-                }else{
-                    sec = Integer.toString(second);
-                }
-
-                arr.add(String.format("%s:%s:%s", h, m, sec));
-
-                // End date
-                ZonedDateTime e = t.getEnd();
-                arr.add(String.format("%s-%s-%s",e.getYear(), e.getMonthValue(), e.getDayOfMonth()));
-
-                // End time
-                hour = e.getHour();
-                if(hour < 10){
-                    h = String.format("0%s", hour);
-                }else{
-                    h = Integer.toString(hour);
-                }
-
-                minute = e.getMinute();
-                if(minute < 10){
-                    m = String.format("0%s", minute);
-                }else{
-                    m = Integer.toString(minute);
-                }
-
-                second = e.getSecond();
-                if(second < 10){
-                    sec = String.format("0%s", second);
-                }else{
-                    sec = Integer.toString(second);
-                }
-
-                arr.add(String.format("%s:%s:%s", h, m, sec));
-
-                // Add input ID's
-                arr.add(String.format("startDay%d", rows));
-                arr.add(String.format("startTime%d", rows));
-                arr.add(String.format("endDay%d", rows));
-                arr.add(String.format("endTime%d", rows));
-
-                times.add(deepCopyStringList(arr));
-            }
-            model.addAttribute("times", times);
-            model.addAttribute("rows", rows);
-
-            return "viewevent";
-        }else {
-
-            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-
-            return "redirect:/Home";
-
+            return EVENT_TEMPLATE_VIEWER;
         }
-
+        catch (Exception e){
+            redirectAttributes.addFlashAttribute("warning", "You do not have permission to view this page.");
+            return "redirect:/Home";
+        }
     }
 
     @PostMapping("/event/{eventUUID}/users")
-    public String eventUsers(Model model, RedirectAttributes redirectAttributes, HttpSession session,
-    @PathVariable("eventUUID") String eventUUID,
-    @RequestParam(value="usersRequired") List<String> userInputs){
+    public String httpEventInvitesPost(Model model, RedirectAttributes redirectAttributes, HttpSession session,
+        @PathVariable("eventUUID") String eventUUID,
+        @RequestParam(value="usersRequired") List<String> usersRequired){
         try{
-            Event event = eventService.getEvent(eventUUID);
-            List<User> users = new ArrayList<>();
-            User invitedUser = null;
+            Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
 
-            for ( var v : userInputs){
-                // Attempts to get by uuid
-                try {
-                    invitedUser = userService.getUserByUUID(v);
-                }catch(Exception e){
-                    // We dont care about this
-                }
+            eventService.invite(event, usersRequired);
 
-                if(invitedUser == null){
-                    // Attempt to get by email
-                    invitedUser = userService.getUserByEmail(v);
-                }
-
-                if(invitedUser == null){
-                    // User is not in DB
-                    // Check if email has been input
-                    boolean emailFormat = validationService.checkEmailMakeUp(v);
-                    if(emailFormat){
-                        // Send invite to this email - for guest
-                        invitedUser = userService.createGuest(v, event);
-                    }
-                }
-
-                if(!(invitedUser == null)){
-                    // Add user to list
-                    users.add(invitedUser);
-                }
-            }
-
-            for (User user : users){
-                responseService.createResponse(user, event, false);
-                if(user.getIsGuest()){
-                    // Email guest
-                    String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
-                    eventService.inviteGuestToEvent(user, event);
-                    LOGGER.info(guestLink);
-                }else{
-                    // Email regular user
-
-                }
-            }
             redirectAttributes.addFlashAttribute("success","Invitation sent!");
         }
         catch(Exception e){
@@ -411,236 +306,35 @@ public class EventControllerWeb {
         return "redirect:/event/{eventUUID}";
     }
 
-    @GetMapping("/event/{eventuuid}/respond")
-    public String respondEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-
-        // Get and validate user and event
-        User user = (User) session.getAttribute("userlogin");
-        Event event = eventService.getEvent(eventuuid);
-        if (user == null || event == null){
-            redirectAttributes.addFlashAttribute("danger", "An error occurred.");
-            return "redirect:/event/{eventuuid}";
-        }
-
-        // Get or create response
-        EventResponse response = responseService.getResponse(user, event).orElse(responseService.createResponse(user, event, true));
-
-        // Do stuff to the response
-        responseService.clearTimes(response);
-
-        redirectAttributes.addFlashAttribute("success", "You have joined the event.");
-        return "redirect:/event/{eventuuid}";
-    }
-
-    @PostMapping("/event/{eventUUID}/response")
-    public String saveResponse(@PathVariable("eventUUID") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session,
-                               @RequestParam(value="jsonTimes") String jsonTimeRanges, @RequestParam(value="responselocation", defaultValue="") String address,
-                               @RequestParam(value="thelat", defaultValue="") String lat,
-                               @RequestParam(value="thelong", defaultValue="") String longitude,
-                               @RequestParam(value="responsefacilities", defaultValue = "") String facilities,
-                               @RequestParam(value="radius", defaultValue="") String radius,
-                               @RequestParam(value="userUUID", defaultValue="") String useruuid){
-        // Get user
-        User user = (User) session.getAttribute("userlogin");
-        if(user == null && !(useruuid.equals(""))){
-            user = userService.getUserByUUID(useruuid);
-        }
-
-        Event event = eventService.getEvent(eventuuid);
-
-        String destination;
-        if(user.getIsGuest()){
-            destination = String.format("redirect:/Home");
-        }else {
-            destination = String.format("redirect:/event/%s", eventuuid);
-        }
-
-        // Check user is invited to event
-        Optional<EventResponse> record = responseService.getResponse(user, event);
-        if(record.isPresent()) {
-            EventResponse response = record.get();
-            EventProperties properties = response.getEventProperties();
-
-            // Process time ranges
-            List<DateTimeRange> ranges = EventService.processJsonRanges(jsonTimeRanges);
-
-            properties.setTimes(ranges);
-
-            // Process location
-            // Check all values are in order
-            try {
-                Location location = properties.getLocation();
-                Double dlat = Double.parseDouble(lat);
-                Double dlong = Double.parseDouble(longitude);
-                Double dRadius = Double.parseDouble(radius);
-
-                if(!address.equals("")) {
-                    location.setName(address);
-                    location.setLatitude(dlat);
-                    location.setLongitude(dlong);
-                    location.setRadius(dRadius);
-                    properties.setLocation(location);
-                }
-            }catch(Exception e){
-                // Ignore
-            }
-
-            // Process facilities
-            if(!facilities.equals("")) {
-                try {
-                    List<String> facilityList = Arrays.asList(facilities.split(","));
-                    properties.setFacilities(facilityList);
-                } catch (Exception e) {
-                    System.out.println("VenueService.Search");
-                    System.out.println(e);
-                }
-            }
-
-            // Save response
-            response.setEventProperties(properties);
-            responseService.saveResponse(response);
-
-            // Redirect to event page
-            redirectAttributes.addFlashAttribute("alert alert-success", "Response given.");
-
-        }
-        return destination;
-    }
-
-    @GetMapping("/event/{eventuuid}/respond2")
-    public String respondEvent2(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-
-        User user = (User) session.getAttribute("userlogin");
-        Event event = eventService.getEvent(eventuuid);
-
-        if (user != null){
-            model.addAttribute("user", user);
-            model.addAttribute("event", event);
-        }
-
-        else { 
-            LOGGER.error("Response error");
-            redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";
-        }
-
-        // Check if user has already responded (they can edit previous responses)
-        Optional<EventResponse> response = responseService.getResponse(user, event);
-        if(response.isPresent()){
-            if(response.get().hasResponded()){
-                model.addAttribute("response", response.get());
-                EventProperties eventProperties = response.get().getEventProperties();
-                List<DateTimeRange> times = eventProperties.getTimes();
-
-                List<List<String>> strtimes = eventService.processTimeRanges(event);
-
-                model.addAttribute("times", strtimes);
-                model.addAttribute("numtimes", strtimes.size()-1);
-
-                // facilities
-                List<String> facilities = eventProperties.getFacilities();
-                if(facilities.size() > 0){
-                    model.addAttribute("facilities", facilities);
-                }else{
-                    model.addAttribute("facilities", null);
-                }
-            }else{
-                model.addAttribute("response", null);
-            }
-        }else{
-            model.addAttribute("response", null);
-        }
-
-        return "response_old";
-    }
-
-    @GetMapping("/event/{eventuuid}/edit")
-    public String editEvent(@PathVariable("eventuuid") String eventuuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-
-        User user = (User) session.getAttribute("userlogin");
-
-        if (user != null){
-            model.addAttribute("user", user);
-            model.addAttribute("event", eventService.getEvent(eventuuid));
-        }
-
-        else { redirectAttributes.addFlashAttribute("danger", "An error occurred.");return "redirect:/Home";}
-
-
-        return "event/edit";
-    }
-
-    @GetMapping("/event/{eventuuid}/respond/{userUUID}")
-    public String guestRespondEventPreface(@PathVariable("eventuuid") String eventuuid, @PathVariable("userUUID") String userUUID,
-                                    Model model, RedirectAttributes redirectAttributes, HttpSession session){
-        // Get guest user
-        User user = userService.getUserByUUID(userUUID);
-        Event event = eventService.getEvent(eventuuid);
-
-        if(user == null || event == null || !user.getIsGuest()){
-            return "redirect:/404";
-        }
-
-        model.addAttribute("guest", user);
-        model.addAttribute("event", event);
-        String destination = String.format("/event/%s/responding/%s", eventuuid, userUUID);
-        model.addAttribute("ContinueAsGuest", destination);
-
-        return "event/guestResponsePreface";
-    }
-
-    @GetMapping("/event/{eventuuid}/responding/{userUUID}")
-    public String guestRespondEvent(@PathVariable("eventuuid") String eventUUID, @PathVariable("userUUID") String userUUID,
-                                    Model model, RedirectAttributes redirectAttributes, HttpSession session,
-                                    @RequestParam(value="FirstName", defaultValue = "") String fname,
-                                    @RequestParam(value="LastName", defaultValue = "") String lname){
-        // Get guest user
-        User guest = userService.getUserByUUID(userUUID);
-        Event event = eventService.getEvent(eventUUID);
-        if(guest == null || event == null){
-            return "redirect:/Home";
-        }
-
-        // Check user has been invited to event
-        Optional<EventResponse> response = responseService.getResponse(guest, event);
-
-        if(response.isPresent()) {
-            model.addAttribute("event", event);
-            model.addAttribute("user", guest);
-
-            // If first and or last name is given - add to user record
-            userService.updateUser(guest, fname, lname, "");
-
-            if(response.get().hasResponded()){
-                model.addAttribute("response", response.get());
-                EventProperties eventProperties = response.get().getEventProperties();
-                List<DateTimeRange> times = eventProperties.getTimes();
-
-                List<List<String>> strtimes = eventService.processTimeRanges(event);
-
-                model.addAttribute("times", strtimes);
-                model.addAttribute("numtimes", strtimes.size()-1);
-
-                // facilities
-                List<String> facilities = eventProperties.getFacilities();
-                if(facilities.size() > 0){
-                    model.addAttribute("facilities", facilities);
-                }else{
-                    model.addAttribute("facilities", null);
-                }
-            }else{
-                model.addAttribute("response", null);
-            }
-
-            return "response_old";
-
-        }else{
-            return "redirect:/404";
-        }
-    }
-
     // Error catching
     @ExceptionHandler(Exception.class)
     public String handleException(){
         return "redirect:/405";
     }
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+    private User validateSession(HttpSession session) throws IllegalAccessException{
+        User user = (User) session.getAttribute("userlogin");
+        if (user == null) 
+            throw new IllegalArgumentException("Permission Denied");
+        else return user;
+    }
+
+    private EventDTO dtoFromEvent(Event event){
+        return new EventDTO(
+            event.getUUID().toString(),
+            event.getName(),
+            event.getDescription(), 
+            event.getEventProperties().getLocation().getName(), 
+            event.getEventProperties().getLocation().getLongitude(), 
+            event.getEventProperties().getLocation().getLatitude(),
+            event.getEventProperties().getLocation().getRadius(),
+            new ArrayList<>(), 
+            event.getEventProperties().getFacilities(), 
+            new ArrayList<>(), 
+            null, 
+            new ArrayList<>());
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.LetsMeet.LetsMeet.Event.Model.DTO;
 
-import com.LetsMeet.LetsMeet.Event.Controller.EventsControllerWeb;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 
 import java.util.ArrayList;
