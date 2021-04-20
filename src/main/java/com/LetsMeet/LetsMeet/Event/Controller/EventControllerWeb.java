@@ -306,6 +306,22 @@ public class EventControllerWeb {
         return "redirect:/event/{eventUUID}";
     }
 
+    @GetMapping("/event/admin")
+    public String httpEventAdmin(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+
+        User user = (User) session.getAttribute("userlogin");
+        if (user == null || !user.getIsAdmin()) { // checks if logged in user is an admin
+            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+            return "redirect:/Home";
+        }
+
+        else {
+            model.addAttribute("user", user);
+            model.addAttribute("allevents", eventService.getEvents());
+            return "adminviewallevents";
+        }
+    }
+
     // Error catching
     @ExceptionHandler(Exception.class)
     public String handleException(){
