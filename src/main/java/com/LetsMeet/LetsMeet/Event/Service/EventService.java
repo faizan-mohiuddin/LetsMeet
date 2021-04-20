@@ -26,6 +26,7 @@ import com.LetsMeet.LetsMeet.Root.Notification.NotificationService;
 import com.LetsMeet.LetsMeet.Root.Notification.Notifications;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -56,6 +57,9 @@ public class EventService{
 
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventService.class);
+
+    @Autowired
+    LetsMeetConfiguration config;
 
     // Components
     @Autowired
@@ -608,15 +612,13 @@ public class EventService{
 
             responseService.createResponse(user,event,false);
 
-            // If user is guest they needs the appropriate link
-            if(user.getIsGuest()){
-                String guestLink = String.format("localhost:8080/event/%s/respond/%s", event.getUUID().toString(), user.getUUID().toString());
-                LOGGER.info(guestLink);
-                notificationService.send(Notifications.simpleMail("You have been invited to an Event",
-                        "You have been invited to " + event.getName(), guestLink), user);
-            }else {
-                notificationService.send(Notifications.simpleMail("", "", ""), user);
-            }
+            // Email user link
+            String link = String.format("%s/event/%s/respond/%s", config.getApplicationHost(), event.getUUID().toString(), user.getUUID().toString());
+            System.out.println(config.getApplicationHost());
+
+            LOGGER.info(link);
+            notificationService.send(Notifications.simpleMail("You have been invited to an Event",
+                    "You have been invited to " + event.getName(), link), user);
         }
     }
 }
