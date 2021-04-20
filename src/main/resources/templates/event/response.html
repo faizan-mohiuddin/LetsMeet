@@ -95,13 +95,13 @@
                                         <div th:each="time : ${times}">
                                             <div class="card w-100 mt-2 bg-light">
                                                 <div class="card-body">
-                                                    <input hidden type="text" name="times" th:value='${time.json}'/>
+                                                    <input hidden type="text" name="times" th:value='${time.toJson()}'/>
                                                     <div class="row align-items-center">
                                                         <div class="col-sm-4">
                                                             <div class="row">
                                                                 <div class="span4"><b>From:&nbsp; </b></div>
                                                                 <div class="span8">
-                                                                    <p class="card-text" th:text="${time.startDate} + ${time.startTime}  "></p>
+                                                                    <p class="card-text" th:text="${time.getStart().toString()}"></p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -112,7 +112,7 @@
                                                             <div class="row">
                                                                 <div class="span4"><b>To:&nbsp; </b></div>
                                                                 <div class="span8">
-                                                                    <p class="card-text" th:text="${time.endDate} + ${time.endTime}  "></p>
+                                                                    <p class="card-text" th:text="${time.getEnd().toString()}"></p>
                                                                 </div>
                                                             </div>
                                                         </div>

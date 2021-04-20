@@ -36,6 +36,10 @@ public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
         this.start = start;
     }
 
+    public void getStartDate(){
+        this.start.toLocalDate();
+    }
+
     public ZonedDateTime getEnd() {
         return end;
     }
