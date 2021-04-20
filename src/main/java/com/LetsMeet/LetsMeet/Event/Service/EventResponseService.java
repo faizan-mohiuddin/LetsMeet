@@ -13,10 +13,7 @@ import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
@@ -151,6 +148,15 @@ public class EventResponseService {
     public List<EventResponse> getResponses(User user){
         try{
             return dao.get(user.getUUID()).get();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Map<EventResponse, Event> getResponsesWithEvent(User user){
+        try{
+            return dao.getWithEvent(user.getUUID());
         }
         catch(Exception e){
             throw new IllegalArgumentException(e.getMessage());

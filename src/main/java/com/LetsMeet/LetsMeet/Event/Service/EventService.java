@@ -338,12 +338,9 @@ public class EventService{
         try{
             // Get list of users permissions
             List<EventPermission> eventPerms = permissionDao.get(user.getUUID().toString()).get();
+            var perms = permissionDao.getWithEvent(user.getUUID());
 
-            // Get each event on permissions list
-            for (EventPermission e : eventPerms){
-                events.add(eventDao.get(e.getEvent()).get());
-            }
-            return events;
+            return new ArrayList<>(perms.values());
         }
         catch (Exception e){
             throw new IllegalArgumentException("No Event found for UUID <" + user.getUUID() + ">");
