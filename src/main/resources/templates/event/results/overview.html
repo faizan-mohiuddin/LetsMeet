@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Let's Meet: Home</title>
+    <title>Let's Meet: Results</title>
 
 </head>
 
@@ -32,10 +32,6 @@
 
         <div th:include="fragments/common :: alerts"></div>
 
-        
-        
-        <a th:href="@{/event/{eventuuid}/results/confirm(eventuuid = ${event.getUUID()})}"
-        class="btn btn-dark btn-block" data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-check-circle"></i> Confirm Now</a>
 
         <div class="card mt-2">
             <div class="card-header"><i class="bi bi-calendar-range"></i> Date and Time </div>
@@ -47,26 +43,54 @@
             </div>
         </div>
 
-        <div class="card mt-2">
-            <div class="card-header"><i class="bi bi-geo"></i>  Location </div>
-            <div class="card-body" th:if="${result.locations.selected.get()}" >
-                <h5 class="card-title"
-                    th:text="${result.locations.selected.get().getProperty().name}"></h5>
-                <p class="card-text" th:text="'Longitude: '+${result.locations.selected.get().getProperty().longitude} + ' Latitude: ' + ${result.locations.selected.get().getProperty().latitude}"></p>
-                <a th:href="@{/event/{eventuuid}/results/location(eventuuid = ${event.getUUID()})}" class="btn btn-primary"><i class="bi bi-pen"></i> Edit</a>
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="card mt-2">
+                    <div class="card-header"><i class="bi bi-geo"></i>  Location </div>
+                    <div class="card-body" th:if="${result.locations.selected.get()}" >
+                        <h5 class="card-title"
+                            th:text="${result.locations.selected.get().getProperty().name}"></h5>
+                        <p class="card-text" th:text="'Longitude: '+${result.locations.selected.get().getProperty().longitude} + ' Latitude: ' + ${result.locations.selected.get().getProperty().latitude}"></p>
+                        <a th:href="@{/event/{eventuuid}/results/location(eventuuid = ${event.getUUID()})}" class="btn btn-primary"><i class="bi bi-pen"></i> Edit</a>
+                    </div>
+                </div>
             </div>
+
+            <div class="col-sm-6">
+                <div class="card mt-2">
+                    <div class="card-header"><i class="bi bi-building"></i> Venue </div>
+                    <div class="card-body" th:if="${venue}">
+                        <h5 class="card-title"
+                            th:text="${venue.name}"></h5>
+                        <p class="card-text" th:text="${venue.address}"></p>
+                        <a th:href="@{/event/{eventuuid}/results/venue(eventuuid = ${event.getUUID()})}" class="btn btn-primary"><i class="bi bi-pen"></i> Edit</a>
+                        <a th:href="@{/Venue/{id}(id = ${venue.getUUID()})}" class="btn btn-outline-primary"> More Information</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="card mt-2">
-            <div class="card-header"><i class="bi bi-building"></i> Venue </div>
-            <div class="card-body" th:if="${venue}">
-                <h5 class="card-title"
-                    th:text="${venue.name}"></h5>
-                <p class="card-text" th:text="${venue.address}"></p>
-                <a th:href="@{/event/{eventuuid}/results/venue(eventuuid = ${event.getUUID()})}" class="btn btn-primary"><i class="bi bi-pen"></i> Edit</a>
-                <a th:href="@{/Venue/{id}(id = ${venue.getUUID()})}" class="btn btn-outline-primary"> More Information</a>
+            <div class="card-header"><i class="bi bi-stickies"></i> Polls </div>
+            <div class="card-body">
+                <div th:insert="event/fragments :: poll_viewer(${polls})"></div>
             </div>
         </div>
+
+        <div class="card border-primary mt-2">
+            <div class="card-header bg-primary text-white"><i class="bi bi-check-circle"></i> Confirm </div>
+            <div class="card-body" th:if="${venue}">
+                <a th:href="@{/event/{eventuuid}/results/confirm(eventuuid = ${event.getUUID()})}"
+                   class="btn btn-secondary btn-block" data-toggle="modal" data-target="#deleteConfirmation"><i class="bi bi-check-circle"></i> Confirm Now</a>
+            </div>
+        </div>
+
+
+
+
+
         <div th:insert="footer :: footer"></div>
     </div>
 

@@ -1,6 +1,8 @@
 package com.LetsMeet.LetsMeet.Event.Controller;
 
+import com.LetsMeet.LetsMeet.Event.Model.DTO.DTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -30,6 +32,9 @@ public class ResultControllerWeb {
 
     @Autowired
     private EventResultService resultsService;
+
+    @Autowired
+    private PollService pollService;
 
     @Autowired
     private VenueService venueService;
@@ -262,6 +267,14 @@ public class ResultControllerWeb {
             model.addAttribute("result", result);
             model.addAttribute("venue", venueService.getVenue(result.getVenueUUID().toString()));
             model.addAttribute("event", event);
+
+            // Add polls to model
+            List<DTO.PollData> polls = new ArrayList<>();
+            for (var poll : eventService.getPolls(event)){
+                polls.add(new DTO.PollData(poll));
+            }
+            model.addAttribute("polls", polls);
+
             return "event/results/overview";
         }
         catch(Exception e){
@@ -271,9 +284,4 @@ public class ResultControllerWeb {
         }
     }
 
-    // Error catching
-    @ExceptionHandler(Exception.class)
-    public String handleException(){
-        return "redirect:/405";
-    }
 }
