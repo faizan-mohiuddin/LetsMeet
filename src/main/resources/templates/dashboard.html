@@ -36,7 +36,11 @@
                     <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true"><span th:text="#{events}"></span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false"><span th:text="#{event.invite.invites}"></span></a>
+                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">
+                        <span th:text="#{event.invite.invites}"></span>
+                        <span class="badge badge-secondary" th:if="${newResponses > 0 && newResponses <= 10}" th:text="${newResponses}"></span>
+                        <span class="badge badge-secondary" th:if="${newResponses > 10}" th:text="${newResponses}+'+'"></span>
+                    </a>
                 </li>
                 <li class="nav-item ml-auto">
                     <a class="btn btn-outline-primary" href="/event/new"><i class="bi bi-plus"></i> <span th:text="#{event.new}"></span></a>
@@ -54,7 +58,7 @@
                             </h5>
                             <div class="card-body">
                                 <p class="card-text"><small class="text-muted"><i class="bi bi-geo-fill"> </i><span th:text="#{event.location} + ': ' + ${event.getLocation()}"></span></small></p>
-                                <p class="card-text" th:text="${event.getDescription().substring(0,((event.getDescription().length() > 60)? 60 : event.getDescription().length())) }"></p>
+                                <p class="card-text" th:text="${event.getDescription().substring(0,((event.getDescription().length() > 250)? 250 : event.getDescription().length())) } +${(event.getDescription().length() > 250)? '...' : ''}"></p>
                             </div>
                             <div class="card-body">
                                 <a th:href = "@{/event/{eventuuid}(eventuuid = ${event.getUUID()})}" class="btn btn-primary mr-3"><span th:text="#{core.common.details}"></span></a>
@@ -85,6 +89,8 @@
                         <div class="card mb-3">
                             <h5 class="card-header bg-light text-dark">
                                 <span th:text="${response.value.getName()}"></span>
+                                <span class="badge badge-secondary" th:if="${!response.key.hasResponded()}"><span th:text="#{core.common.new2}"></span></span>
+                                <span class="badge badge-primary" th:if="${!response.key.getRequired()}"><span th:text="#{event.VIP}"></span></span>
                             </h5>
                             <div class="card-body">
                                 <p class="card-text" th:text="${response.value.getDescription().substring(0,((response.value.getDescription().length() > 60)? 60 : response.value.getDescription().length())) }"></p>
@@ -100,7 +106,6 @@
                 </div>
             </div>
         </div>
-
 
 
 

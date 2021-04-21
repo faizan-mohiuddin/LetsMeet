@@ -230,6 +230,14 @@ public class UserControllerWeb {
         model.addAttribute("events", events);
 
         var responses = eventResponseService.getResponsesWithEvent(user);
+
+        int newResponses = 0;
+        for (var response : responses.keySet()){
+            if (!response.hasResponded()) newResponses++;
+            if (newResponses > 11) break;
+        }
+
+        model.addAttribute("newResponses", newResponses);
         model.addAttribute("responses", responses);
 
         return "dashboard";
