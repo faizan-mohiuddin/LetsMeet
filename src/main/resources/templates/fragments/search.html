@@ -8,12 +8,14 @@
 <body>
     <div th:fragment="basic_search">
         <form class="d-flex lm-search" id="searchForm">
-            <input class="form-control me-2 bg-primary text-white btn-outline-secondary" id="searchBox" type="text" placeholder="Search" aria-label="Search">
+            <input class="form-control me-2 bg-primary text-white btn-outline-secondary" id="searchBox" type="text" th:placeholder="#{core.search}" aria-label="Search">
             <button class="btn btn-secondary" type="submit" style="position: relative; left: -20px"><i class="bi bi-search"></i></button>
         </form>
 
-        <script>
+        <script th:inline="javascript">
             $('.lm-search').submit(function() {
+
+                var message = /*[[#{core.search.error}]]*/ 'Search for something!';
 
                 let val = $(this).find('input').val();
                 if (val.length > 0){
@@ -21,7 +23,7 @@
                 }
                 else{
                     //document.getElementById('searchBox').placeholder = "Search for something!";
-                    $(this).find('input').attr("placeholder", "Search for something!");
+                    $(this).find('input').attr("placeholder", message);
                 }
 
                 return false; // return false to cancel form action

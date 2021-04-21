@@ -35,28 +35,32 @@
 
             <ul class="list-unstyled components">
                 <li class="active mb-3">
-                    <a href="/event/new"><i class="bi bi-plus"></i> New Meet</a>
+                    <a href="/event/new"><i class="bi bi-plus"></i> <span th:text="#{event.new}"></span></a>
                 </li>
                 <li>
-                    <a href="/Home"><i class="bi bi-house"></i> Home</a>
+                    <a href="/Home"><i class="bi bi-house"></i> <span th:text="#{core.button.home}">Home</span></a>
                 </li>
                 <li>
-                    <a href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    <a href="/dashboard"><i class="bi bi-speedometer2"></i> <span th:text="#{user.dashboard}">Dashboard</span></a>
                 </li>
                 <li>
-                    <a href="/Venues"><i class="bi bi-building"></i> Venue Finder</a>
+                    <a href="/Venues"><i class="bi bi-building"></i> <span th:text="#{venue.finder}">Venue Finder</span></a>
                 </li>
                 <li>
-                    <a href="#"><i class="bi bi-question-circle"></i> Help</a>
+                    <a href="#"><i class="bi bi-question-circle"></i> <span th:text="#{core.button.help}">Help</span></a>
                 </li>
                 <li>
-                    <a aria-expanded="false" data-toggle="collapse" href="#pageSubmenu"><i class="bi bi-people"></i> About <i class="bi bi-caret-down-fill"></i></a>
+                    <a aria-expanded="false" data-toggle="collapse" href="#pageSubmenu">
+                        <i class="bi bi-people"></i>
+                        <span th:text="#{core.button.about}">About</span>
+                        <i class="bi bi-caret-down-fill"></i>
+                    </a>
                     <ul class="collapse list-unstyled" id="pageSubmenu">
                         <li>
-                            <a href="#">About us</a>
+                            <a href="#"><span th:text="#{core.button.about.us}">About us</span></a>
                         </li>
                         <li>
-                            <a href="#">Our Technology</a>
+                            <a href="#"><span th:text="#{core.button.about.tech}">tech</span></a>
                         </li>
                     </ul>
                 </li>
@@ -67,12 +71,20 @@
                     <p class="mb-0" style="color: black;"><i class="bi bi-shield" style="color: black;"></i> Admin Tools</p>
                 </li>
                 <li>
-                    <a href="/old/adminviewallevents">Events</a>
+                    <a href="/event/admin">Events</a>
                 </li>
                 <li>
                     <a href="/adminviewallusers">Users</a>
                 </li>
             </ul>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <div th:insert="fragments/common :: language"></div>
+                </li>
+            </ul>
+
+
 
             <ul class="list-unstyled components d-sm-block d-md-none">
                 <li class="nav-item" th:if="${user}">
@@ -120,24 +132,24 @@
                         <div th:insert="fragments/search :: basic_search"></div>
                     </li>
                     <li class="nav-item active" th:if="${session?.userlogin}">
-                        <a class="btn btn-outline-secondary mx-1" href="/dashboard" role="button">Dashboard</a>
+                        <a class="btn btn-outline-secondary mx-1" href="/dashboard" role="button"><span th:text="#{user.dashboard}"></span></a>
                     </li>
                     <li class="nav-item" th:if="${session?.userlogin}">
                         <div class="dropdown">
                             <button class="btn btn-secondary mx-1 dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" >
-                                <i class="bi bi-person"></i> Hello, <a th:utext="${session?.userlogin?.fName}"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <i class="bi bi-person"></i> <span th:text="#{user.welcome}"></span>, <a th:utext="${session?.userlogin?.fName}"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             </button>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                <li><a class="dropdown-item" href="/myaccount">Account Options</a></li>
-                                <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="/myaccount"><span th:text="#{user.account}"></span></a></li>
+                                <li><a class="dropdown-item" href="/dashboard"><span th:text="#{user.dashboard}"></span></a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a></li>
+                                <li><a class="dropdown-item" href="/logout"><span th:text="#{user.logout}"></span> <i class="bi bi-box-arrow-right"></i></a></li>
                             </ul>
                         </div>
                     </li>
                     <li class="nav-item active" th:unless="${session?.userlogin}">
-                        <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#myModal">Login</button>
-                        <a class="btn btn-secondary" href="/createuser" role="button">Register</a>
+                        <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#myModal" th:text="#{user.login}">Login</button>
+                        <a class="btn btn-secondary" href="/createuser" role="button" th:text="#{user.register}">Register</a>
 
                         <!-- Modal -->
                         <div class="modal fade" id="myModal" role="dialog">
@@ -146,13 +158,13 @@
                                 <!-- Modal content-->
                                 <div class="modal-content bg-light text-dark">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">Login</h4>
+                                        <h4 class="modal-title" th:text="#{user.register}">Login</h4>
                                     </div>
                                     <div class="modal-body">
                                         <div th:insert="fragments/auth :: login"></div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal"><span th:text="#{core.button.close}"></span></button>
                                     </div>
                                 </div>
 

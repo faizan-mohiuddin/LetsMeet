@@ -13,4 +13,26 @@
         <div class = "alert alert-primary"  th:if = "${info}"><i class="bi bi-info-circle-fill"></i><a th:text = "' ' + ${info}"/><a style="font-weight: bold;" th:href="${infolink}" th:text="${infolinktext}" target="_blank" /></div>
     </div>
 
+    <div th:fragment="language">
+        <label for="locales" th:text="#{core.language.change}"></label>
+        <select class="form-control p-1" id="locales">
+            <option value="Select:"></option>
+            <option value="en" th:text="#{core.language.english}"></option>
+            <option value="de" th:text="#{core.language.german}"></option>
+            <option value="ru" th:text="#{core.language.russian}"></option>
+        </select>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#locales").change(function () {
+                    var selectedOption = $('#locales').val();
+                    if (selectedOption != '') {
+                        window.location.replace('?lang=' + selectedOption);
+                    }
+                });
+            });
+        </script
+
+    </div>
+
 </body>
