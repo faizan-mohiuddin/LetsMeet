@@ -5,6 +5,7 @@ import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
 import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
+import com.LetsMeet.LetsMeet.Utilities.WeatherService;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueTimesDAO;
@@ -54,6 +55,9 @@ public class VenueService {
 
     @Autowired
     LetsMeetConfiguration config;
+
+    @Autowired
+    WeatherService weatherService;
 
     public Object[] createVenue(User user, String name, String businessUUID){
         // Returns [String, Venue]
@@ -159,6 +163,13 @@ public class VenueService {
             try {
                 Optional<VenueOpenTimes> times = venueTimesDAO.get(v.getUUID());
                 times.ifPresent(v::setOpenTimes);
+                // Get current weather at venue
+                if(v.getLatitude() != null && v.getLongitude() != null){
+                    String temp = weatherService.getCurrentTemp(v.getLatitude(), v.getLongitude());
+                    if(temp != null){
+                        v.setCurrentTemperature(temp);
+                    }
+                }
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -447,10 +458,6 @@ public class VenueService {
 
     // Methods for external data
     public List<ExternalVenue> externalVenueSearch(double longitude, double latitude, double kilometers){
-
-        // Check input
-
-
         // Form url
         try {
             // Required parameters
@@ -462,8 +469,6 @@ public class VenueService {
             Request request = new Request.Builder()
                     .url(requestUrl)
                     .build();
-
-            System.out.println(config.getGmapsKey());
 
             LOGGER.info("Google request: " + request.toString());
 

@@ -33,8 +33,8 @@ public class LetsMeetConfiguration {
     private int connectionTarget;
 
     private String dataFolder;
-
     private String GmapsKey;
+    private String openweatherApiKey;
 
     //-----------------------------------------------------------------
 
@@ -62,6 +62,9 @@ public class LetsMeetConfiguration {
 
     public void setGmapsKey(String x){GmapsKey = x;}
     public String getGmapsKey(){return GmapsKey;}
+
+    public void setopenweatherApiKey(String x){openweatherApiKey = x;}
+    public String getopenweatherApiKey(){return openweatherApiKey;}
 
     public String getApplicationHost(){
         try {

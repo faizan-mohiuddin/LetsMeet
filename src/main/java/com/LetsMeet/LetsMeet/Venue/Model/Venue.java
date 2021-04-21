@@ -15,6 +15,7 @@ public class Venue {
     double longitude;
     double latitude;
     VenueOpenTimes openTimes = new VenueOpenTimes();
+    String currentTemperature = null;
 
     public Venue(UUID uuid, String name){
         this.venueUUID = uuid;
@@ -219,5 +220,13 @@ public class Venue {
             return true;
         }
         return false;
+    }
+
+    public void setCurrentTemperature(String t){
+        this.currentTemperature = t;
+    }
+
+    public String getCurrentTemperature(){
+        return this.currentTemperature;
     }
 }

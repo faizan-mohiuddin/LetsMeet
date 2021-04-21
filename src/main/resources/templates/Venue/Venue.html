@@ -17,6 +17,9 @@
         <h3><span th:text="${venue.business.getName()}"></span></h3>
         <h4><span th:text="${venue.getAddress()}"></span></h4>
     </div>
+    <div class="container" th:if="${venue.getCurrentTemperature() != null}">
+        <h5 th:text="'Current Temperature at this Venue: ' + ${venue.getCurrentTemperature()} + 'C'"></h5>
+    </div>
 </div>
 
 <div class="container">
