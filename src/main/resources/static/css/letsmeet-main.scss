@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700");
+@import url("https://fonts.googleapis.com/css?family=Open Sans:300,400,500,600,700");
 
 $lm-primary :rgb(49, 50, 130);
 $lm-secondary: #F80074;
@@ -8,7 +9,7 @@ $theme-colors: (
     "secondary": $lm-secondary,
 );
 
-$font-family-sans-serif:      -apple-system, BlinkMacSystemFont, "Poppins", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$font-family-sans-serif:      -apple-system, BlinkMacSystemFont, "Poppins", "Open Sans" , "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
 
 // Bootstrap is not included, point this to your bootstrap installation
 @import "bootstrap/scss/bootstrap";

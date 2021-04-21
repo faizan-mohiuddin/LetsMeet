@@ -14,13 +14,15 @@
     </div>
 
     <div th:fragment="language">
+        <div class="container">
         <label for="locales" th:text="#{core.language.change}"></label>
         <select class="form-control p-1" id="locales">
-            <option value="Select:"></option>
-            <option value="en" th:text="#{core.language.english}"></option>
-            <option value="de" th:text="#{core.language.german}"></option>
-            <option value="ru" th:text="#{core.language.russian}"></option>
+            <option value="" th:text="#{core.language.select}"></option>
+            <option value="en" th:text="'&#127468&#127463'+ #{core.language.english}"></option>
+            <option value="de" th:text="'&#127465&#127466' + #{core.language.german}"></option>
+            <option value="ru" th:text="'&#127479&#127482' + #{core.language.russian}"></option>
         </select>
+        </div>
 
         <script type="text/javascript">
             $(document).ready(function () {
