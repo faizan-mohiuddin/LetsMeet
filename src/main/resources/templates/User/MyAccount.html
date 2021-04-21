@@ -29,47 +29,60 @@
 
     <div class="container">
 
-        <h4> Your personal details <a th:href="${editPath}"><i class="bi bi-pen-fill"></i> Edit</a></h4>
-        <p th:text="'Name:' + ${user?.fName} + ' ' + ${user?.lName}"></p>
-        <p th:text="'email:' + ${user?.email}"></p>
+        <div class="row">
 
-        <div class="card mt-3">
-            <div class="card-header">Let's Meet ID:</div>
-            <div class="card-body">
-                <p>This ID is unique to you and can be used by other to invite you to their Meets. We may request this ID to help assist you with support queries.</p>
-                <p style="font-weight: bold" th:text="${user.getUUID().toString()}"></p>
-            </div>
-        </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header"><span> Personal details <a class = "btn btn-outline-primary float-right" th:href="${editPath}"><i class="bi bi-pen-fill"></i> <span th:text="#{core.common.edit}"></span></a></span></h5>
 
-        <h2>Your Businesses</h2>
-        <div>
-            <table class = "table table">
-                <thead>
-                <tr>
-                    <th width="90%" scope = "col">Business Name</th>
-                    <th scope = "col"></th>
-                    <th scope = "col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each = "b : ${businesses}" id="businessRow">
-                    <div th:if ="${b}">
-                        <td th:text = "${b.getName()}"></td>
-                        <td></td>
-                        <td><a class = "btn btn-primary" th:href = "@{/Business/{businessID}(businessID = ${b.getUUID()})}">View</a></td>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <th scope="row"><span th:text="#{user.email}"></span></th>
+                                <td><span th:text="${user?.email}"></span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><span th:text="#{user.name}"></span></th>
+                                <td><span th:text="${user?.fName} + ' ' + ${user?.lName}"></span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><span th:text="#{core.letsmeet.id}"></span></th>
+                                <td><span th:text="${user.getUUID().toString()}"></span></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+                </div>
 
-        <div class="card bg-danger text-white mt-3">
-            <div class="card-header lm-egg-dangerZone">Danger Zone</div>
-            <div class="card-body">
-                <a class="btn btn-outline-light btn-block" th:href="${deletePath}" role="button">Delete Account</a>
-                <p class="card-text">Deleting your account will erase all your personal details including events and invitations from our servers. This action can not be reversed.</p>
+                <div class="card border-danger text-dark mt-3">
+                    <div class="card-header bg-danger text-white lm-egg-dangerZone"><span th:text="#{user.account.dangerZone}"></span></div>
+                    <div class="card-body">
+                        <a class="btn btn-outline-danger btn-block" th:href="${deletePath}" role="button"><span th:text="#{user.account.delete}"></span></a>
+                        <p class="card-text text-center mt-2"><span th:text="#{user.account.delete.warning}"></span></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header">Registered Businesses<a class = "btn btn-outline-primary float-right" href="/business/new"><i class="bi bi-plus"></i> <span th:text="#{core.common.new}"></span></a></h5>
+                    <div class="card-body">
+                        <div th:each="b : ${businesses}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <span th:text = "${b.getName()}"></span>
+                                    <a class = "btn btn-primary float-right" th:href = "@{/Business/{businessID}(businessID = ${b.getUUID()})}">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+
 
 </div>
 

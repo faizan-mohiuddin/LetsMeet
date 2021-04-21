@@ -52,7 +52,7 @@
                     <div class = "alert alert-primary" th:if = "${events.isEmpty()}"><span th:text="#{event.user.none}"></span></div>
 
                     <div th:each="event : ${events}">
-                        <div class="card mb-3">
+                        <div class="card mb-3 lm-entity">
                             <h5 class="card-header p-4" style="background-image: url('images/Background 18.svg');background-size: cover;">
                                 <span class="p-1 mb-2 bg-light text-dark rounded" th:text="${event.getName()}"></span>
                             </h5>
@@ -64,7 +64,8 @@
                                 <a th:href = "@{/event/{eventuuid}(eventuuid = ${event.getUUID()})}" class="btn btn-primary mr-3"><span th:text="#{core.common.details}"></span></a>
                                 <a th:href = "@{/event/{eventuuid}/edit(eventuuid = ${event.getUUID()})}" class="card-link"><span th:text="#{core.common.edit}"></span></a>
                                 <a th:href = "@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}" class="card-link"><span th:text="#{event.result.results}"></span></a>
-                                <a th:href = "@{/deleteevent/{eventuuid}(eventuuid = ${event.getUUID()})}" class="card-link float-right"><span th:text="#{core.common.delete}"></span></a>
+                                <button class="btn btn-link float-right lm-api-event-delete" href=""><span th:text="#{core.common.delete}"></span></button>
+                                <input type="hidden" class="lm-data uuid" th:value="${event.getUUID()}">
                             </div>
                         </div>
 

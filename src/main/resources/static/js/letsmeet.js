@@ -1,24 +1,31 @@
 let player = null;
-var count = -1;
 
 
 $(document).ready(function () {
     $('.lm-egg-dangerZone').click(function () {
-        $(this).append(" 🎶🎵");
-        $(this).parent().animate({left: '20px'}, "slow");
-        $(this).parent().animate({left: '-20px'}, "slow");
-        $(this).parent().animate({left: '0px'}, "slow");
+        $(this).parent().animate({left: '20px'}, "fast");
+        $(this).parent().animate({left: '-20px'}, "fast");
+        $(this).parent().animate({left: '0px'}, "fast");
         player == null ? playAudio("https://ia802904.us.archive.org/24/items/TopGunThemeFilmVersionDangerZone/TopGunAnthemDangerzoneFilmIntro.mp3") : player.pause();
     });
 
-    $('.lm-egg-dangerZone').hover(function () {
-        let move = 1;
-        $(this).parent().animate({left: `${move*count}px`}, "slow");
-        $(this).parent().animate({left: `-${move*count}px`}, "slow");
-        $(this).parent().animate({left: '0px'}, "slow");
-        count++;
+    $('.lm-api-event-delete').click(function () {
+        let id = $(this).parent().find(".uuid").val();
+        let root = this;
+
+        $.ajax({
+            type: "DELETE",
+            url: `/api/Event/${id}?Token=${sessionID}`,
+            async: true,
+            success: function(){
+                $(root).closest(".lm-entity").fadeOut();
+            }
+        });
     });
 
+    $(document).ajaxError(function(){
+        alert("An error occurred!");
+    });
 
 });
 
@@ -58,4 +65,14 @@ function setEventImage(event, imageURL) {
         processData: false,
         success: alert("updated")   
     })
+}
+
+function deleteEvent(token,eventUUID, onSuccess, onFail) {
+    $.ajax({
+        type: "DELETE",
+        url: `/api/Event/${eventUUID}?Token=${token}`,
+        async: false,
+        success: onSuccess,
+        error: onFail,
+    });
 }
