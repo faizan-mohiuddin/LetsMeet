@@ -52,11 +52,11 @@
             <div class="jumbotron bg-primary text-white" >
                 <div class="row">
                     <div class="col-sm-7">
-                        <h1>An easier way to <b>Meet.</b></h1><br>
-                        <h5>Accommodate <i>everyone</i></h5>
-                        <a>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ultrices quam eget nulla eleifend dignissim.</a><br><br>
-                        <h5>Remain <i>flexible</i></h5>
-                        <a>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ultrices quam eget nulla eleifend dignissim.</a><br><br>
+                        <h1 id = "firstHeader">An easier way to <b>Meet.</b></h1><br>
+                        <h5 id = "firstSubheader">Accommodate <i>everyone</i></h5>
+                        <a id = "firstParagraph">With LetsMeet, participants in your Meet can seamlessly say what times work best for them and can specify other conditions they would like met in the Meet.</a><br><br>
+                        <h5 id = "secondSubheader">Remain <i>flexible</i></h5>
+                        <a id = "secondParagraph">We take care of the hard work. Our scheduling algorithm will determine the optimum times for your Meet to take place within a time range.</a><br><br>
                         <div class="row mt-2 w-75" th:unless="${user}" >
                             <div class="col-sm-8"><a class="btn btn-light btn-block" href="/createuser" role="button">Sign Up</a></div>
                             <div class="col-sm"><a class="btn btn-outline-light btn-block" data-toggle="modal" data-target="#myModal" role="button">Login</a></div>
@@ -80,12 +80,12 @@
                         </div>
                     </div>
                     <div class="col-sm-5">
-                        <h1>Built for <b>Business.</b></h1><br>
-                        <h5>Be <i>visible</i></h5>
-                        <a>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </a><br><br>
+                        <h1 id = "secondHeader">Built for <b>Business.</b></h1><br>
+                        <h5 id = "thirdSubheader">Be <i>visible</i></h5>
+                        <a id = "thirdParagraph">Register your business with LetsMeet for more exposure and recognisability for your brand.</a><br><br>
                         <a class="btn btn-light" href="/old/business/new" role="button"> Register your Venue</a><br><br>
-                        <h5>Designed for <i>integration</i></h5>
-                        <a>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </a><br><br>
+                        <h5 id = "fourthSubheader">Designed for <i>integration</i></h5>
+                        <a id = "fourthParagraph">Power user? You can utilise LetsMeet's API capabilities to incorporate in your own application.</a><br><br>
                         <a class="btn btn-light" href="" role="button"> API Documentation</a><br><br>
                     </div>
                 </div>

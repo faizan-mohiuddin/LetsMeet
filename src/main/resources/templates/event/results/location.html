@@ -109,33 +109,32 @@
     }
     function initMap() {
 
-        for(var i = 0; i < thenumber + 1; i++) {
+            themap = new google.maps.Map(document.getElementById('map'), { center: { lat: 55.3781, lng: -2.4360 }, zoom: 4, streetViewControl: false, mapTypeControl: false,});
 
-            maparray[i] = new google.maps.Map(document.getElementById('map' + i), { center: { lat: array[i][0], lng: array[i][1]}, zoom: 4, streetViewControl: false, mapTypeControl: false,});
+            for(var i = 0; i < thenumber + 1; i++) {
 
-            markerarray[i] = new google.maps.Marker({ position: { lat: array[i][0], lng: array[i][1] }, map: maparray[i] })
+                    markerarray[i] = new google.maps.Marker({ position: { lat: array[i][0], lng: array[i][1] }, map: themap })
 
-            circlearray[i] = new google.maps.Circle({ radius: array[i][2], fillColor: '#AA0000', map: maparray[i],})
+                    circlearray[i] = new google.maps.Circle({ radius: array[i][2], fillColor: '#AA0000', map: themap,})
 
-            console.log("the array in init:" + array);
 
-            // const marker = new google.maps.Marker({
-            //
-            //     position: {lat: latt, lng: lngg},
-            //     map: maparray[i],
-            //
-            //     }
-            // )
+                    // const marker = new google.maps.Marker({
+                    //
+                    //     position: {lat: latt, lng: lngg},
+                    //     map: maparray[i],
+                    //
+                    //     }
+                    // )
 
-            // var circle = new google.maps.Circle({
-            //
-            //     radius: array[i][2],
-            //     fillColor: '#AA0000',
-            //     map: maparray[i],
-            //
-            // })
+                    // var circle = new google.maps.Circle({
+                    //
+                    //     radius: array[i][2],
+                    //     fillColor: '#AA0000',
+                    //     map: maparray[i],
+                    //
+                    // })
 
-            circlearray[i].bindTo('center', markerarray[i], 'position');
+                    circlearray[i].bindTo('center', markerarray[i], 'position');
 
         }
 
@@ -278,9 +277,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class = "col-sm-4">
-                                <center><button th:id = "'showMapButton' + ${iter.index}" class = "btn btn-primary" type = "button" style = "margin-bottom:10px;" th:onclick="|showMap(${iter.index}, ${location.property.latitude}, ${location.property.longitude}, ${location.property.radius})|">Show Map</button></center>
-                            </div>
                             <script th:inline="javascript">
                                 /*<![CDATA[*/
 
@@ -298,18 +294,18 @@
 
                                 /*]]>*/
                             </script>
-                            <div class = "mapView" th:id = "'mapView' + ${iter.index}" style = "display:none;" >
-                                <div th:id = "'map' + ${iter.index}" style="clear:both; height:200px;"></div>
-
-                            </div>
                         </div>
                     </div>
+
                     <div class="card bg-light mt-2 w-100">
                         <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
                         <div class="card-body">
                             <p class="card-text">Widen your search and try again.</p>
                         </div>
                     </div>
+
+                    <div th:id = "map" style="clear:both; height:200px;"></div>
+
                 </div>
 
 

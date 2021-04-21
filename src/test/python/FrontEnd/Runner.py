@@ -4,7 +4,7 @@ import time
 
 class Runner():
     def __init__(self):
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Chrome()
         self.address = "http://localhost:8080/"
         self.driver.get(self.address)
 
@@ -14,5 +14,4 @@ class Runner():
 
 ################
 tester = Runner()
-time.sleep(5)
 tester.close()
