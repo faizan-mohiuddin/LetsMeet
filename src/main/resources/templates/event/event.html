@@ -51,10 +51,12 @@
 
             <div class="col-sm-8">
 
-                    <p th:text="${event.getDescription()}"></p>
+                <div th:each="line : ${event.getDescription().split('\n')}">
+                    <div th:text="${line}"></div><br>
+                </div>
 
                 <h4><i class="bi bi-geo"></i> Location</h4>
-                <p th:text="${event.getLocation()}"></p>
+                <p th:text="${location}"></p>
 
                 <div th:if="${isOwnerOfEvent}">
                     <h4><i class="bi bi-people"></i> Participants</h4>

@@ -263,6 +263,7 @@ public class EventControllerWeb {
             Event event = eventService.get(UUID.fromString(eventUUID)).orElseThrow();
 
             model.addAttribute("event", event);
+            model.addAttribute("location", event.getEventProperties().getLocation().getName());
 
             model.addAttribute("hasUserRespondedToEvent", responseService.getResponse(user, event).isPresent());
 

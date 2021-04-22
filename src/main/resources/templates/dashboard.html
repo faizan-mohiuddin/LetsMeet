@@ -39,7 +39,7 @@
                     <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">
                         <span th:text="#{event.invite.invites}"></span>
                         <span class="badge badge-secondary" th:if="${newResponses > 0 && newResponses <= 10}" th:text="${newResponses}"></span>
-                        <span class="badge badge-secondary" th:if="${newResponses > 10}" th:text="${newResponses}+'+'"></span>
+                        <span class="badge badge-secondary" th:if="${newResponses > 10}">10+</span>
                     </a>
                 </li>
                 <li class="nav-item ml-auto">
@@ -49,7 +49,7 @@
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
 
-                    <div class = "alert alert-primary" th:if = "${events.isEmpty()}"><span th:text="#{event.user.none}"></span></div>
+                    <div class = "alert alert-primary" th:if = "${events.isEmpty()}"><span th:text="#{event.user.none}"> </span><a class="btn btn-link" href="/event/new"><span th:text="#{event.new}"></span></a></div>
 
                     <div th:each="event : ${events}">
                         <div class="card mb-3 lm-entity">
@@ -57,7 +57,7 @@
                                 <span class="p-1 mb-2 bg-light text-dark rounded" th:text="${event.getName()}"></span>
                             </h5>
                             <div class="card-body">
-                                <p class="card-text"><small class="text-muted"><i class="bi bi-geo-fill"> </i><span th:text="#{event.location} + ': ' + ${event.getLocation()}"></span></small></p>
+                                <p class="card-text"><small class="text-muted"><i class="bi bi-geo-fill"> </i><span th:text="#{event.location} + ': ' + ${event.getEventProperties().getLocation().getName()}"></span></small></p>
                                 <p class="card-text" th:text="${event.getDescription().substring(0,((event.getDescription().length() > 250)? 250 : event.getDescription().length())) } +${(event.getDescription().length() > 250)? '...' : ''}"></p>
                             </div>
                             <div class="card-body">
@@ -85,6 +85,8 @@
 
                 </div>
                 <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+
+                    <div class = "alert alert-primary" th:if = "${responses.isEmpty()}"><span th:text="#{event.response.user.none}"></span></div>
 
                     <div th:each="response : ${responses}">
                         <div class="card mb-3">
