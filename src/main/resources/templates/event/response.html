@@ -46,10 +46,10 @@
                         <small id="guestNameInputHelp" class="form-text text-muted">Enter something here to help the organiser know who you are.</small>
                     </div>
                     <div class="form-group">
-                        <input type="hidden" name="location" th:value="${response.location}"/>
-                        <input type="hidden" name="latitude" th:value="${response.latitude}"/>
-                        <input type="hidden" name="longitude" th:value="${response.longitude}"/>
-                        <input type="hidden" name="radius" th:value="${response.radius}"/>
+                        <input type="hidden" name="location" th:value="${response.location}" id = "theLocation"/>
+                        <input type="hidden" name="latitude" th:value="${response.latitude}" id = "thelat"/>
+                        <input type="hidden" name="longitude" th:value="${response.longitude}" id = "thelong"/>
+                        <input type="hidden" name="radius" th:value="${response.radius}" id = "myRange2"/>
                         <!-- LOCATION PICKER -->
                         <div class="card">
                             <div class="card-header">
@@ -63,6 +63,7 @@
                                 <h5 class="card-title">Where are you?</h5>
                                 <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
                             </div>
+                            <div th:include = "event/fragments :: mapsFragment"></div>
                         </div><br/>
 
 

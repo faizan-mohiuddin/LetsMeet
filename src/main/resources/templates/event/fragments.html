@@ -730,6 +730,7 @@
             if (status == google.maps.GeocoderStatus.OK) {
             if (results[0]) {
             document.getElementById("pac-input").value = results[0].formatted_address;
+            document.getElementById("theLocation").value = results[0].formatted_address;
             placeMarker(event.latLng);
             map.panTo(event.latLng);
             document.getElementById('thelat').value = results[0].geometry.location.lat();
@@ -761,7 +762,7 @@
             <div class="form-group">
                 <label for="eventlocation">Event Location:</label>
                 <div id="pac-container">
-                    <input name = "location" id="pac-input" class = "form-control" type="text" placeholder="Enter a location" />
+                    <input id="pac-input" class = "form-control" type="text" placeholder="Enter a location" />
                 </div>
             </div>
             <div id="map" style="clear:both; height:400px;"></div>
@@ -777,14 +778,14 @@
                     async
             ></script>
 
-            <input type="hidden" name="latitude" id="thelat"/>
-            <input type="hidden" name="longitude" id="thelong"/>
+<!--            <input type="hidden" name="latitude" id="thelat"/>-->
+<!--            <input type="hidden" name="longitude" id="thelong"/>-->
         </div>
 
         <div class = "form-group">
             <div class = "container">
                 <label for = "myRange">Radius (km): </label>
-                <input type = "range" id = "myRange" name = "radius" value = "0" disabled = "true">
+                <input type = "range" name = "radius" id = "myRange" value = "0" disabled = "true">
                 <span id = "demo"></span>
             </div>
         </div>
@@ -798,6 +799,7 @@
 
             slider.oninput = function() {
                 output.innerHTML = this.value;
+                document.getElementById("myRange2").value = parseFloat(document.getElementById("myRange").value);
             }
 
         </script>
