@@ -99,7 +99,6 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
             Statement statement = connector.getConnection().createStatement()){
 
             String query = String.format("select * from EventResponse INNER JOIN Event ON EventResponse.EventUUID = Event.EventUUID where EventResponse.EventUUID = '%s' OR EventResponse.UserUUID = '%s'", anyUUID, anyUUID);
-            Instant time1 = Instant.now();
             ResultSet rs = statement.executeQuery(query);
 
             Map<EventResponse, Event> records = new HashMap<>();
@@ -122,9 +121,6 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
 
                 records.put(response,event);
             }
-            Instant time2 = Instant.now();
-            long resMilli = Duration.between(time1, time2).toMillis();
-            System.out.println("Duration to query: "+resMilli);
             return records;
         }
         catch(Exception e){
