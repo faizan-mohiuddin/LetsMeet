@@ -89,11 +89,11 @@
                     <div class = "alert alert-primary" th:if = "${responses.isEmpty()}"><span th:text="#{event.response.user.none}"></span></div>
 
                     <div th:each="response : ${responses}">
-                        <div class="card mb-3">
+                        <div class="card mb-3 lm-entity">
                             <h5 class="card-header bg-light text-dark">
                                 <span th:text="${response.value.getName()}"></span>
+                                <span class="badge badge-primary" th:if="${response.key.getRequired()}"><span th:text="#{event.VIP}"></span></span>
                                 <span class="badge badge-secondary" th:if="${!response.key.hasResponded()}"><span th:text="#{core.common.new2}"></span></span>
-                                <span class="badge badge-primary" th:if="${!response.key.getRequired()}"><span th:text="#{event.VIP}"></span></span>
                             </h5>
                             <div class="card-body">
                                 <p class="card-text" th:text="${response.value.getDescription().substring(0,((response.value.getDescription().length() > 60)? 60 : response.value.getDescription().length())) }"></p>
@@ -101,7 +101,8 @@
                             <div class="card-body">
                                 <a th:href = "@{/event/{eventuuid}/respond(eventuuid = ${response.value.getUUID()})}" class="btn btn-primary mr-3"><span th:text="#{event.response.respond}"></span></a>
                                 <a th:href = "@{/event/{eventuuid}(eventuuid = ${response.value.getUUID()})}" class="card-link"><span th:text="#{core.common.details}"></span></a>
-                                <a href = "" class="card-link float-right"><span th:text="#{core.common.delete}"></span></a>
+                                <button class="btn btn-link float-right lm-api-event-response-delete" href=""><span th:text="#{core.common.delete}"></span></button>
+                                <input type="hidden" class="lm-data uuid" th:value="${response.value.getUUID()}">
                             </div>
                         </div>
                     </div>
