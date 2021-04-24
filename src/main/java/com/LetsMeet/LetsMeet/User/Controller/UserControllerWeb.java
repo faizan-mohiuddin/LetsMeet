@@ -216,7 +216,6 @@ public class UserControllerWeb {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        System.out.println("Received");
 
         User user = (User) session.getAttribute("userlogin");
         if (user == null) {

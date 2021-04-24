@@ -23,6 +23,20 @@ $(document).ready(function () {
         });
     });
 
+    $('.lm-api-event-response-delete').click(function () {
+        let id = $(this).parent().find(".uuid").val();
+        let root = this;
+
+        $.ajax({
+            type: "DELETE",
+            url: `/api/Event/${id}/Response?Token=${sessionID}`,
+            async: true,
+            success: function(){
+                $(root).closest(".lm-entity").fadeOut();
+            }
+        });
+    });
+
     $(document).ajaxError(function(){
         alert("An error occurred!");
     });

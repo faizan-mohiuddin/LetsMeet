@@ -90,7 +90,6 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
             Statement statement = connector.getConnection().createStatement()){
 
             String query = String.format("select * from HasUsers INNER JOIN Event ON HasUsers.EventUUID = Event.EventUUID where Event.EventUUID='%s' OR HasUsers.UserUUID='%s'", anyUUID, anyUUID);
-            Instant time1 = Instant.now();
             ResultSet rs = statement.executeQuery(query);
 
             Map<EventPermission, Event> records = new HashMap<>();
@@ -109,9 +108,6 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
 
                 records.put(perm,event);
             }
-            Instant time2 = Instant.now();
-            long resMilli = Duration.between(time1, time2).toMillis();
-            System.out.println("Duration to query: "+resMilli);
             return records;
         }
         catch(Exception e){

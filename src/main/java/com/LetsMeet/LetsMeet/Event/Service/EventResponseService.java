@@ -97,11 +97,6 @@ public class EventResponseService {
     public Boolean deleteResponse(User user, Event event) throws IllegalArgumentException{
         try{
             EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElseThrow();
-            
-            if (response.getRequired() == true){
-                LOGGER.debug("Can't delete response between User <{}> and Event <{}> : It is marked as required. Attempting to clear contents instead.",user.getUUID(), event.getUUID());
-                return this.clearResponse(user, event);
-            }
 
             return dao.delete(response);
 
