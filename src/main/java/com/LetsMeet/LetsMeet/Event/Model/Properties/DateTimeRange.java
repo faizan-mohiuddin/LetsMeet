@@ -94,8 +94,7 @@ public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
 
     @Override
     public int compareTo(DateTimeRange o) {
-        // TODO Auto-generated method stub
-        return 0;
+        return this.getStart().compareTo(o.getStart());
     }
     
 
