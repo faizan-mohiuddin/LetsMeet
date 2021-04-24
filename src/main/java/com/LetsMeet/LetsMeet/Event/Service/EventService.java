@@ -610,8 +610,12 @@ public class EventService{
             responseService.createResponse(user,event,false);
 
             // Email user link
-            String link = String.format("%s/event/%s/respond/%s", config.getApplicationHost(), event.getUUID().toString(), user.getUUID().toString());
-            System.out.println(config.getApplicationHost());
+            String link;
+            if(user.getIsGuest()) {
+                link = String.format("%s/event/%s/respond?guest=%s", config.getApplicationHost(), event.getUUID().toString(), user.getUUID().toString());
+            }else{
+                link = String.format("%s/event/%s/respond", config.getApplicationHost(), event.getUUID().toString());
+            }
 
             LOGGER.info(link);
             notificationService.send(Notifications.simpleMail("You have been invited to an Event",

@@ -77,6 +77,7 @@
                                             <section th:if="${@environment.getProperty('lm.web.debugRender')}">
                                                 <p class="card-text" th:text="${venue.getUUID()}"></p>
                                             </section>
+                                            <p th:if="${venue.getCurrentTemperature() != null}" th:text="'Forcasted temperaute: ' + ${venue.getCurrentTemperature()} + 'C'"></p>
 
                                         </div>
                                     </div>

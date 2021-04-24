@@ -2,12 +2,16 @@ package com.LetsMeet.LetsMeet.Event.Controller;
 
 import com.LetsMeet.LetsMeet.Event.Model.DTO.DTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.ResultProperty;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
+import com.LetsMeet.LetsMeet.Utilities.WeatherService;
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.text.ParseException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import java.util.*;
 
@@ -38,6 +48,9 @@ public class ResultControllerWeb {
 
     @Autowired
     private VenueService venueService;
+
+    @Autowired
+    private WeatherService weatherService;
 
 
     @GetMapping("/time")
@@ -192,6 +205,35 @@ public class ResultControllerWeb {
                     (isOpen) ? String.valueOf(date.getMinute()) : "",
                     (isOpen) ? date.getDayOfWeek().toString(): "");
 
+            System.out.println(date);
+            // Calculate days in future
+
+            LocalDate eventDate = date.toLocalDate();
+            LocalDate currentDate = LocalDate.now();
+            long daysBetween = ChronoUnit.DAYS.between(currentDate, eventDate);
+            System.out.println ("Days: " + daysBetween);
+            if(daysBetween <= 7) {
+                for (Venue v : venues) {
+                    JsonObject forecast = weatherService.getWeatherForecast(v.getLatitude(), v.getLongitude(), 0);
+                    String temp = null;
+                    // Get event hour
+                    int hour = date.getHour();
+                    if(hour < 11){
+                        temp = forecast.get("morn").toString();
+                    }else if(hour >= 11 && hour < 16){
+                        temp = forecast.get("day").toString();
+                    }else if(hour >= 16 && hour < 20){
+                        temp = forecast.get("eve").toString();
+                    }else if (hour >= 20){
+                        // Night
+                        temp = forecast.get("night").toString();
+                    }
+
+                    v.setCurrentTemperature(temp);
+                }
+            }
+
+
             model.addAttribute("user", user);
             model.addAttribute("event", eventService.get(UUID.fromString(eventuuid)).orElseThrow());
             model.addAttribute("venues", venues);
@@ -200,6 +242,7 @@ public class ResultControllerWeb {
         }
         catch(Exception e){
             LOGGER.error("Could not set times User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
+            e.printStackTrace();
 
             if (e.getMessage().contains(LOCATION_NOT_FOUND)) redirectAttributes.addFlashAttribute("warning", LOCATION_NOT_FOUND);
             if (e.getMessage().contains(DATETIME_NOT_FOUND)) redirectAttributes.addFlashAttribute("warning",DATETIME_NOT_FOUND);
