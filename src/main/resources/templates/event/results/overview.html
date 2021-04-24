@@ -65,8 +65,9 @@
                             th:text="${venue.name}"></h5>
                         <p class="card-text" th:text="${venue.address}"></p>
                         <a th:href="@{/Venue/{id}(id = ${venue.getUUID()})}" class="btn btn-outline-primary"> More Information</a>
+                        <a th:href="@{/event/{eventuuid}/results/venue(eventuuid = ${event.getUUID()})}" class="btn btn-primary"><i class="bi bi-pen"></i> Edit</a>
                     </div>
-                    <a th:href="@{/event/{eventuuid}/results/venue(eventuuid = ${event.getUUID()})}" class="btn btn-primary"><i class="bi bi-pen"></i> Edit</a>
+
                 </div>
             </div>
 
