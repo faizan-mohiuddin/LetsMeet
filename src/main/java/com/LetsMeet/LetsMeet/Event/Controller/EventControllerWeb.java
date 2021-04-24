@@ -6,12 +6,12 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.LetsMeet.LetsMeet.Event.Model.DTO.DTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Model.Events;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Poll;
 import com.LetsMeet.LetsMeet.Event.Model.DTO.EventDTO;
-import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Poll.Model.Polls;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
@@ -21,7 +21,6 @@ import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.User.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,66 +32,27 @@ public class EventControllerWeb {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(EventControllerWeb.class);
 
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
+    private final PollService pollService;
+    private final EventResponseService responseService;
+    private final UserService userService;
 
-    @Autowired 
-    private PollService pollService;
-
-    @Autowired
-    private EventResponseService responseService;
-
-    @Autowired
-    private UserService userService;
+    public EventControllerWeb(EventService eventService, PollService pollService, EventResponseService responseService, UserService userService) {
+        this.eventService = eventService;
+        this.pollService = pollService;
+        this.responseService = responseService;
+        this.userService = userService;
+    }
 
     public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss a"; 
     public static final DateTimeFormatter LDT_FORMATTER = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN);
 
-    /**
-     * Poll model data interface
-     */
-    public static class _PollData{
-        public String json;
-        public String name;
-        public Map<String, Integer> options;
-
-        _PollData(Poll poll){
-            this.json = poll.toJson();
-            this.name = poll.getName();
-            this.options = poll.getOptions();
-        }
-    }
-
-    /**
-     * DateTimeRange model data interface
-     */
-    public static class _DateTimeData{
-        public String json;
-        public String startDate;
-        public String startTime;
-        public String endDate;
-        public String endTime;
-
-        _DateTimeData(DateTimeRange dateTimeRange){
-            this.json = dateTimeRange.toJson();
-            this.startDate = LDT_FORMATTER.format(dateTimeRange.getStart());
-            this.startTime = LDT_FORMATTER.format(dateTimeRange.getStart());
-            this.endDate = LDT_FORMATTER.format(dateTimeRange.getStart());
-            this.endDate = LDT_FORMATTER.format(dateTimeRange.getStart());
-        }
-    }
-
-    private static String EVENT_TEMPLATE_EDITOR = "event/new";
-    private static String EVENT_TEMPLATE_VIEWER = "event/event";
-
-    private static String USER_ATTR = "user";
+    private static final String EVENT_TEMPLATE_EDITOR = "event/edit";
+    private static final String EVENT_TEMPLATE_VIEWER = "event/event";
+    private static final String USER_ATTR = "user";
 
     /**
      * Serves a page for creating new events
-     * @param model
-     * @param session
-     * @param redirectAttributes
-     * @return
      */
     @GetMapping({"/createevent", "/event/new"})
     public String httpEventNewGet(HttpServletRequest request, Model model, HttpSession session, RedirectAttributes redirectAttributes){
@@ -179,16 +139,16 @@ public class EventControllerWeb {
             model.addAttribute("event", eventDTO);
 
             // Add times to model
-            List<_DateTimeData> times = new ArrayList<>();
+            List<DTO.DateTimeData> times = new ArrayList<>();
             for (var v : event.getEventProperties().getTimes()){
-                times.add(new _DateTimeData(v));
+                times.add(new DTO.DateTimeData(v));
             }
             model.addAttribute("times", times);
 
             // Add polls to model
-            List<_PollData> polls = new ArrayList<>();
+            List<DTO.PollData> polls = new ArrayList<>();
             for (var poll : eventService.getPolls(event)){
-                polls.add(new _PollData(poll));
+                polls.add(new DTO.PollData(poll));
             }
             model.addAttribute("polls", polls);
 
@@ -323,15 +283,9 @@ public class EventControllerWeb {
         }
     }
 
-    // Error catching
-    @ExceptionHandler(Exception.class)
-    public String handleException(){
-        return "redirect:/405";
-    }
-
     // ----------------------------------------------------------------------------------------------------------------
 
-    private User validateSession(HttpSession session) throws IllegalAccessException{
+    private User validateSession(HttpSession session){
         User user = (User) session.getAttribute("userlogin");
         if (user == null) 
             throw new IllegalArgumentException("Permission Denied");

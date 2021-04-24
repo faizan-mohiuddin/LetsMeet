@@ -18,7 +18,7 @@ public class DTO {
         public String endDate;
         public String endTime;
 
-        DateTimeData(DateTimeRange dateTimeRange){
+        public DateTimeData(DateTimeRange dateTimeRange){
             this.json = dateTimeRange.toJson();
             this.startDate = LDT_FORMATTER.format(dateTimeRange.getStart());
             this.startTime = LDT_FORMATTER.format(dateTimeRange.getStart());
