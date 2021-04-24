@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Latest compiled and minified CSS -->
-<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: jquery" xmlns="http://www.w3.org/1999/html"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -38,17 +38,17 @@
                 <div class="col-sm-4">
                     <div class="card w-100 mt-2">
                         <div class="card-body">
-                            <h5 class="card-title">Options</h5>
+                            <h5 class="card-title"><i class="bi bi-funnel-fill"></i> Filter</h5>
                             <div class="row">
                                 <label for="customRange3" class="form-label"></label>
                                 <div class="col-sm-12">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="isOpenCheck" th:checked="${#conversions.convert(param.isOpen,T(boolean))}">
-                                        <label class="form-check-label" for="isOpenCheck">Open venues only</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input class="custom-control-input" type="checkbox" id="isOpenCheck" th:checked="${#conversions.convert(param.isOpen,T(boolean))}">
+                                        <label class="custom-control-label" for="isOpenCheck">Open venues only</label>
                                     </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="servicesCheck" th:checked="${#conversions.convert(param.useFacilities,T(boolean))}">
-                                        <label class="form-check-label" for="servicesCheck">Apply facilities filter:</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input class="custom-control-input" type="checkbox" id="servicesCheck" th:checked="${#conversions.convert(param.useFacilities,T(boolean))}">
+                                        <label class="custom-control-label" for="servicesCheck">Apply facilities filter:</label>
                                     </div>
                                     <div id="servicesList" >
                                         <div class="form-check" th:each="option, index : ${options}">
@@ -56,11 +56,12 @@
                                             <label class="form-check-label" th:text="${option}">Service 1</label>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                        <button class="btn btn-block btn-primary mt-2" style=" color: white !important;" id="filter_apply">Apply</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <button class="btn btn-primary" style=" color: white !important;" id="filter_apply">Apply</button>
-                            </div>
+
 
                         </div>
                     </div>
@@ -82,13 +83,12 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-2">
-                                        <div class="d-grid gap-2">
-                                            <form method="post" th:action="@{/event/{eventuuid}/results/venue?venueUUID={index}(eventuuid = ${event.getUUID()}, index = ${venue.getUUID()})}">
-                                                <input class="btn btn-primary btn-block" type="submit" value="Select">
-                                            </form>
-                                            <a class="btn btn-primary btn-block" type="button" value="More information" th:href = "@{/Venue/{id}(id = ${venue.getUUID()})}">More Information</a>
-
-                                        </div>
+                                        <form method="post" th:action="@{/event/{eventuuid}/results/venue?venueUUID={index}(eventuuid = ${event.getUUID()}, index = ${venue.getUUID()})}">
+                                            <input class="btn btn-primary btn-block" type="submit" th:value="#{core.common.select}">
+                                        </form>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <a class="btn btn-primary btn-block" type="button" value="More information" th:href = "@{/Venue/{id}(id = ${venue.getUUID()})}"><span th:text="#{core.common.details}"></span> </a>
                                     </div>
                                 </div>
                             </div>

@@ -4,6 +4,7 @@ import com.LetsMeet.LetsMeet.Event.Model.DTO.DTO;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.ResultProperty;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.GradedProperty;
 import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import com.LetsMeet.LetsMeet.Event.Service.EventResultService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
@@ -73,7 +74,7 @@ public class ResultControllerWeb {
 
             model.addAttribute("results",resultsService.calculateTimes(event, duration,requiredUsers));
 
-            return "event/results";
+            return "event/results/time";
         }
         catch(Exception e){
             LOGGER.error("Could not view results User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
@@ -131,7 +132,8 @@ public class ResultControllerWeb {
         try{
             model.addAttribute("user", user);
             model.addAttribute("event", eventService.get(UUID.fromString(eventuuid)).orElseThrow());
-            model.addAttribute("results",resultsService.calculateLocation(event, duration,requiredUsers));
+            var results = resultsService.calculateLocation(event, attendance,requiredUsers);
+            model.addAttribute("results", results);
             return "event/results/location";
         }
         catch(Exception e){

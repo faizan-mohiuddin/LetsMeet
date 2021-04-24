@@ -11,7 +11,7 @@ public class Location implements Serializable, Comparable<Location> {
     private double latitude;
     private double radius;
 
-    static final double RADIUS_MAJOR = 6378137.0;
+    static final double RADIUS_MAJOR = 6378137.0 / 1000;
     static final double RADIUS_MINOR = 6356752.3142;
 
     public Location(String name, double latitude, double Longitude, double radius){
