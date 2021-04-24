@@ -167,3 +167,18 @@ ul ul a {
     top: 0;
     right: 0;
 }
+
+
+/* Quick hack for calendar colours Inline #16 | http://localhost:8080/event/new */
+
+.vc-container {
+    /* --blue-200: #bee3f8; */
+    /* --blue-400: #63b3ed; */
+    /* --blue-500: #4299e1; */
+    /* --blue-600: #3182ce; */
+    --blue-200: #b8b8d4 !important;
+    --blue-400: #313282 !important;
+    --blue-500: #7d7d9b !important;
+    --blue-600: #313282 !important;
+  }
+  
