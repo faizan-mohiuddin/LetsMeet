@@ -32,7 +32,7 @@ public class WeatherService {
                     .url(requestUrl)
                     .build();
 
-            LOGGER.info("Weather request: " + request.toString());
+            LOGGER.debug("Weather request: " + request.toString());
 
             // Send request
             OkHttpClient httpClient = new OkHttpClient();
@@ -77,7 +77,7 @@ public class WeatherService {
                     .url(requestUrl)
                     .build();
 
-            LOGGER.info("Weather request: " + request.toString());
+            LOGGER.debug("Weather request: " + request.toString());
 
             // Send request
             OkHttpClient httpClient = new OkHttpClient();
