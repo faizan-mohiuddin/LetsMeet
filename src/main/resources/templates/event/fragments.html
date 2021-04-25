@@ -372,21 +372,48 @@
                                     <div class="col-sm-10">
                                         <div class="row">
                                             <div class="span10">
-                                                <h5 class="card-text">${poll.name}</h5>
-                                                <p class="card-text">${poll.options.toString()}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
-                                    </div>
+                                                <h5 class="card-text">${poll.name}</h5>`;
+                    for (i in poll.options) {
+                        pollMarkup += poll.options[i][0] + " " + poll.options[i][1] + "<br>";
+                    }
+                    pollMarkup += `</div>
+                                   </div>
+                                   </div>
+                                   <div class="col-sm-2">
+                                       <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                   </div>
                                 </div>
                             </div>
                         </div>
                     `;
                     $("#pollList").append(pollMarkup);
-                });
-        
+
+                    var pollMarkup = `
+                        <div class="card w-100 mt-2 bg-light">
+                            <div class="card-body">
+                                <input hidden type="text" name="polls"value='${json}'/>
+                                <div class="row align-items-center">
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                            <div class="span10">
+                                                <h5 class="card-text">${poll.name}</h5>`;
+                    for (i in poll.options) {
+                        if (poll.options[i][1] != 0) {
+                            pollMarkup += poll.options[i][0] + " " + poll.options[i][1] + "<br>";
+                        }
+                    }
+                    pollMarkup += `</div>
+                                   </div>
+                                   </div>
+                                   <div class="col-sm-2">
+                                       <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $("#pollListResponse").append(pollMarkup);
+                });        
             });
         </script>
 
