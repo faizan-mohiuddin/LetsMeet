@@ -83,6 +83,23 @@ class FrontEndTests(unittest.TestCase):
         logoutMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/div')[0].get_attribute("innerHTML")
         self.assertEqual('<i class="bi bi-check-circle-fill"></i><a> You have successfully logged out.</a> ', logoutMessage, "TEST: Logout message after logging out.")
 
+    def failedLoginAttempt(self):
+
+        self.runner.driver.get("http://localhost:8080/login")
+
+        username = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[1]/input')[0]
+        username.send_keys("123@123.commm")
+
+        password = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[2]/input')[0]
+        password.send_keys("123")
+
+        loginButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/button')[0]
+        loginButton.click()
+
+        failedLoginMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/div')[0].get_attribute("innerHTML")
+        self.assertEqual('<test ', failedLoginMessage, "TEST: Login message after failed logging in.")
+
+
     def tearDown(self):
         self.runner.close()
 
