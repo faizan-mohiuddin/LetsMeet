@@ -914,5 +914,165 @@
         </script>
     </div>
 
+    <div th:fragment="googleCalendar">
+        <!--Add buttons to initiate auth sequence and sign out-->
+        <div class = "card">
+            <div class = "card-header">Google Calendar Sync</div>
+                <div class = "card-body">
+                    <p>Sync your LetsMeet events with your Google Calendar. Requires events with dates/times and whitelisted Google account.</p>
+                    <center>
+                        <div class = "row">
+                            <button id="authorize_button" style="display: block;" class = "btn btn-primary btn-block">Google Sign In</button>
+                            <div class = "col col-lg-2">
+                                <button id="signout_button" style="display: none;" class = "btn btn-danger">Sign Out</button>
+                            </div>
+                            <div class = "col-md-auto">
+                                <button class = "btn btn-success" onclick= "addevent()" type = "button" id = "syncButton" style = "display:none;">Sync LetsMeet Events with Google Calendar</button>
+                            </div>
+                    </center>
+                </div>
+            </div>
+        </div>
+        <pre id="content2" style="white-space: pre-wrap;"></pre>
+
+        <script type="text/javascript">
+
+            console.log(thearrayofevents);
+
+            // Client ID and API key from the Developer Console
+            var CLIENT_ID = '164492643464-2blf4kgnb9ss7kpqc34q9vp1r6r1e4f8.apps.googleusercontent.com';
+            var API_KEY = 'AIzaSyCgRpI_4mK4C98iJX-CklyncB3jZRfMljU';
+
+            // Array of API discovery doc URLs for APIs used by the quickstart
+            var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+
+            // Authorization scopes required by the API; multiple scopes can be
+            // included, separated by spaces.
+            var SCOPES = "https://www.googleapis.com/auth/calendar";
+
+            var authorizeButton = document.getElementById('authorize_button');
+            var signoutButton = document.getElementById('signout_button');
+            var syncButton = document.getElementById('syncButton');
+
+            /**
+             *  On load, called to load the auth2 library and API client library.
+             */
+            function handleClientLoad() {
+                gapi.load('client:auth2', initClient);
+            }
+
+            /**
+             *  Initializes the API client library and sets up sign-in state
+             *  listeners.
+             */
+            function initClient() {
+                gapi.client.init({
+                    apiKey: API_KEY,
+                    clientId: CLIENT_ID,
+                    discoveryDocs: DISCOVERY_DOCS,
+                    scope: SCOPES
+                }).then(function () {
+                    // Listen for sign-in state changes.
+                    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+                    // Handle the initial sign-in state.
+                    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                    authorizeButton.onclick = handleAuthClick;
+                    signoutButton.onclick = handleSignoutClick;
+                }, function(error) {
+                    appendPre(JSON.stringify(error, null, 2));
+                });
+            }
+
+            /**
+             *  Called when the signed in status changes, to update the UI
+             *  appropriately. After a sign-in, the API is called.
+             */
+            function updateSigninStatus(isSignedIn) {
+                if (isSignedIn) {
+                    authorizeButton.style.display = 'none';
+                    signoutButton.style.display = 'block';
+                    syncButton.style.display = 'block';
+                    listUpcomingEvents();
+                } else {
+                    authorizeButton.style.display = 'block';
+                    signoutButton.style.display = 'none';
+                    syncButton.style.display = 'none';
+                }
+            }
+
+            /**
+             *  Sign in the user upon button click.
+             */
+            function handleAuthClick(event) {
+                gapi.auth2.getAuthInstance().signIn();
+            }
+
+            /**
+             *  Sign out the user upon button click.
+             */
+            function handleSignoutClick(event) {
+                gapi.auth2.getAuthInstance().signOut();
+            }
+
+            /**
+             * Append a pre element to the body containing the given message
+             * as its text node. Used to display the results of the API call.
+             *
+             * @param {string} message Text to be placed in pre element.
+             */
+            function appendPre(message) {
+                var pre = document.getElementById('content2');
+                var textContent = document.createTextNode(message + '\n');
+                pre.appendChild(textContent);
+            }
+
+
+
+            function addevent() {
+
+                for (var i = 0; i < thearrayofevents.length; i++) {
+
+                    for (var j = 0; j < thearrayofevents[i].eventProperties.times.length; j++) {
+
+                        var event = {
+
+                            'summary': thearrayofevents[i].name,
+                            'start': {
+
+                                'dateTime': thearrayofevents[i].eventProperties.times[j].start,
+
+                            },
+                            'end' : {
+
+                                'dateTime' : thearrayofevents[i].eventProperties.times[j].end,
+
+                            }
+                        }
+
+                        var request = gapi.client.calendar.events.insert({
+                            'calendarId': 'primary',
+                            'resource': event
+                        });
+
+                        request.execute(function (event) {
+                            appendPre('Event created: ' + event.htmlLink);
+                        });
+
+                    }
+
+                }
+
+            }
+
+        </script>
+
+        <script defer src="https://apis.google.com/js/api.js"
+                onload="this.onload=function(){};handleClientLoad()"
+                onreadystatechange="if (this.readyState === 'complete') this.onload()">
+        </script>
+
+    </div>
+
 </body>
 
