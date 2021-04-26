@@ -265,6 +265,81 @@
             //NEED AN ARRAY OF FACILITIES INSTEAD OF COUNTRIES
             //NEED AN ARRAY OF FACILITIES INSTEAD OF COUNTRIES
             
+            function autocomplete(inp, arr) {
+                var current;
+                inp.addEventListener("input", function(e) {
+                    var x, y, i, val = this.value;
+                    closeAllLists();
+                    if (!val) { return false;}
+                    current = -1;
+                    x = document.createElement("DIV");
+                    x.setAttribute("id", this.id + "autocomplete-list");
+                    x.setAttribute("class", "autocomplete-items");
+                    this.parentNode.appendChild(x);
+                    for (i = 0; i < arr.length; i++) {
+                        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                            y = document.createElement("DIV");
+                            y.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                            y.innerHTML += arr[i].substr(val.length);
+                            y.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                            y.addEventListener("click", function(e) {
+                                inp.value = this.getElementsByTagName("input")[0].value;
+                                closeAllLists();
+                                });
+                            x.appendChild(y);
+                            }
+                        }
+                    });
+                
+                inp.addEventListener("keydown", function(e) {
+                    var x = document.getElementById(this.id + "autocomplete-list");
+                    if (x) x = x.getElementsByTagName("div");
+                        if (e.keyCode == 40) {
+                        current++;
+                        addActive(x);
+                        } else if (e.keyCode == 38) {
+                            current--;
+                            addActive(x);
+                        } else if (e.keyCode == 13) {
+                            e.preventDefault();
+                            if (current > -1) {
+                                if (x) x[current].click();
+                            }
+                        }
+                    });
+                
+                function addActive(x) {
+                    if (!x) return false;
+                    removeActive(x);
+                    if (current >= x.length) current = 0;
+                    if (current < 0) current = (x.length - 1);
+                    x[current].classList.add("autocomplete-active");
+                }
+                
+                function removeActive(x) {
+                    for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                    }
+                }
+                
+                function closeAllLists(elmnt) {
+                    var x = document.getElementsByClassName("autocomplete-items");
+                    for (var i = 0; i < x.length; i++) {
+                        if (elmnt != x[i] && elmnt != inp) {
+                            x[i].parentNode.removeChild(x[i]);
+                        }
+                    }
+                }
+                
+                document.addEventListener("click", function (e) {
+                    closeAllLists(e.target);
+                    });
+                }
+
+            autocomplete(document.getElementById("venues"), facilities);
+            
+            
+            
             
             $(document).ready(function () {
                 $('#addRange').click(function () {
