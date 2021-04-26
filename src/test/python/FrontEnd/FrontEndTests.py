@@ -56,24 +56,32 @@ class FrontEndTests(unittest.TestCase):
 
         # ---- SECOND CARD ON HOME PAGE: END ----
 
-    def testLogin(self):
+    def testLoginAndLogout(self):
 
+        self.runner.driver.get("http://localhost:8080/login")
 
-        loginButton = self.runner.driver.find_elements_by_xpath('/html/body/div[3]/div[2]/div[1]/div/nav/div/div/ul/li[2]/button')[0]
-        loginButton.click()
-
-        username = self.runner.driver.find_elements_by_xpath('//*[@id="myModal"]/div/div/div[2]/div/div/form/div[1]/input')
+        username = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[1]/input')[0]
         username.send_keys("123@123.com")
-        password = self.runner.driver.find_elements_by_xpath('//*[@id="myModal"]/div/div/div[2]/div/div/form/div[2]/input')
+
+        password = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[2]/input')[0]
         password.send_keys("123")
 
-        submitLoginButton = self.runner.driver.find_elements_by_xpath('//*[@id="myModal"]/div/div/div[2]/div/div/form/button')[0]
+        loginButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/button')[0]
+        loginButton.click()
 
-        submitLoginButton.click()
+        successLoginMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/div')[0].get_attribute("innerHTML")
+        self.assertEqual('<i class="bi bi-check-circle-fill"></i><a> You have logged in as Faizan Mohiuddin</a> ', successLoginMessage, "TEST: Login message after logging in.")
 
-        loginSuccessMessage = self.runner.driver.find_element_by_class_name('alert alert-success').get_attribute("innerHTML")
+        # LOGGING OUT START
 
-        self.assertEqual("something", loginSuccessMessage, "TEST: Login alert success")
+        userButton = self.runner.driver.find_elements_by_xpath('//*[@id="dropdownMenuButton2"]')[0]
+        userButton.click()
+
+        logoutButton = self.runner.driver.find_elements_by_xpath('//*[@id="navbarSupportedContent"]/ul/li[3]/div/ul/li[4]/a')[0]
+        logoutButton.click()
+
+        logoutMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/div')[0].get_attribute("innerHTML")
+        self.assertEqual('<i class="bi bi-check-circle-fill"></i><a> You have successfully logged out.</a> ', logoutMessage, "TEST: Logout message after logging out.")
 
     def tearDown(self):
         self.runner.close()
