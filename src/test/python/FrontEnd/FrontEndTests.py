@@ -1,4 +1,7 @@
 import unittest
+import random
+import string
+
 from Runner import *
 from TestingMethods import *
 
@@ -83,7 +86,9 @@ class FrontEndTests(unittest.TestCase):
         logoutMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/div')[0].get_attribute("innerHTML")
         self.assertEqual('<i class="bi bi-check-circle-fill"></i><a> You have successfully logged out.</a> ', logoutMessage, "TEST: Logout message after logging out.")
 
-    def failedLoginAttempt(self):
+    def testFailedLoginAttempt(self):
+
+        self.runner.driver.get("http://localhost:8080/logout")
 
         self.runner.driver.get("http://localhost:8080/login")
 
@@ -96,9 +101,88 @@ class FrontEndTests(unittest.TestCase):
         loginButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/button')[0]
         loginButton.click()
 
-        failedLoginMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/div')[0].get_attribute("innerHTML")
-        self.assertEqual('<test ', failedLoginMessage, "TEST: Login message after failed logging in.")
+        failedLoginMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]')[0]
+        failedLoginMessage = failedLoginMessage.get_attribute("innerHTML")
 
+        self.assertEqual('There was a problem logging in!', failedLoginMessage, "TEST: Login message after failed logging in.")
+
+    def testCreateEvent(self):
+
+        # LOGIN
+
+        self.runner.driver.get("http://localhost:8080/login")
+
+        username = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[1]/input')[0]
+        username.send_keys("123@123.com")
+
+        password = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[2]/input')[0]
+        password.send_keys("123")
+
+        loginButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/button')[0]
+        loginButton.click()
+
+        # CREATE EVENT
+
+        self.runner.driver.get("http://localhost:8080/event/new")
+
+        eventName = self.runner.driver.find_elements_by_xpath('//*[@id="eventDTO"]/div[1]/input[1]')[0]
+
+        letters = string.ascii_letters
+        numbers = string.digits
+        punctuation = string.punctuation
+
+        letters = letters + numbers + punctuation
+        eventNameString = ''.join(random.choice(letters) for i in range(40))
+
+        eventNameString = "SELENIUM TEST: " + eventNameString
+
+        eventName.send_keys(eventNameString)
+
+        eventDescription = self.runner.driver.find_elements_by_xpath('//*[@id="eventDTO"]/div[1]/textarea')[0]
+
+        eventDescriptionString = ''.join(random.choice(letters) for i in range(75))
+        eventDescriptionString = "SELENIUM TEST: " + eventDescriptionString
+
+        eventDescription.send_keys(eventDescriptionString)
+
+        submitButton = self.runner.driver.find_elements_by_xpath('//*[@id="btnSubmit"]')[0]
+        submitButton.click()
+
+        eventCreatedMessage = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div[1]/div/a')[0]
+        eventCreatedMessage = eventCreatedMessage.get_attribute("innerHTML")
+
+        self.assertEqual(' Event created!', eventCreatedMessage, "TEST: Creating an Event.")
+
+    def testSearchVenues(self):
+
+        # LOGIN
+
+        self.runner.driver.get("http://localhost:8080/login")
+
+        username = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[1]/input')[0]
+        username.send_keys("123@123.com")
+
+        password = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/div[2]/input')[0]
+        password.send_keys("123")
+
+        loginButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/div/div/form/button')[0]
+        loginButton.click()
+
+        self.runner.driver.get("http://localhost:8080/Venues")
+
+        venueName = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[2]/form/div[1]/input')[0]
+        venueName.send_keys("Kinnaird Head")
+
+        searchButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[2]/form/button')[0]
+        searchButton.click()
+
+        resultButton = self.runner.driver.find_elements_by_xpath('//*[@id="content"]/div[3]/a/div/div')[0]
+        resultButton.click()
+
+        venueNameText = self.runner.driver.find_elements_by_xpath('/html/body/div[4]/div/h1/span')[0]
+        venueNameText = venueNameText.get_attribute("innerHTML")
+
+        self.assertEqual('Kinnaird Head', venueNameText, "TEST: Seaching for venue.")
 
     def tearDown(self):
         self.runner.close()
