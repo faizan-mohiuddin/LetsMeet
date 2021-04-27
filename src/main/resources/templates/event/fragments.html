@@ -480,9 +480,7 @@
                                             <div class="span10">
                                                 <h5 class="card-text">${poll.name}</h5>`;
                     for (i in poll.options) {
-                        if (poll.options[i][1] != 0) {
-                            pollMarkup += poll.options[i][0] + " " + poll.options[i][1] + "<br>";
-                        }
+                        pollMarkup += poll.options[i][0] + " " + poll.options[i][1] + "<br>";
                     }
                     pollMarkup += `</div>
                                    </div>
