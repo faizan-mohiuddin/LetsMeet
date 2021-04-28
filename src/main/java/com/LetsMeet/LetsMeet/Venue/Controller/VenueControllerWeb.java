@@ -139,7 +139,6 @@ public class VenueControllerWeb {
             model.addAttribute("images", true);
             model.addAttribute("firstImage", images.get(0));
             images.remove(0);
-            System.out.println(images);
             model.addAttribute("Images", images);
         }
 

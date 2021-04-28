@@ -320,7 +320,7 @@ public class UserService implements UserServiceInterface {
                 user.getEmail(), user.getSalt());
 
         // Add to DB
-        long tokenExpires = Instant.now().getEpochSecond() + 3600;  // Token expires an hour from when it was created
+        long tokenExpires = Instant.now().getEpochSecond() + 10800;  // Token expires an hour from when it was created 3600 = 1 hour
         //String feedback = dao.createToken(user.getUUID().toString(), token, tokenExpires);
         if(Boolean.TRUE.equals(tokenDao.save(new Token(token, user.getUUID(), tokenExpires)))) {
             return token;
