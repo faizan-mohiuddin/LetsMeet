@@ -913,30 +913,15 @@
     </div>
 
     <div th:fragment="googleCalendar">
-        <!--Add buttons to initiate auth sequence and sign out-->
         <div class = "card">
             <div class = "card-header">Google Calendar Sync</div>
-                <div class = "card-body">
-                    <p>Sync your LetsMeet events with your Google Calendar. Requires events with dates/times and whitelisted Google account.</p>
-                    <center>
-                        <div class = "row">
-                            <button id="authorize_button" style="display: block;" class = "btn btn-primary btn-block">Google Sign In</button>
-                            <div class = "col col-lg-2">
-                                <button id="signout_button" style="display: none;" class = "btn btn-danger">Sign Out</button>
-                            </div>
-                            <div class = "col-md-auto">
-                                <button class = "btn btn-success" onclick= "addevent()" type = "button" id = "syncButton" style = "display:none;">Sync LetsMeet Events with Google Calendar</button>
-                            </div>
-                    </center>
-                </div>
-            </div>
-        </div>
-        <pre id="content2" style="white-space: pre-wrap;"></pre>
+            <div class = "card-body">
+                <p>Sync your LetsMeet events with your Google Calendar. Requires events with dates/times and whitelisted Google account.</p>
+        <button id="authorize_button" type = "button" style="display: none;" class = "btn btn-primary btn-block">Authorize</button>
+        <button id="signout_button" type = "button" style="display: none;" class = "btn btn-danger">Sign Out</button>
+        <button id = "syncButton" onclick = "addevent()"  style = "display:block;" type = "button" class = "btn btn-primary">Sync</button>
 
         <script type="text/javascript">
-
-            console.log(thearrayofevents);
-
             // Client ID and API key from the Developer Console
             var CLIENT_ID = '164492643464-2blf4kgnb9ss7kpqc34q9vp1r6r1e4f8.apps.googleusercontent.com';
             var API_KEY = 'AIzaSyCgRpI_4mK4C98iJX-CklyncB3jZRfMljU';
@@ -948,9 +933,9 @@
             // included, separated by spaces.
             var SCOPES = "https://www.googleapis.com/auth/calendar";
 
+            var syncButton = document.getElementById('syncButton');
             var authorizeButton = document.getElementById('authorize_button');
             var signoutButton = document.getElementById('signout_button');
-            var syncButton = document.getElementById('syncButton');
 
             /**
              *  On load, called to load the auth2 library and API client library.
@@ -1020,12 +1005,10 @@
              * @param {string} message Text to be placed in pre element.
              */
             function appendPre(message) {
-                var pre = document.getElementById('content2');
+                var pre = document.getElementById('content');
                 var textContent = document.createTextNode(message + '\n');
                 pre.appendChild(textContent);
             }
-
-
 
             function addevent() {
 
@@ -1065,11 +1048,10 @@
 
         </script>
 
-        <script defer src="https://apis.google.com/js/api.js"
+        <script async defer src="https://apis.google.com/js/api.js"
                 onload="this.onload=function(){};handleClientLoad()"
                 onreadystatechange="if (this.readyState === 'complete') this.onload()">
         </script>
-
     </div>
 
 </body>
