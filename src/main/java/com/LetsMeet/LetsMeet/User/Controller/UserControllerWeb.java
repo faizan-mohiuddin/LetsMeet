@@ -111,7 +111,7 @@ public class UserControllerWeb {
                 this.loginToSession(useremail, userpassword, model, session);
 
                 redirectAttributes.addFlashAttribute("notice", response);
-                return "saveuser";
+                return "redirect:/Home";
             }
         } else {
 

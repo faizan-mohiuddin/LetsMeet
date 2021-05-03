@@ -46,10 +46,11 @@ public class AlgorithmResults {
     @Test
     @Order(1)
     public void algorithmPerformanceTest(){
-        int amountUsersToBeGenerated = 0;
+        int amountUsersToBeGenerated = 100;
         TestingUsers user;
 
         for(int i = 0; i < amountUsersToBeGenerated; i ++){
+            System.out.println(String.format("Index: %d", i));
             // Create user
             this.generateUser();
             user = testUsers.get(testUsers.size() - 1);
@@ -150,8 +151,7 @@ public class AlgorithmResults {
         // Run test
         // Login as caelmilne2001@gmail.com
 
-        System.out.println("Starting test");
-        long totalTime;
+        System.out.println("\nStarting test");
 
         // Start timer
         Event event = eventService.get(UUID.fromString("7fc4a934-4398-4e72-b664-a9fded0efeb3")).get();
@@ -196,7 +196,6 @@ public class AlgorithmResults {
 
         user.token = this.userController.API_Login(user.email, user.password);
         testUsers.add(user);
-        System.out.println("Generated user");
     }
 
     private void login(TestingUsers user){
