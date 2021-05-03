@@ -1,204 +1,227 @@
 <!DOCTYPE html>
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <title>Lets Meet</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 </head>
 
 <body>
-<div th:insert="fragments/layout :: navbar"></div>
-
-<div class="jumbotron">
-    <div class="container">
-        <h1><span th:text="${venue.getName()}"></span></h1>
-        <h3><span th:text="${venue.business.getName()}"></span></h3>
-        <h4><span th:text="${venue.getAddress()}"></span></h4>
-    </div>
-    <div class="container" th:if="${venue.getCurrentTemperature() != null}">
-        <h5 th:text="'Current Temperature at this Venue: ' + ${venue.getCurrentTemperature()} + 'C'"></h5>
-    </div>
-</div>
-
 <div class="container">
-    <h2>Facilities within this Venue</h2>
-    <hr class="featurette-divider">
-    <div th:if="${facilities}">
-        <table class = "table table">
-            <thead>
-            <tr>
-                <th scope = "col">Facility</th>
-                <th scope = "col"></th>
-                <th scope = "col"></th>
-                <th scope = "col"></th>
-                <th scope = "col"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each = "f : ${venue.getFacilities()}" id="businessRow">
-                <div th:if ="${f}">
-                    <td th:text = "${f}"></td>
-                    <td></td>
-                    <td th:if="${permission}"><form th:action = "@{/Venue/{ID}/facility/{Facility}
-                    (ID=${venue.getUUID().toString()}, Facility=${f})}" method = "post">
-                        <button type="submit" class="btn btn-primary">Remove</button>
-                    </form></td>
-                </div>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <div th:insert="fragments/layout :: sidebar"></div>
 
-    <div class="alert alert-warning" th:unless="${facilities}">This Venue has no registered facilities.</div>
+    <!-- Page Content  -->
+    <div id="content">
 
-    <div class="alert alert-warning" th:unless="${venue.getLongitude()}">No location has been set for this Venue.</div>
-    <div class th:if = "${venue.getLongitude()}">
+        <div th:insert="fragments/layout :: navbar"></div>
 
-    <input type = "hidden" id = "longitudeformarker" th:value = "${venue.getLongitude()}"/>
-    <input type = "hidden" id = "latitudeformarker" th:value = "${venue.getLatitude()}"/>
-
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <style type="text/css">
-        /* Always set the map height explicitly to define the size of the div
-         * element that contains the map. */
-        #map {
-            height: 100%;
-        }
-
-        /* Optional: Makes the sample page fill the window. */
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-    <script>
-        // In this example, we center the map, and add a marker, using a LatLng object
-        // literal instead of a google.maps.LatLng object. LatLng object literals are
-        // a convenient way to add a LatLng coordinate and, in most cases, can be used
-        // in place of a google.maps.LatLng object.
-        let map;
-
-        function initMap() {
-            var markerLongitude = $("#longitudeformarker").val();
-            var markerLatitude = $("#latitudeformarker").val();
-            const mapOptions = {
-                zoom: 12,
-                center: { lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude) },
-                streetViewControl: false,
-                mapTypeControl: false,
-            };
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
-            console.log(markerLongitude);
-            console.log(markerLatitude);
-            const marker = new google.maps.Marker({
-                // The below line is equivalent to writing:
-                // position: new google.maps.LatLng(-34.397, 150.644)
-                position: { lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude) },
-                map: map,
-            });
-
-            const geocoder = new google.maps.Geocoder();
-
-            // You can use a LatLng literal in place of a google.maps.LatLng object when
-            // creating the Marker object. Once the Marker object is instantiated, its
-            // position will be available as a google.maps.LatLng object. In this case,
-            // we retrieve the marker's position using the
-            // google.maps.LatLng.getPosition() method.
-            const infowindow = new google.maps.InfoWindow();
-            function geocodeLatLng(geocoder, map, infowindow) {
-                const latlng = {
-                    lat: parseFloat(markerLatitude),
-                    lng: parseFloat(markerLongitude),
-                };
-                geocoder.geocode({ location: latlng }, (results, status) => {
-                    if (status === "OK") {
-                        if (results[0]) {
-                            map.setZoom(11);
-                            const marker = new google.maps.Marker({
-                                position: latlng,
-                                map: map,
-                            });
-                            infowindow.setContent(results[0].formatted_address);
-                            infowindow.open(map, marker);
-                        } else {
-                            window.alert("No results found");
-                        }
-                    } else {
-                        window.alert("Geocoder failed due to: " + status);
-                    }
-                });
-            }
-            google.maps.event.addListener(marker, "click", function () {
-                geocodeLatLng(geocoder, map, infowindow);
-            })
-        }
-    </script>
-    <div id="map" style="clear:both; height:400px;"></div>
-    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
-    <script
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=&v=weekly"
-            async
-    ></script>
-
-    </div>
-
-    <div class="container">
-        <h2>Venue Opening times</h2>
-        <hr class="featurette-divider">
-        <div class="alert alert-warning" th:if="${openTimes == null}">This Venue has no registered Opening Times.</div>
-
-        <div class="row" th:each="t : ${openTimes}">
-            <p th:text="${t[0] + ':  ' + t[1] + ' -> ' + t[2]}"></p>
+        <div class="jumbotron">
+            <div class="container">
+                <h1><span th:text="${venue.getName()}"></span></h1>
+                <h3><span th:text="${venue.business.getName()}"></span></h3>
+                <h4><span th:text="${venue.getAddress()}"></span></h4>
+            </div>
+            <div class="container" th:if="${venue.getCurrentTemperature() != null}">
+                <h5 th:text="'Current Temperature at this Venue: ' + ${venue.getCurrentTemperature()} + 'C'"></h5>
+            </div>
         </div>
-    </div>
 
-    <div class="container" th:if="${images}">
-        <hr class="featurette-divider">
-        <h2>Images for this Venue</h2>
-        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-                <li data-target="#carouselExampleIndicators" th:each="i : ${Images}" th:data-slide-to="${i[0] -1}"></li>
-            </ol>
+        <div class="container">
+            <h3>Facilities</h3>
+            <hr class="featurette-divider"/>
+            <div th:if="${facilities}">
+                <table class="table table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Facility</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr id="businessRow" th:each="f : ${venue.getFacilities()}">
+                        <div th:if="${f}">
+                            <td th:text="${f}"></td>
+                            <td></td>
+                            <td th:if="${permission}">
+                                <form method="post" th:action="@{/Venue/{ID}/facility/{Facility}
+                    (ID=${venue.getUUID().toString()}, Facility=${f})}">
+                                    <button class="btn btn-primary" type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </div>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img class="d-block w-100" th:src="${firstImage[1]}" alt="First slide">
-                </div>
+            <div class="alert alert-primary" th:unless="${facilities}">No facilities specified.</div>
 
-                <div class="carousel-item" th:each="i : ${Images}">
-                    <img class="d-block w-100" th:src="${i[1]}" alt="Second slide">
-                </div>
+            <div class="alert alert-primary" th:unless="${venue.getLongitude()}">No location specified.</div>
+
+            <div class th:if="${venue.getLongitude()}">
+
+                <input id="longitudeformarker" th:value="${venue.getLongitude()}" type="hidden"/>
+                <input id="latitudeformarker" th:value="${venue.getLatitude()}" type="hidden"/>
+
+                <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+                <style type="text/css">
+                    /* Always set the map height explicitly to define the size of the div
+                     * element that contains the map. */
+                    #map {
+                        height: 100%;
+                    }
+
+                    /* Optional: Makes the sample page fill the window. */
+                    html,
+                    body {
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                    }
+                </style>
+                <script>
+                    // In this example, we center the map, and add a marker, using a LatLng object
+                    // literal instead of a google.maps.LatLng object. LatLng object literals are
+                    // a convenient way to add a LatLng coordinate and, in most cases, can be used
+                    // in place of a google.maps.LatLng object.
+                    let map;
+
+                    function initMap() {
+                        var markerLongitude = $("#longitudeformarker").val();
+                        var markerLatitude = $("#latitudeformarker").val();
+                        const mapOptions = {
+                            zoom: 12,
+                            center: {lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude)},
+                            streetViewControl: false,
+                            mapTypeControl: false,
+                        };
+                        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+                        console.log(markerLongitude);
+                        console.log(markerLatitude);
+                        const marker = new google.maps.Marker({
+                            // The below line is equivalent to writing:
+                            // position: new google.maps.LatLng(-34.397, 150.644)
+                            position: {lat: parseFloat(markerLatitude), lng: parseFloat(markerLongitude)},
+                            map: map,
+                        });
+
+                        const geocoder = new google.maps.Geocoder();
+
+                        // You can use a LatLng literal in place of a google.maps.LatLng object when
+                        // creating the Marker object. Once the Marker object is instantiated, its
+                        // position will be available as a google.maps.LatLng object. In this case,
+                        // we retrieve the marker's position using the
+                        // google.maps.LatLng.getPosition() method.
+                        const infowindow = new google.maps.InfoWindow();
+
+                        function geocodeLatLng(geocoder, map, infowindow) {
+                            const latlng = {
+                                lat: parseFloat(markerLatitude),
+                                lng: parseFloat(markerLongitude),
+                            };
+                            geocoder.geocode({location: latlng}, (results, status) => {
+                                if (status === "OK") {
+                                    if (results[0]) {
+                                        map.setZoom(11);
+                                        const marker = new google.maps.Marker({
+                                            position: latlng,
+                                            map: map,
+                                        });
+                                        infowindow.setContent(results[0].formatted_address);
+                                        infowindow.open(map, marker);
+                                    } else {
+                                        window.alert("No results found");
+                                    }
+                                } else {
+                                    window.alert("Geocoder failed due to: " + status);
+                                }
+                            });
+                        }
+
+                        google.maps.event.addListener(marker, "click", function () {
+                            geocodeLatLng(geocoder, map, infowindow);
+                        })
+                    }
+                </script>
+                <div id="map" style="clear:both; height:400px;"></div>
+                <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+                <script
+                        async
+                        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=&v=weekly"
+                ></script>
 
             </div>
 
-            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
-            </a>
+            <div class="container pt-3" >
+                <h2>Opening Times</h2>
+                <hr class="featurette-divider">
+                <div class="alert alert-primary" th:if="${openTimes == null}">This venue has no opening times.</div>
+
+                <div class="row" th:each="t : ${openTimes}">
+                    <p th:text="${t[0] + ':  ' + t[1] + ' -> ' + t[2]}"></p>
+                </div>
+            </div>
+
+            <div class="container" th:if="${images}">
+                <hr class="featurette-divider">
+                <h2>Photos</h2>
+                <div class="carousel slide" data-ride="carousel" id="carouselExampleIndicators">
+                    <ol class="carousel-indicators">
+                        <li class="active" data-slide-to="0" data-target="#carouselExampleIndicators"></li>
+                        <li data-target="#carouselExampleIndicators" th:data-slide-to="${i[0] -1}"
+                            th:each="i : ${Images}"></li>
+                    </ol>
+
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img alt="First slide" class="d-block w-100" th:src="${firstImage[1]}">
+                        </div>
+
+                        <div class="carousel-item" th:each="i : ${Images}">
+                            <img alt="Second slide" class="d-block w-100" th:src="${i[1]}">
+                        </div>
+
+                    </div>
+
+                    <a class="carousel-control-prev" data-slide="prev" href="#carouselExampleIndicators" role="button">
+                        <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" data-slide="next" href="#carouselExampleIndicators" role="button">
+                        <span aria-hidden="true" class="carousel-control-next-icon"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="container" th:if="${permission}">
+                <hr class="featurette-divider">
+                <h4>Owner privileges</h4>
+                <a class="btn btn-primary" th:href="@{/Venue/{venueID}/edit(venueID = ${venue.getUUID().toString()})}">Edit
+                    Venue</a>
+                <a class="btn btn-primary"
+                   th:href="@{/Venue/{venueID}/delete(venueID = ${venue.getUUID().toString()})}">Delete Venue</a>
+                <a class="btn btn-primary"
+                   th:href="@{/Venue/{venueID}/Images (venueID = ${venue.getUUID().toString()})}">Modify Venue
+                    Images</a>
+            </div>
 
         </div>
+
+        <div th:insert="footer :: footer"></div>
     </div>
 
-<div th:if="${permission}" class="container">
-    <hr class="featurette-divider">
-    <h4>Owner privileges</h4>
-    <a class="btn btn-primary" th:href="@{/Venue/{venueID}/edit(venueID = ${venue.getUUID().toString()})}">Edit Venue</a>
-    <a class="btn btn-primary" th:href="@{/Venue/{venueID}/delete(venueID = ${venue.getUUID().toString()})}">Delete Venue</a>
-    <a class="btn btn-primary" th:href="@{/Venue/{venueID}/Images (venueID = ${venue.getUUID().toString()})}">Modify Venue Images</a>
 </div>
-
-<div th:insert = "footer :: footer"></div>
+<div th:insert="fragments/layout :: footer"></div>
 </body>
 
 <script>
@@ -212,8 +235,10 @@
             slides[i].style.display = "none";
         }
         slideIndex++;
-        if (slideIndex > slides.length) {slideIndex = 1}
-        slides[slideIndex-1].style.display = "block";
+        if (slideIndex > slides.length) {
+            slideIndex = 1
+        }
+        slides[slideIndex - 1].style.display = "block";
         setTimeout(showSlides, 2000); // Change image every 2 seconds
     }
 </script>

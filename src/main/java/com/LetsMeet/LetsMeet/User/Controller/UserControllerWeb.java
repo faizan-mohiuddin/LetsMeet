@@ -1,17 +1,11 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -400,6 +394,28 @@ public class UserControllerWeb {
         model.addAttribute("businesses", businesses);
 
         return "User/MyAccount";
+    }
+
+    @GetMapping("/ourtechnology")
+    public String ourTechPage(HttpSession session, Model model) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        model.addAttribute("user", user);
+
+        return "ourtechnology";
+
+    }
+
+    @GetMapping("/aboutus")
+    public String aboutUsPage(HttpSession session, Model model) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        model.addAttribute("user", user);
+
+        return "aboutus";
+
     }
 
     // Error catching

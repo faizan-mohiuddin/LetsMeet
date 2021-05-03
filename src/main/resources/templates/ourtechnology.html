@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Let's Meet: Home</title>
+
+    <style th:inline="text">
+        .body{
+            background-color: #191345;
+        }
+
+        .cover{
+            background-image: url("images/Background 18.svg");
+            background-size: cover;
+            height: 25pc;
+            border-radius: 0;
+            top: 0;
+        }
+
+        .jumbotron{
+            box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+
+</head>
+
+<body >
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
+
+    <!-- Page Content  -->
+    <div id="content" >
+
+        <div th:insert="fragments/layout :: navbar"></div>
+
+
+        <div class="container">
+
+            <br>
+
+            <div th:insert="fragments/common :: alerts"></div>
+            <div class="jumbotron bg-primary text-white" >
+                <div class="row">
+                    <div class="col-sm-7">
+                        <h1 id = "firstHeader">Java</h1><br>
+                        <a id = "firstParagraph">A powerful object oriented programming language that LetsMeet is written in. It was chosen for its familiarity with the team and its performance.</a>
+                    </div>
+                    <div class="col-sm-4">
+                        <img src="/images/javaLogo.png" class="img-responsive float-right" alt="Responsive image"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jumbotron bg-success text-white">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <img src="/images/springLogo.svg" class="img-responsive float-right" alt="Responsive image"/>
+                        <div>
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <h1>Spring Boot</h1><br>
+                        <a>The Spring framework was used to create LetsMeet's MVC (model-view-controller) architecture.</a><br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jumbotron bg-light text-dark">
+                <div class="row">
+                    <div class="col-sm-7">
+                        <h1>Google Maps/Calendar API</h1><br>
+                        <a>Thanks to Google, LetsMeet is able to provide its users with the ability to meet at a physical location and sync their events with their Google Calendars.</a>
+                    </div>
+                    <div class="col-sm-4">
+                        <img src="/images/googleLogo.png" class="img-responsive float-right" alt="Responsive image"/>
+                        <div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jumbotron bg-warning text-white">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <img src="/images/jsLogo.png" class="img-responsive float-right" alt="Responsive image"/>
+                        <div>
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <h1>JavaScript</h1><br>
+                        <a>JavaScript is one of the most popular website development languages and was used to create a responsive and sophisticated front-end experience.</a><br>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jumbotron bg-secondary text-white">
+                <div class="row">
+                    <div class="col-sm-7">
+                        <h1>Bootstrap</h1><br>
+                        <a>Bootstrap is the popular open-source CSS framework used for creating responsive feeling neatly stylised websites.</a>
+                    </div>
+                    <div class="col-sm-4">
+                        <img src="/images/bootstrapLogo.png" class="img-responsive float-right" alt="Responsive image"/>
+                        <div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+ </div>
+
+        <div th:insert="footer :: footer"></div>
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+
+
+</div>
+</body>
+
+</html>
