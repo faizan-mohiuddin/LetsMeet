@@ -24,7 +24,7 @@ public class Events {
                 times.add(DateTimeRange.fromJson(time));
         event.getEventProperties().setTimes(times);
 
-        event.getEventProperties().setLocation(new Location(eventDTO.getName(), eventDTO.getLatitude(), eventDTO.getLongitude(), eventDTO.getRadius()));
+        event.getEventProperties().setLocation(new Location(eventDTO.getLocation(), eventDTO.getLatitude(), eventDTO.getLongitude(), eventDTO.getRadius()));
         //TODO event.setProperties(properties)
         return event;
     }
