@@ -37,6 +37,21 @@ $(document).ready(function () {
         });
     });
 
+    $('input.required_check').click(function () {
+        let eventID = $(this).parent().parent().parent().parent().parent().find('#eventUUID').text();
+        let userID = $(this).parent().parent().parent().parent().parent().find('#userUUID').text();
+
+        value = $(this).prop('checked');
+        $.ajax({
+            url: `/api/Event/${eventID}/Response/${userID}?Token=${sessionID}&required=${value}`,
+            type: 'PUT',
+            success: function(response){
+                console.log(response);
+                //$('input.required_check').parent().append("ok");
+            }
+        })
+    });
+
     $(document).ajaxError(function(){
         alert("An error occurred!");
     });
