@@ -740,6 +740,9 @@
             strokeWeight: 1,
         });
 
+            var somerad = document.getElementById('myRange').value * 1000;
+            circle.setRadius(somerad);
+
             $('#myRange').change(function() {
             var new_rad = $(this).val();
             var rad = new_rad * 1000;
@@ -893,7 +896,7 @@
         <div class = "form-group">
             <div class = "container">
                 <label for = "myRange">Radius (km): </label>
-                <input type = "range" name = "radius" id = "myRange" value = "1" disabled = "true">
+                <input type = "range" name = "radius" id = "myRange" style = "width: 75%;" step = "0.25" value = "1" disabled>
                 <span id = "demo"></span>
             </div>
         </div>
