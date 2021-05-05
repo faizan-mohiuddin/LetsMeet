@@ -110,7 +110,7 @@
                         </div>
 
 
-                        <a th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
+                        <a th:if="${isOwnerOfEvent}" th:href="@{/event/{eventuuid}/results(eventuuid = ${event.getUUID()})}"
                             class="btn btn-secondary btn-block"><i class="bi bi-calendar-week"></i> Results</a>
 
                         <a th:href="@{/event/{eventuuid}/respond(eventuuid = ${event.getUUID()})}"
