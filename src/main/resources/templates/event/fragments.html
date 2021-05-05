@@ -729,6 +729,7 @@
 
             document.getElementById('thelat').value = place.geometry.location.lat();
             document.getElementById('thelong').value = place.geometry.location.lng();
+            document.getElementById("theLocation").value = input.value;
 
             var circle = new google.maps.Circle({
             map: map,
@@ -812,6 +813,10 @@
             strokeOpacity: 0.5,
             strokeWeight: 1,
         });}
+
+            var somerad = document.getElementById('myRange').value * 1000;
+            circle.setRadius(somerad);
+
             // Add circle overlay and bind to marker
             $('#myRange').change(function() {
             var new_rad = $(this).val();
@@ -888,7 +893,7 @@
         <div class = "form-group">
             <div class = "container">
                 <label for = "myRange">Radius (km): </label>
-                <input type = "range" name = "radius" id = "myRange" value = "0" disabled = "true">
+                <input type = "range" name = "radius" id = "myRange" value = "1" disabled = "true">
                 <span id = "demo"></span>
             </div>
         </div>
