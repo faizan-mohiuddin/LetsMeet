@@ -100,7 +100,7 @@ public class ResultControllerWeb {
             resultsService.selectTimes(event, timeIndex);
             redirectAttributes.addFlashAttribute("success", "Date and time confirmed!");
 
-            if (resultsService.getResult(event).getLocations().getSelected().isEmpty()){
+            if (resultsService.getResult(event).orElseThrow().getLocations().getSelected().isEmpty()){
                 redirectAttributes.addFlashAttribute("info", "Location has not been confirmed. Select your location from below");
                 return "redirect:/event/{eventUUID}/results/location?attendance=30&requiredUsers=false";
             }
@@ -190,7 +190,7 @@ public class ResultControllerWeb {
         }
 
         try{
-            var results = resultsService.getResult(event);
+            var results = resultsService.getResult(event).orElseThrow();
             var location = results.getLocations().getSelected().orElseThrow( () -> new IllegalArgumentException(LOCATION_NOT_FOUND)).getProperty();
             var date = results.getDates().getSelected().orElseThrow(()-> new IllegalArgumentException(DATETIME_NOT_FOUND)).getProperty().getStart();
 
@@ -303,11 +303,17 @@ public class ResultControllerWeb {
         }
 
         try{
-            var result = resultsService.getResult(event);
+            var result = resultsService.getResult(event).orElseGet(() -> resultsService.newEventResult(event));
+
             if (result.getDates().getSelected().isEmpty()){
                 redirectAttributes.addFlashAttribute("info", "Date and times have not been confirmed. Select your preference from the suggestions below");
                 return "redirect:/event/{eventUUID}/results/time?duration=10&attendance=10";
             }
+            else if (result.getLocations().getSelected().isEmpty()){
+                redirectAttributes.addFlashAttribute("info", "Location has not been confirmed. Select your preference from the suggestions below");
+                return "redirect:/event/{eventUUID}/results/location";
+            }
+
 
             model.addAttribute("result", result);
             model.addAttribute("venue", venueService.getVenue(result.getVenueUUID().toString()));
@@ -323,9 +329,15 @@ public class ResultControllerWeb {
             return "event/results/overview";
         }
         catch(Exception e){
+
+            //if (e.getMessage().contains("load event result"))
+            //    return "redirect:/event/{eventUUID}/results/time?duration=10&attendance=10";
+
             LOGGER.error("Could not view results User<{}> Event<{}>: {}", user.getUUID(),event.getUUID(),e.getMessage());
             redirectAttributes.addFlashAttribute("danger", "An error occurred: " + e.getMessage());
-            return "redirect:/event/{eventUUID}/results/time?duration=10&attendance=10";
+
+            return "redirect:/event/{eventUUID}";
+
         }
     }
 

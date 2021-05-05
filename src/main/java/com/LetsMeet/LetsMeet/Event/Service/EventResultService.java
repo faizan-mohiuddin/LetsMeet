@@ -3,6 +3,7 @@ package com.LetsMeet.LetsMeet.Event.Service;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.LetsMeet.LetsMeet.Event.DAO.*;
@@ -51,9 +52,9 @@ public class EventResultService {
         }
     }
 
-    public EventResult getResult(Event event) throws IllegalArgumentException{
+    public Optional<EventResult> getResult(Event event) throws IllegalArgumentException{
         try{
-            return resultDao.get(event.getUUID()).orElseThrow();
+            return resultDao.get(event.getUUID());
         }
         catch(Exception e){
             throw new IllegalArgumentException("Unable to load event result");
