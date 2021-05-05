@@ -211,8 +211,8 @@
                                 <label class="custom-control-label" for="requiredUsersCheck">VIPs Present</label>
                             </div>
 
-                            <label for="attendanceRange" class="form-label">Attendance Rate: <span class="mt-4" id="attendanceValue" th:text="${param.attendance}+'%'"></span></label>
-                            <input type="range" class="custom-range" min="0" max="100" step="10" id="attendanceRange" th:value="${param.attendance}">
+                            <label for="attendanceRange" class="form-label">Attendance Rate: <span class="mt-4" id="attendanceValue" th:text="${(param?.attendance != null)? param.attendance : 20}+'%'"></span></label>
+                            <input type="range" class="custom-range" min="0" max="100" step="10" id="attendanceRange" th:value="${(param?.attendance != null)? param.attendance : 20}">
 
                             <button class="btn btn-block btn-primary mt-2" style=" color: white !important;" id="filter_apply">Apply</button>
                         </div>

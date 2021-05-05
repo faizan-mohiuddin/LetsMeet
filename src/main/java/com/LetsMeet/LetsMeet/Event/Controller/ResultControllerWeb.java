@@ -102,7 +102,7 @@ public class ResultControllerWeb {
 
             if (resultsService.getResult(event).getLocations().getSelected().isEmpty()){
                 redirectAttributes.addFlashAttribute("info", "Location has not been confirmed. Select your location from below");
-                return "redirect:/event/{eventUUID}/results/location";
+                return "redirect:/event/{eventUUID}/results/location?attendance=30&requiredUsers=false";
             }
 
             else
