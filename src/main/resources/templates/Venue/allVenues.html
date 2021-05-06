@@ -14,22 +14,8 @@
 </head>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 <style type="text/css">
-    /* Always set the map height explicitly to define the size of the div
-     * element that contains the map. */
     #map {
         height: 100%;
-    }
-    /* Optional: Makes the sample page fill the window. */
-    html,
-    body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    #description {
-        font-family: Roboto;
-        font-size: 15px;
-        font-weight: 300;
     }
     #infowindow-content .title {
         font-weight: bold;
@@ -40,23 +26,9 @@
     #map #infowindow-content {
         display: inline;
     }
-    .pac-card {
-        margin: 10px 10px 0 0;
-        border-radius: 2px 0 0 2px;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        outline: none;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        background-color: #fff;
-        font-family: Roboto;
-    }
     #pac-container {
         padding-bottom: 12px;
         margin-right: 12px;
-    }
-    .pac-controls {
-        display: inline-block;
-        padding: 5px 11px;
     }
     .pac-controls label {
         font-family: Roboto;
@@ -66,17 +38,9 @@
     #pac-input:focus {
         border-color: #4d90fe;
     }
-    #title {
-        color: #fff;
-        background-color: #4d90fe;
-        font-size: 25px;
-        font-weight: 500;
-        padding: 6px 12px;
-    }
-    #target {
-        width: 345px;
-    }
 </style>
+<input type="hidden" name="latitude" id="thelat"/>
+<input type="hidden" name="longitude" id="thelong"/>
 <script>
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
@@ -118,7 +82,7 @@
         const infowindow = new google.maps.InfoWindow();
         const infowindowContent = document.getElementById("infowindow-content");
         infowindow.setContent(infowindowContent);
-        const marker = new google.maps.Marker({
+        let marker = new google.maps.Marker({
             map,
             anchorPoint: new google.maps.Point(0, -29),
         });
@@ -128,6 +92,7 @@
             const place = autocomplete.getPlace();
             document.getElementById('thelat').value = place.geometry.location.lat();
             document.getElementById('thelong').value = place.geometry.location.lng();
+            console.log("Lat: " + document.getElementById('thelat').value + " Long: " + document.getElementById('thelong').value )
             if (!place.geometry || !place.geometry.location) {
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
@@ -159,24 +124,19 @@
                     "",
                 ].join(" ");
             }
-            infowindowContent.children["place-icon"].src = place.icon;
-            infowindowContent.children["place-name"].textContent = place.name;
-            infowindowContent.children["place-address"].textContent = address;
-            infowindow.open(map, marker);
         });
         var geocoder = new google.maps.Geocoder();
-        var markerr;
         function placeMarker(location) {
-            if (markerr == null)
+            if (marker == null)
             {
-                markerr = new google.maps.Marker({
+                marker = new google.maps.Marker({
                     position: location,
                     map: map
                 });
             }
             else
             {
-                markerr.setPosition(location);
+                marker.setPosition(location);
             }
         }
         google.maps.event.addListener(map, 'click', function(event) {
@@ -190,14 +150,13 @@
                         map.panTo(event.latLng);
                         document.getElementById('thelat').value = results[0].geometry.location.lat();
                         document.getElementById('thelong').value = results[0].geometry.location.lng();
+                        console.log("Lat: " + results[0].geometry.location.lat() + " Long: " + results[0].geometry.location.lng() )
                     }
                 }
             });
         }
         );}
 </script>
-<input type="hidden" name="latitude" id="thelat"/>
-<input type="hidden" name="longitude" id="thelong"/>
 <body>
 <div class="container">
     <div th:insert="fragments/layout :: sidebar"></div>
@@ -274,7 +233,6 @@
 
                             slider.oninput = function() {
                                 output.innerHTML = this.value;
-                                document.getElementById("myRange2").value = parseFloat(document.getElementById("myRange").value);
                             }
 
                         </script>
