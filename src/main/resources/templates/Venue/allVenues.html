@@ -39,8 +39,7 @@
         border-color: #4d90fe;
     }
 </style>
-<input type="hidden" name="latitude" id="thelat"/>
-<input type="hidden" name="longitude" id="thelong"/>
+
 <script>
     function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
@@ -198,6 +197,8 @@
                     <input type="text" class="form-control" name="location" th:value="*{location}"
                            placeholder="Enter location...">
                 </div>
+                <input type="hidden" name="latitude" id="thelat"/>
+                <input type="hidden" name="longitude" id="thelong"/>
                 <div class="col-1">
                     <h6>OR</h6>
                 </div>
@@ -207,7 +208,7 @@
                         <div class="form-group">
                             <label for="eventlocation">Event Location:</label>
                             <div id="pac-container">
-                                <input id="pac-input" class = "form-control" type="text" name = "location" placeholder="Enter a location" />
+                                <input id="pac-input" class = "form-control" type="text" name = "eventLocation" placeholder="Enter a location" />
                             </div>
                         </div>
                         <div id="map" style="clear:both; height:400px;"></div>
