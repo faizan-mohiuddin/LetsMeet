@@ -1,10 +1,12 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.DateTimeRange;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.GradedProperty;
 import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
 
@@ -63,5 +65,16 @@ public class EventLocationSolver {
         double by = b.projectY();
 
         return Math.sqrt(Math.pow(ax-bx,2) - Math.pow(ay-by,2));
+    }
+
+    // return only those ranges which have the duration given or greater
+    public List<GradedProperty<Location>> withLocation(Location duration){
+        List<GradedProperty<Location>> withLocation = new ArrayList<>();
+
+        for (var or : this.solution)
+            if (or.getProperty().compareTo(duration) >= 0) withLocation.add(or);
+
+        this.solution = withLocation;
+        return withLocation;
     }
 }

@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import com.LetsMeet.LetsMeet.Venue.Controller.VenueControllerWeb;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
 * 1 = Sunday
@@ -25,6 +29,8 @@ public class VenueOpenTimes {
     UUID VenueUUID;
     List<List<String>> times = new ArrayList<>(); // [[day, open, close]] ([[int, str, str]])
 
+    private static final Logger LOGGER= LoggerFactory.getLogger(VenueOpenTimes.class);
+
     public VenueOpenTimes(UUID venueUUID){
         this.VenueUUID = venueUUID;
     }
@@ -39,31 +45,36 @@ public class VenueOpenTimes {
         open = open.replaceAll("\"", "");
         close = close.replaceAll("\"", "");
 
-        // Make sure to add to times array in order of day
-        int d = Integer.parseInt(day);
-        List<String> l = new ArrayList<>();
-        l.add(day);
-        l.add(open);
-        l.add(close);
-        if(d == 1 || this.times.size() == 0){
-            this.times.add(l);
-        }else{
-            int index = 0;
-            Boolean added = false;
-
-            for(List<String> t : this.times){
-                int tday = Integer.parseInt(t.get(0));
-                if(d < tday){
-                    this.times.add(index, l);
-                    added = true;
-                    break;
-                }
-            }
-
-            if(!added){
+        try {
+            // Make sure to add to times array in order of day
+            int d = Integer.parseInt(day);
+            List<String> l = new ArrayList<>();
+            l.add(day);
+            l.add(open);
+            l.add(close);
+            if (d == 1 || this.times.size() == 0) {
                 this.times.add(l);
-            }
+            } else {
+                int index = 0;
+                Boolean added = false;
 
+                for (List<String> t : this.times) {
+                    int tday = Integer.parseInt(t.get(0));
+                    if (d < tday) {
+                        this.times.add(index, l);
+                        added = true;
+                        break;
+                    }
+                }
+
+                if (!added) {
+                    this.times.add(l);
+                }
+
+            }
+        }catch(Exception e){
+            // If code reaches here then, day or time is not in correct format
+            LOGGER.warn("Error setting venue time range: {}", e.getMessage());
         }
     }
 

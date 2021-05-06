@@ -2,6 +2,7 @@ package com.LetsMeet.LetsMeet.Venue.Controller;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Venue.Model.ExternalVenue;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
 import com.LetsMeet.LetsMeet.Venue.Service.VenueService;
@@ -194,20 +195,48 @@ public class VenueControllerWeb {
                                @RequestParam(value="VenueName", defaultValue = "") String searchName,
                                @RequestParam(value="Facilities", defaultValue = "") String searchFacilities,
                                @RequestParam(value="location", defaultValue = "") String searchLocation,
-                               @RequestParam(value="longitdue", defaultValue = "") String longitude,
+                               @RequestParam(value="longitude", defaultValue = "") String longitude,
                                @RequestParam(value="latitude", defaultValue = "") String latitude,
-                               @RequestParam(value="radius", defaultValue = "") String radius){
+                               @RequestParam(value="radius", defaultValue = "") String radius,
+                               @RequestParam(value="time", defaultValue = "") String time,
+                               @RequestParam(value="hours", defaultValue = "") String hours,
+                               @RequestParam(value="minutes", defaultValue = "") String minutes,
+                               @RequestParam(value="DaySelect", defaultValue = "") String day,
+                               @RequestParam(value="date", defaultValue = "") String date){
 
         User user = (User) session.getAttribute("userlogin");
         model.addAttribute("user", user);
 
         // searchFacilities should be within square brackets
         if(searchFacilities.length() > 0){
-            searchFacilities = "[\"" + searchFacilities + "\"]";
+            searchFacilities = venueService.formatFacilitiesForSearch(searchFacilities);
+        }
+
+        // Check first character of searchLocation
+        if(searchLocation.length() > 0) {
+            if (searchLocation.charAt(0) == ',') {
+                searchLocation = searchLocation.substring(1);
+            }
         }
 
         // Search for events by what is given
-        List<Venue> venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius);
+        List<Venue> venues;
+        if(date.equals("")) {
+            venues = venueService.search(searchName, searchFacilities, searchLocation, longitude, latitude, radius,
+                    time, hours, minutes, day);
+        }else{
+            venues = venueService.searchWithDate(searchName, searchFacilities, searchLocation, longitude, latitude, radius,
+                    time, hours, minutes, date);
+        }
+
+        // If longitude and latitude are given, use google search
+        if(!longitude.equals("") && !longitude.equals("") && !radius.equals("")){
+            List<ExternalVenue> externalVenues = venueService.externalVenueSearch(Double.parseDouble(longitude),
+                    Double.parseDouble(latitude), Double.parseDouble(radius));
+            model.addAttribute("externalVenues", externalVenues);
+        }
+
+
         model.addAttribute("venues", venues);
 
         return "Venue/allVenues";
@@ -378,5 +407,11 @@ public class VenueControllerWeb {
 
         String destination = String.format("redirect:/Venue/%s", venueUUID);
         return destination;
+    }
+
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
     }
 }

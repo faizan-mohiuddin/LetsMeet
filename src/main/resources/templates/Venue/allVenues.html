@@ -1,19 +1,30 @@
 <!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Lets Meet</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Let's Meet: Home</title>
+
 </head>
 
 <body>
-<div th:insert = "header :: navbar"></div>
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
+
+    <!-- Page Content  -->
+    <div id="content">
+
+        <div th:insert="fragments/layout :: navbar"></div>
 
 <div class="jumbotron">
     <div class="container">
-        <h1>Venues</h1>
+        <h1>Venues Advanced Search</h1>
     </div>
 
     <form th:action="@{/Venues}" enctype="multipart/form-data" th:method="GET">
@@ -31,9 +42,76 @@
         </div>
 
         <div class="form-group">
-            <label for="Location">Location: </label>
-            <input type="text" class="form-control" name="location" th:value="*{location}"
-                   placeholder="Enter location...">
+            <div class="row">
+                <div class="col-3">
+                    <label for="Location">Location Keyword: </label>
+                    <input type="text" class="form-control" name="location" th:value="*{location}"
+                           placeholder="Enter location...">
+                </div>
+                <div class="col-1">
+                    <h6>OR</h6>
+                </div>
+
+                <div class="col-8">
+                    <div th:include="event/fragments :: mapsFragment"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col">
+                    <label for="time">When must the Venue be open?:</label>
+                    <input type="time" class="form-control" step="1" id="time" name="time">
+                </div>
+
+                <div class="col">
+                    <label>How long must the Venue be open for?</label>
+                    <div class="col">
+                        <label for="hours">Hours:</label>
+                        <input type="number" id="hours" name="hours" min="0">
+                    </div>
+                    <div class="col">
+                        <label for="minutes">Minutes:</label>
+                        <input type="number" id="minutes" name="minutes" min="0" max="59">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="row">
+                    <label  for="day">Which day are you planning on visiting?</label>
+                    <select class="DaySelect" id="DaySelect" name="DaySelect">
+                        <option selected value="">Choose Day</option>
+                        <option value="2">Monday</option>
+                        <option value="3">Tuesday</option>
+                        <option value="4">Wednesday</option>
+                        <option value="5">Thursday</option>
+                        <option value="6">Friday</option>
+                        <option value="7">Saturday</option>
+                        <option value="1">Sunday</option>
+                    </select>
+                    </div>
+
+                    <div class="row mt-2">
+                        <label  for="date">Or, tell is when you are planning to attend.</label>
+                        <input type="datetime" class="form-control" name="date" placeholder="dd-mm-yyyy" id="date">
+                        <script>
+                            $(function() {$("#date").datepicker({ format: 'yyyy-mm-dd' })});
+
+                            $(function () {
+                                $('.datepicker').datepicker({
+                                    format: 'mm-dd-yyyy'
+                                });
+                            });
+                        </script>
+                        <script type="text/javascript"
+                                src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js">
+
+                        </script>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Search</button>
@@ -51,6 +129,18 @@
     </a>
 </div>
 
+<div class="container" th:if="${externalVenues}">
+    <h3>Venues not listed on our platform</h3>
+    <div class="card" th:each="ev : ${externalVenues}">
+        <div class="card-body">
+            <h5 class="card-title" th:text="${ev.name}"></h5>
+        </div>
+    </div>
+</div>
+
 <div th:insert = "footer :: footer"></div>
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+</div>
 </body>
 </html>

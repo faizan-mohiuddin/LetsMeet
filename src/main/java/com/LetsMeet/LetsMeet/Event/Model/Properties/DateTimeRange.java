@@ -6,6 +6,9 @@ import java.time.Period;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Map;
+
+import com.google.gson.Gson;
 
 
 public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
@@ -31,6 +34,10 @@ public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
 
     public void setStart(ZonedDateTime start) {
         this.start = start;
+    }
+
+    public void getStartDate(){
+        this.start.toLocalDate();
     }
 
     public ZonedDateTime getEnd() {
@@ -87,12 +94,21 @@ public class DateTimeRange implements Serializable, Comparable<DateTimeRange> {
 
     @Override
     public int compareTo(DateTimeRange o) {
-        // TODO Auto-generated method stub
-        return 0;
+        return this.getStart().compareTo(o.getStart());
     }
     
 
-    
+    public static DateTimeRange fromJson(String json){
+        Map<String,String> tempMap = new Gson().fromJson(json, Map.class);
+        var start = ZonedDateTime.parse(tempMap.get("start"));
+        var end = ZonedDateTime.parse(tempMap.get("end"));
+        return new DateTimeRange(start, end);
+
+    }
+
+    public String toJson(){
+        return String.format(" {\"start\":\"%s\",\"end\":\"%s\"} ", this.start.toString(), this.end.toString());
+    }
 
     
 }

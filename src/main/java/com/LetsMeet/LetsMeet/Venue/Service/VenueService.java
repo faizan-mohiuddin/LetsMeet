@@ -4,17 +4,30 @@ package com.LetsMeet.LetsMeet.Venue.Service;
 import com.LetsMeet.LetsMeet.Business.DAO.BusinessDAO;
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
+import com.LetsMeet.LetsMeet.Utilities.LetsMeetConfiguration;
+import com.LetsMeet.LetsMeet.Utilities.WeatherService;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueBusinessDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueDAO;
 import com.LetsMeet.LetsMeet.Venue.DAO.VenueTimesDAO;
 import com.LetsMeet.LetsMeet.Venue.Model.Venue;
+import com.LetsMeet.LetsMeet.Venue.Model.ExternalVenue;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueBusiness;
 import com.LetsMeet.LetsMeet.User.Model.User;
 import com.LetsMeet.LetsMeet.Venue.Model.VenueOpenTimes;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
@@ -22,6 +35,8 @@ import java.util.*;
 public class VenueService {
 
     private final double p = Math.PI/180;  // Used for calculating distance between 2 sets or longitude and latitude
+
+    private static final Logger LOGGER= LoggerFactory.getLogger(VenueService.class);
 
     @Autowired
     VenueDAO DAO;
@@ -37,6 +52,12 @@ public class VenueService {
 
     @Autowired
     BusinessService businessService;
+
+    @Autowired
+    LetsMeetConfiguration config;
+
+    @Autowired
+    WeatherService weatherService;
 
     public Object[] createVenue(User user, String name, String businessUUID){
         // Returns [String, Venue]
@@ -142,6 +163,13 @@ public class VenueService {
             try {
                 Optional<VenueOpenTimes> times = venueTimesDAO.get(v.getUUID());
                 times.ifPresent(v::setOpenTimes);
+                // Get current weather at venue
+                if(v.getLatitude() != null && v.getLongitude() != null){
+                    String temp = weatherService.getCurrentTemp(v.getLatitude(), v.getLongitude());
+                    if(temp != null){
+                        v.setCurrentTemperature(temp);
+                    }
+                }
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -187,20 +215,28 @@ public class VenueService {
         }
     }
 
-    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude, String radius){
+    public List<Venue> search(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
+                              String radius, String time, String hours, String minutes, String day){
+
         // If neither name nor unparsedFacilitiesList have anything to search for, return all
-        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") && latitude.equals("")){
+        if(name.length() == 0 && unparsedFacilitiesList.equals("") && location.equals("") && longitude.equals("") &&
+                latitude.equals("") && time.equals("") && hours.equals("") && minutes.equals("") && day.equals("")){
             Collection<Venue> venues = DAO.getAll().get();
             List<Venue> v = new ArrayList<>(venues);
             return v;
         }
 
         // Build a query to execute
-        String query = String.format("SELECT * FROM Venue WHERE ");
+        String query = String.format("SELECT DISTINCT Venue.VenueUUID, Venue.Name, Venue.Facilities, Venue.Address, Venue.Longitude, Venue.Latitude " +
+                "FROM Venue, VenueOpeningTimes WHERE ");
 
         boolean nameSearch = false;
         boolean facilitySearch = false;
         boolean locationSearch = false;
+        boolean coordSearch = false;
+        boolean timeSearch = false;
+        boolean durationSearch = false;
+        boolean daySearch = false;
 
         if(name.length() > 0){
             //query = query + String.format("Venue.Name = '%s'", name);
@@ -270,6 +306,7 @@ public class VenueService {
                                 "0.5 - (COS((Venue.Latitude - %f) * %f)/2)" +
                                 " + COS(%f * %f) * COS(Venue.Latitude * %f) * (1 - COS((Venue.Longitude - %f) * %f))/2)) <= %f",
                         dlat, this.p, dlat, this.p, this.p, dlong, this.p, dradius);
+                coordSearch = true;
             }catch (Exception e){
                 // We dont care, carry on with the rest of the search
                 if(!(locationSearch || nameSearch || facilitySearch)){
@@ -277,6 +314,67 @@ public class VenueService {
                     List<Venue> v = new ArrayList<>(venues);
                     return v;
                 }
+            }
+        }
+
+        // Check for time
+        if(!time.equals("")){
+            if(nameSearch || facilitySearch || locationSearch || coordSearch){
+                query = query + String.format(" AND ");
+            }
+
+            query = query + String.format("Venue.VenueUUID = VenueOpeningTimes.VenueUUID AND '%s' >= VenueOpeningTimes.openHour " +
+                    "AND '%s' <= VenueOpeningTimes.closeHour", time, time);
+            timeSearch = true;
+        }
+
+        // Check for duration
+        if((!hours.equals("") || !minutes.equals("")) && timeSearch){
+            query = query + String.format(" AND ");
+
+            // Given time + duration <= venueOpeningTimes.closeHour
+            String[] parts = time.split(":");
+            int givenHours = Integer.parseInt(parts[0]);
+            int givenMinutes = Integer.parseInt(parts[1]);
+
+            int durationHours;
+            int durationMinutes;
+            try{
+                durationHours = Integer.parseInt(hours);
+            }catch(Exception e){
+                durationHours = 0;
+            }
+
+            try{
+                durationMinutes = Integer.parseInt(minutes);
+            }catch(Exception e){
+                durationMinutes = 0;
+            }
+
+            givenMinutes = givenMinutes + durationMinutes;
+            if (givenMinutes >= 60){
+                givenHours += 1;
+                givenMinutes -= 60;
+            }
+
+            givenHours = (givenHours + durationHours) % 24;
+
+            // Reconstruct String
+            String endTime = String.format("%d:%d", givenHours, givenMinutes);
+
+            query = query + String.format("VenueOpeningTimes.closeHour >= '%s'", endTime);
+            durationSearch = true;
+        }
+
+        // Check for day
+        if(!day.equals("") && timeSearch){
+            // Check day is more than 0 and less than 8
+            int d = Integer.parseInt(day);
+            if(d > 0 && d < 8) {
+                query = query + String.format(" AND ");
+
+                query = query + String.format("VenueOpeningTimes.DayOfWeek = '%s'", day);
+                daySearch = true;
             }
         }
 
@@ -314,6 +412,13 @@ public class VenueService {
         return null;
     }
 
+    public List<Venue> searchWithDate(String name, String unparsedFacilitiesList, String location, String longitude, String latitude,
+                              String radius, String time, String hours, String minutes, String date){
+        date = date.replaceAll(":", "-");
+        return this.search(name, unparsedFacilitiesList, location, longitude, latitude, radius, time, hours, minutes,
+                String.valueOf(venueTimesDAO.getDayFromDate(date)));
+    }
+
     public void removeFacility(Venue venue, String facility){
         // Remove facility from venue if its there
         int len1 = venue.numFacilities();
@@ -332,12 +437,92 @@ public class VenueService {
         }
     }
 
+    public String formatFacilitiesForSearch(String f){
+        String facilities = "[";
+        f = f.replaceAll(", ", ",");
+
+        List<String> facs = Arrays.asList(f.split(","));
+        Boolean added = false;
+
+        for(String fac : facs){
+            if(added) {
+                facilities = facilities + ",\"" + fac + "\"";
+            }else{
+                added = true;
+                facilities = facilities + "\"" + fac + "\"";
+            }
+        }
+        facilities = facilities + "]";
+        return facilities;
+    }
+
+    // Methods for external data
+    public List<ExternalVenue> externalVenueSearch(double longitude, double latitude, double kilometers){
+        // Form url
+        try {
+            // Required parameters
+            int radius = (int) Math.round(kilometers * 1000);
+
+            String requestUrl = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s" +
+                    "&location=%s&radius=%d", config.getGmapsKey(), String.format("%f,%f", latitude, longitude), radius);
+
+            Request request = new Request.Builder()
+                    .url(requestUrl)
+                    .build();
+
+            LOGGER.info("Google request: " + request.toString());
+
+            // Send request
+            OkHttpClient httpClient = new OkHttpClient();
+
+            List<ExternalVenue> venues = new ArrayList<>();
+
+            // Iterate over all 'next page' results
+            while(true) {
+                Response response = httpClient.newCall(request).execute();
+
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                // Parse response
+                Gson gson = new Gson();
+                JsonObject json = gson.fromJson(response.body().string(), JsonObject.class);
+                JsonArray results = json.get("results").getAsJsonArray();
+
+                for (JsonElement e : results) {
+                    venues.add(new ExternalVenue(e.getAsJsonObject().get("name").toString()));
+                }
+
+                // Check for next iteration
+                if(json.has("next_page_token")){
+                    // Iterate again
+                    String nextToken = json.get("next_page_token").toString();
+                    nextToken = nextToken.replaceAll("\"", "");
+                   requestUrl = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s" +
+                            "&pagetoken=%s", config.getGmapsKey(), nextToken);
+
+                    request = new Request.Builder()
+                            .url(requestUrl)
+                            .build();
+                }else{
+                    // We are done
+                    break;
+                }
+            }
+
+            return venues;
+        }catch(Exception e){
+            LOGGER.error("Error sending request: {}", e.getMessage());
+        }
+        return null;
+    }
+
     // Private methods
     private UUID generateUUID(String name, User user){
         long time = Instant.now().getEpochSecond();
         String strTime = Long.toString(time);
+        String strRandomNum = Double.toString(Math.floor(Math.random()*(1000000-561)+560));
 
-        String uuidData = name + user.getStringUUID() + "Venue" + user.getEmail() + user.getfName() + strTime;
+        String uuidData = name + user.getStringUUID() + "Venue" + user.getEmail() + user.getfName() + strTime + strRandomNum;
         UUID uuid = UUID.nameUUIDFromBytes(uuidData.getBytes());
         return uuid;
     }

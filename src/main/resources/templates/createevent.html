@@ -305,8 +305,10 @@
         ]);}
 </script>
 
-<script type="text/javascript"
-    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/bootstrap-clockpicker.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/clockpicker/0.0.7/bootstrap-clockpicker.min.css" rel="stylesheet"/>
     
 <head>
     <title>Lets Meet</title>
@@ -402,6 +404,8 @@
         // Day formatting for the generated HTML
         $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
         $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#startTime" + dateRowNo).clockpicker({ autoclose: true })});
+        $(function() {$("#endTime" + dateRowNo).clockpicker({ autoclose: true })});
 
         // Incrementing the counter
         dateRowNo++;
@@ -412,14 +416,14 @@
         '<input type="datetime" value=' + Today + ' class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes" value="09:00:00">' +
+        '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes" value="09:00:00" readonly>' +
         '</div>' +
         '<label>Until:</label>' +
         '<div class="col">' +
         '<input type="datetime" value=' + Today + ' class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
         '</div>' +
         '<div class="col">' +
-        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes" value="17:00:00">' +
+        '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes" value="17:00:00" readonly>' +
         '</div>' +
         '<p class="btn btn-light remove">Remove</p>' +
         '</div>');
@@ -433,6 +437,8 @@
         // Day formatting for pre-included HTML
         $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
         $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
+        $(function() {$("#startTime0").clockpicker({ autoclose: true })});
+        $(function() {$("#endTime0").clockpicker({ autoclose: true })});
             
         // Finding user's time zone
         var offset = new Date().getTimezoneOffset();
@@ -457,21 +463,21 @@
             
             <label>Event Times:</label>
                 <div class="row px-3">
-gfdg                   <div class="col list">
+                   <div class="col list">
                         <div class="row">
                             <label>From:</label>
                             <div class="col">
                                 <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes" value="09:00:00">
+                                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes" value="09:00:00" readonly>
                             </div>
                             <label>Until:</label>
                             <div class="col">
                                 <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
                             </div>
                             <div class="col">
-                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes" value="17:00:00">
+                                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes" value="17:00:00" readonly>
                             </div>
                             <p class="btn btn-light remove">Remove</p>
                         </div>

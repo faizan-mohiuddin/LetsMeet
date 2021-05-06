@@ -29,6 +29,7 @@ public class LetsMeetApplication implements CommandLineRunner{
 	public void run(String... args) throws Exception{
 		LOGGER.info("Using data folder: {}", config.getdataFolder());
 		LOGGER.info("Using database configuration: {} @ {} with user {}", config.getDatabaseName(),config.getDatabaseHost(),config.getDatabaseUser());
+		LOGGER.info("Hosting Application on: {}", config.getApplicationHost());
 	}
 
 }

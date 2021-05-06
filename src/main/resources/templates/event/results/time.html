@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Let's Meet: Home</title>
+
+</head>
+
+<body>
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
+
+    <!-- Page Content  -->
+    <div id="content">
+
+        <div th:insert="fragments/layout :: navbar"></div>
+
+    <div class="jumbotron">
+        <div class="container">
+            <h3 ><a th:href="@{/event/{eventUUID}/results(eventUUID = ${event.getUUID()})}" th:text="${event.name}" class="text-dark" style="text-decoration: none">Event Name</a></h3>
+            <h1><i class="bi bi-calendar-range"></i> Date and Time</h1>
+            
+        </div>
+    </div>
+    <div class="container">
+
+        <div th:include="fragments/common :: alerts"></div>
+        
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="card w-100 mt-2">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-funnel-fill"></i> Filter</h5>
+                            <label for="durationRange" class="form-label">Minimum Duration: <span id="durationValue" th:text="${param.duration}"></span></label>
+                            <input type="range" class="custom-range" min="5" max="2000" step="5" id="durationRange" th:value="${param.duration}">
+
+                            <label for="attendanceRange" class="form-label">Attendance Rate: <span class="mt-4" id="attendanceValue" th:text="${param.attendance}+'%'"></span></label>
+                            <input type="range" class="custom-range" min="0" max="100" step="10" id="attendanceRange" th:value="${param.attendance}">
+
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" id="requiredUsersCheck" th:checked="${#conversions.convert(param.requiredUsers,T(boolean))}">
+                                <label class="custom-control-label" for="requiredUsersCheck">VIPs Present</label>
+                            </div>
+
+                            <button class="btn btn-block btn-primary mt-2" style=" color: white !important;" id="filter_apply">Apply</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div th:each="date, iter : ${results.dates.gradedProperties}">
+                    <div class="card w-100 mt-2 bg-light" th:if="${(date.grade * 100 / (results.uniqueResponses + 1))>= #conversions.convert(param.attendance,T(int))}">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-sm-3">
+                                    <div class="row">
+                                        <div class="span4"><b>From:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text"
+                                                th:text="${date.property.start.getDayOfMonth()} +'/'+ ${date.property.start.getMonthValue()} +'/'+ ${date.property.start.getYear()} +' &nbsp; '+ ${date.property.start.getHour()}+':'+ ${date.property.start.getMinute()}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="row">
+                                        <div class="span4"><b>To:&nbsp; </b></div>
+                                        <div class="span8">
+                                            <p class="card-text"
+                                                th:text="${date.property.end.getDayOfMonth()} +'/'+ ${date.property.end.getMonthValue()} +'/'+ ${date.property.end.getYear()} +' @ '+ ${date.property.end.getHour()}+':'+ ${date.property.end.getMinute()}">
+                                            </p>
+                                        </div>
+                                    </div>
+        
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="row">
+                                        <div class="col"><i class="bi bi-stopwatch"></i></div>
+                                        
+                                        <p class="card-text" th:text="${date.property.getDuration().toHours()} + ':' + ${date.property.getDuration().toMinutesPart()}"></p>
+                                    </div>
+                                    
+        
+                                </div>
+                                <div class="col-sm-1">
+                                    <p class="card-text" th:text="${date.grade * 100 / (results.uniqueResponses + 1)} +'%'"></p>
+                                </div>
+                                <div class="col-sm-2">
+                                <form method="post" th:action="@{/event/{eventuuid}/results/time?timeIndex={index}(eventuuid = ${event.getUUID()}, index = ${iter.index})}">
+                                    <input class="btn btn-primary" type="submit" value="Select">
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card bg-light mt-2 w-100" th:if="${results.dates.gradedProperties.isEmpty()}">
+                    <div class="card-header"><i class="bi bi-exclamation-triangle"></i> No suitable dates</div>
+                    <div class="card-body">
+                      <p class="card-text">Widen your search and try again.</p>
+                    </div>
+                  </div>
+            </div>
+
+            
+        </div>
+    </div>
+        <div th:insert="footer :: footer"></div>
+    </div>
+    <div th:insert="fragments/layout :: footer"></div>
+</div>
+</body>
+
+<script th:inline="javascript">
+    $(document).ready(function () {
+        $('#filter_apply').click(function () {
+            var eventUUID = /*[[${event.UUID}]]*/5;
+            var duration = $('#durationRange').val();
+            var attendance = $('#attendanceRange').val();
+            var requiredUsers = $('#requiredUsersCheck').prop('checked');
+            //alert(eventUUID+"\n"+duration + "\n" + attendance + "\n" + requiredUsers);
+            window.open(`/event/${eventUUID}/results/time?duration=${duration}&attendance=${attendance}&requiredUsers=${requiredUsers}`, "_self");
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#durationRange').on('input', function () {
+            totalMinutes = $('#durationRange').val();
+            var h = Math.floor(totalMinutes / 60);
+            var m = totalMinutes % 60;
+            h = h < 10 ? '0' + h : h;
+            m = m < 10 ? '0' + m : m;
+            console.log(h,m);
+            $('#durationValue').text(h + ':' + m);
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#attendanceRange').on('input', function () {
+            v = $('#attendanceRange').val();
+            console.log(v);
+            $('#attendanceValue').text(v+'%');
+        });
+    });
+</script>
+
+</html>

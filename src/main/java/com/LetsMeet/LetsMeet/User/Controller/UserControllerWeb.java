@@ -1,15 +1,11 @@
 package com.LetsMeet.LetsMeet.User.Controller;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
 import com.LetsMeet.LetsMeet.Business.Model.Business;
 import com.LetsMeet.LetsMeet.Business.Service.BusinessService;
-import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
 import com.LetsMeet.LetsMeet.Event.Service.EventResponseService;
 import com.LetsMeet.LetsMeet.Event.Service.EventService;
 import com.LetsMeet.LetsMeet.User.Model.User;
@@ -19,12 +15,7 @@ import com.LetsMeet.LetsMeet.User.Service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -39,7 +30,7 @@ public class UserControllerWeb {
     ValidationService userValidation;
 
     @Autowired
-    EventService eventServiceInterface;
+    EventService eventService;
 
     @Autowired
     EventResponseService eventResponseService;
@@ -64,8 +55,9 @@ public class UserControllerWeb {
     }
 
 
-    @GetMapping("/createuser")
-    public String createuser(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    @GetMapping({"/createuser", "/register"})
+    public String createuser(Model model, HttpSession session, RedirectAttributes redirectAttributes,
+                             @RequestParam(value="email", defaultValue = "") String guestEmail) {
 
         User user = (User) session.getAttribute("userlogin");
 
@@ -73,11 +65,17 @@ public class UserControllerWeb {
 
             model.addAttribute("user", user);
 
+            if(!guestEmail.equals("")){
+                model.addAttribute("GivenGuestEmail", guestEmail);
+            }else{
+                model.addAttribute("GivenGuestEmail", null);
+            }
+
             return "createuser";
 
         } else {
 
-            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+            redirectAttributes.addFlashAttribute("info", "You are already logged in.");
 
             return "redirect:/Home";
 
@@ -97,7 +95,7 @@ public class UserControllerWeb {
         if (user == null) {
             if (!userServiceInterface.isValidRegister(userfirstname, userlastname, useremail, userpassword)) {
 
-                redirectAttributes.addFlashAttribute("registerFailed", "There was a problem registering this account.");
+                redirectAttributes.addFlashAttribute("danger", "There was a problem registering this account.");
 
                 return "redirect:/createuser";
 
@@ -108,15 +106,16 @@ public class UserControllerWeb {
                 model.addAttribute("useremail", useremail);
                 model.addAttribute("userpassword", userpassword);
 
-                userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
+                String response = userServiceInterface.createUser(userfirstname, userlastname, useremail, userpassword);
 
                 this.loginToSession(useremail, userpassword, model, session);
 
-                return "saveuser";
+                redirectAttributes.addFlashAttribute("notice", response);
+                return "redirect:/Home";
             }
         } else {
 
-            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+            redirectAttributes.addFlashAttribute("info", "You are already logged in.");
 
             return "redirect:/Home";
 
@@ -131,7 +130,7 @@ public class UserControllerWeb {
 
         if (user != null) {
 
-            redirectAttributes.addFlashAttribute("alreadyLoggedIn", "You are already logged in.");
+            redirectAttributes.addFlashAttribute("info", "You are already logged in.");
 
             return "redirect:/Home";
 
@@ -149,11 +148,11 @@ public class UserControllerWeb {
 
         if (user == null) {
 
-            redirectAttributes.addFlashAttribute("accessDenied", "You are not logged in.");
+            redirectAttributes.addFlashAttribute("warning", "You are not logged in.");
 
         } else {
 
-            redirectAttributes.addFlashAttribute("loggedout", "You have successfully logged out.");
+            redirectAttributes.addFlashAttribute("success", "You have successfully logged out.");
             session.setComplete();
 
         }
@@ -213,57 +212,41 @@ public class UserControllerWeb {
     public String dashboard(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
-
         if (user == null) {
-
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
-
             return "redirect:/Home";
-
-        } else {
-
-            model.addAttribute("user", user);
-
-            if (eventServiceInterface.getUserEvents(user).isEmpty()) {
-
-                Boolean noEvents = true;
-                model.addAttribute("noEvents", noEvents);
-
-            } else {
-
-                model.addAttribute("myEvents", eventServiceInterface.getUserEvents(user));
-
-
-                List<HashMap<String,Object>> responses= new ArrayList<>();
-                for (EventResponse o : eventResponseService.getResponses(user)){
-                    HashMap<String, Object> data = new HashMap<>();
-                    data.put("event", eventServiceInterface.getEvent(o.getEvent().toString()));
-                    data.put("response", o);
-                    responses.add(data);
-                }
-
-                model.addAttribute("responses", responses);
-
-            }
-            
-            // Get users businesses
-            Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());
-            model.addAttribute("businesses", businesses);
-            
-            return "dashboard";
-
         }
+
+
+
+       var events = eventService.getUserEvents(user);
+        model.addAttribute("events", events);
+
+        var responses = eventResponseService.getResponsesWithEvent(user);
+
+        int newResponses = 0;
+        for (var response : responses.keySet()){
+            if (!response.hasResponded()) newResponses++;
+            if (newResponses > 11) break;
+        }
+
+        model.addAttribute("newResponses", newResponses);
+        model.addAttribute("responses", responses);
+
+        return "dashboard";
     }
 
     @GetMapping("/deleteuser/{useruuid}")
-    public String deleteUser(@PathVariable("useruuid") String useruuid, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String deleteUser(@PathVariable("useruuid") String useruuid, Model model, RedirectAttributes redirectAttributes, HttpSession session,
+                             SessionStatus endSession) {
 
         User user = (User) session.getAttribute("userlogin");
 
         // User must be logged in and user must be admin in order to delete accounts.
         // TODO Re-do this function so that a user can delete their own account once a 'settings' page is created.
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+        // Check user has permission to delete this account
+        if (!(user != null && (user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db") || user.getUUID().toString().equals(useruuid)))) {
 
             redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to execute this action.");
 
@@ -271,13 +254,20 @@ public class UserControllerWeb {
 
         } else {
 
+            String destination;
+            if(user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")){
+                destination = "redirect:/adminviewallusers";
+            }else{
+                destination = "redirect:/Home";
+            }
+
             User userToDelete = userServiceInterface.getUserByUUID(useruuid);
 
             if (userToDelete == null) {
 
                 redirectAttributes.addFlashAttribute("danger", "There was an error finding the user.");
 
-                return "redirect:/adminviewallusers";
+                return destination;
 
             } else {
 
@@ -287,6 +277,9 @@ public class UserControllerWeb {
 
                     redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
 
+                    // Log out of session
+                    endSession.setComplete();
+
                 } else {
 
                     redirectAttributes.addFlashAttribute("danger", "There was an error deleting the user.");
@@ -295,7 +288,7 @@ public class UserControllerWeb {
 
             }
 
-            return "redirect:/adminviewallusers";
+            return destination;
 
         }
     }
@@ -309,7 +302,7 @@ public class UserControllerWeb {
         // TODO Re-do this function so that a user can edit their own account once a 'settings' page is created.
         // NB: editing only allows the user to edit their FName, LName and E-Mail. Will try password editing soon.
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+        if (!(user != null && (user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db") || user.getUUID().toString().equals(useruuid)))) {
 
             redirectAttributes.addFlashAttribute("accessDenied" ,"You do not have permission to view this page.");
 
@@ -330,11 +323,12 @@ public class UserControllerWeb {
                              @RequestParam(name = "userfirstname", defaultValue="") String firstName,
                              @RequestParam(name = "userlastname", defaultValue="") String lastName,
                              @RequestParam(name = "useremail", defaultValue="") String email,
+                             @RequestParam(name = "userpassword", defaultValue="") String pw,
                              HttpSession session, RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("userlogin");
 
-        if (user == null || !user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+        if(!(user != null && (user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db") || user.getUUID().toString().equals(useruuid)))) {
 
             redirectAttributes.addFlashAttribute("accessDenied" ,"You do not have permission to view this page.");
 
@@ -352,19 +346,24 @@ public class UserControllerWeb {
 
                 User userToUpdate = userServiceInterface.getUserByUUID(useruuid);
 
-                String tryUpdateUser = userServiceInterface.updateUser(userToUpdate, firstName, lastName, email);
+                String tryUpdateUser = userServiceInterface.updateUser(userToUpdate, firstName, lastName, email, pw, user.getIsGuest());
 
-                if (tryUpdateUser.equals("User successfully updated.")) {
+                if (tryUpdateUser.equals("User successfully updated")) {
 
                     redirectAttributes.addFlashAttribute("success", "User successfully updated.");
 
                 } else {
 
-                    redirectAttributes.addFlashAttribute("danger", "Something went wrong when editing the user!");
+                    redirectAttributes.addFlashAttribute("danger", tryUpdateUser);
 
                 }
 
-                return "redirect:/adminviewallusers";
+                // Check if admin or user
+                if(user.getUUID().toString().equals("48f9f376-0dc0-38e4-bae9-f4e50f5f73db")) {
+                    return "redirect:/adminviewallusers";
+                }else{
+                    return "redirect:/myaccount";
+                }
 
             }
 
@@ -372,4 +371,56 @@ public class UserControllerWeb {
 
     }
 
+    @GetMapping("/myaccount")
+    public String MyAccountPage(Model model, RedirectAttributes redirectAttributes, HttpSession session){
+        // Check user is logged in
+        User user = (User) session.getAttribute("userlogin");
+
+        if(user == null){
+            return "redirect:/404";
+        }
+        model.addAttribute("user", user);
+
+        // Delete account URL
+        String deletePath = String.format("/deleteuser/%s", user.getUUID().toString());
+        model.addAttribute("deletePath", deletePath);
+
+        // Edit account URL
+        String updatePath = String.format("/edituser/%s", user.getUUID().toString());
+        model.addAttribute("editPath", updatePath);
+
+        // Businesses
+        Collection<Business> businesses = businessService.getUserBusinesses(user.getUUID().toString());
+        model.addAttribute("businesses", businesses);
+
+        return "User/MyAccount";
+    }
+
+    @GetMapping("/ourtechnology")
+    public String ourTechPage(HttpSession session, Model model) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        model.addAttribute("user", user);
+
+        return "ourtechnology";
+
+    }
+
+    @GetMapping("/aboutus")
+    public String aboutUsPage(HttpSession session, Model model) {
+
+        User user = (User) session.getAttribute("userlogin");
+
+        model.addAttribute("user", user);
+
+        return "aboutus";
+
+    }
+
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
+    }
 }

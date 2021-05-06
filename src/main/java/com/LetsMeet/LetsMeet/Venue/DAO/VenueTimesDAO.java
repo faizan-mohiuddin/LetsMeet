@@ -1,5 +1,7 @@
 package com.LetsMeet.LetsMeet.Venue.DAO;
 
+import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
+import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAO;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 import com.LetsMeet.LetsMeet.Utilities.DBConnector;
@@ -21,6 +23,9 @@ import java.util.*;
 public class VenueTimesDAO implements DAO<VenueOpenTimes> {
     @Autowired
     DBConnector database;
+
+    @Autowired
+    ConnectionService connectionService;
 
     private static final Logger LOGGER= LoggerFactory.getLogger(VenueTimesDAO.class);
 
@@ -95,4 +100,18 @@ public class VenueTimesDAO implements DAO<VenueOpenTimes> {
         return null;
     }
 
+    public int getDayFromDate(String date){
+        // date = yyyy-MM-DD
+        try{
+            DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement();
+            String query = String.format("SELECT DAYOFWEEK('%s')", date);
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            return rs.getInt(1);
+        }catch(Exception e){
+            e.printStackTrace();
+            return 8;
+        }
+    }
 }

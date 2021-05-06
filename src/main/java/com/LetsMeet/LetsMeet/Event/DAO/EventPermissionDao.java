@@ -8,6 +8,9 @@ package com.LetsMeet.LetsMeet.Event.DAO;
 
 //-----------------------------------------------------------------
 
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 import java.sql.PreparedStatement;
@@ -15,11 +18,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventPermission;
+import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
 import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 
+import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +82,36 @@ public class EventPermissionDao implements DAOconjugate<EventPermission> {
         catch(Exception e){
             LOGGER.error("Failed to get EventPermission: {} ", e.getMessage());
             return Optional.empty();
+        }
+    }
+
+    public Map<EventPermission, Event> getWithEvent(UUID anyUUID) throws IOException {
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement()){
+
+            String query = String.format("select * from HasUsers INNER JOIN Event ON HasUsers.EventUUID = Event.EventUUID where Event.EventUUID='%s' OR HasUsers.UserUUID='%s'", anyUUID, anyUUID);
+            ResultSet rs = statement.executeQuery(query);
+
+            Map<EventPermission, Event> records = new HashMap<>();
+
+            while(rs.next()){
+                Event event = new Event(
+                        UUID.fromString(rs.getString("EventUUID")),
+                        rs.getString("Name"),
+                        rs.getString("Description"),
+                        rs.getString("Location"),
+                        new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
+                        EventDao.readSerialised(rs.getBytes("EventProperties")),
+                        new Gson().fromJson(rs.getString("Poll"), Poll.class));
+
+                EventPermission perm = new EventPermission(rs.getString("EventUUID"), rs.getString("UserUUID"), rs.getBoolean("IsOwner"));
+
+                records.put(perm,event);
+            }
+            return records;
+        }
+        catch(Exception e){
+            throw new IOException(e.getMessage());
         }
     }
 

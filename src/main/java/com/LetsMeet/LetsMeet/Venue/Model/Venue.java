@@ -15,6 +15,7 @@ public class Venue {
     double longitude;
     double latitude;
     VenueOpenTimes openTimes = new VenueOpenTimes();
+    String currentTemperature = null;
 
     public Venue(UUID uuid, String name){
         this.venueUUID = uuid;
@@ -105,7 +106,7 @@ public class Venue {
                 }
             } catch (Exception e) {
                 System.out.println("Venue : Init(String, String, String)");
-                System.out.println(e);
+                System.out.println(facilities);
                 e.printStackTrace();
             }
         }
@@ -198,6 +199,10 @@ public class Venue {
         }
     }
 
+    public Boolean getCoords(){
+        return this.coords;
+    }
+
     public void removeFacility(String facility){
         this.facilities.remove(facility);
     }
@@ -215,5 +220,13 @@ public class Venue {
             return true;
         }
         return false;
+    }
+
+    public void setCurrentTemperature(String t){
+        this.currentTemperature = t;
+    }
+
+    public String getCurrentTemperature(){
+        return this.currentTemperature;
     }
 }

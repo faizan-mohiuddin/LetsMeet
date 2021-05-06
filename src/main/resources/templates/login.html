@@ -1,29 +1,44 @@
 <!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
 <div th:include="fragments/js :: jquery"></div>
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Lets Meet</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+
+    <title>Let's Meet: Login</title>
+
 </head>
 
 <body>
+    <div class="container">
+        <div th:insert="fragments/layout :: sidebar"></div>
 
-    <div th:insert = "header :: navbar"></div>
+        <!-- Page Content  -->
+        <div id="content">
 
-    <div class = "jumbotron">
-        <div class = "container">
-            <h1>Login</h1>
+            <div th:insert="fragments/layout :: navbar"></div>
+
+            <div class="jumbotron">
+                <div class="container">
+                    <h1>Login</h1>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+                <div th:insert="fragments/auth :: login"></div>
+            </div>
+
+            <div th:insert="footer :: footer"></div>
+
         </div>
-    </div>
 
-    <div class = "container">
-        <div class = "alert alert-danger" th:text = "${error}" th:if = "${error}"></div>
-        <div th:insert="fragments/auth :: login"></div>
     </div>
-    
-    <div th:insert = "footer :: footer"></div>
+    <div th:insert="fragments/layout :: footer"></div>
 </body>
 
 </html>

@@ -17,13 +17,20 @@ public class EventTimeSolver {
     
     private List<GradedProperty<DateTimeRange>> solution;
     private List<EventResponse> responses;
+    private List<DateTimeRange> dateTimeRanges;
 
     public EventTimeSolver(Event event, List<EventResponse> responses){
         this.responses = responses;
+        this.dateTimeRanges= new ArrayList<>();
         this.solution = new ArrayList<>();
+
+        for (EventResponse respons : responses) {
+            dateTimeRanges.addAll(respons.getEventProperties().getTimes());
+        }
 
         // Prepare base solution. Take the event times and set optimality to 0 (no users can attend)
         for (DateTimeRange o : event.getEventProperties().getTimes()){
+            dateTimeRanges.add(o);
             solution.add(new GradedProperty<DateTimeRange>(o, 0));
         }
     }
@@ -34,20 +41,19 @@ public class EventTimeSolver {
 
     public List<GradedProperty<DateTimeRange>> solve(long minDurationMins){
         Duration minDuration = Duration.ofMinutes(minDurationMins);
-        //TODO sort solution list first from early to late
+
+        //sort solution list first from early to late
+        dateTimeRanges.sort(null);
 
         // move through each response and find intersection of times
-        for (EventResponse response : this.responses){
-            
-            for (DateTimeRange range : response.getEventProperties().getTimes()){
+        for (DateTimeRange range : dateTimeRanges){
 
-                int start = splitRange(range.getStart(),true);   // Attempt split at start
-                int end = splitRange(range.getEnd(),false);   // Attempt split at end
-                
-                for (int i = start; i < end; i++){          // Increment optimality of each OptimalityRange until end of range
-                    if (solution.get(i).getProperty().getDuration().compareTo(minDuration) < 0) continue; //TODO remove element
-                    solution.get(i).grade++;
-                }
+            int start = splitRange(range.getStart(),true);   // Attempt split at start
+            int end = splitRange(range.getEnd(),false);   // Attempt split at end
+
+            for (int i = start; i < end; i++){          // Increment optimality of each OptimalityRange until end of range
+                if (solution.get(i).getProperty().getDuration().compareTo(minDuration) < 0) continue; //TODO remove element
+                solution.get(i).grade++;
             }
         }
         return this.solution;

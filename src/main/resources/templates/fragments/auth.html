@@ -10,16 +10,18 @@
         <form th:action="@{/login}" method="POST">
 
             <div class="form-group">
-                <label for="eventname">E-mail: </label>
-                <input type="text" class="form-control" name="loginemail" placeholder="E-mail...">
+                <label for="loginemail"><span th:text="#{user.email}"></span> </label>
+
+                <input type="text" class="form-control" name="loginemail" th:placeholder="#{user.email}+'...'">
+
             </div>
 
             <div class="form-group">
-                <label for="eventdesc">Password: </label>
-                <input type="password" class="form-control" name="loginpassword" placeholder="Password...">
+                <label for="eventdesc"><span th:text="#{user.password}"></span> </label>
+                <input type="password" class="form-control" name="loginpassword" th:placeholder="#{user.password}+'...'">
             </div>
 
-            <button type="submit" class="btn btn-primary">Log In</button>
+            <button type="submit" class="btn btn-primary"><span th:text="#{user.login}"></span></button>
         </form>
     </div>
 </body>

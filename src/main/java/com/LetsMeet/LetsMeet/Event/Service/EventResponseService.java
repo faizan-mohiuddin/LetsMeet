@@ -7,12 +7,13 @@
 package com.LetsMeet.LetsMeet.Event.Service;
 
 //-----------------------------------------------------------------
+import com.LetsMeet.LetsMeet.Event.Model.DTO.ResponseDTO;
+import com.LetsMeet.LetsMeet.Event.Model.Properties.Location;
+import com.LetsMeet.LetsMeet.Event.Poll.PollService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import com.LetsMeet.LetsMeet.Event.DAO.EventResponseDao;
 import com.LetsMeet.LetsMeet.Event.Model.Event;
@@ -36,6 +37,9 @@ public class EventResponseService {
     @Autowired
     EventResponseDao dao;
 
+    @Autowired
+    PollService pollService;
+
     // Logger
     private static final Logger LOGGER=LoggerFactory.getLogger(EventResponseService.class);
 
@@ -54,14 +58,45 @@ public class EventResponseService {
         
     }
 
+    public boolean update(EventResponse response){
+        try{
+            return dao.update(response);
+        }
+        catch (Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public boolean update(EventResponse response, ResponseDTO responseDTO){
+        try{
+            // Update location
+            response.getEventProperties().setLocation( new Location(
+                    responseDTO.getLocation(),
+                    responseDTO.getLatitude(),
+                    responseDTO.getLongitude(),
+                    responseDTO.getRadius()
+            ));
+
+            // Update times
+            List<DateTimeRange> times = new ArrayList<>();
+            for (var time : responseDTO.getTimes())
+                times.add(DateTimeRange.fromJson(time));
+
+            response.getEventProperties().setTimes(times);
+
+            // Update facilities
+            response.getEventProperties().setFacilities(responseDTO.getFacilities());
+
+            return update(response);
+        }
+        catch (Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
     public Boolean deleteResponse(User user, Event event) throws IllegalArgumentException{
         try{
             EventResponse response = dao.get(event.getUUID(), user.getUUID()).orElseThrow();
-            
-            if (response.getRequired() == true){
-                LOGGER.debug("Can't delete response between User <{}> and Event <{}> : It is marked as required. Attempting to clear contents instead.",user.getUUID(), event.getUUID());
-                return this.clearResponse(user, event);
-            }
 
             return dao.delete(response);
 
@@ -108,6 +143,15 @@ public class EventResponseService {
     public List<EventResponse> getResponses(User user){
         try{
             return dao.get(user.getUUID()).get();
+        }
+        catch(Exception e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
+
+    public Map<EventResponse, Event> getResponsesWithEvent(User user){
+        try{
+            return dao.getWithEvent(user.getUUID());
         }
         catch(Exception e){
             throw new IllegalArgumentException(e.getMessage());

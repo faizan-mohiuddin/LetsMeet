@@ -125,8 +125,12 @@ public class VenueControllerAPI {
                                        @RequestParam(value="location", defaultValue = "") String location,
                                        @RequestParam(value="longitdue", defaultValue = "") String longitude,
                                        @RequestParam(value="latitude", defaultValue = "") String latitude,
-                                       @RequestParam(value="radius", defaultValue = "") String radius){
-        return venueService.search(name, unparsedFacilitiesList, location, longitude, latitude, radius);
+                                       @RequestParam(value="radius", defaultValue = "") String radius,
+                                       @RequestParam(value="time", defaultValue = "") String time,
+                                       @RequestParam(value="hours", defaultValue = "") String hours,
+                                       @RequestParam(value="minutes", defaultValue = "") String minutes,
+                                       @RequestParam(value="DaySelect", defaultValue = "") String day){
+        return venueService.search(name, venueService.formatFacilitiesForSearch(unparsedFacilitiesList), location, longitude, latitude, radius, time, hours, minutes, day);
     }
 
     @GetMapping ("api/Venue/Search/Radius")

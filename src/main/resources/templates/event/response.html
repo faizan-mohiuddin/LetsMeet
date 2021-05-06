@@ -4,472 +4,205 @@
 <div th:include="fragments/js :: bootstrap"></div>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-<style type="text/css">
-  /* Always set the map height explicitly to define the size of the div
-   * element that contains the map. */
-  #map {
-    height: 100%;
-  }
-
-  /* Optional: Makes the sample page fill the window. */
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
-  #description {
-    font-family: Roboto;
-    font-size: 15px;
-    font-weight: 300;
-  }
-
-  #infowindow-content .title {
-    font-weight: bold;
-  }
-
-  #infowindow-content {
-    display: none;
-  }
-
-  #map #infowindow-content {
-    display: inline;
-  }
-
-  .pac-card {
-    margin: 10px 10px 0 0;
-    border-radius: 2px 0 0 2px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    outline: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    background-color: #fff;
-    font-family: Roboto;
-  }
-
-  #pac-container {
-    padding-bottom: 12px;
-    margin-right: 12px;
-  }
-
-  .pac-controls {
-    display: inline-block;
-    padding: 5px 11px;
-  }
-
-  .pac-controls label {
-    font-family: Roboto;
-    font-size: 13px;
-    font-weight: 300;
-  }
-
-
-  #pac-input:focus {
-    border-color: #4d90fe;
-  }
-
-  #title {
-    color: #fff;
-    background-color: #4d90fe;
-    font-size: 25px;
-    font-weight: 500;
-    padding: 6px 12px;
-  }
-
-  #target {
-    width: 345px;
-  }
-</style>
-
-<script>
-  // This example requires the Places library. Include the libraries=places
-  // parameter when you first load the API. For example:
-  // <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&libraries=places">
-  function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-      center: { lat: 55.3781, lng: -2.4360 },
-      zoom: 5,
-      streetViewControl: false,
-      mapTypeControl: false,
-    });
-    const card = document.getElementById("pac-card");
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
-    const center = { lat: 50.064192, lng: -130.605469 };
-    // Create a bounding box with sides ~10km away from the center point
-    const defaultBounds = {
-      north: center.lat + 0.1,
-      south: center.lat - 0.1,
-      east: center.lng + 0.1,
-      west: center.lng - 0.1,
-    };
-    const input = document.getElementById("pac-input");
-    const options = {
-      bounds: defaultBounds,
-      componentRestrictions: { country: "uk" },
-      fields: ["address_components", "geometry", "icon", "name"],
-      origin: center,
-      strictBounds: false,
-      types: ["establishment"],
-    };
-    const autocomplete = new google.maps.places.Autocomplete(
-            input,
-            options
-    );
-    // Set initial restriction to the greater list of countries.
-    autocomplete.setComponentRestrictions({
-      country: ["uk", "pr", "vi", "gu", "mp"],
-    });
-    const southwest = { lat: 5.6108, lng: 136.589326 };
-    const northeast = { lat: 61.179287, lng: 2.64325 };
-    const newBounds = new google.maps.LatLngBounds(southwest, northeast);
-    autocomplete.setBounds(newBounds);
-    const infowindow = new google.maps.InfoWindow();
-    const infowindowContent = document.getElementById("infowindow-content");
-    infowindow.setContent(infowindowContent);
-    const marker = new google.maps.Marker({
-      map,
-      anchorPoint: new google.maps.Point(0, -29),
-    });
-    autocomplete.addListener("place_changed", () => {
-      infowindow.close();
-      marker.setVisible(false);
-      const place = autocomplete.getPlace();
-
-      document.getElementById('thelat').value = place.geometry.location.lat();
-      document.getElementById('thelong').value = place.geometry.location.lng();
-
-      if (!place.geometry || !place.geometry.location) {
-        // User entered the name of a Place that was not suggested and
-        // pressed the Enter key, or the Place Details request failed.
-        window.alert(
-                "No details available for input: '" + place.name + "'"
-        );
-        return;
-      }
-
-      // If the place has a geometry, then present it on a map.
-      if (place.geometry.viewport) {
-        map.fitBounds(place.geometry.viewport);
-      } else {
-        map.setCenter(place.geometry.location);
-        map.setZoom(17); // Why 17? Because it looks good.
-      }
-      marker.setPosition(place.geometry.location);
-      marker.setVisible(true);
-      let address = "";
-
-      if (place.address_components) {
-        address = [
-          (place.address_components[0] &&
-                  place.address_components[0].short_name) ||
-          "",
-          (place.address_components[1] &&
-                  place.address_components[1].short_name) ||
-          "",
-          (place.address_components[2] &&
-                  place.address_components[2].short_name) ||
-          "",
-        ].join(" ");
-      }
-      infowindowContent.children["place-icon"].src = place.icon;
-      infowindowContent.children["place-name"].textContent = place.name;
-      infowindowContent.children["place-address"].textContent = address;
-      infowindow.open(map, marker);
-    });
-
-    // Sets a listener on a given radio button. The radio buttons specify
-    // the countries used to restrict the autocomplete search.
-    function setupClickListener(id, countries) {
-      const radioButton = document.getElementById(id);
-      radioButton.addEventListener("click", () => {
-        autocomplete.setComponentRestrictions({ country: countries });
-      });
-    }
-    setupClickListener("changecountry-usa", "uk");
-    setupClickListener("changecountry-usa-and-uot", [
-      "uk",
-      "pr",
-      "vi",
-      "gu",
-      "mp",
-    ]);}
-</script>
-
-<script type="text/javascript"
-  src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-
-<script>
-  $(function () {
-    $('.datepicker').datepicker({
-      format: 'mm-dd-yyyy'
-    });
-  });
-</script>
-
 <head>
-  <title>Lets Meet</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Let's Meet: New Meet</title>
+
 </head>
 
 <body>
+<div class="container">
+    <div th:insert="fragments/layout :: sidebar"></div>
 
-  <div th:insert="header :: navbar"></div>
+    <!-- Page Content  -->
+    <div id="content">
 
-  <div class="jumbotron">
-    <div class="container">
-      <h1>Response</h1>
-      <p><span th:text="${event.name}"></span></p>
-      <p><span th:text="${event.description}"></span></p>
+        <div th:insert="fragments/layout :: navbar"></div>
+
+        <div class="jumbotron">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-1"><h1 class="bi" th:classappend="${icon}"></h1></div>
+                    <div class="col"><h1 th:text="${title}">Event Name</h1></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <div class="container">
+
+                <!-- ALERTS -->
+                <div th:include="fragments/common :: alerts"></div>
+
+                <!-- EVENT FORM -->
+                <form method="POST" enctype="multipart/form-data" id="eventDTO" th:action="${onSubmit}" th:method="PUT">
+                    <div class="form-group" th:if="${user.isGuest}">
+                        <label for="guestNameInput">Hello guest, who are you?</label>
+                        <input type="text" class="form-control" id="guestNameInput" name="guestName" aria-describedby="guestNameInputHelp" placeholder="Enter name">
+                        <small id="guestNameInputHelp" class="form-text text-muted">Enter something here to help the organiser know who you are.</small>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="location" th:value="${response.location}" id = "theLocation"/>
+                        <input type="hidden" name="latitude" th:value="${response.latitude}" id = "thelat"/>
+                        <input type="hidden" name="longitude" th:value="${response.longitude}" id = "thelong"/>
+                        <input type="hidden" name="radius" th:value="${response.radius}" id = "myRange2"/>
+                        <!-- LOCATION PICKER -->
+                        <div class="card">
+                            <div class="card-header">
+                                Location
+                                <div class="custom-control custom-checkbox" style="vertical-align: top; float: right;">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                    <label class="custom-control-label" for="customCheck1">Enabled</label>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Where are you?</h5>
+                                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            </div>
+                            <div th:include = "event/fragments :: mapsFragment"></div>
+                        </div><br/>
+
+
+                        <!-- DATE AND TIMES -->
+                        <div class="card">
+                            <div class="card-header" style="vertical-align: top;">
+                                Dates and Times
+                                <div class="custom-control custom-checkbox" style="vertical-align: auto; float: right;">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                    <label class="custom-control-label" for="customCheck1">Enabled</label>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">When are you available?</h5>
+                                <p class="card-text">Double click on a date to select it. Click and drag to select multiple.</p>
+                                <!-- DATE PICKER -->
+                                <div class="row">
+                                    <div th:each="date : ${eventDates}">
+                                        <input class="lm-enabled-dates" type="hidden" name="enabledDates" th:value="${date}"/>
+                                    </div>
+                                    <div th:each="date : ${selectedDates}">
+                                        <input class="lm-selected-dates" type="hidden" name="selectedDates" th:value="${date}"/>
+                                    </div>
+                                    <div class="col-sm-5">
+
+                                        <div th:include="event/fragments_time :: main"></div>
+                                    </div>
+                                    <!-- DATE LIST -->
+                                    <div class="col" id="timeRangeList">
+                                        <div th:each="time : ${times}">
+                                            <div class="card w-100 mt-2 bg-light">
+                                                <div class="card-body">
+                                                    <input hidden type="text" name="times" th:value='${time.toJson()}'/>
+                                                    <div class="row align-items-center">
+                                                        <div class="col-sm-4">
+                                                            <div class="row">
+                                                                <div class="span4"><b>From:&nbsp; </b></div>
+                                                                <div class="span8">
+                                                                    <p class="card-text" th:text="${time.getStart().toString()}"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <h4 style="text-align: center;"><i class="bi bi-arrow-right"></i></h4>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="row">
+                                                                <div class="span4"><b>To:&nbsp; </b></div>
+                                                                <div class="span8">
+                                                                    <p class="card-text" th:text="${time.getEnd().toString()}"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-1">
+                                                            <button type="button" id="hiya" class="btn btn-light myButton" onclick="$(this).closest('div.card').fadeOut('fast',function(){$(this).closest('div.card').remove();});"><i class="bi bi-x"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><br/>
+                    </div>
+                        <!-- POLL CREATOR -->
+                        <div class="card">
+                            <div class="card-header">
+                                Polls
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- DATE LIST -->
+                                    <div class="container" id="pollListResponse">
+                                        <div th:include="event/fragments :: poll_responder(${polls})"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><br/>
+
+                    <!-- Workaround for zealous Spring WebMvcConfigurerAdapter Formatter on single value inputs-->
+                    <input type="hidden" name="times" value="null"/>
+                    <input type="hidden" name="pollResponse" value="null"/>
+                    <input type="hidden" name="facilities" value="null"/>
+                    <input type="hidden" name="properties" value="null"/>
+
+
+                    <input class="btn btn-primary btn-block mt-2" type="submit" value="Submit" id="btnSubmit"/>
+
+                </form>
+            </div>
+
+
+            <div th:insert="footer :: footer"></div>
+        </div>
+        <div th:insert="fragments/layout :: footer"></div>
     </div>
-  </div>
+</div>
 
 
-  <div class="container">
-    <div th:include="fragments/common :: alerts"></div>
-    <form th:action="@{/event/{eventuuid}/response(eventuuid = ${event.getUUID()})}" enctype="multipart/form-data" th:method="POST" id="createForm" name="createForm">
+     <!-- SCRIPTS -->
 
-      <div class="form-group">
-        <label for="eventdesc">When are you available?</label>
-        <div class="row px-3">
+     <script>
+        // Image upload filename text
+        $(".custom-file-input").on("change", function() {
+          var fileName = $(this).val().split("\\").pop();
+          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
 
-
-          <div class="col list" th:if="${response == null}">
-            <div class="row">
-              <label>From:</label>
-              <div class="col">
-                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" id="startDay0" readonly>
-              </div>
-              <div class="col">
-                <input type="time" class="form-control" step="1" id="startTime0" name="startTimes">
-              </div>
-              <label>Until:</label>
-              <div class="col">
-                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" id="endDay0" readonly>
-              </div>
-              <div class="col">
-                <input type="time" class="form-control" step="1" id="endTime0" name="endTimes">
-              </div>
-              <p class="btn btn-light remove">Remove</p>
-            </div>
-          </div>
-
-          <div class="col list" th:unless="${response == null}">
-            <div class="row" th:each="t : ${times}">
-              <label>From:</label>
-              <div class="col">
-                <input type="datetime" class="form-control" name="startDays" placeholder="dd-mm-yyyy" th:id="${t[4]}"
-                       th:value="${t[0]}" readonly>
-              </div>
-              <div class="col">
-                <input type="time" class="form-control" step="1" th:id="${t[5]}" name="startTimes" th:value="${t[1]}">
-              </div>
-
-              <label>Until:</label>
-              <div class="col">
-                <input type="datetime" class="form-control" name="endDays" placeholder="dd-mm-yyyy" th:id="${t[6]}"
-                       th:value="${t[2]}" readonly>
-              </div>
-              <div class="col">
-                <input type="time" class="form-control" step="1" th:id="${t[7]}" name="endTimes" th:value="${t[3]}">
-              </div>
-              <p class="btn btn-light remove">Remove</p>
-            </div>
-          </div>
-
-        </div>
-
-        <p class="btn btn-light add" id="add">Add</p>
-        <input type="hidden" name="jsonTimes" id="jsonTimes" value="">
-        <input type="hidden" name="rows" id="rows" th:value="${numtimes}">
-      </div>
-
-      <div class="form-group">
-        <label for="eventdesc">Where would you like to meet? </label>
-
-        <div id = "pac-container">
-
-          <input type="text" class="form-control" name="responselocation" id="pac-input" placeholder="Search for location...">
-
-        </div>
-
-        <div id="map" style="clear:both; height:400px;"></div>
-
-        <input type = "hidden" name = "thelat" id = "thelat"/>
-        <input type="hidden" name="thelong" id="thelong"/>
-
-        <script
-                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=places&v=weekly"
-                async
-        ></script>
-        <!--
-        TODO Change above input to this commented code once Event model is updated to store lat and long
-        <input type = "hidden" name = "thelat" id = "thelat" th:value = "${event.getLocationLatitude()}">
-        <input type = "hidden" name = "thelong" id = "thelong" th:value = "${event.getLocationLongitude()}">
-        -->
-
-      </div>
-
-      <div class="form-group">
-        <label for="eventdesc">What facilities should the venue have? </label>
-        <div class="container" id="facilities">
-
-          <div class="row align-items-start" th:if="${facilities == null}">
-
-            <div class="col">
-              <input type="text" class="form-control" name="responsefacilities"
-                     placeholder="Facility Tag...">
-            </div>
-
-            <div class="col">
-              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
-            </div>
-          </div>
-
-          <div class="row align-items-start" th:unless="${facilities == null}" th:each="f : ${facilities}">
-
-            <div class="col">
-              <input type="text" class="form-control" name="responsefacilities"
-                     placeholder="Facility Tag..." th:value="${f}">
-            </div>
-
-            <div class="col">
-              <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>
-            </div>
-          </div>
-
-
-
-          <div class="col">
-            <button type="button" class="append" id="append">Add More Facilities</button>
-          </div>
-
-        </div>
-      </div>
-
-      <script>
-        function JSONFormatting() {
-          var eventDates = [];
-          dateRowNo = document.createForm.rows.value;
-          for (i=0; i<dateRowNo+1; i++) {
-            if (document.getElementById('startDay'+i) !== null) {
-              var startDay = document.getElementById('startDay'+i).value;
-              var startTime = document.getElementById('startTime'+i).value;
-              var endDay = document.getElementById('endDay'+i).value;
-              var endTime = document.getElementById('endTime'+i).value;
-              const startDate = startDay + 'T' + startTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
-              const endDate = endDay + 'T' + endTime + plusMinusTimeZone + HoursTimeZone + ":" + MinutesTimeZone;
-              let dateEntry = new Map()
-              dateEntry['start'] = startDate;
-              dateEntry['end'] = endDate;
-              eventDates.push(dateEntry);
-              console.log(eventDates);
+<script>
+    $(document).ready(function () {
+        $('.poll-option-checkbox').click(function () {
+            // Check if selection is valid
+            let selection = $(this).attr("id");
+            let inputObj = $(this).closest("div.poll-responder").find("input[name='pollResponse']").val();
+            let multiSelect = $(this).closest("div.poll-responder").find("input[name='pollMultiSelect']").val();
+            //console.log(selection);
+            let selected = JSON.parse(inputObj);
+            //alert("Selected: " + this.id);
+            console.log(selected);
+            //console.log(multiSelect);
+            if (multiSelect === "false" && selected[0] !== null){
+                //console.log($(this).closest("div.poll-responder").find(`input[type="checkbox"]`).attr(""));
+                //alert("Replacing: " + selected[0]);
+                //$(this).closest("div.poll-responder").find(`input[id=${selected[0]}]`).find('span').addClass('checked');
+                $(this).closest("div.poll-responder").find(`input[id=${selected[0]}]`).prop('checked', false);
+                selected = [];
             }
-          }
-          document.createForm.jsonTimes.value = JSON.stringify(eventDates);
-          document.forms["createForm"].submit();
-        }
-      </script>
-
-      <script>
-        // Counter for the rows
-        var dateRowNo = 0;
-        $(document).ready(function(){
-          $('.add').click(function(){
-            // Read dateRowNo
-            dateRowNo = document.createForm.rows.value;
-
-            // Day formatting for the generated HTML
-            $(function() {$("#startDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
-            $(function() {$("#endDay" + dateRowNo).datepicker({ format: 'yyyy-mm-dd' })});
-
-            // Incrementing the counter
-            dateRowNo++;
-            $(".list").append(
-                    '<div class="row">' +
-                    '<label>From:</label>' +
-                    '<div class="col">' +
-                    '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="startDays" id="startDay' + dateRowNo + '" readonly>' +
-                    '</div>' +
-                    '<div class="col">' +
-                    '<input type="time" class="form-control" step="1" id="startTime' + dateRowNo + '" name="startTimes">' +
-                    '</div>' +
-                    '<label>Until:</label>' +
-                    '<div class="col">' +
-                    '<input type="datetime" class="form-control" placeholder="dd-mm-yyyy" name="endDays" id="endDay' + dateRowNo + '" readonly>' +
-                    '</div>' +
-                    '<div class="col">' +
-                    '<input type="time" class="form-control" step="1" id="endTime' + dateRowNo + '" name="endTimes">' +
-                    '</div>' +
-                    '<p class="btn btn-light remove">Remove</p>' +
-                    '</div>');
-
-            // Write dateRowNo
-            document.createForm.rows.value = dateRowNo;
-          });
-
-          $(".list").on('click', '.remove', function(){
-            $(this).parent().remove();
-          });
+            if (selected.includes(selection)){return;}
+            selected.push(selection);
+            //console.log(selected);
+            $(this).closest("div.poll-responder").find("input[name='pollResponse']").val(JSON.stringify(selected));
+            //console.log(JSON.parse(inputObj));
+            //alert("changed");
+            // Update or create poll response
         });
+    });
+</script>
 
-        // Day formatting for pre-included HTML
-        $(function() {$("#startDay0").datepicker({ format: 'yyyy-mm-dd' })});
-        $(function() {$("#endDay0").datepicker({ format: 'yyyy-mm-dd' })});
-
-        // Finding user's time zone
-        var offset = new Date().getTimezoneOffset();
-
-        var plusMinusTimeZone = "";
-        if (offset > 0){
-          plusMinusTimeZone = "-";
-        }else{
-          plusMinusTimeZone = "+";
-        }
-
-        HoursTimeZone = Math.floor(Math.abs(offset)/60).toString();
-        if (HoursTimeZone.length < 2){
-          HoursTimeZone = "0" + HoursTimeZone;
-        }
-
-        MinutesTimeZone = Math.abs(offset%60).toString();
-        if (MinutesTimeZone.length < 2){
-          MinutesTimeZone = "0" + MinutesTimeZone;
-        }
-      </script>
-
-      <script>
-        $(document).on('click', '.append', function(){
-          var html = '<div class="row align-items-start">\n' +
-                  '                    <div class="col">\n' +
-                  '                        <input type="text" class="form-control" name="responsefacilities"\n' +
-                  '                               placeholder="Facility Tag...">\n' +
-                  '                    </div>\n' +
-                  '\n' +
-                  '                    <div class="col">\n' +
-                  '                        <button type="button" class="btn btn-light" id="remove" onclick="remove(this)">Remove</button>\n' +
-                  '                    </div>\n' +
-                  '                </div>';
-          $(html).insertBefore(".append");
-
-        });
-      </script>
-
-      <script>
-        function remove(el){
-          var myobj = el.parentElement.parentElement;
-          myobj.remove();
-        }
-      </script>
-
-      <button onclick="JSONFormatting()" class="btn btn-primary">Create</button>
-      <p>You are responding as <span th:text="${user.fName} + ' ' + ${user.lName}"></span></p>
-    </form>
-  </div>
-
-  <div th:insert="footer :: footer"></div>
 
 </body>
-
-</html>

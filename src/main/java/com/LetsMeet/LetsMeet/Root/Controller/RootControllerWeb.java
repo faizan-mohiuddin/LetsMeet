@@ -43,4 +43,10 @@ public class RootControllerWeb {
 
         return "root/searchResults";
     }
+
+    // Error catching
+    @ExceptionHandler(Exception.class)
+    public String handleException(){
+        return "redirect:/405";
+    }
 }

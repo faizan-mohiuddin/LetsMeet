@@ -8,15 +8,23 @@ package com.LetsMeet.LetsMeet.Utilities;
 
 //-----------------------------------------------------------------
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.*;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.InetAddress;
 
 //-----------------------------------------------------------------
 
 @ConfigurationProperties(prefix="lm.config")
 @Component
 public class LetsMeetConfiguration {
-    
+
+    @Autowired
+    Environment environment;
+
     private String databaseHost;
     private String databaseName;
     private String databaseUser;
@@ -25,6 +33,8 @@ public class LetsMeetConfiguration {
     private int connectionTarget;
 
     private String dataFolder;
+    private String GmapsKey;
+    private String openweatherApiKey;
 
     //-----------------------------------------------------------------
 
@@ -50,10 +60,25 @@ public class LetsMeetConfiguration {
     public void setdataFolder(String x){ dataFolder = x;}
     public String getdataFolder(){return dataFolder;}
 
+    public void setGmapsKey(String x){GmapsKey = x;}
+    public String getGmapsKey(){return GmapsKey;}
 
+    public void setopenweatherApiKey(String x){openweatherApiKey = x;}
+    public String getopenweatherApiKey(){return openweatherApiKey;}
 
+    public String getApplicationHost(){
+        try {
+            String port = environment.getProperty("local.server.port");
+            String address;
+            if(port != null) {
+                address = InetAddress.getLoopbackAddress().getHostName() + ":" + port;
+            }else{
+                address = InetAddress.getLoopbackAddress().getHostName();
+            }
+            return address;
+        }catch (Exception e){
 
-
-
-
+        }
+        return null;
+    }
 }

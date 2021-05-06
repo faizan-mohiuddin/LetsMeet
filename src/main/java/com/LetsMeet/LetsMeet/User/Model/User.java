@@ -11,6 +11,7 @@ public class User {
     String passwordHash;
     String salt;
     Boolean isAdmin = false;
+    Boolean isGuest = false;
 
     public User(UUID UUID, String fName, String lName, String email, String passwordHash, String salt){
         this.UUID = UUID;
@@ -29,6 +30,17 @@ public class User {
         this.salt = salt;
         this.passwordHash = passwordHash;
         this.isAdmin = isAdmin;
+    }
+
+    public User(UUID UUID, String fName, String lName, String email, String passwordHash, String salt, Boolean isAdmin, Boolean isGuest){
+        this.UUID = UUID;
+        this.fName = fName;
+        this.lName = lName;
+        this.email = email;
+        this.salt = salt;
+        this.passwordHash = passwordHash;
+        this.isAdmin = isAdmin;
+        this.isGuest = isGuest;
     }
 
     public User(String uuid){
@@ -67,6 +79,21 @@ public class User {
 
     public void setIsAdmin(Boolean b) { this.isAdmin = b; }
 
+    public Boolean getIsGuest(){
+        return this.isGuest;
+    }
+
+    public int getIsGuestInt(){
+        if(this.isGuest){
+            return 1;
+        }
+        return 0;
+    }
+
+    public void setIsGuest(Boolean b){
+        this.isGuest = b;
+    }
+
     public String getStringUUID(){
         return this.UUID.toString();
     }
@@ -94,6 +121,10 @@ public class User {
         }
     }
 
+    public void switchIsGuestStatus(boolean b){
+        this.isGuest = b;
+    }
+
     public void prepareUpdate(){
         // Store password hash and salt in object
         if(this.passwordHash == null){
@@ -103,5 +134,21 @@ public class User {
         if(this.salt == null){
 
         }
+    }
+
+    public void setfName(String fname){
+        this.fName = fname;
+    }
+
+    public void setlName(String lName){
+        this.lName = lName;
+    }
+
+    public void setPWHash(String hash){
+        this.passwordHash = hash;
+    }
+
+    public void setSalt(String salt){
+        this.salt = salt;
     }
 }

@@ -80,7 +80,10 @@ public class EventDao implements DAO<Event> {
             return event;
 
         }catch(SQLException e){
-            
+
+            if (e.getSQLState().contains("S1000"))
+                return Optional.empty();
+        
             throw new IOException(e.getMessage());
         }
     }
@@ -216,11 +219,12 @@ public class EventDao implements DAO<Event> {
             return true;
 
         }catch(SQLException e){
-            throw new IOException(e.getMessage());
+            LOGGER.error(e.getMessage());
+            return false;
         }
     }
 
-    private EventProperties readSerialised(byte[] buf){
+    public static EventProperties readSerialised(byte[] buf){
         try{
             ObjectInputStream objectIn = null;
 

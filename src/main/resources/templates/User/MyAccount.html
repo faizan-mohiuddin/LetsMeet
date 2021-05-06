@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+<div th:include="fragments/js :: jquery"></div>
+<div th:include="fragments/js :: bootstrap"></div>
+
+
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Lets Meet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<div th:insert="fragments/layout :: sidebar"></div>
+<div th:insert="fragments/layout :: navbar"></div>
+
+<div class="jumbotron">
+    <div class="container">
+        <h1 th:text="'Hello '+ ${user?.fName}"></h1>
+        <h5>Welcome to your Let's Meet account.</h5>
+    </div>
+</div>
+
+<div class="container">
+
+    <div th:insert="fragments/common :: alerts"></div>
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header"><span> Personal details <a class = "btn btn-outline-primary float-right" th:href="${editPath}"><i class="bi bi-pen-fill"></i> <span th:text="#{core.common.edit}"></span></a></span></h5>
+
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <th scope="row"><span th:text="#{user.email}"></span></th>
+                                <td><span th:text="${user?.email}"></span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><span th:text="#{user.name}"></span></th>
+                                <td><span th:text="${user?.fName} + ' ' + ${user?.lName}"></span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><span th:text="#{core.letsmeet.id}"></span></th>
+                                <td><span th:text="${user.getUUID().toString()}"></span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card border-danger text-dark mt-3">
+                    <div class="card-header bg-danger text-white lm-egg-dangerZone"><span th:text="#{user.account.dangerZone}"></span></div>
+                    <div class="card-body">
+                        <a class="btn btn-outline-danger btn-block" th:href="${deletePath}" role="button"><span th:text="#{user.account.delete}"></span></a>
+                        <p class="card-text text-center mt-2"><span th:text="#{user.account.delete.warning}"></span></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header">Registered Businesses<a class = "btn btn-outline-primary float-right" href="/business/new"><i class="bi bi-plus"></i> <span th:text="#{core.common.new}"></span></a></h5>
+                    <div class="card-body">
+                        <div th:each="b : ${businesses}">
+                            <div class="card">
+                                <div class="card-body">
+                                    <span th:text = "${b.getName()}"></span>
+                                    <a class = "btn btn-primary float-right" th:href = "@{/Business/{businessID}(businessID = ${b.getUUID()})}">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+</div>
+
+</div>
+<div th:insert="footer :: footer"></div>
+<div th:insert="fragments/layout :: footer"></div>
+
+</body>
+</html>

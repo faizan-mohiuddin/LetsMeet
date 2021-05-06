@@ -41,6 +41,10 @@ public class Event {
         this(uuid, name, desc, location, new EntityProperties(), eventProperties, new Poll());
     }
 
+    public Event(String name){
+        this(UUID.randomUUID(), name, "", "", EventProperties.getEmpty());
+    }
+
     public UUID getUUID(){
         return this.uuid;
     }

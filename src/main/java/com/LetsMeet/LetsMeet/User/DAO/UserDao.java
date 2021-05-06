@@ -56,7 +56,7 @@ public class UserDao implements DAO<User> {
 
             rs.next();
             Optional<User> user = Optional.of( new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-            rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7)));
+            rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7), rs.getBoolean(8)));
             return user;
 
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class UserDao implements DAO<User> {
 
             rs.next();
             User user = new User(UUID.fromString(rs.getString(1)), rs.getString(2), rs.getString(3),
-                    rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7));
+                    rs.getString(4), rs.getString(5), rs.getString(6), rs.getBoolean(7), rs.getBoolean(8));
 
             
             return Optional.ofNullable(user);
@@ -97,8 +97,6 @@ public class UserDao implements DAO<User> {
             Statement statement = connector.getConnection().createStatement();){
             
             ResultSet rs = statement.executeQuery("select * from User");
-
-            
 
             List<User> users = new ArrayList<>();
 
@@ -118,19 +116,19 @@ public class UserDao implements DAO<User> {
     //-----------------------------------------------------------------
     @Override
     public Boolean save(User t)  {
-        
 
         try(DatabaseConnector connector = connectionService.get();
-            PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO User (UserUUID, fName, lName, email, PasswordHash, salt) VALUES (?,?,?,?,?,?)")) {
+            PreparedStatement statement = connector.getConnection().prepareStatement("INSERT INTO User (UserUUID, " +
+                    "fName, lName, email, PasswordHash, salt, isAdmin, isGuest) VALUES (?,?,?,?,?,?,?,?)")) {
             statement.setString(1, t.getUUID().toString());
             statement.setString(2, t.getfName());
             statement.setString(3, t.getlName());
             statement.setString(4, t.getEmail());
             statement.setString(5, t.getPasswordHash());
             statement.setString(6, t.getSalt());
+            statement.setBoolean(7, t.getIsAdmin());
+            statement.setBoolean(8, t.getIsGuest());
             int rows = statement.executeUpdate();
-
-            
 
             if (rows > 0) {
                 return true;
@@ -153,10 +151,10 @@ public class UserDao implements DAO<User> {
         try(DatabaseConnector connector = connectionService.get();
             Statement statement = connector.getConnection().createStatement();){
 
-            String query = String.format("UPDATE User SET fName = '%s', lName = '%s', email = '%s', PasswordHash = '%s', salt = '%s' WHERE UserUUID = '%s'", t.getfName(), t.getlName(), t.getEmail(), t.getPasswordHash(), t.getSalt(), t.getUUID().toString());
+            String query = String.format("UPDATE User SET fName = '%s', lName = '%s', email = '%s', PasswordHash = '%s', " +
+                    "salt = '%s', isGuest = '%d' WHERE UserUUID = '%s'", t.getfName(), t.getlName(), t.getEmail(),
+                    t.getPasswordHash(), t.getSalt(), t.getIsGuestInt(), t.getUUID().toString());
             statement.executeUpdate(query);
-
-            
 
             return true;
 

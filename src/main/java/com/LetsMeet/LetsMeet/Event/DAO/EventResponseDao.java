@@ -10,23 +10,24 @@ package com.LetsMeet.LetsMeet.Event.DAO;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.PreparedStatement;
 
-import java.util.Optional;
-import java.util.UUID;
-
+import com.LetsMeet.LetsMeet.Event.Model.Event;
 import com.LetsMeet.LetsMeet.Event.Model.EventProperties;
 import com.LetsMeet.LetsMeet.Event.Model.EventResponse;
+import com.LetsMeet.LetsMeet.Event.Model.Poll;
 import com.LetsMeet.LetsMeet.Root.Database.ConnectionService;
 import com.LetsMeet.LetsMeet.Root.Database.Model.DatabaseConnector;
 import com.LetsMeet.LetsMeet.Utilities.DAOconjugate;
 
+import com.LetsMeet.LetsMeet.Utilities.Model.EntityProperties;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +94,40 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
         }
     }
 
+    public Map<EventResponse, Event> getWithEvent(UUID anyUUID) throws IOException{
+        try(DatabaseConnector connector = connectionService.get();
+            Statement statement = connector.getConnection().createStatement()){
+
+            String query = String.format("select * from EventResponse INNER JOIN Event ON EventResponse.EventUUID = Event.EventUUID where EventResponse.EventUUID = '%s' OR EventResponse.UserUUID = '%s'", anyUUID, anyUUID);
+            ResultSet rs = statement.executeQuery(query);
+
+            Map<EventResponse, Event> records = new HashMap<>();
+
+            while(rs.next()){
+                Event event = new Event(
+                        UUID.fromString(rs.getString("EventUUID")),
+                        rs.getString("Name"),
+                        rs.getString("Description"),
+                        rs.getString("Location"),
+                        new Gson().fromJson(rs.getString("EntityProperties"), EntityProperties.class),
+                        readSerialised(rs.getBytes("EventProperties")),
+                        new Gson().fromJson(rs.getString("Poll"), Poll.class));
+
+                EventResponse response = new EventResponse(
+                        UUID.fromString(rs.getString("EventUUID")),
+                        UUID.fromString(rs.getString("UserUUID")),
+                        readSerialised(rs.getBytes("EventProperties")),
+                        rs.getBoolean("Required"));
+
+                records.put(response,event);
+            }
+            return records;
+        }
+        catch(Exception e){
+            throw new IOException(e.getMessage());
+        }
+    }
+
     @Override
     public Optional<Collection<EventResponse>> getAll() {
         LOGGER.warn("getAll() is not implemented.");
@@ -139,7 +174,7 @@ public class EventResponseDao implements DAOconjugate<EventResponse> {
             if(statement.executeUpdate() > 0)return true;
             else throw new IOException("No data written" + statement.getWarnings().getErrorCode());
 
-        }catch(SQLException e){
+        }catch(SQLException e) {
             throw new IOException(e.getMessage());
         }
     }
