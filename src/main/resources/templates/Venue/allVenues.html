@@ -12,7 +12,151 @@
     <title>Let's Meet: Home</title>
 
 </head>
-
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<style type="text/css">
+    #map {
+        height: 100%;
+    }
+    #infowindow-content .title {
+        font-weight: bold;
+    }
+    #infowindow-content {
+        display: none;
+    }
+    #map #infowindow-content {
+        display: inline;
+    }
+    #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+    }
+    .pac-controls label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+    }
+    #pac-input:focus {
+        border-color: #4d90fe;
+    }
+</style>
+<input type="hidden" name="latitude" id="thelat"/>
+<input type="hidden" name="longitude" id="thelong"/>
+<script>
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 55.3781, lng: -2.4360 },
+            zoom: 5,
+            streetViewControl: false,
+            mapTypeControl: false,
+        });
+        const card = document.getElementById("pac-card");
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+        const center = { lat: 50.064192, lng: -130.605469 };
+        const defaultBounds = {
+            north: center.lat + 0.1,
+            south: center.lat - 0.1,
+            east: center.lng + 0.1,
+            west: center.lng - 0.1,
+        };
+        const input = document.getElementById("pac-input");
+        const options = {
+            bounds: defaultBounds,
+            componentRestrictions: { country: "uk" },
+            fields: ["address_components", "geometry", "icon", "name"],
+            origin: center,
+            strictBounds: false,
+            types: ["establishment"],
+        };
+        const autocomplete = new google.maps.places.Autocomplete(
+            input,
+            options
+        );
+        // Set initial restriction to the greater list of countries.
+        autocomplete.setComponentRestrictions({
+            country: ["uk", "pr", "vi", "gu", "mp"],
+        });
+        const southwest = { lat: 5.6108, lng: 136.589326 };
+        const northeast = { lat: 61.179287, lng: 2.64325 };
+        const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+        autocomplete.setBounds(newBounds);
+        const infowindow = new google.maps.InfoWindow();
+        const infowindowContent = document.getElementById("infowindow-content");
+        infowindow.setContent(infowindowContent);
+        let marker = new google.maps.Marker({
+            map,
+            anchorPoint: new google.maps.Point(0, -29),
+        });
+        autocomplete.addListener("place_changed", () => {
+            infowindow.close();
+            marker.setVisible(false);
+            const place = autocomplete.getPlace();
+            document.getElementById('thelat').value = place.geometry.location.lat();
+            document.getElementById('thelong').value = place.geometry.location.lng();
+            console.log("Lat: " + document.getElementById('thelat').value + " Long: " + document.getElementById('thelong').value )
+            if (!place.geometry || !place.geometry.location) {
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                window.alert(
+                    "No details available for input: '" + place.name + "'"
+                );
+                return;
+            }
+            // If the place has a geometry, then present it on a map.
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(17); // Why 17? Because it looks good.
+            }
+            marker.setPosition(place.geometry.location);
+            marker.setVisible(true);
+            let address = "";
+            if (place.address_components) {
+                address = [
+                    (place.address_components[0] &&
+                        place.address_components[0].short_name) ||
+                    "",
+                    (place.address_components[1] &&
+                        place.address_components[1].short_name) ||
+                    "",
+                    (place.address_components[2] &&
+                        place.address_components[2].short_name) ||
+                    "",
+                ].join(" ");
+            }
+        });
+        var geocoder = new google.maps.Geocoder();
+        function placeMarker(location) {
+            if (marker == null)
+            {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+            else
+            {
+                marker.setPosition(location);
+            }
+        }
+        google.maps.event.addListener(map, 'click', function(event) {
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        document.getElementById("pac-input").value = results[0].formatted_address;
+                        placeMarker(event.latLng);
+                        map.panTo(event.latLng);
+                        document.getElementById('thelat').value = results[0].geometry.location.lat();
+                        document.getElementById('thelong').value = results[0].geometry.location.lng();
+                        console.log("Lat: " + results[0].geometry.location.lat() + " Long: " + results[0].geometry.location.lng() )
+                    }
+                }
+            });
+        }
+        );}
+</script>
 <body>
 <div class="container">
     <div th:insert="fragments/layout :: sidebar"></div>
@@ -25,7 +169,10 @@
 <div class="jumbotron">
     <div class="container">
         <h1>Venues Advanced Search</h1>
+        <hr>
     </div>
+
+    <div class = "container">
 
     <form th:action="@{/Venues}" enctype="multipart/form-data" th:method="GET">
         <div class="form-group">
@@ -41,6 +188,9 @@
             <p>Separate different facilities by a comma (,)</p>
         </div>
 
+        <h3>Location</h3>
+        <hr>
+
         <div class="form-group">
             <div class="row">
                 <div class="col-3">
@@ -53,10 +203,49 @@
                 </div>
 
                 <div class="col-8">
-                    <div th:include="event/fragments :: mapsFragment"></div>
+                    <div class = "container">
+                        <div class="form-group">
+                            <label for="eventlocation">Event Location:</label>
+                            <div id="pac-container">
+                                <input id="pac-input" class = "form-control" type="text" name = "location" placeholder="Enter a location" />
+                            </div>
+                        </div>
+                        <div id="map" style="clear:both; height:400px;"></div>
+                        <div id="infowindow-content">
+                            <img src="" width="16" height="16" id="place-icon" />
+                            <span id="place-name" class="title"></span><br />
+                            <span id="place-address"></span>
+                        </div>
+                        <div class = "form-group">
+                            <div class = "container">
+                                <label for = "myRange">Radius (km): </label>
+                                <input type = "range" name = "radius" id = "myRange" style = "width: 75%;" step = "0.25" value = "1">
+                                <span id = "demo"></span>
+                            </div>
+                        </div>
+
+                        <script>
+
+                            var slider = document.getElementById("myRange");
+                            var output = document.getElementById("demo");
+                            output.innerHTML = slider.value;
+
+
+                            slider.oninput = function() {
+                                output.innerHTML = this.value;
+                            }
+
+                        </script>
+                    <script
+                            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMn74scKbtj08l2F7jN0c-Dv2gbTp4Mrs&callback=initMap&libraries=places&v=weekly"
+                            async
+                    ></script>
                 </div>
             </div>
         </div>
+
+        <h3>Date/Time</h3>
+        <hr>
 
         <div class="form-group">
             <div class="row">
@@ -64,23 +253,26 @@
                     <label for="time">When must the Venue be open?:</label>
                     <input type="time" class="form-control" step="1" id="time" name="time">
                 </div>
-
+                <div style="border-left:1px solid #d1d4d7;height:250px"></div>
                 <div class="col">
                     <label>How long must the Venue be open for?</label>
                     <div class="col">
-                        <label for="hours">Hours:</label>
-                        <input type="number" id="hours" name="hours" min="0">
+                        <div class = "row">
+                            <label for="hours">Hours:</label>
+                            <input type="number" id="hours" name="hours" min="0" class="form-control">
+                        </div>
                     </div>
                     <div class="col">
-                        <label for="minutes">Minutes:</label>
-                        <input type="number" id="minutes" name="minutes" min="0" max="59">
+                        <div class = "row">
+                            <label for="minutes">Minutes:</label>
+                            <input type="number" id="minutes" name="minutes" min="0" max="59" class="form-control">
+                        </div>
                     </div>
                 </div>
-
+                <div style="border-left:1px solid #d1d4d7;height:250px"></div>
                 <div class="col">
-                    <div class="row">
                     <label  for="day">Which day are you planning on visiting?</label>
-                    <select class="DaySelect" id="DaySelect" name="DaySelect">
+                    <select class="form-control" id="DaySelect" name="DaySelect">
                         <option selected value="">Choose Day</option>
                         <option value="2">Monday</option>
                         <option value="3">Tuesday</option>
@@ -90,36 +282,46 @@
                         <option value="7">Saturday</option>
                         <option value="1">Sunday</option>
                     </select>
-                    </div>
 
-                    <div class="row mt-2">
-                        <label  for="date">Or, tell is when you are planning to attend.</label>
-                        <input type="datetime" class="form-control" name="date" placeholder="dd-mm-yyyy" id="date">
-                        <script>
-                            $(function() {$("#date").datepicker({ format: 'yyyy-mm-dd' })});
+                    <label  for="date">Or, tell us when you are planning to attend:</label>
+                    <input type="datetime" class="form-control" name="date" placeholder="dd-mm-yyyy" id="date">
+                    <script>
+                        $(function() {$("#date").datepicker({ format: 'yyyy-mm-dd' })});
 
-                            $(function () {
-                                $('.datepicker').datepicker({
-                                    format: 'mm-dd-yyyy'
-                                });
+                        $(function () {
+                            $('.datepicker').datepicker({
+                                format: 'mm-dd-yyyy'
                             });
-                        </script>
-                        <script type="text/javascript"
-                                src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js">
+                        });
+                    </script>
+                    <script type="text/javascript"
+                            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js">
 
-                        </script>
-                    </div>
+                    </script>
                 </div>
 
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Search</button>
-        <a th:href="@{/Venues}" class="btn btn-primary">Reset</a>
+        <div class = "row">
+
+            <div class = "col-lg-2">
+                <a th:href="@{/Venues}" class="btn btn-danger btn-block">Reset</a>
+            </div>
+
+            <div class = "col-lg-10">
+                <button type="submit" class="btn btn-primary btn-block">Search</button>
+            </div>
+
+        </div>
+
     </form>
+    </div>
 </div>
 
 <div class="container">
+    <h1>Search Results</h1>
+    <hr>
     <a style="color:black; text-decoration: none; background-color: transparent;" th:each = "v : ${venues}" th:href="@{/Venue/{venueID}(venueID = ${v.getUUID()})}">
         <div class="card">
             <div class="card-body">

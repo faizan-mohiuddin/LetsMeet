@@ -39,7 +39,7 @@ public class BusinessControllerWeb {
         User user = (User) session.getAttribute("userlogin");
 
         if (user == null) {
-            redirectAttributes.addFlashAttribute("accessDenied", "You do not have permission to view this page.");
+            redirectAttributes.addFlashAttribute("danger", "You do not have permission to view this page.");
             return "redirect:/Home";
         }
 
