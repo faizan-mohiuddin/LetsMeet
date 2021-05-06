@@ -1,6 +1,7 @@
 # Let's Meet
 
 [![Let's Meet: demo video](http://img.youtube.com/vi/dVIA8e39oGY/0.jpg)](http://www.youtube.com/watch?v=dVIA8e39oGY "Let's Meet")
+Click to watch a video introduction to Let's Meet on YouTube.
 
 ## Installation
 
