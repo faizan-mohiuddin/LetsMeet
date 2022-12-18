@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.LetsMeet</groupId>
 	<artifactId>LetsMeet</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-RELEASE</version>
 	<name>LetsMeet</name>
 	<description>LetsMeet project for Software Engineering</description>
 

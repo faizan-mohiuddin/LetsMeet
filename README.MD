@@ -1,4 +1,72 @@
 # Let's Meet
+*Collaborative Meeting Organiser*
+
+Click to watch a video introduction to Let's Meet on YouTube:
+
+[![Let's Meet: demo video](http://img.youtube.com/vi/dVIA8e39oGY/0.jpg)](http://www.youtube.com/watch?v=dVIA8e39oGY "Let's Meet")
+
+
+## Installation
+
+### Requirements
+
+LetMeet Server has been tested on RHEL, Ubuntu Server 18.01 LTS and Windows 10.
+
+- Java JDK 11+
+- MySQL
+
+### Building and Installation
+
+#### Database Setup
+
+A mySQL Database is required and should be initialised using the included SQL script – &quot;data/database-schema.sql&quot;
+
+LetsMeet requires SELECT, INSERT, UPDATE and DELETE permissions. It is strongly recommended to create a dedicated user for the LetsMeet application and its database with only these privileges granted.
+
+#### Building the LetsMeet Server
+
+LetsMeet can be built from source with ease using the included apache maven wrapper. To ensure version consistency across deployments, we recommend using the included maven wrapper rather than your own local installation although both are valid. The former shall be demonstrated here.
+
+Prerequisites to launching LetsMeet are having Java installed and having Maven installed.
+
+**Running on Linux**
+
+To install Java (Linux):
+
+1. `$ sudo apt update`
+2. `$ java -version` (LetsMeet requires Java version 11+)
+3. `$ sudo apt install`  **default-jre**
+4. After JRE is installed, run `$ sudo apt install default-jdk` (to install JDK)
+5. `$ java -version` and `$ javac -version` to check if both were installed
+
+To install Maven (Linux):
+
+ `$ sudo apt install maven`
+
+If the error &quot;waiting for cache lock: Could not get lock \&lt;some file path\&gt;&quot; is encountered at any point, stop the process and then run the command `$ sudo rm \&lt;some file path\&gt;` then continue or follow the instructions given [here](https://unix.stackexchange.com/questions/374748/ubuntu-update-error-waiting-for-unattended-upgr-to-exit).
+
+To build LetsMeet simply run: `$ mvn install all` or `mvnw install all` if you wish to use the included maven wrapper. 
+
+If the above command yields an error, try: `$ mvn clean install` or `$ mvnw clean install`
+
+This will download all required dependencies, run tests, and build LetsMeet as a JAR within the /target folder. It is possible to skip tests by appending **DSkipTests** to the installation command.
+
+In order to successfully start the LetsMeet server you will need to insert an application.properties file to the LetsMeet/src/resourses folder
+
+If the build is successful, you can run LetsMeet:
+
+`$ Java -jar \path-to-your-generated-jar\`
+
+To run the application run the command: `$ mvn spring-boot:run` which should run the website after a small while. Finally, open your browser and navigate to `localhost:8080/Home` to view the website.
+
+Gracefully shutting down the server in the terminal can be done with Ctrl + C.
+
+**Running on Windows**
+
+1. Ensure that Java and its components (JDK, JRE, etc.) are installed and configured properly on your PC.
+2. In your terminal, navigate to the LetsMeet directory (/LetsMeet) where the src, libs, etc folders and where the mvnw, pom, etc files are located.
+3. Run the command `mvnw clean install`. Once that has completed run the command `mvnw spring-boot:run` to launch the application.
+4. After a small while, the application should be running. Then, on your browser, head to `localhost:8080/Home` to view the website.
 
 ## Architecture
 
