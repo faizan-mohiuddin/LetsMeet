@@ -4,9 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# Application properties depend on system
-/src/**/application.properties
-
 ### STS ###
 .apt_generated
 .classpath

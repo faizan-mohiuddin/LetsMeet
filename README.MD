@@ -8,6 +8,14 @@ Click to watch a video introduction to Let's Meet on YouTube:
 
 ## Installation
 
+### **New!** Docker
+Requires Docker to be installed with docker compose. 
+To run locally use:
+
+ ```$ docker compose up```
+
+This will setup an instance of letsmeet on `localhost:8090` with database, and phpmyadmin on `localhost:8080`.
+
 ### Requirements
 
 LetMeet Server has been tested on RHEL, Ubuntu Server 18.01 LTS and Windows 10.

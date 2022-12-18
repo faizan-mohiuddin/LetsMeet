@@ -1,0 +1,32 @@
+version: "3.4"
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: example
+      MARIADB_USER: letsmeet
+      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: letsmeet
+    volumes:
+      - ./data:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+
+  letsmeet: 
+    image: letsmeet/letsmeet
+    build: .
+    environment:
+     LETSMEET_DB_USER: letsmeet
+     LETSMEET_DB_NAME: letsmeet
+     LETSMEET_DB_PASS: password
+     LETSMEET_DB_HOST: jdbc:mysql://db:3306
+    ports:
+      - 8090:8080
+  
